@@ -1,0 +1,98 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      2756,         89]
+NotebookOptionsPosition[      2444,         73]
+NotebookOutlinePosition[      2786,         88]
+CellTagsIndexPosition[      2743,         85]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"Caveat", ":", " ", 
+     RowBox[{"Circle", " ", "is", " ", "invariant", " ", "to", " ", 
+      RowBox[{"rotational", "/", "mirroring"}], " ", "transforms"}]}], ",", 
+    " ", 
+    RowBox[{
+    "which", " ", "does", " ", "not", " ", "hold", " ", "for", " ", "other", 
+     " ", "objects"}], ",", " ", 
+    RowBox[{
+    "which", " ", "may", " ", "point", " ", "in", " ", "oppposite", " ", 
+     "directions", " ", 
+     RowBox[{"(", 
+      RowBox[{"for", " ", "mirroring", " ", "transforms"}], ")"}]}]}], " ", 
+   "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"Graphics", "[", 
+   RowBox[{"GeometricTransformation", "[", 
+    RowBox[{
+     RowBox[{"Circle", "[", "]"}], ",", 
+     RowBox[{"AffineTransform", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"1.41", ",", 
+            RowBox[{"-", "0.707"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"-", "0.707"}], ",", "0.707"}], "}"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0"}], "}"}]}], "}"}], "]"}]}], "]"}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.753609248512834*^9, 3.753609248514834*^9}, 
+   3.753609328146389*^9, {3.7536094317493143`*^9, 3.753609481549163*^9}, {
+   3.753613187780081*^9, 3.7536132002747955`*^9}, {3.7536132365728717`*^9, 
+   3.753613267910664*^9}, {3.7536137794319215`*^9, 3.753613781372032*^9}, {
+   3.7536139247742343`*^9, 3.753614011610201*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[
+  GeometricTransformationBox[
+   CircleBox[{0, 0}], {{{1.41, -0.707}, {-0.707, 0.707}}, {0., 
+    0.}}]]], "Output",
+ CellChangeTimes->{3.7536094831712556`*^9, 3.753613201204849*^9, 
+  3.753613237502925*^9, 3.7536132689377227`*^9, 3.7536137821850786`*^9, 
+  3.7536140125032525`*^9}]
+}, Open  ]]
+},
+WindowSize->{767, 738},
+WindowMargins->{{Automatic, 21}, {-16, Automatic}},
+FrontEndVersion->"10.0 for Microsoft Windows (64-bit) (July 1, 2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 1535, 39, 112, "Input"],
+Cell[2118, 63, 310, 7, 281, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

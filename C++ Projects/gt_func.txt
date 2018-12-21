@@ -1,0 +1,11 @@
+%% test_funcs %%
+
+cosine-lobe: "cos[theta]"
+star-shaped lobe: "0.7 + 0.3*cos[4*theta]"
+cloverleaf: "Abs[0.3 Sin[2 \[Theta]]] + 0.2 Abs[Cos[2 \[Theta]]] + 0.7"
+flower: "Abs[0.5 Sin[2 \[Theta]]] + 0.5 Abs[Cos[2 \[Theta]]] + 0.7"
+bacteria: "Abs[0.2 Sin[2 \[Theta]]] + 0.2 Abs[Cos[2 \[Theta]]] + 
+  0.1 Abs[Cos[4 \[Theta]]] + 0.7"
+box (window approx): "0.4 (Abs[Sin[\[Theta]]] + Abs[Cos[\[Theta]]]) + 
+ 0.1 Abs[Sin[2 \[Theta]]] - 0.1 Abs[Sin[4 \[Theta]]] + 0.6" 
+teensie: "Cos[\[Theta]] + Sin[3 \[Theta]]"

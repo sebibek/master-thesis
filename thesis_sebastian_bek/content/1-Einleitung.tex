@@ -1,0 +1,175 @@
+\chapter{Einleitung}
+\label{chap:ein}
+
+%Sebastian
+Diese Arbeit befasst sich mit der algorithmischen Detektion und Messung von Bewegungs- und Gruppierungsmustern von Personen, wobei Trajektorien (Pfade) als Grundlage für die darauf aufsetzende Dichte- und Flussschätzung verwendet werden. Besonders intensiv werden dabei die Personenzählung (in Personen/Bildausschnitt), die Berechnung einer mittleren Strömung (in Personen/Frame) und die Ableitung eines Dichtefaktors (in \% einer Maximaldichte) in einem bestimmten Bildausschnitt behandelt. Das Verfahren soll in Kombination mit Anderen in Form einer integrierten Software zur komfortablen Analyse von Gruppierungs- und Bewegungsmustern und zur Einrichtung von Schnellwarnsystemen eingesetzt werden.
+
+Der nachfolgende Abschnitt (\ref{sec:motiv}) befasst sich mit der Motivation für die automatisierte Videoauswertung. Er basiert auf der Dissertation "`Automatische Erfassung präziser Trajektorien in Personenströmen hoher Dichte'' von Maik Boltes \cite{boltes} und dem Artikel "`A Method for Counting Moving People in Video Surveillance Videos'' von Donatello Conte et al. \cite{conte}. Anschließend werden die Ziele dieser Arbeit (s. Abschnitt \ref{sec:ziele}) und im folgenden Abschnitt \ref{sec:std} der aktuelle Stand der Technik behandelt.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivation}
+\label{sec:motiv}
+
+Personenströme und -anordnungen im Alltag sind für uns gewöhnliche Abläufe, die aber dennoch interressante Erkenntnisse über die Selbstorganisation und die Gewohnheiten der Menschen liefern können. Zudem wäre es mit Sicherheit von Vorteil ein tiefgreifendes Verständnis der bisher nur grob erforschten Dynamik von Personenströmen zu gewinnen, um Beobachtungen zu machen, die in sicherheitskritischen und ökonomischen Anwendungsgebieten hilfreich sein können. 
+\newpage
+Die Erfassung dicht gedrängter Personengruppen mit Kameras und Bildauswertungssoftware erweist sich dabei als besonders zielführend, da analysierte Szenen vom Computer direkt ausgewertet und die angezeigten Informationen aufbereitet werden können. An das Personal werden dabei geringere Anforderungen an Aufmerksamkeit und Organisation gestellt. Es können außerdem Messdaten aufgenommen und quantitative Aussagen über das Verhalten von Personengruppen gemacht werden.
+
+Gestützte Monitoringssysteme sind vor allem an Orten, die von vielen Menschen gleichzeitig besucht werden (\zb Großveranstaltungen oder Fußgängerzonen) sinnvoll. Denn mit höheren Besucherzahlen nimmt möglicherweise auch das Risiko für Schadensereignisse oder Kriminalität zu, weil die Zahl an Personen, die bereit sind Verbrechen zu begehen und Tumulte zu verursachen, mit der Besucherzahl steigt. Solche Großveranstaltungen bergen zudem die Gefahr für Massenpaniken, weswegen als Grundsatz für eine Veranstaltungsplanung Flucht- und Rettungswege ausnahmslos freigehalten werden sollten. Langfristig kann mit flächigem videogestütztem Monitoring die Planung verbessert werden, indem \zb kritische Gebiete entlastet werden (breitere Tore/Türen, Fluchtwege) oder die Zeitplanung für die öffentlichen Verkehrsmittel überdacht wird. Für kurzfristige Reaktionen kann mit der integrierten Software ein Schnellwarnsystem, in Form eines Kameranetzwerkes, am Veranstaltungsort installiert werden, das schnell ortsbezogene Notrufe tätigen und exakte Positionen von besonders kritischen Gebieten des Veranstaltungsgeländes übermitteln kann. Kritische Gebiete sind zum Beispiel Staugebiete, also Orte, an denen die Personenzahl hoch ist und eine geringe Dynamik herrscht. Ein solches Schnellwarnsystem sollte kritische Situationen schnell erkennen und melden können, weswegen als Vorraussetzung die Extraktion der Laufwege auch bei hohen Personendichten (, die kritischen Situationen entsprechen,) verlässlich anwendbar sein muss.
+Außerdem ist es möglich, durch eine Kalibrierung der Kameras, georegistrierte Messwerte zu erhalten, die beispielsweise auf einer Karte oder Aufnahme des Veranstaltungsgeländes dargestellt werden können. Dies ermöglicht eine einfache visuelle Auswertung der Daten, die geringe Anforderungen an die Aufmerksamkeit der Nutzer stellt. Die Daten können entweder in Echtzeit oder im Nachhinein zur verbesserten Planung analysiert werden. Zusätzlich kann das aufgenommene Beweismaterial zu Rate gezogen werden, wenn Unklarheiten über die Ursache für den sicherheitskritischen Fall bestehen. Dies sollte aber ohne Identifizierung von Einzelnen erfolgen.
+
+%Neue Seite?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Aufgabenstellung und Ziele}
+\label{sec:ziele}
+In dieser Arbeit wird die Untersuchung und Entwicklung eines Videoanalyseverfahrens zur automatischen Extraktion von Trajektorien (Pfaden) bewegter Personen behandelt. Das Verfahren soll im Rahmen eines Videoanalysesystems, das für die Realisierung eines Schnellwarnsystems und für die komfortable Analyse von Bewegungs- und Gruppierungsmustern (s. Abschnitt \ref{sec:motiv}) zur Langzeitplanung von Veranstaltungen geeignet ist, entwickelt und dokumentiert werden. 
+\newpage
+
+Es sollen Laufwege bewegter Personen, deren Ecken zuvor algorithmisch detektiert wurden, als Bildkoordinaten in Listen eingetragen und verwaltet werden. Solche Laufwege werden als Trajektorien bezeichnet. Dabei sollen nur bewegte Eckpunkte verwendet werden, weswegen gänzlich stillstehende Personen (zunächst) nicht erfasst werden. Weiterhin können aus den gespeicherten Positionen der Trajektorien, innerhalb von bestimmten Bildausschnitten, Messgrößen wie Personenfluss, Personenzahl und Dichtefaktoren abgeleitet werden. Das Verfahren sollte zuverlässig sein und keine auffälligen, kritischen Situationen übersehen. Es soll erprobt und mithilfe von Grundwahrheiten bewertet werden, um eine Aussage über die Wahrheitstreue der Messgrößen treffen zu können.
+
+
+%\\ \\
+%Nachfolgend werden Vor- und Nachteile der Nutzung von Bildauswertungssoftware gegenüber manueller Videoüberwachung erfasst:
+
+%\begin{center}
+%\fbox{
+%\begin{minipage}[t]{0.47\textwidth}
+%\begin{center}
+%\bigskip
+%\textbf{Vorteile}:
+%\bigskip
+%\hline
+%\end{center}
+%\begin{itemize}
+%\item[+] System benötigt geringeren Personaleinsatz
+%\item[+] komfortable Videoüberwachung
+%\item[+] quantitative Aussagen(ohne subjektiven Einfluss) möglich
+%\item[+] System hat keinen Konzentrationsverlust
+%\item[+] System übersieht in der Regel keine Gefahren
+%\end{itemize}
+%\bigskip
+%\bigskip
+%\bigskip
+%\end{minipage}
+%\hskip 5pt
+%\vline
+%\hskip 7pt
+%\begin{minipage}[t]{0.47%\textwidth}
+%\begin{center}
+%\bigskip
+%\textbf{Nachteile}:
+%\bigskip
+%\hline
+%\end{center}
+%\begin{itemize}
+%\item[-] unflexible Reaktion des Systems auf Szenenwechsel
+%\item[-] System löst Falschalarme aus
+%\item[-] System besitzt keine menschlichen Erfahrungswerte
+%\item[-] Leistung des Systems ist hardwareabhängig
+%\item[-] aufwendige Kalibrierung des Systems
+%\end{itemize}
+%\bigskip
+%\end{minipage}
+%\bigskip
+%\bigskip %\%\
+%}
+%\end{center}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Stand der Technik}
+%Bei Anne geht es mehr um Segmentierung - hier mehr um Erstellung von Trajektorien(Tracking) der Personen
+\label{sec:std}
+
+Die Idee, automatische Videoanalyseverfahren zur Erkennung von Mustern und Objekten einzusetzen, ist keine neue Vorstellung. Wegen der zunächst nur wenig fortgeschrittenen Technik, setzte sich diese Idee jedoch erst in den 1980er Jahren durch. Heute gibt es vielseitige Ansätze, um diese Aufgaben zuverlässig durchzuführen. Dennoch haben diese Verfahren ihre Grenzen und es existiert ein weitreichendes Verbesserungspotenzial.
+
+Wie in Abschnitt \ref{sec:ziele} beschrieben, wird in dieser Arbeit die algorithmische Detektion und Messung von Dichte- und Flussinformationen in Personengruppen behandelt. Um solche Gruppierungs- und Bewegungsmuster erfassen und messen zu können, müssen die Personen zunächst quantitativ erfasst werden. Zur Zählung von Personen/Objekten existieren, nach aktuellem Stand, zwei grundlegende Ansätze. Zunächst muss, in beiden Fällen, eine Extraktion einer ROI (region of interest - \zb Punkte, Flächen) zur groben Ausfilterung von uninteressanten Bereichen, an denen sich gerade keine Personen befinden können, vorgenommen werden. Dabei werden uninteressante, statische Bereiche im Bild ausgefiltert, während die interessanten Bereiche hinsichtlich Personendetektion, Dichte- und Flussschätzung weiterverarbeitet werden. Nachfolgend werden die beiden Ansätze beschrieben und mit Beispielen ausgeführt.
+
+%\subsection{Extraktion einer ROI}
+% Zur Extraktion einer ROI gibt es derzeit einige Möglichkeiten, wobei die Wichtigsten nachfolgend aufgezählt werden:
+
+%\subsubsection{Segmentierungsverfahren:}
+
+%\begin{itemize}
+
+%\item Pixelorientierte Verfahren: Diverse Schwellwertverfahren eignen sich zur Segmentierung, wenn die Dichte der Grauwerte im Histogramm ausreichend bimodal ist(s. Otsu-Schwellwertverfahren %\cite{segcourse}).
+
+%\item Kantenorientierte Verfahren: Diverse Kantenfilter, wie Scharr- und Sobel-Operator eignen sich zur Segmentierung, wenn anschließend ein "`Flood-Fill-Algorithmus'' eingesetzt wird, um den Hintergrund zu fluten. %\cite{segcourse2}
+
+%\item Modellbasierte Verfahren: Diverse geometrische Modelle wie Kreise oder Geraden eignen sich zur Segmentierung, wenn beispielsweise die Form der Kanten mit ihnen verglichen wird. %\cite{segcourse2}
+
+%\item Regionenorientierte Verfahren: Diese Verfahren wählen Pixelpositionen als Ausgangspunkte und lassen Vordergrundregionen nach verschiedenen Kriterien wie Ähnlichkeit ausgehend von dieser Position wachsen oder sich vereinen. %\cite{segcourse2}
+
+%\item Texturorientierte Verfahren: Texturen in Vordergrund-Regionen werden erkannt und anhand ihrer Beschaffenheit interpretiert. Unruhige Strukturen deuten %\zb auf Personengruppen und Glatte auf eine leere Oberfläche hin(s. "`Haar-Wavelets'' oder "`gray-level-co-occurence-matrix'' %\cite{segcourse2}).
+
+%\item Selektion des Hintergrunds: Der Hintergrund wird erfasst und subtrahiert(Subtraktion des Hintergrunds). Der Hintergrund wird abgezogen und erhält somit idealerweise die Farbe Schwarz, während der Vordergrund erhalten bleibt. Wie in %\cite{zhao} beschrieben, kann Hintergrund zum Beispiel detektiert werden, indem statische Regionen im Bild markiert werden. 
+
+%\item Detektion mit Sensor-Array/3D-Kameras: Eine Szene wird mit einer 3D-Kamera gefilmt, um die räumliche Struktur zu dokumentieren und 3D-Objekte zu segmentieren, die als 3D-Modelle gespeichert werden.
+
+%\end{itemize}
+
+%\subsubsection{Merkmalsdetektionsverfahren}
+
+%\begin{itemize}
+    %\item Extraktion von Vordergrund-Merkmalen("`Features'' - \zb Punkten), die beispielsweise durch extrahierte Eckpunkte(s. "`Harris Corner Detector'') gegeben sind und in Kombination mit einer Bewegungsschätzung (optischer Fluss) als lokale Bewegungsmerkmale verwendet werden können.
+%\end{itemize}
+
+\subsection{direkter Ansatz}
+\begin{enumerate}
+\item Segmentierung von VG-Bereichen: nach Möglichkeit mit beinhalteten Personen
+\item Detektion und individuelle Separation der Personen
+\item Zählung der separierten Vordergrund-Regionen
+\end{enumerate}
+
+Im Fall des direkten Ansatzes, werden in Kombination zur Extraktion einer ROI in VG-Regionen Muster und Merkmale gesucht, die Menschen zugeordnet werden sollen, um diese einzeln zu separieren. 
+\newpage
+Nachfolgend werden einige Beispiele für den direkten Ansatz aufgeführt:
+\vskip 10pt
+\emph{Objektklassifizierung:}
+\begin{itemize}
+
+\item Vergleich der Form: Kanten von Vordergrund-Regionen werden mit Modellen (Rechtecke, Ellipsen o.ä.), die entweder ganze Menschen oder Körperteile modellieren, verglichen (s.\cite{rittscher}).
+
+\item Vergleich der Kantenstatistik: Anzahl, Ausrichtung und Form der Kanten können Menschen beschreiben, wobei Statistiken/Histogramme über die Häufigkeit von Kantenrichtungen erstellt und gespeichert werden, falls sich ein/kein Mensch im Bildausschnitt befindet (s. HOG = histogram of oriented gradients). Anschließend kann, über einen Vergleich der Kantenstatistik des analysierten Bildausschnitts mit der gespeicherten Kantenstatistik, entschieden werden, ob ein Mensch in einem Bildausschnitt befindlich ist. Dies wird von einem lernenden Algorithmus (SVM: support vector machine) durchgeführt. Zusätzlich kann hier, wie in \cite{loy2013crowd} beschrieben, bestimmt werden, ob sich gerade mehr (komplexere Kanten) oder weniger Menschen (einfache Kanten) in einem größeren Bildausschnitt aufhalten.
+
+\item Vergleich von aufgenommenen 3D-Modellen mit Standardmodellen: Nach \cite{zhao} können Menschen erkannt werden, indem ein 3D-Modell, das mit einer 3D-Kamera oder einem Sensor-Array erstellt wurde, mit Standardmodellen für Menschen verglichen wird.
+
+\item Gruppieren von extrahierten Merkmalen ("`Features'' - \zb Punkten) nach ihren Bewegungscharakteristika: Punkte, die sich nahezu gleich schnell in eine Richtung bewegen, gehören mit hoher Wahrscheinlichkeit nur zu einer Person (s. \cite{brostow}).
+
+\end{itemize}
+\vskip 5pt
+Anschließend wird, über ein Labeling-Verfahren (\zb ein sog. "`Point Clustering''), eine Vergabe von Identifikationsnummern durchgeführt, wobei die einzeln (als Vordergrund-Regionen) separierten Personen mit IDs versehen und gezählt werden können.
+
+Beim nachfolgenden indirekten Ansatz wird eine solche Objektklassifizierung nicht durchgeführt, sondern direkt mit der extrahierten ROI gearbeitet.
+
+\subsection{indirekter Ansatz}
+
+\begin{enumerate}
+\item Detektion und Extraktion von lokalen Merkmalen (segmentierungslos - \zb Punkte/Pixelpositionen), die beispielsweise durch extrahierte Eckpunkte (s. "`Harris Corner Detector'' \cite{albiol}) gegeben sind und in Kombination mit einer Bewegungsschätzung (optischer Fluss) als lokale Bewegungsmerkmale verwendet werden können.
+\item Ableitung der Personenzahl aus der Zahl der lokalen, extrahierten Merkmale, unabhängig von einer separaten Detektion von Personen
+\end{enumerate}
+
+Dieser Ansatz gilt als robuster, weil die vereinzelte Separation der Personen, besonders in überfüllten Gebieten, ein zu großes Problem darstellt und bisher nicht zuverlässig gelöst wurde.
+\vskip 5pt
+Nachfolgend werden einige Beispiele für den indirekten Ansatz aufgelistet:
+
+\begin{itemize}
+
+\item Zählen der Menge an nicht-statischen Pixeln (s. \cite{cho})
+
+\item Zählen der Menge an nicht-statischen Eckpunkten, extrahiert von einem Corner Detector (\zb Harris Corner Detector, wie in \cite{albiol} beschrieben)
+
+\item Erfassen der Größen und Häufigkeiten von VG-Bereichen (vgl. \cite{kong})
+
+\item Erfassen der fraktalen Dimension von VG-Bereichen (vgl. \cite{marana}):\\
+\begin{center}
+$D = \frac{\text{log(Zahl der selbstähnlichen Bestandteile)}}{\text{log(Abbildungsmaßstab)}}$
+\end{center}
+\end{itemize}
+
+\vskip 5pt
+In dieser Arbeit wird eine Ausführung des indirekten Ansatzes behandelt. Dabei kommt der Harris Corner Detector, wie in \cite{albiol} beschrieben, zum Einsatz, um Eckpunkte/Merkmale zu extrahieren und vom Hintergrund zu trennen. Ein Corner Tracker erfasst die relative Bewegung (den optischen Fluss) dieser Merkmale entlang der Bildzeilen und -spalten. Die Anzahl an bewegten Personen wird in ein Verhältnis mit der Anzahl an sich bewegenden, extrahierten Eckpunkten gesetzt und daraus werden weitere Größen wie Personenfluss und ein Dichtefaktor abgeleitet.
+
+Wichtige Verfahren, in Bezug auf diese Arbeit, sind somit zunächst der Harris Corner Detector, gekoppelt an einen Corner Tracker, der die Bewegung (den optischen Fluss) erfasst, sowie das Verfahren zur Erfassung von Trajektorien (Pfaden) der extrahierten Eckpunkte. Diese Grundlagen werden im Kapitel \ref{chap:grund} näher erläutert. Diese Arbeit soll zeigen, dass das entwickelte Verfahren, auch mit den niedrig aufgelösten Daten \zb von CCTV-Überwachungskameras, in Personengruppen hoher Dichte zuverlässig angewandt werden kann.
+
+
+

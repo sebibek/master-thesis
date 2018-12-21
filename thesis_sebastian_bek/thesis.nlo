@@ -1,0 +1,62 @@
+\nomenclatureentry{aHG@[{HG}]\begingroup Hintergrund\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{aVG@[{VG}]\begingroup Vordergrund\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\abs{\vec{a}}$@[{$\abs{\vec{a}}$}]\begingroup Betrag eines Vektors\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\abs{\vec{b}}$@[{$\abs{\vec{b}}$}]\begingroup Betrag eines Vektors der Bewegung über $q$ Frames\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$v(x,y)$@[{$v(x,y)$}]\begingroup Merkmalsgeschwindigkeit\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$v_{SI}(x,y)$@[{$v_{SI}(x,y)$}]\begingroup Merkmalsgeschwindigkeit in SI-Einheiten\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$d(x,y)$@[{$d(x,y)$}]\begingroup Abstand zwischen 2 Pixeln in $\frac{m}{px}$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$D$@[{$D$}]\begingroup fraktale Dimension\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$FR$@[{$FR$}]\begingroup Framerate - Bildfrequenz in $[\text{fps}] = [\frac{\text{frame}}{s}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{ac@[{c}]\begingroup Center Pixel/Hotspot, auf den sich eine Nachbarschaft/Umgebung oder ein Patch/Bildausschnitt bezieht\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{aROI@[{ROI}]\begingroup region of interest - Vordergrundregion(\zb Positionen oder Polygonzüge)\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{aHSV@[{HSV}]\begingroup hue, saturation, value - Farbmodell, für intuitivere Definition von Farben\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$w(u,v)$@[{$w(u,v)$}]\begingroup Fenster-/Wichtungsfunktion\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$W(u,v)$@[{$W(u,v)$}]\begingroup Wertebereich für die Laufvariablen $u$ und $v$ innerhalb eines Bildausschnitts konstanter Größe in $[\text{px}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$W(w,h)$@[{$W(w,h)$}]\begingroup Wertebereich für die Bildkoordinaten $x$ und $y$ innerhalb eines Bildausschnitts festgelegter Größe in $[\text{px}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$w$@[{$w$}]\begingroup Breite(width) eines Bildausschnitts\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$h$@[{$h$}]\begingroup Höhe(height) eines Bildausschnitts\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$I(x,y)$@[{$I(x,y)$}]\begingroup Intensitäts-/Bildmatrix\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$I_x$@[{$I_x$}]\begingroup diskrete Ableitung der Intensitätsmatrix in x-Richtung in $[\frac{1}{\text{px}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$I_y$@[{$I_y$}]\begingroup diskrete Ableitung der Intensitätsmatrix in y-Richtung in $[\frac{1}{\text{px}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$M$@[{$M$}]\begingroup Kovarianzmatrix der Verteilung von Gradientenbeiträgen $I_x$,$I_y$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\lambda_{1/2}$@[{$\lambda_{1/2}$}]\begingroup Eigenwerte der Matrix A\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$DX$@[{$DX$}]\begingroup DX-Wert eines Verschiebungsvektors in $[\text{px}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$DY$@[{$DY$}]\begingroup DY-Wert einer Verschiebungsvektors in $[\text{px}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$c_K$@[{$c_K$}]\begingroup Konstante\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$j$@[{$j$}]\begingroup Index für den aktuellen Frame\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$m$@[{$m$}]\begingroup Mittelungsdistanz - Anzahl der rückwärtigen Messwerte $m$, die in die Mittelung einbezogen werden in $[\text{frame}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$x,y$@[{$x,y$}]\begingroup Bildkoordinaten - Breite, Höhe\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$P(x,y)$@[{$P(x,y)$}]\begingroup Zeilen-/Spaltenposition im Eingangsbild\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$P_j(x)$@[{$P_j(x)$}]\begingroup x-Position im Eingangsbild im aktuellen Frame j\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\text{var}()$@[{$\text{var}()$}]\begingroup Varianz\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\text{covar}()$@[{$\text{covar}()$}]\begingroup Kovarianz\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$u,v$@[{$u,v$}]\begingroup Laufvariablen für die Verschiebung in Zeilen- und Spaltenrichtung\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$A$@[{$A$}]\begingroup projezierte Fläche eines Bildausschnitts in $[m^2]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$S$@[{$S$}]\begingroup Menge an Trajektorienspitzen(aktuelle Position) im Patch\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$K$@[{$K$}]\begingroup Menge an Trajektorienknoten(vorherige Position) im Patch\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$Z$@[{$Z$}]\begingroup Menge an berechneten Vektorlängen $\abs{\vec{b}}_j(x,y)$ im Patch\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$N$@[{$N$}]\begingroup Personenzahl in $[\text{personen}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\bar{N}_j$@[{$\bar{N}_j$}]\begingroup mittlere Personenzahl im aktuellen Frame j in $[\text{personen}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$N_{max}$@[{$N_{max}$}]\begingroup trainierte maximale Personenzahl in $[\text{personen}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$N_{abs}$@[{$N_{abs}$}]\begingroup absolute maximale Personenzahl in $[\text{personen}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$N_{rel}$@[{$N_{rel}$}]\begingroup relative mittlere Personenzahl in $[\%]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$D_{scal}$@[{$D_{scal}$}]\begingroup skalierte Personendichte in $[\frac{\text{personen}}{m^2}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$N_{scal}$@[{$N_{scal}$}]\begingroup skalierte Personenzahl in $[\text{personen}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$F_{acc}$@[{$F_{acc}$}]\begingroup Fluss-Akkumulator in $[\frac{\text{personen}}{\text{frame}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$F$@[{$F$}]\begingroup Personenfluss in $[\frac{\text{personen}}{\text{frame}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\bar{F}_j$@[{$\bar{F}_j$}]\begingroup mittlerer Personenfluss in $[\frac{\text{personen}}{\text{frame}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$F_{rel}$@[{$F_{rel}$}]\begingroup relativer mittlerer Personenfluss $[\%]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$F_{max}$@[{$F_{max}$}]\begingroup trainierter maximaler mittlerer Personenfluss $[\%]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$F_{scal}$@[{$F_{scal}$}]\begingroup skalierter Personenfluss in $[\frac{\text{personen}}{\text{frame}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$B_j$@[{$B_j$}]\begingroup mittlere Merkmalsgeschwindigkeit innerhalb eines Bildausschnitts in $[\frac{px}{q\cdot \text{frame}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$B_S$@[{$B_S$}]\begingroup niedrigster Schwellwert für die mittlere Merkmalsgeschwindigkeit in $[\frac{px}{q\cdot \text{frame}}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\bar{B}_j$@[{$\bar{B}_j$}]\begingroup zeitlich gemittelte mittlere Merkmalsgeschwindigkeit innerhalb eines Bildausschnitts\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\bar{B}_{rel}$@[{$\bar{B}_{rel}$}]\begingroup relative mittlere Merkmalsgeschwindigkeit innerhalb eines Bildausschnitts in $[\%]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\text{dFactor}$@[{$\text{dFactor}$}]\begingroup Dichtefaktor in $[\%]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$X_{rel}$@[{$X_{rel}$}]\begingroup relative Messgröße allgemein in $[\%]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$\text{hue}$@[{$\text{hue}$}]\begingroup hue: zahlenmäßiger Farbton im HSV-Farbmodell in  $[\ ]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$r$@[{$r$}]\begingroup Suchradius in $[\text{px}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$p$@[{$p$}]\begingroup Schrittweite in $[\text{frame}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$q$@[{$q$}]\begingroup Schrittweite in $[\text{frame}]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$d_1$@[{$d_1$}]\begingroup Abstand der unteren Bildzeile zum Kameraobjektiv in $[m]$\nomeqref {\relax 0}|nompageref}{iii}
+\nomenclatureentry{a$d_2$@[{$d_2$}]\begingroup Abstand der oberen Bildzeile zum Kameraobjektiv in $[m]$\nomeqref {\relax 0}|nompageref}{iii}

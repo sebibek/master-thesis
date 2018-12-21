@@ -1,0 +1,38 @@
+\ClearWallPaper
+
+
+%%% Bei Diplomarbeiten etc.
+
+\ifthenelse{\boolean{isdissertation}}{}{%
+%%% Weitere Seite für die Erklärung der Selbstständigkeit
+\begin{titlepage}
+\thispagestyle{empty}
+
+\ifthenelse{\boolean{iesenglishs}}{%
+\chapter*{Statement of authorship}% %%PW
+%% Andere Möglichkeiten
+%% Own Work Declaration  %%sagt die Uni von Edinburgh
+%% Affidavit  %% versicherung an eides statt
+}{%
+\chapter*{Erklärung der Selbstständigkeit}%
+}
+\thispagestyle{empty}
+%% Text von hz Übernommen
+\ifthenelse{\boolean{iesenglishs}}{%
+I hereby declare that I have produced this work by myself except the utilities known to the supervisor, 
+that I have labeled all used utilities completely and detailed and that I have labeled all material that has been taken with or without modification from the work of others.
+}{%
+Ich versichere hiermit, dass ich die vorliegende 
+Bachelorthesis selbstständig erarbeitet und dabei 
+keine anderen als die angegeben Quellen verwendet habe.}
+%% Alternative
+%Hiermit versichere ich, die vorliegende Arbeit selbstst�ndig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt sowie die Zitate deutlich kenntlich gemacht zu haben.
+\vspace{4\baselineskip}\\
+\ifthenelse{\boolean{iesenglishs}}{%
+\Signplace, \Submissiondate \hfill \Authorname}{%
+\Signplace, den \Submissiondate} \hfill \Authorname%
+\vspace{4\baselineskip}\\
+\clearpage
+\mbox{}\thispagestyle{empty}
+\end{titlepage}
+}%

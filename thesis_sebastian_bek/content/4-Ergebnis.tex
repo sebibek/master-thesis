@@ -1,0 +1,293 @@
+\addtocontents{toc}{\protect\newpage}
+\chapter{Evaluation}
+\label{chap:erg}
+
+Das folgende Kapitel befasst sich mit der Auswertung des entwickelten Verfahrens. Dabei soll der erstellte Algorithmus erprobt und hinsichtlich seiner Zuverlässigkeit und Leistung untersucht werden. Um eine Erprobung vorzunehmen, müssen zunächst Referenzdaten durch manuelle Annotationen generiert werden. Eine solche manuelle Annotation, wird fachsprachlich als "`Ground Truth'' (dt.: Grundwahrheit) bezeichnet. Das, im Rahmen dieser Arbeit entwickelte, Verfahren erhält die Bezeichnung "`MFFT'' (multi frame feature tracking).
+
+\section{Testdaten}
+\label{test:data}
+
+\subsection{3D-Animation: AGORASET/Dispersion \cite{CourtyPRL2014} \cite{Allain2012ICPR}}
+Zum Testen der generierten Messungen des entwickelten Verfahrens wird eine vordefinierte, bekannte Szene verwendet, die in Form einer künstlich generierten Bildsequenz als Datensatz vorliegt. Die Szene zeigt initial gleichmäßig verteilte Personen in einer Halle aus der Vogelperspektive. Im Verlauf der Bildsequenz stäuben diese Personen von einem scheinbaren Ausgangspunkt in alle Richtungen auseinander. Nach einiger Zeit stauen sich die Personen an den Rändern der Halle. Die Sequenz besteht aus 110 Einzelbildern. In Abbildung \ref{crowd_burst} werden beispielhaft Ausschnitte der beschriebenen Sequenz gezeigt:
+
+\begin{figure}[H]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    a) Bild Nr. $01$
+    \label{frame01}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    b) Bild Nr. $30$
+    \label{frame30}
+  \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    c) Bild Nr. $87$
+    \label{frame87}
+  \end{minipage}
+\caption{Ausschnitte der Testsequenz Dispersion \cite{CourtyPRL2014} \cite{Allain2012ICPR}}
+\label{crowd_burst}
+\end{figure}
+
+Das AGORASET ist ein Datensatz, der entwickelt wurde, um Algorithmen auf dem Gebiet der Analyse von Menschenmengen zu testen. Er besteht aus insgesamt 8 Szenen, die alle künstlich generiert wurden, um Szenarien mit interessanten Personengruppenformationen/\\-bewegungen zu erhalten.
+
+\subsection{Videosequenz: UCF\_CrowdsDataset/Business-Getümmel \cite{AliS07}}
+Zusätzlich zur Evaluation der Messgrößen mittels einer künstlich generierten Bildsequenz soll die Evaluation mit realen Daten durchgeführt werden. Dazu wird eine Szene des UCF\_CrowdsDataset (siehe \cite{AliS07}) verwendet, in der sich Personen ungerichtet im Alltagsstress auf einem Platz bewegen. Die Sequenz besteht aus 255 Einzelbildern. In Abbildung \ref{business} werden Ausschnitte dieser Testsequenz gezeigt:
+
+\begin{figure}[H]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    a) Bild Nr. $01$
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    b) Bild Nr. $131$
+  \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    c) Bild Nr. $255$
+  \end{minipage}
+\caption{Ausschnitte der Testsequenz Business-Getümmel \cite{AliS07}}
+\label{business}
+\end{figure}
+
+Anhand dieser realen Szene sollen Messgrößen wie Dichtefaktor, Personenfluss-/zahl zusätzlich evaluiert werden. Wegen stark varriierender Personenzahl und Dichte in verschiedenen Bildausschnitten ist diese Sequenz geeignet, um die Messgrößen hinsichtlich ihrer Sensitivität und ihrem Verhalten zu beurteilen. Die Szene liegt in einer maximalen Auflösung von 480x360 vor, weswegen diese Szene in besonders kurzer Laufzeit ausgewertet werden kann.
+
+Das UCF\_CrowdsDataset ist ein Datensatz mit aufgenommenen Bilddaten, der bewegte Menschenmengen in realen Szenarien zeigt. Er ist für die Erprobung von Algorithmen auf dem Gebiet der Analyse von Menschenmengen geeignet. Der Datensatz besteht insgesamt aus 30 Szenen, die aus öffentlichen Quellen (\zb BBC) zusammengetragen wurden.
+
+\subsection{Videosequenz: UCF\_CrowdsDataset/Marathon \cite{AliS07}}
+Um eine Testsequenz einzubeziehen, die extrem viele sowohl Bewegte als auch statische Personen enthält wird die Aufnahme eines Marathonlaufs verwendet. Die Sequenz liegt in Form einer Bildfolge mit einer Auflösung von 720x404 vor, weshalb dabei unter Ausführung des Verfahrens (MFFT) nur geringe Anforderungen an die Rechenleistung gestellt werden. In folgender Abbildung \ref{run} werden beispielhaft Ausschnitte der Videosequenz des Marathonlaufs dargestellt.
+
+\begin{figure}[H]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    a) Bild Nr. $01$
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    b) Bild Nr. $31$
+  \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    c) Bild Nr. $62$
+  \end{minipage}
+\caption{Ausschnitte der Testsequenz Marathonlauf \cite{AliS07}}
+\label{run}
+\end{figure}
+
+Man erkennt hier deutlich, dass sich am Rande der Marathonstrecke stehende (statische) Personen befinden, während die Läufer sich bewegen. Daher wird diese Testsequenz dazu verwendet, die Trennung von statischen (HG) und nicht statischen (VG) Merkmalen zu evaluieren.
+
+\subsection{Videosequenz: Hamburger Hafenfest 2014}
+Um die Erfassung präziser Trajektorien in Personengruppen hoher Dichte zu evaluieren, wird das Szenario einer Massenveranstaltung verwendet. Dazu liegen Testsequenzen des Hamburger Hafenfests 2014 vor. Die Testdaten des Hamburger Hafenfests 2014 umfassen die Aufnahmen von einer in 80m Höhe montierten Kamera, die nach schräg links geneigt ist. Im Videobild ist hauptsächlich Wasser in Kanälen des Hamburger Hafens zu sehen. Während des Videos werden diese sporadisch von Schiffen befahren. 2 aufgehängte Brücken führen zur meist belebteren Hafenpromenade, die im Videobild teilweise sichtbar ist. Hier sind Buden und weiße Zelte zu erkennen, sowie Treppen und eine benachbarte Straße. Es liegen Aufnahmen von jeglichen Wetterlagen und Tageszeiten von dieser Kamera vor, um verschiedene Szenarien überprüfen zu können. In Abbildung \ref{hamburg:regen} - \ref{hamburg:sonne} erkennt man beispielhaft Aufnahmen der verschiedenen Wetterlagen:
+
+\newpage
+\begin{figure}[h]
+  \centering  
+    \begin{minipage}{0.9\textwidth} 
+      \includegraphics[width=\textwidth]{images/dummy.png}\\
+	\end{minipage}
+    \put(0,-100){\textbf{{ \color{black}(a)}}}\\
+    \begin{minipage}{0.9\textwidth} 
+      \includegraphics[width=\textwidth]{images/dummy.png}
+	\end{minipage}
+    \put(0,-100){\textbf{{ \color{black}(b)}}}\\
+  \caption{Testsequenz des Hamburger Hafenfests bei\\
+  (a) Nebel; (b) Regen}
+  \label{hamburg:regen}
+\end{figure} 
+\newpage
+\begin{figure}[h]
+  \centering     
+    \begin{minipage}{0.9\textwidth} 
+      \includegraphics[width=\textwidth]{images/dummy.png}\\
+	\end{minipage}
+    \put(0,-100){\textbf{{ \color{black}(c)}}}\\
+    \vfill
+    \begin{minipage}{0.9\textwidth} 
+      \includegraphics[width=\textwidth]{images/dummy.png}
+	\end{minipage}
+    \put(0,-100){\textbf{{ \color{black}(d)}}}    
+  \caption{Testsequenz des Hamburger Hafenfests bei\\
+  (c) Sonne; (d) Sonnenuntergang}
+  \label{hamburg:sonne}
+\end{figure}
+\newpage
+
+Die Aufnahmen liegen in einer maximalen Auflösung von 1920x1082 vor. Wegen hoher Rechenzeit beziehungsweise nicht verfügbarer Rechenleistung werden jedoch zum Testen skalierte Aufnahmen mit einer Auflösung von 960x540 verwendet. Moderne Computer können ein Eingangsbild einer solchen Bildfolge unter Ausführung des entwickelten Verfahrens MFFT in weniger als 50ms verarbeiten.
+
+\section{Testergebnisse}
+\label{test:erg}
+
+\subsection{3D-Animation: AGORASET/Dispersion \cite{CourtyPRL2014} \cite{Allain2012ICPR}}
+\label{dispersion_test}
+Die Personen im Video sind mit einer Auflösung von 640x480 für eine Zählung ausreichend hoch aufgelöst. Zum Testen werden große Bildausschnitte mit einer Größe von 80x96 eingestellt und der Bildausschnitt gewählt, der den größten Wertebereich im Verlauf der Sequenz für die Personenzahl aufweist. Dieser Bildausschnitt ist am aussagekräftigsten für die Sensitivität und das Verhalten der Messgrößen (Personenzahl, -fluss, Dichtefaktor). Beim Testen werden nur relative Messgrößen betrachtet, weil, wie in Kapitel \ref{chap:imp} Abschnitt \ref{sec:sig} beschrieben, die Ableitung einer richtig skalierten absoluten Messgröße aus einer Relativen, durch Definition einer absoluten maximalen Personenzahl $N_{abs}$, jederzeit möglich ist. Diese wird entweder manuell oder durch theoretische Betrachtungen erhalten. Das entwickelte Verfahren wird, wie in Kapitel \ref{chap:imp} Abschnitt \ref{sec:konfig} beschrieben, mit einem geeigneten Suchradius konfiguriert. Die maximale Verweilzeit für die Trajektorien wird auf eine längere Verweilzeit als die Dauer der Bildsequenz gesetzt, um stehenbleibende Personen mitzuzählen. Außerdem wird ein globaler Abstands-Radius eingestellt, der Probleme abmindert, die durch Verdeckungen entstehen. Die Schrittweiten $p$ und $q$ werden in diesem Abschnitt auf den Wert 10 festgelegt.
+
+\subsubsection{Personenzählung}
+Die Personen innerhalb des Bildausschnitts wurden für die 110 Frames der Testsequenz manuell gezählt und die Ergebnisse notiert. Um die Analogie der manuellen Zählung zum entwickelten Verfahren zu bewahren, werden die gezählten Personenzahlen mit einer Mittelungsdistanz von $m$ Frames mit einem gleitenden Mittelwertfilter gemittelt. Die Mittelungsdistanz $m$ wird hier auf 10 Frames festgelegt. Anschließend werden die Messungen des Verfahrens MFFT für die mittlere Personenzahl für den Verlauf der Testsequenz exportiert und gespeichert. Beide Ergebnisse werden über den zeitlichen Verlauf der Sequenz aufgetragen und gegenübergestellt, wie in Abbildung \ref{zahl} dargestellt wird:
+\newpage
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Graph: Verlauf der gemessenen/gezählten Personenzahl \cite{CourtyPRL2014} \cite{Allain2012ICPR}}
+  \label{zahl}
+\end{figure}
+
+Man erkennt hier, dass das Verhalten des erstellten Verfahrens (MFFT) mit dem Verhalten der Ground Truth korreliert. Im 1. Viertel der Sequenz erkennt man allerdings eine leicht erhöhte Zählung gegenüber der Ground Truth. Diese erhöhte Zählung tritt aufgrund von Verdeckungen auf, was auf dem Gebiet der Bildverarbeitung ein häufiges Problem darstellt. Dabei erhalten die Personen im Zustand geringer Personendichte (Beginn der Sequenz) deutlich mehr Trajektorien pro Person, weil eine frei stehende Person schlicht mehr Bildfläche einnimmt als eine Bedeckte, wodurch mehr Ecken (Harris Corners) sichtbar sind. Da das verwendete Verfahren die Spitzen der Trajektorien zählt, erhält man im Zustand geringer Personendichte eine zu hohe Personenzählung. Dieses Problem wird bereits vermindert, indem ein Abstands-Radius, wie in Kapitel \ref{chap:imp} Abschnitt \ref{sec:konfig} beschrieben, eingestellt wird. Um es jedoch gänzlich aufzuheben, muss Aufwand betrieben werden, der den Umfang der Arbeit weit überschreiten würde. Es könnten beispielsweise Merkmalspunkte mit gleicher Bewegungsrichtung und -geschwindigkeit zusammengefasst werden (siehe Clustering), um pro Person jeweils nur eine Detektion zu erhalten.
+
+\subsubsection{Personenfluss}
+\label{dispersion_fluss}
+Das verwendete Verfahren zur Erfassung des Personenflusses stützt sich auf die Zählung von Trajektorienspitzen und -knoten (siehe Kapitel \ref{chap:imp} Abschnitt \ref{sec:sig}) über die letzten $p$ (Schrittweite) Frames. Die Schrittweite $p$ wird hier auf 10 Frames gestgelegt. Dabei stellt man fest, dass der so erhaltene Personenfluss aufgrund der hohen Dynamik in der Szene stark fluktuiert und erneut gemittelt werden muss. Ab einer Mittelungsdistanz $m$ von etwa 30 Frames erhält man eine robuste Schätzung. Dieses Verfahren kann in dieser Form nicht manuell annotiert werden, da der zeitliche Rahmen dieser Arbeit die Annotation ganzer Trajektorien, und dies wiederum für eine hohe Anzahl an Personen (Menschenmassen) nicht ermöglicht.
+\newpage
+Als Alternative wird die Differenz der manuell gezählten aktuellen Personenzahl und der Personenzahl vor $m$ (hier 30) Frames als absoluter Personenfluss über die letzten $m$ Frames verwendet. Wird dieser durch die Mittelungsdistanz 30 geteilt, erhält man den mittleren Personenfluss der letzten $m$ Frames, wie in Gleichung \ref{fluss_gt} dargestellt wird:
+
+\begin{equation}
+    \bar{F}=\frac{N_j-N_{j-m}}{m}
+    \label{fluss_gt}
+\end{equation}
+\vskip 5pt
+ Die so erhaltenen Messwerte werden über die Zahl der Frames aufgetragen und verglichen, wie in Abbildung \ref{fluss} dargestellt wird:
+\vskip 10pt
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Graph: Verlauf des gemessenen/gezählten Personenflusses \cite{CourtyPRL2014} \cite{Allain2012ICPR}}
+  \label{fluss}
+\end{figure}
+
+Man erkennt, dass der vom entwickelten Verfahren abgeleitete Messwert für den Personenfluss zwar träge ist und eine Verzögerung aufweist, dem prinzipiellen Verhalten der Ground Truth aber folgt. Die so erhaltene Messgröße Personenfluss kann also als aussagekräftig betrachet werden. Die Verzögerung tritt auf, weil sich das Verfahren zum Generieren der Ground Truth vom entwickelten Verfahren unterscheidet. Die Verzögerung um 10 Frames entsteht, weil die Berechnung des Personenfluss im entwickelten Verfahren (MFFT) zunächst über eine Schrittweite von $p$ (hier 10) Frames berechnet wird. In manueller Form kann dieses Verfahren nicht ausgeführt werden, weswegen im Fall der Ground Truth diese Verzögerung ausbleibt.
+
+\subsubsection{Dichtefaktor}
+\label{dispersion_dichte}
+Der, in dieser Arbeit, abgeleitete Dichtefaktor stützt sich auf eine Kombination aus der Messung eines relativen Trägheitsfaktors (in Form einer relativen Merkmalsgeschwindigkeit im Patch) und einer Personenzahl (siehe Kapitel \ref{chap:imp} Abschnitt \ref{sec:sig}). 
+\newpage
+Diese Messgrößen werden multipliziert um den Dichtefaktor zu erhalten. Da die manuelle Bestimmung der mittleren Merkmalsgeschwindigkeit der Personenbewegungen der letzten $q$ (hier 10) Frames den Umfang der Arbeit überschreiten würde, wird für diese Messgröße keine Ground Truth durch Annotationen generiert. Der Verlauf des ausgegeben Dichtefaktors wird hier mit dem Verlauf der rel. Personenzahl verglichen, um zu zeigen, wie der abgeleitete Dichtefaktor funktioniert und sich von der reinen Messung einer Personenzahl unterscheidet. Die vom Verfahren (MFFT) generierten Messwerte werden exportiert und gespeichert. Die so erhaltenen Ergebnisse werden über den zeitlichen Verlauf der Testsequenz aufgetragen und betrachtet (siehe Abbildung \ref{dichte}):
+\vskip 10pt
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Graph: Verlauf des Dichtefaktors und der Personenzahl (MFFT) \cite{CourtyPRL2014} \cite{Allain2012ICPR}}
+  (mit eingezeichneter Farbcodierung der verwendeten Heat Map)
+  \label{dichte}
+\end{figure}
+\bigskip
+
+Man erkennt hier, dass die Verläufe korrelieren, jedoch zu Beginn starke Abweichungen auftreten. Zu Beginn der Bildsequenz (Testbereich 1) hat die rel. Personenzahl bereits die Hälfte ihres Maximalwerts erreicht, weil sich bereits einige Personen im Bildausschnitt befinden. In diesem Bereich existiert jedoch noch eine hohe Dynamik (keine Staus) im Patch, weswegen kleine Messwerte für den relativen Trägheitsfaktor und damit auch für den Dichtefaktor generiert werden. Gegen Ende der Sequenz (Testbereich 2) beginnen die Personen im Bildausschnitt sich zu stauen, weswegen die Dynamik im Patch stark abnimmt. Damit werden immer größere Werte für den relativen Trägheitsfaktor und damit auch für den Dichtefaktor generiert, weswegen in diesem Bereich der Dichtefaktor stark ansteigt und mit der relativen Personenzahl in Übereinstimmung kommt. Ab hier nimmt der relative Trägheitsfaktor den Maximalwert $1,0$ an, denn hier stimmen die Werte für Dichtefaktor und Personenzahl überein. Das Maximum des Dichtefaktors zu Beginn der Sequenz (Frame 10) entsteht durch den Einschwingvorgang der Messgröße relativer Trägheitsfaktor (vgl. Kapitel \ref{chap:imp} Abschnitt \ref{sec:sig}).
+\newpage
+Weil die mittlere Vektorlänge ($B_j$) über $q$ Frames im Patch erst dann Messwerte generiert, wenn bereits $q$ (hier 10) Frames vergangen sind und Diese noch zeitlich über $m$ Frames gemittelt wird, dauert es weitere $m$ (hier 10) Frames bis die mittlere Merkmalsgeschwindigkeit ($\bar{B}_j$) ihren hohen Betriebswert für die Dynamik annehmen kann (vgl. Fr. 20). Deswegen ist ihr Wert zu Beginn im Einschwingvorgang immer klein und erhöht sich dann auf den Betriebswert. Weil der relative Trägheitsfaktor ($B_{rel}$) als Schwellwert/Messwert ($\frac{\bar{B}_S}{\bar{B}_j}$) berechnet wird, wird man für kleine mittlere Merkmalsgeschwindigkeiten immer große relative Trägheitsfaktoren erhalten, was den Überschwinger zu Beginn der Sequenz erklärt.
+
+\subsubsection{Darstellung als Heat Map}
+Die Darstellung als Heat Map wird anhand des relativen Dichtefaktors in Abbildung \ref{heatmap_series} gezeigt. Dabei wird erneut die künstlich generierte Bildsequenz betrachtet, mit der die Messgrößen bereits evaluiert wurden. Der Verlauf des vom Verfahren (MFFT) ausgegebenen Dichtefaktors im Patch mit den Koordinaten (1|1) wird in Abbildung \ref{dichte} - blau dargestellt. Zusätzlich wird auf der Ordinate die Farbcodierung der verwendeten Heat Map angegeben. Dieser Verlauf wird auf den Wertebereich, den die Heat Map für den Farbton (hue) vorsieht (${180..359}$), skaliert. Hier werden exemplarisch Aufnahmen im Verlauf der Testsequenz Dispersion gezeigt, die mit Heat Maps aufbereitet werden. Die Heat Map stellt den Dichtefaktor dar. Kleine Werte für den Dichtefaktor ergeben die Farbtöne Cyan/Blau, hohe Werte ergeben die Farbtöne Lila/Rot. Wird dieser Dichtefaktor als Heat Map dargestellt, müssen, wie im Diagramm in Abbildung \ref{dichte} dargestellt, zu Beginn der Testsequenz Cyan-/Blautöne ($\text{hue}=180-250$) überwiegen. Gegen Ende (etwa ab Frame 70) der Testsequenz muss der Farbton in diesem Bildausschnitt ins Lila/Rote ($\text{hue}=300-359$) wechseln. 
+\vskip 10pt
+\begin{figure}[H]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    a) Bild Nr. 10
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    b) Bild Nr. 70
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    c) Bild Nr. 100
+  \end{minipage}
+\caption{Darstellung der Heat Map in der Testsequenz Dispersion  \cite{CourtyPRL2014} \cite{Allain2012ICPR}}
+\label{heatmap_series}
+\end{figure}
+
+Zum Vergleich wird der Bildausschnitt mit den Koordinaten (1|1) betrachtet, da dieser Verlauf bereits in Abbildung \ref{dichte} dargestellt ist. Man erkennt, dass in Frame 10 (vgl. a)) Cyan-/Blautöne überwiegen, sich die Messgröße zunächst einschwingt und dann im Arbeitsbetrieb befindet. Im Diagramm steigt der Dichtefaktor nun bis zum Ende der Testsequenz über die Farbtöne blau und lila (vgl. b)) auf seinen Maximalwert an, was ebenfalls zu erkennen ist. Wird, wie in c), der Maximalwert erreicht, wird der Bildausschnitt dunkelrot eingefärbt.
+
+\subsection{Videosequenz: UCF\_CrowdsDataset/Business-Getümmel \cite{AliS07}}
+Die Testsequenz "`Business-Getümmel'' wird verwendet, um erneut die Messgrößen Dichtefaktor, Personenfluss/-zahl mit realen Daten zu evaluieren. Die Personen sind mit einer Auflösung von 480x360 wegen der nahen Perspektive ausreichend aufgelöst. Für die Evaluation wird das Eingangsbild in nur einen Bildausschnitt mit einer Auflösung von 480x360 eingeteilt, weil ohnehin nur wenige Personen (maximal 60 auf einmal) in der Testsequenz zu sehen sind und ein möglichst hoher Wertebereich für die Messgrößen erzeugt werden soll. In der zuvor verwendeten künstlich generierten Bildsequenz waren bis zu 80 Personen in einem einzelnen Bildausschnitt zu sehen. Dieser Test mit realen Daten soll, in Analogie zum zuvor durchgeführten Test in Abschnitt \ref{dispersion_test}, zur Evaluation des Verhaltens der Messgrößen ausgeführt werden. Erneut werden nur relative Messgrößen zum Testen verwendet, weil relative Messgrößen bei Bekanntheit eines Skalierungsfaktors jederzeit in richtig skalierte, absolute Messgrößen umgerechnet werden können (vgl. Abschnitt \ref{dispersion_test} und Kapitel \ref{chap:imp} Abschnitt \ref{sec:konfig}). Das Verfahren (MFFT) wird, wie in Kapitel \ref{chap:imp} Abschnitt \ref{sec:konfig} beschrieben, konfiguriert und ein geeigneter Suchradius sowie die Geschwindigkeitsschwelle eingestellt. Die maximale Verweilzeit wird nun auf eine kurze Dauer gesetzt, da keine lang stehenden Personen in der Szene zu sehen sind. Die Schrittweiten $p$ und $q$ werden in diesem Abschnitt auf den Wert 10 festgelegt.
+
+\subsubsection{Personenzählung}
+Zur Durchführung der Tests müssen zunächst wieder Referenzdaten durch manuelle Annotationen generiert werden, die erneut durch manuelles Zählen der Personen in jedem Eingangsbild erhalten werden. Die Personen innerhalb des Bildausschnitts werden in 187 Frames manuell gezählt und die Ergebnisse notiert. Um erneut die Analogie zum verwendeten Verfahren (MFFT) zu bewahren, werden die gezählten Personenzahlen mit einem gleitenden Mittelwertfilter mit einer Mittelungsdistanz von $m$ Frames gemittelt. Die Mittelungsdistanz $m$ wird auf 10 Frames festgelgt. Anschließend werden die vom Verfahren ausgegebenen Messwerte für den Verlauf der Testsequenz exportiert und gespeichert. Die Ergebnisse werden in Abb. \ref{business:zahl} dargestellt und betrachtet.
+\newpage
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Graph: Verlauf der gemessenen/gezählten Personenzahl \cite{AliS07}}
+  \label{business:zahl}
+\end{figure}
+
+Man erkennt hier die Auftragung der manuell Annotierten und der algorithmisch geschätzten Messwerte des entwickelten Verfahrens (MFFT). Die geschätzte Personenzahl folgt dem Trend der erstellten Ground Truth, ist jedoch rauschbehaftet. Vergleicht man die Graphen mit denen der Personenzählung aus Abschnitt \ref{test:erg} Abbildung \ref{zahl}, stellt man fest, dass die, zu Beginn auftretende, überhöhte Personenzählung hier ausbleibt. Die überhöhte Personenzählung tritt im Fall von Personenverdeckungen auf, die sich im Laufe einer Sequenz, in der die Personenzahl stetig zunimmt, ausbilden können. In der hier verwendeten Sequenz beträgt die Personenzählung inital nach dem Einschwingen über 60\%. Hier nimmt also die Dichte nicht so drastisch (60\%-100\%) wie in der in Abbildung \ref{zahl} verwendeten Sequenz zu, in der sie von 10\%-100\% zunimmt, weswegen eine Zunahme der Verdeckungen im Verlauf der Testsequenz hier sehr viel schwächer ausgeprägt ist. Die überhöhte Personenzählung zu Beginn der Sequenz bleibt also aus, weil bereits zu Beginn mehr als 60\% der maximalen Personenzahl erreicht wird. Die Personen verdecken sich also demnach schon zu Beginn der Sequenz und verdecken sich im Verlauf der Sequenz nicht merklich zunehmend weiter.
+
+\subsubsection{Personenfluss}
+Wie bereits in Abschnitt \ref{dispersion_test} behandelt, kann das entwickelte Verfahren (MFFT) zur Erfassung des Personenflusses nicht manuell annotiert werden. Dieses Verfahren stützt sich auf das Zählen von Trajektorienspitzen und -knoten und es wäre sehr aufwendig für Menschen solche Trajektorien in einer Testsequenz zu erstellen, verwalten und schlussendlich auszuwerten. Daher wird erneut, wie bereits in Abschnitt \ref{dispersion_fluss}, der Personenfluss über die letzten $m$ Frames nach Gleichung \ref{fluss_gt} bestimmt. Die Schrittweite $p$ wird auf 10 Frames und die Mittelungsdistanz $m$ auf 30 Frames festgelegt. Der mittlere, relative Personenfluss wird über den Verlauf der Sequenz aufgetragen und in Abb. \ref{business:fluss} dargestellt.
+\vskip 10pt
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Graph: Verlauf des gemessenen/gezählten Personenflusses \cite{AliS07}}
+  \label{business:fluss}
+\end{figure}
+\newpage
+Man erkennt, dass der Verlauf des mittleren Personenflusses erneut, wie schon mit den computergenerierten Daten, mit dem Verhalten der Ground Truth korreliert. Der Verlauf scheint jedoch um etwa 10 Frames verzögert. Die Verzögerung resultiert aus den unterschiedlichen verwendeten Verfahren. Die Verfahren erfassen beide einen Personenfluss, sind sich jedoch in ihrem Ansatz Einzelschätzungen zu glätten unterschiedlich. Diese Verzögerung tritt auf, weil die Ground Truth, wie in Gleichung \ref{fluss_gt} dargestellt, generiert wird. Im Verfahren jedoch, wird der Personenfluss zunächst über eine Schrittweite von $p$ Frames berechnet und anschließend über $m$ Frames gemittelt. Da dieses Verfahren in manueller Form nicht ausgeführt werden kann, wird der Personenfluss als Ground Truth direkt über $m$ Frames erhalten, was die Verzögerung um $p$ (hier 10) Frames erklärt.
+
+\subsubsection{Dichtefaktor}
+Wie bereits in Abschnitt \ref{dispersion_dichte} erwähnt, wird der abgeleitete Dichtefaktor aus der Multiplikation der Messgröße relativer Trägheitsfaktor $B_{rel}$ mit der Messgröße relative Personenzählung erhalten. Da sich erneut, wie bereits in Abschnitt \ref{dispersion_dichte}, das manuelle Vorgehen zur Bestimmung einer mittleren Merkmalsgeschwindigkeit den Umfang der Arbeit überschreiten würde, werden für den Dichtefaktor keine Referenzdaten durch manuelle Annotationen generiert. Der Dichtefaktor wird mit der, bereits evaluierten, rel. Personenzahl verglichen, um seine Funktion und Unterscheidung von der reinen Messung einer Personenzahl zu zeigen. Die geschätzten Messungen des Verfahrens für den Dichtefaktor werden mit denen für die relative Personenzahl in Abbildung \ref{business:dichte} verglichen.
+
+%Da sich erneut das Vorgehen des Menschen zur Berechnung einer mittleren Mermalsgeschwindigkeit kaum von der algorithmischen Vorgehensweise unterscheidet, können die vom Plugin generierten Messergebnisse für den relativen Trägheitsfaktor als Ground Truth angenommen werden. Die manuell erhaltenen Werte für die relative Personenzählung werden mit den Generierten für den relativen Trägheitsfaktor multipliziert, um eine Ground Truth für den relativen Dichtefaktor zu erhalten. Anschließend werden die intern im Plugin generierten Messwerte für den relativen Dichtefaktor exportiert und gespeichert. 
+\newpage
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Graph: Verlauf des Dichtefaktors und der Personenzahl (MFFT) \cite{AliS07}}
+  \label{business:dichte}
+\end{figure}
+Hier erkennt man, dass die Verläufe der beiden Messgrößen stark korrelieren. Die Abweichung zu Beginn der Sequenz, wie in Abschnitt \ref{dispersion_dichte} beschrieben, bleibt hier aus. Dies resultiert aus der hohen Dynamik, die im Verlauf dieser Testsequenz durchgängig vorliegt. Im Fall einer hohen Dynamik werden immer kleine Messwerte für den relativen Trägheitsfaktor generiert, wobei durch die Multiplikation gleiches für den Dichtefaktor gilt. Der Verlauf für den Dichtefaktor ist nach unten versetzt, weil die kleinen Werte des relativen Trägheitsfaktors multipliziert mit den hohen Werten für die relativen Personenzahl eine nach unten versetzte Kurve ergeben.
+
+Außerdem erkennt man den, aus Abbildung \ref{dichte} bekannten, Überschwinger zu Beginn der Testsequenz. Dieser ergibt sich erneut durch den Einschwingvorgang der Messgröße relativer Trägheitsfaktor (vgl. Kapitel \ref{chap:imp} Abschnitt \ref{sec:sig}). Weil zunächst $q$ (hier 10) Frames vergehen müssen, bis die mittlere Vektorlänge der Bewegung über die letzten $q$ Frames ($B_j$) Messwerte generiert und diese anschließend noch über $m$ Frames gemittelt wird, dauert es weitere $m$ (hier 10) Frames, bis die mittlere Merkmalsgeschwindigkeit ($\bar{B_j}$) ihren hohen Betriebswert annimmt. Diese Größe nimmt also zu Beginn im Einschwingvorgang kleine Werte an, weswegen der rel. Trägheitsfaktor ($B_{rel}$), der als $(\frac{B_S}{\bar{B}_j})$ berechnet wird, zu Beginn immer hohe Werte annimmt. Weil aus dieser Größe der Dichtefaktor abgeleitet wird, nimmt dieser ebenfalls zu Beginn immer hohe Werte an und schwingt über. Nach dem Einschwingvorgang (etwa ab Frame 20) funktioniert diese Messgröße allerdings passabel und nimmt sinnvolle Werte an. Generell korreliert der Verlauf des abgeleiteten Dichtefaktors (MFFT) mit dem Verlauf der Ground Truth und kann als aussagekräftig betrachtet werden.
+\newpage
+\subsection{Videosequenz: UCF\_CrowdsDataset/Marathon \cite{AliS07}}
+Die bereits beschriebene Videosequenz Marathon wird dazu verwendet, die Trennung von Bewegten und statischen Merkmalen zu evaluieren. Dafür wird die maximale Verweilzeit auf 0 Frame gestellt, um die Erfassung statischer Merkmale nicht zu erlauben. Das Verfahren wird wie gewohnt für die Szene konfiguriert. Anschließend werden über 30 Frames Trajektorien mit dem entwickelten Verfahren (MFFT) erfasst und gezeichnet. Die erfassten Trajektorien werden in Abbildung \ref{run_trajectories} dargestellt:
+\vskip 10pt
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Darstellung von erfassten Trajektorien von Marathonläufern \cite{AliS07}}
+  \label{run_trajectories}
+\end{figure}
+
+Man erkennt hier, dass nahezu ausschließlich in der bewegten Masse an Läufern Trajektorien erfasst werden, die als Gruppe oberhalb der eingestellten Geschwindigkeitsschwelle liegt. Statische Punkte wie Ecken an Häusern oder unbewegten Personen werden nicht erfasst. Die Trennung der Merkmale in Statische und nicht-Statische funktioniert also zureichend und kann als plausibel angenommen werden.
+
+\subsection{Videosequenz: Hamburger Hafenfest 2014}
+Die zuvor beschriebene Videosequenz des Hamburger Hafenfests wird verwendet, um die Erfassung präziser Trajektorien in Personengruppen hoher Dichte zu evaluieren. Dabei werden niedrig aufgelöste Aufnahmen mit 960x540 verwendet, um zu zeigen, dass die Erfassung solcher Trajektorien auch mit relativ niedrig aufgelösten Daten zuverlässig funktioniert. Die Trajektorien werden erfasst und als blaue Linien im Eingangsbild in Abbildung \ref{hafen} dargestellt:
+\newpage
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Erfasste Trajektorien in der Testsequenz Hamburger Hafenfest}
+  \label{hafen}
+\end{figure}
+
+Es ist zu erkennen, dass mit dem erstellten Algorithmus selbst in Personengruppen hoher Dichte individuelle Trajektorien geführt werden können und somit die Abbleitung von aussagekräftigen Messgrößen in derartigen Szenarien auf Massenveranstaltungen möglich ist. Außerdem erkennt man hier, dass die Fahnenbewegungen im Wind kleine Trajektorien entstehen lassen. Diese Trajektorien können gefiltert werden, indem man eine minimale Vektorlänge über die letzten M Frames vorgibt (vgl. Kapitel \ref{chap:imp} Abschnitt \ref{sec:konfig}). Da die Fahnenbewegungen Kreisbewegungen sind und keine exzentrische Orientierung haben, kann sich die Fahne nie über große Teile des Bildes bewegen, wie dies etwa Menschen tun. Damit wird sie nie eine hohe Vektorlänge über die letzten M Frames erreichen, weil sie immer wieder in etwa zu ihrem Ausgangspunkt zurückkehrt. Dabei werden zwar in Ausnahmefällen auch gewünschte Trajektorien gefiltert, jedoch können so Falschdetektionen (sog. False Positives) weitgehend verhindert werden.

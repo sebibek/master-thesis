@@ -1,0 +1,117 @@
+﻿//////////////////////// MASTER THESIS NOTES /////////////////////////////////////////////////////////////////////////////////
+----------------------- Comp. Graphics --------------------------------------------------
+shadow maps: z-Buffer (depth) test for each visible voxel, whereby depth (z) is compared to depth map of each light src (area light)
+RSMs: extended shadow maps, storing world space coordinates, flux and normals to determine indirect lighting
+http://ericpolman.com/2016/03/17/reflective-shadow-maps/
+https://en.wikipedia.org/wiki/Shading#Point_lighting
+http://drz.disneyresearch.com/~jnovak/publications/SSBC/SSBC_slides.pdf
+http://ericpolman.com/2016/03/17/reflective-shadow-maps/
+
+environment lighting: appearance of reflective surface stored in 2D texture image (original: sphere mapping, advanced: cube mapping) and subsequential affine transformation to match the object's original reflective surface shape -> represented in spherical harmonics
+
+spherical harmonics: complete set of orthogonal, spherical (surface) functions on the sphere used to represent functions on the sphere
+--> called harmonics because they form homogeneous polynomial solutions of Laplace's differential equation
+- analogies to fourier series: 
+circular functions (sin/cos) used to represent circular functions on the circle, decomposition in spatial frequency components possible
+--> BRDFs should be modeled with spherical harmonics on half the sphere
+https://brilliant.org/wiki/spherical-harmonics/
+
+rasterization: modeling of 3d objects in local coordinates, vertex/edge subdivision, tesselation, fragment shading (texturing, Phong-Shading)
+               --> MVP transform to clip coordinates, clipping polygons, --> normalization to NDC --> perspectively correct interpolation in image space 
+	       --> scaling to viewport (window) --> Rasterization (Bresenham (w. anti-aliasing)/Polygon (scanline) rasterization or mixture)
+
+LPV: light propagation volumes - volume grids for propagating light inside of volumes (matter)
+
+virtual point lights: small area light sources (approximated as point lights) with Lambert emitter characteristics each with orientation and light distribution injected into the grid cells in our case texels from RSMs or from environment maps
+
+Radiosity methods: FEM method for global illumination (rendering eq.) - only diffusely reflected paths -> Lambert's cosine
+Path tracing: Monte-Carlo method for global illumination (rendering eq.) - all types of light paths - what we wanna do?
+
+----------------------- Physics --------------------------------------------------
+types of light sources: (for thermal radiators: every src is a Lambert emitter -> exception: non-thermal radiators: luminescence, phosphorescence -- LEDs)
+Point light: light emitted equally in all direction from one single point in space with infinitesimally small extend within the radius - approx. bare lightbulbs, candles
+Area Light: light emitted from a plane with finite extend
+
+distance falloff: light attenuation/inverse square law - only in medium, not in vacuum!
+propagation attenuation: light attenuation resulting from propagation/distribution onto bigger sphere areas -> sphere waves
+
+black body radiation: idealized emitter (emitting the most energy compared to any other body at its effective temperature), emitting diffuse (isotropic) thermal radiation (Achtung: thermal heißt je nach Temperatur über das gesamte Elektromagnetische Spektrum hinweg!)
+-> ideal black body: absorbing any electromagnetic radiation and emitting all of the energy in the form of thermal radiation -> black holes: approx model
+-> stars: only convenient for determining effective temperature in photosphere, no real/ideal black body -> bad approximation
+-> Lambert emitter: perfect model
+-> thermal emitters: idealized model
+Schwarze Löcher: Standardscheibe/Akkretitionsscheibe: Materieströmung, die in form einer flachen Scheibe um kosmisches Objekt rotiert (hohe Geschwindigkeiten!), strahlt Wärmestrahlung ab (auch bei schwarzen Löchern --> hier meist Röntgenstrahlung)
+Für schwarze Körper (Planck'sche Strahler) schiebt sich das Spektrum mit zunehmender Temperatur zu UV: UV-Katastrophe unendlich Energie bei hohen Frequenzen! --> Quantisierung der Wärmestrahlungsenergie zu Paketen (Planck) und später Energie der gesamten elektromagnetischen Strahlung (Einstein). Rayleigh und Wien machten dann noch Reihenentwicklungen für die Grenzwertbetrachtung des Planck'schen Strahlungsgesetztes und steuerten jeweils ihre Gesetze (Äste herbei).
+Planck'sches Strahlungsgesetz: gibt Energieverteilung eines thermischen Strahlers in Abhängigkeit von Wellenlänge/frequenz der Strahlung an
+Kirchhoffsches Strahlungsgesetz: Absorptionsgrad=Emissionsgrad (bei schwarzen Löchern 1 - "ein guter Absorber ist auch ein guter Emitter")
+https://www.spektrum.de/lexikon/astronomie/stellare-schwarze-loecher/457  --> schwarze Löcher emittieren thermische Strahlung außerhalb des VIS-Spektrums
+https://www.spektrum.de/lexikon/physik/schwarzer-koerper/12976
+https://anthrowiki.at/Schwarzer_K%C3%B6rper
+https://www.nationalgeographic.de/wissenschaft/leben-wir-einem-schwarzen-loch
+https://www.spektrum.de/lexikon/astronomie/planckscher-strahler/348
+
+Lambert's law/Lambert's cosine (lobe): defines the radiation properties of an ideal black body -> used to approximate luminance/luminous intensity distributions in VIS-spectrum for LEDs/lightbulbs/candles (thermal radiators) for point and area light sources with extend
+
+Stefan-Boltzmann T^4 law: Leistung, Druck eines schwarzen Körpers (Planck'sche Strahlers) nehmen mit T^4 zu
+Photonengas: Spezialfall eines Bosongas, das aus harmonischen Oszillatoren enststeht - z.B. Photonenwolke in Sternenphotosphäre
+
+Solid angle: A/r^2=4Pi sr, which represents the full sphere angle
+
+Lichtstärke: luminous intensity I
+Leuchtdichte: luminance L
+
+Strahlertypen: (Emitter-Charakteristika)
+Lambert-Strahler: -> Modell für jeden thermischen Strahler/perfekt diffusen Reflektor mit cosinus-Strahlprofil (cosine-lobe) : Icos(phi)
+Kugelstrahler: -> Modell für Kugelstrahler mit kugelförmigem, isotropem Strahlprofil I und festem Dämpfungs-/Einflussradius
+Keulenstrahler: -> Modell für Keulenstrahler mit Leuchtdichte abnehmend mit cos^2phi
+Dir. Light: parallel rays from one single given direction (area light src with infinite distance and extend) - approx. stars/sun (no distance falloff - vacuum)
+(attention: high frequent intensity profile! - do not use LPV grid for approximation)
+
+Lichtquellentypen: (nur nach Ausdehnung) - types of light sources
+Punktlichtquellen (Lambert/Kugel): richtungsabhängige Lichtquellen -> Lichtstärke zur Beschreibung (richtungsunabhängig) -- Definition der Lichtstärke setzt divergentes Licht (Punkt) voraus
+Flächenlichtquellen/Oberflächen(Lambert/Kugel): richtungsunabhängige Lichtquellen -> Leuchtdichte zur Beschreibung (richtungsunabhängig und konstant über 		Fläche)	-- Definition der Leuchtdichte setzt Flächenelement mit endlicher Ausdehnung voraus 
+
+Lichtstärke (luminous intensity): cd=lm/sr (lichtstrom/raumwinkel) (Leistung/Raumelement) - für Lambert-Strahler: abhängig von Betrachtungswinkel I(w)=I0cos(w)
+		Stichwort: BRDFs, die das indirekt messen (Integrieren, jedoch näherungsweise konstant über dOmega - daher gleich)
+Leuchtdichte (luminance): cd/m^2: verantwortlich für visuellen Helligkeitseindruck (gleich hell bei Lambert-Strahlern wg. Projektion von Flächenelementen 
+				  cos(phi)dA)
+              - unabhängig von Betrachtungswinkel wg. der zur geringeren Lichtstärke korrespondierenden geringeren projizierten Fläche
+	      - generell für ausgedehnte LQ: ebenso unabhängig von Distanz zur LQ, da gesamplete Flächenelemente dA/mm^2 Netzhaut mit der Distanz zunehmen und 
+		inverse square losses ausgleichen
+
+https://gis.stackexchange.com/questions/222554/difference-between-irradiance-and-radiance-remote-sensing-reflectance-and-water
+http://deacademic.com/dic.nsf/dewiki/822433
+
+in unserem Modell; VPL: Punktlichtquelle mit Lambert-Emitter Charakteristik repräsentiert in SH (wie jede andere Grid cell auch)
+
+Tensor: multilineare Funktionen aus separierbaren linearen Variablen, (linear separierbar) - multidimensionales Array mit festgelegten Transformationsregeln
+naiv: generalisierung einer matrix auf o Ordnungen mit variabler Indexanzahl o und Dimension n.
+mathematisch: tensoren sind arrays aus Zahlen, die Transformationsregeln des Basis Change folgen, also unter linearen Transformationen bestimmten Transformationsregeln (covariant/contravariant transformation) folgen.
+Physikalisch: tensoren kommen daher per definition aus einem physikalischen, beobachtbaren Zusammenhang und sind demnach keine beliebige Anordnung von Zahlen, sondern folgen bestimmten physikalischen/mathematischen Transformationsregeln, die einheitlich festgelegt sind. (covariant/contravariant transformation)
+Covariant: variant unter linearen Abbildungen : Contravariant: invariant unter linearen Abbildungen (meist gewünscht) oder Kombination aus beiden mit Indices
+Dimension ist meist irrelevant in Tensorgleichungen und es können beliebig viele Indices (hohe Ordnungen) auftreten.
+ordnungen o: 0: skalar, 1: vektor, 2: Matrix, 3: "3D-Tensor" (entspricht Anzahl der Indices)
+Darstellung des Tensors: o-dimensional
+Interpretation/Einbettung des Tensors: n-dimensional  --> 2x2 Matrix ist 2. Ordnung ("2D-Tensor") eingebettet im 2D-Raum
+=> Laiensprache: Bezeichnung "oD"-Tensor ist irreführend und kommt eher nur in Machine-Learning und IT vor -- nicht physikalisch korrekt, da o=2 Tensoren im 3D Raum eingebettet sein können ==> Fachsprache: Tensor o. Ordnung (von/mit Rang o) eingebettet (interpretiert) im n-dimensionalen Raum 
+n = Rang (Anzahl d. Spalte-/Zeilenelemente)
+=> kurz: nD Tensor o. Ordnung (eigener Shorthand/placeholder/dummy --> in Arbeit Ausformulierung verwenden)
+komplexe Tensoren: <n,m> Ordnung o = n+m (n Vektoren auf m Vekoren abgebildet)
+
+Wellen: (sowohl mechanische Materialwellen, als auch Lichtwellen)
+Phasengeschwindigkeit: Ausbreitungsgeschwindigkeit der Amplitude (Phase) der Welle
+Gruppengeschwindigkeit: Ausbreitungsgeschwindigkeit der Hüllkurve eines Wellenpakets (Übertragungsgeschwindigkeit für Informationen/Energie in verlustfreien Leitern) --> http://www.mikomma.de/optik/disp/dispaket.htm
+
+Moden: "Frequenzen" (Ordnungen) stehender Wellen (räuml.)
+
+GRIN: gradient-index optics
+
+Wellenpaket: Überlagerung von Wellen mit leicht unterschdl. Frequenz - Schwebung -> zeitlich oder räumlich begrenzt - quantenmechanische Aufenthaltswahrscheinlichkeitbereich eines Wellenteilchens formuliert mit Fourier-Synthese
+Dispersion: Phasenverschiebung von Wellen aufgrund von unterschdl. Phasengeschwindigkeit der Frequenzkomponenten - zB Regenbogen, auseinanderlaufendes Wellenpaket
+Soliton: Wellenpaket, das nicht auseinanderläuft, weil Dispersions- und Amplitudeneffekte sich ggs. aufheben (Spezialfall, genutzt zur Datenübertragung)
+--> tritt in nichtlinearen Medien wie Wasser auf
+
+Interferenz: tritt bei kreuzenden Wellen auf - nur mit Phasenbeziehung (Kohärenz) stabil --> https://lp.uni-goettingen.de/get/text/5128
+--> Interferenz entspricht einer Überlagerung jedoch nicht einer ggs. Beeinflussung, sie tritt unabhängig von einer Phasenbeziehung auf, jedoch nicht zwingend stabil!	Achtung: nichtlineare Wellen: zB große/hohe Wasserwellen (Tsunamis) interferieren nicht -- diese sind jedoch eher selten!
+http://www.falstad.com/ripple/
+http://schulphysikwiki.de/index.php/Animation:_Zwei-Quellen-Interferenz_Moire-Effekt

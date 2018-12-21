@@ -1,0 +1,97 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      2507,         88]
+NotebookOptionsPosition[      2159,         71]
+NotebookOutlinePosition[      2501,         86]
+CellTagsIndexPosition[      2458,         83]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"data", "=", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2", ",", "3"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"4", ",", "5", ",", "6"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"7", ",", "8", ",", "9"}], "}"}]}], "}"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{"Graphics3D", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Arrow", "[", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "0"}], "}"}], ",", "#"}], "}"}], "]"}], 
+    "&"}], "/@", "data"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.7505805512381396`*^9, 3.7505805630928173`*^9}}],
+
+Cell[BoxData[
+ Graphics3DBox[{Arrow3DBox[{{0, 0, 0}, {1, 2, 3}}], 
+   Arrow3DBox[{{0, 0, 0}, {4, 5, 6}}], Arrow3DBox[{{0, 0, 0}, {7, 8, 9}}]},
+  AutomaticImageSize->True,
+  ImageSize->{375.9059885539454, 409.55759257585163`},
+  ViewPoint->{-1.1624213776965564`, 1.5505858671365598`, -2.7738889684539294`},
+  ViewVertical->{-0.30578967761049985`, 
+   1.088982918060731, -0.08024484501579666}]], "Output",
+ CellChangeTimes->{3.750580566482012*^9}]
+}, Open  ]],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"data2d", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "2", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", "5", ",", "6"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"7", ",", "8", ",", "9"}], "}"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", "Plot"}], "Input",
+ CellChangeTimes->{{3.750860342392206*^9, 3.750860352065759*^9}}]
+},
+WindowSize->{767, 738},
+WindowMargins->{{Automatic, 328}, {22, Automatic}},
+FrontEndVersion->"10.0 for Microsoft Windows (64-bit) (July 1, 2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 690, 22, 72, "Input"],
+Cell[1273, 46, 445, 8, 425, "Output"]
+}, Open  ]],
+Cell[1733, 57, 422, 12, 52, "Input"]
+}
+]
+*)
+
+(* End of internal cache information *)

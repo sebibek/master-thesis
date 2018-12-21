@@ -1,0 +1,35 @@
+\select@language {ngerman}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {\relax 2.1}{\ignorespaces Betrachtung der Gradientenbeitr\IeC {\"a}ge verschiedener Patches\relax }}{7}{figure.caption.3}
+\contentsline {figure}{\numberline {\relax 2.2}{\ignorespaces Verteilungen von Gradientenbeitr\IeC {\"a}gen $I_x,I_y$ \cite {collinscourse}\relax }}{8}{figure.caption.4}
+\contentsline {figure}{\numberline {\relax 2.3}{\ignorespaces Blockschaltbild: OCV\_CornerTracker\relax }}{10}{figure.caption.5}
+\contentsline {figure}{\numberline {\relax 2.4}{\ignorespaces optischer Fluss von detektierten Ecken an Marathonl\IeC {\"a}ufern \cite {AliS07}\relax }}{12}{figure.caption.6}
+\contentsline {figure}{\numberline {\relax 2.5}{\ignorespaces Funktionsweise des Verfahrens zur Erfassung von Trajektorien\relax }}{13}{figure.caption.7}
+\contentsline {figure}{\numberline {\relax 2.6}{\ignorespaces Suche nach IDs\relax }}{15}{figure.caption.8}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {\relax 3.1}{\ignorespaces Aufbau eines m\IeC {\"o}glichen Videoanalysesystems\relax }}{18}{figure.caption.9}
+\contentsline {figure}{\numberline {\relax 3.2}{\ignorespaces Erfassung und Darstellung von Trajektorien aus versch. Perspektiven \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{20}{figure.caption.10}
+\contentsline {figure}{\numberline {\relax 3.3}{\ignorespaces Erfassung und Darstellung von Trajektorien in diversen Szenarien \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{20}{figure.caption.11}
+\contentsline {figure}{\numberline {\relax 3.4}{\ignorespaces Darstellung des Dichtefaktors als Heat Map \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{25}{figure.caption.12}
+\contentsline {figure}{\numberline {\relax 3.5}{\ignorespaces Konfigurationsdialog des Softwaremoduls\relax }}{26}{figure.caption.13}
+\contentsline {figure}{\numberline {\relax 3.6}{\ignorespaces Gezeichnete Trajektorien f\IeC {\"u}r versch. Suchradien\relax }}{29}{figure.caption.14}
+\contentsline {figure}{\numberline {\relax 3.7}{\ignorespaces versch. Bildregionen mit unterschdl. Abst\IeC {\"a}nden zum Kameraobjektiv\relax }}{31}{figure.caption.15}
+\contentsline {figure}{\numberline {\relax 3.8}{\ignorespaces Verfahren: geometrische Kalibrierung\relax }}{32}{figure.caption.16}
+\contentsline {figure}{\numberline {\relax 3.9}{\ignorespaces Distanzsch\IeC {\"a}tzung der Bildzeilen\relax }}{32}{figure.caption.17}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {\relax 4.1}{\ignorespaces Ausschnitte der Testsequenz Dispersion \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{35}{figure.caption.18}
+\contentsline {figure}{\numberline {\relax 4.2}{\ignorespaces Ausschnitte der Testsequenz Business-Get\IeC {\"u}mmel \cite {AliS07}\relax }}{36}{figure.caption.19}
+\contentsline {figure}{\numberline {\relax 4.3}{\ignorespaces Ausschnitte der Testsequenz Marathonlauf \cite {AliS07}\relax }}{37}{figure.caption.20}
+\contentsline {figure}{\numberline {\relax 4.4}{\ignorespaces Testsequenz des Hamburger Hafenfests bei (a) Nebel; (b) Regen\relax }}{39}{figure.caption.21}
+\contentsline {figure}{\numberline {\relax 4.5}{\ignorespaces Testsequenz des Hamburger Hafenfests bei (c) Sonne; (d) Sonnenuntergang\relax }}{40}{figure.caption.22}
+\contentsline {figure}{\numberline {\relax 4.6}{\ignorespaces Graph: Verlauf der gemessenen/gez\IeC {\"a}hlten Personenzahl \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{42}{figure.caption.24}
+\contentsline {figure}{\numberline {\relax 4.7}{\ignorespaces Graph: Verlauf des gemessenen/gez\IeC {\"a}hlten Personenflusses \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{43}{figure.caption.26}
+\contentsline {figure}{\numberline {\relax 4.8}{\ignorespaces Graph: Verlauf des Dichtefaktors und der Personenzahl (MFFT) \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{44}{figure.caption.28}
+\contentsline {figure}{\numberline {\relax 4.9}{\ignorespaces Darstellung der Heat Map in der Testsequenz Dispersion \cite {CourtyPRL2014} \cite {Allain2012ICPR}\relax }}{45}{figure.caption.30}
+\contentsline {figure}{\numberline {\relax 4.10}{\ignorespaces Graph: Verlauf der gemessenen/gez\IeC {\"a}hlten Personenzahl \cite {AliS07}\relax }}{47}{figure.caption.32}
+\contentsline {figure}{\numberline {\relax 4.11}{\ignorespaces Graph: Verlauf des gemessenen/gez\IeC {\"a}hlten Personenflusses \cite {AliS07}\relax }}{48}{figure.caption.34}
+\contentsline {figure}{\numberline {\relax 4.12}{\ignorespaces Graph: Verlauf des Dichtefaktors und der Personenzahl (MFFT) \cite {AliS07}\relax }}{49}{figure.caption.36}
+\contentsline {figure}{\numberline {\relax 4.13}{\ignorespaces Darstellung von erfassten Trajektorien von Marathonl\IeC {\"a}ufern \cite {AliS07}\relax }}{50}{figure.caption.37}
+\contentsline {figure}{\numberline {\relax 4.14}{\ignorespaces Erfasste Trajektorien in der Testsequenz Hamburger Hafenfest\relax }}{51}{figure.caption.38}
+\addvspace {10\p@ }

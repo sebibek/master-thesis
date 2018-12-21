@@ -1,0 +1,179 @@
+\chapter{Grundlagen}
+\label{chap:grund}
+
+Dieses Kapitel befasst sich mit den Basismethoden, welche in den untersuchten Verfahren eingesetzt werden. Zunächst wird in Abschnitt \ref{sec:harris} das zugrundeliegende Verfahren zur Extraktion lokaler Bildmerkmale beschrieben, das auf dem Harris Corner Detector \cite{collinscourse} basiert. Anschließend wird im Abschnitt \ref{sec:corner} der verwendete Corner Tracker behandelt, welcher zu den lokalen Bildmerkmalen Bewegungsinformationen (vgl. Abschnitt \ref{sec:planes}) hinzufügt (motion vectors - Bewegungsvektoren). Im letzten Abschnitt \ref{sec:trajektorien} wird das verwendete Verfahren zur Erfassung von Trajektorien (Pfaden) der lokalen Bildmerkmale, und dadurch indirekt der Personen (-gruppen), näher beschrieben.
+
+\section{Harris Corner Detector}
+\label{sec:harris}
+Der "`Harris Corner Detector'' \cite{collinscourse} ist ein Algorithmus, der verschiedene Bildausschnitte (Patches) einer Bildmatrix $I$ nach Ecken (engl.: Corners) durchsucht und diese in Form der Position des Center Pixels extrahiert, falls sich eine Ecke im Bildausschnitt befindet. Eine grafische Beschreibung der Idee des Harris Corner Detector wird auf der folgenden Seite dargestellt. Dabei werden unterschiedliche Patches (s. Abbildung \ref{gradient} - blau) mit unterschiedlichen Situationen betrachtet:
+
+\begin{figure}[H]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    \label{c)}
+  \end{minipage}
+\caption{Betrachtung der Gradientenbeiträge verschiedener Patches}
+\label{gradient}
+\end{figure}
+
+%BILD Patch im flachen und auf einer Ecke
+Diese anschauliche Beschreibung der Idee des Harris Corner Detectors zeigt, dass in der Umgebung einer Ecke immer viele hohe Intensitätsunterschiede (Gradientenbeiträge) in verschiedene Richtungen vorliegen. In Abbildung \ref{harris} werden Verteilungen der Gradientenbeiträge in x- und y-Richtung für die verschiedenen Fälle in einem Bildausschnitt betrachtet:
+\bigskip
+\bigskip
+\begin{figure}
+  \centering
+  \fbox{
+    \includegraphics[width=0.8\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Verteilungen von Gradientenbeiträgen $I_x,I_y$ \cite{collinscourse}}
+  \label{harris}
+\end{figure}
+\newpage
+Dabei wird klar, dass je nach Situation eine andere Verteilung der Daten vorliegt und zwischen allen drei Fällen klar unterschieden werden kann. Dafür muss aber unterschieden werden können, ob die Varianz der Verteilung mit Bezug zum Ursprung generell klein (im Fall einer Fläche), groß in eine Richtung (im Fall einer Kante) oder groß in mindestens 2 Richtungen (im Fall einer Ecke) ist. Dazu wird eine Kovarianzmatrix (auch bekannt als Strukturtensor) $M$ für die Verteilung der Gradientenbeiträge $I_x$,$I_y$ hergeleitet (Herleitung siehe \cite{cscourse}), die die Varianz der Daten mit Bezug zum Ursprungswert ($I_x=0$, $I_y=0$) im aktuellen Bildausschnitt mit Center Pixel $x,y$ beschreibt:
+
+\begin{align}
+M = \sum_{u,v}{w(u,v)
+\begin{bmatrix}
+I_x^2 & I_xI_y\\
+I_xI_y & I_y^2\\
+\end{bmatrix}
+}
+&=
+\begin{bmatrix}
+a = \sum_{u,v}{w(u,v)I_x^2} & b = \sum_{u,v}{w(u,v)I_xI_y}\\
+b = \sum_{u,v}{w(u,v)I_xI_y} & c = \sum_{u,v}{w(u,v)I_y^2}\\
+\end{bmatrix}
+\notag \\ \bigskip \bigskip \bigskip
+\begin{bmatrix}
+a & b\\
+b & c\\
+\end{bmatrix}
+&=
+\begin{bmatrix}
+\text{var}(I_x) & \text{covar}(I_x,I_y)\\
+\text{covar}(I_x,I_y) & \text{var}(I_y)\\
+\end{bmatrix}
+\end{align}
+\vskip 5pt
+\begin{flushleft}
+mit  $u,v \in W(u,v)$, $I_x=I_x(x+u,y+v)$ und $I_y=I_y(x+u,y+v)$
+\end{flushleft}
+\vskip 5pt
+$I_x$ und $I_y$ werden wegen der kompakteren Schreibweise abgekürzt.
+$w(u,v)$ ist hier eine Gewichtungsfunktion wie die Rechteck- oder Gauss-Funktion. $W(u,v)$ beschreibt den zulässigen Wertebereich, innerhalb dem $u$ und $v$ liegen müssen, um den definierten Bildausschnitt nicht zu überschreiten. Für die Eigenwerte der Matrix $M$ gilt:
+\begin{equation}
+\lambda_{1/2} = \frac{a+c \pm \sqrt{(a-c)^2 + 4b^2}}{2}
+\end{equation}
+Im Fall einer Kovarianzmatrix geben die Eigenvektoren Dieser die 2 orthogonalen Hauptrichtungskomponenten der Varianz der Daten an. Die Eigenwerte $\lambda_1$ und $\lambda_2$ beschreiben die Länge der größten Eigenvektoren und damit die Varianz der Verteilung von $I_x$, $I_y$ in Richtung der Eigenvektoren. Damit ergeben sich im Falle einer:
+\begin{itemize}
+\item flachen Region (s. Abbildung \ref{harris} - flat): 2 kleine Eigenwerte der Matrix B (keine Varianz) $\Rightarrow \lambda_1\sim \lambda_2\approx 0$ 
+\item Kantenregion (s. Abbildung \ref{harris} - edge): 1 großer, 1 kleiner Eigenwert der Matrix B (große Varianz in eine Richtung) $\Rightarrow \lambda_1 >> \lambda_2$ \hskip 5pt $v$ \hskip 5pt $\lambda_2 >> \lambda_1$
+\item Eckregion (s. Abbildung \ref{harris} - corner): 2 große Eigenwerte der Matrix B (große Varianz in mindestens 2 Richtungen) $\Rightarrow \lambda_1\sim \lambda_2$ 
+\end{itemize}
+
+\newpage
+
+Um in allen Fällen verschiedene Ergebnisse zu erhalten, wird eine sogenannte Corner Response an jedem Pixel definiert, die große, positive Werte für Ecken, große Negative für Kanten und kleine Werte für flache Regionen annimmt:
+\begin{equation}
+R = \lambda_1\lambda_2 - k(\lambda_1 + \lambda_2)^2
+\end{equation}
+$k$ ist ein empirisch festgelegter Parameter, dessen Wertebereich zwischen 0,04 und 0,06 liegt.
+Um den Rechenaufwand, der durch die Berechnung der Eigenwerte entsteht (Quadratwurzeln sind rechenintensiv) zu verringern, wird die Corner Response oft so definiert:
+\begin{equation}
+R = \det{B} - k(\text{spur\ } B)^2
+\end{equation}
+mit: $\det{B} = \lambda_1\lambda_2$ und $\text{spur\ } B = \lambda_1+\lambda_2$\\
+
+\section{Corner Tracker}
+\label{sec:corner}
+Als Grundlage der Arbeit liegt eine Bibliothek "`OCV\_CornerTracker'' vor, in der im Rahmen eines sogenannten Corner Trackers der Harris Corner Detector bereits implementiert ist. Das Blockschaltbild dieser Bibliothek wird in Abbildung \ref{ocv} dargestellt.
+\bigskip
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.7\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Blockschaltbild: OCV\_CornerTracker}
+  \label{ocv}
+\end{figure}
+\begin{flushleft}
+\underline{Funktion:}
+\end{flushleft}
+Das hier eingesetzte Verfahren zum Tracking von Harris Corner Features (Merkmalen) berechnet zunächst für jeden Pixel im vorherigen (n-1.) Eingangsbild den sogenannten optischen Fluss \cite{Baker07adatabase}. Dabei wird ein Intensitätsprofil aus der Umgebung eines Pixels erstellt. Dieses Profil wird in der Umgebung des Pixels im aktuellen (n.) Eingangsbild gesucht. Die relative Verschiebung des Mittelpunkts im Profil im Vektorraum, zwischen beiden Eingangsbildern, gibt den optischen Fluss des Pixels in Zeilen- und Spaltenrichtung an. 
+\newpage
+In Abbildung \ref{gaussians} werden beispielhaft solche Verschiebungsvektoren in einem Videobild in blau eingezeichnet. Anschließend wird zu den jeweiligen Pixelpositionen, die im vorherigen (n-1.) Eingangsbild als Harris Corners klassifiziert wurden, der zugehörige optische Fluss als Bewegungsschätzung hinzugefügt. An Positionen, an denen die Merkmale keine Bewegungen aufweisen oder keine Merkmale extrahiert wurden, werden die Verschiebungsvektoren gleich 0 gesetzt. Zusammenfassend enthalten die generierten Verschiebungsvektoren ausschließlich pixelbezogene Bewegungen der extrahierten Merkmale des Harris Corner Detectors vom letzten (n-1.) zum aktuellen (n.) Frame.
+\vskip 5pt
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.75\textwidth]
+    {images/dummy.png}
+  }
+  \caption{optischer Fluss von detektierten Ecken an Marathonläufern \cite{AliS07}}
+  \label{gaussians}
+\end{figure}
+
+\section{Verschiebungsvektoren}
+\label{sec:planes}
+
+Die Verschiebungsvektoren, die vom Corner Tracker (s. Abschnitt \ref{sec:corner}) ausgegeben werden, beinhalten die relativen Bewegungen der extrahierten Merkmale in Zeilen- und Spaltenrichtung am Ort des Ursprungs. Aus den beiden Vektorkomponenten können für jede detektierte Position im Bild Vektorbeträge berechnet werden:\\
+\begin{equation}
+\abs{\vec{a}} = \sqrt{DX^2 + DY^2} \hskip 30pt [\text{px}]
+\end{equation}
+\vskip 5pt
+Weil diese Vektorlänge sich im Verfahren auf die Bewegung eines Merkmals über einen Frame hinweg bezieht, ist diese Angabe eine Merkmalsgeschwindigkeit:\\
+\begin{equation}
+v = \frac{\abs{\vec{a}}}{1\text{frame}} = \frac{\sqrt{DX^2 + DY^2}}{1\text{frame}} \hskip 30pt [\frac{\text{px}}{\text{frame}}]
+\end{equation}
+\newpage
+Kennt man den genäherten Abstand $d(x,y)$ zwischen den Pixeln im betreffenden Bildausschnitt als abbildende Funktion(\zb in Form einer Karte mit Einträgen in $[\frac{m}{\text{px}}]$) und zusätzlich die Framerate $\text{FR}$ (in $[\text{fps}]$) erhält man die reale Merkmalsgeschwindigkeit genähert in SI-Einheiten:\vskip 3pt
+\begin{equation}
+v_{SI}(x,y) \approx v(x,y)\cdot d(x,y)\cdot\text{FR} \hskip 30pt [\frac{m}{s}]
+\end{equation}
+
+%evtl abbildende Funktion f(v(x,y)) hinzunehmen
+
+\section{Erfassung von Trajektorien}
+\label{sec:trajektorien}
+
+In diesem Abschnitt wird das Verfahren zur Erfassung von Trajektorien (Pfaden) der Personen beschrieben. Die Funktion dieses Verfahrens wird in Abbildung \ref{idMaps} schematisch dargestellt:
+\bigskip
+\begin{figure}[h]
+  \centering
+  \fbox{
+    \includegraphics[width=0.8\textwidth]
+    {images/dummy.png}
+  }
+  \caption{Funktionsweise des Verfahrens zur Erfassung von Trajektorien}
+  \label{idMaps}
+\end{figure}
+
+Die Trajektorien werden im verwendeten Verfahren durch eine ID (Identifikationsnummer) und eine Trajektorienadresse (s. Abb. \ref{idMaps} - trackID, adress) beschrieben, an der die bereits passierten Positionen gespeichert werden.
+
+Die Verschiebungsvektoren des optischen Flusses werden zunächst für jeden Eintrag nach Positionen durchsucht, an denen die Vektorlängen (Merkmalsgeschwindigkeiten) oberhalb einer festgelegten Geschwindigkeitsschwelle liegen. Wird eine solche Position gefunden, liegt dort ein sich deutlich bewegendes, interessantes Merkmal vor, dessen nähere Umgebung in der ID Map des Vorgängerframes nach bereits vorhandenen IDs durchsucht wird (vgl. Abb. \ref{searchRadius}). Wird keine andere ID in der Umgebung in der ID Map gefunden, wird eine neue ID für diese, neu erstellte, Trajektorie vergeben (vgl. Abbildung \ref{idMaps} ID Map - schwarz). Zum Erweitern der vorhandenen Trajektorien wird für jede Pixelposition zusätzlich die ID Map des Vorgängerframes nach bereits vorhandenen IDs durchsucht.
+\newpage
+Wird eine ID gefunden, wird umgekehrt die Umgebung Dieser in den Verschiebungsvektorlisten nach Positionen durchsucht, an denen die Merkmalsgeschwindigkeit oberhalb der Geschwindigkeitsschwelle liegt. Wird ein solches Merkmal gefunden, wird die ID für dieses Merkmal übernommen (vgl. Abbildung \ref{idMaps} ID Map - blau). Um die Positionen der Trajektorien zu aktualisieren, werden die erstellten/übernommenen IDs mit den Versätzen DX und DY des Verschiebungsvektors in eine neue ID Map eingetragen, die nach der Evaluierung eines Frames gespeichert wird, um im nächsten Frame zum Verknüpfen der Trajektorien (als ID Map des Vorgängerframes) zu dienen. Wird eine neue Trajektorie erstellt, wird dieser Versatz auf die Merkmalsposition addiert. Beim Erweitern einer bereits vorhandenen Trajektorie wird der Versatz auf die Position der ID addiert, um möglichst gerade Trajektorien zu erhalten. So beugt man instabilen Merkmalen vor, die ihre Detektionsposition an der Person ändern. Zugleich werden die IDs in einer Liste von Trajektorien (vgl. Abb. \ref{idMaps} - TrackList) zusammen mit allen Positionen eingetragen, die eine bestimmte Trajektorie bisher passiert hat. Verhält sich eine Trajektorie länger als die maximale Verweilzeit statisch, wird sie entfernt. 
+\bigskip
+\bigskip
+\begin{figure}[H]
+  \begin{minipage}{0.6\textwidth}
+  In nebenstehender Grafik erkennt man beispielhaft die Suche nach IDs von einem gefundenen Merkmal in der ID Map des Vorgängerframes in einer sog. 8er-Nachbarschaft. Hier ist keine ID vorhanden, weswegen eine neue ID für dieses Merkmal erstellt wird. Diese wird mit dem DX/DY-Versatz des Verschiebungsvektors in die neue ID Map eingetragen. Das rot markierte Pixel ist der Center Pixel, an dem ein sich bewegendes Merkmal vorliegt. Dieser Ablauf entspricht der Situation in Frame 1 in Abbildung \ref{idMaps} (schwarz).
+  \end{minipage}
+\hfill
+  \begin{minipage}{0.2\textwidth}
+    \includegraphics[width=\textwidth]{images/dummy.png}
+    \caption{Suche nach IDs}
+    \label{searchRadius}
+  \end{minipage}
+\end{figure}

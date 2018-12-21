@@ -1,0 +1,52 @@
+\select@language {ngerman}
+\contentsline {chapter}{\numberline {1}Einleitung}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}
+\contentsline {section}{\numberline {1.2}Aufgabenstellung und Ziele}{2}{section.1.2}
+\contentsline {section}{\numberline {1.3}Stand der Technik}{3}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}direkter Ansatz}{3}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}indirekter Ansatz}{4}{subsection.1.3.2}
+\contentsline {chapter}{\numberline {2}Grundlagen}{7}{chapter.2}
+\contentsline {section}{\numberline {2.1}Harris Corner Detector}{7}{section.2.1}
+\contentsline {section}{\numberline {2.2}Corner Tracker}{10}{section.2.2}
+\contentsline {section}{\numberline {2.3}Verschiebungsvektoren}{12}{section.2.3}
+\contentsline {section}{\numberline {2.4}Erfassung von Trajektorien}{13}{section.2.4}
+\contentsline {chapter}{\numberline {3}Systemarchitektur}{17}{chapter.3}
+\contentsline {section}{\numberline {3.1}Beschreibung des Messsystems}{17}{section.3.1}
+\contentsline {section}{\numberline {3.2}Signalverarbeitung}{19}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Trajektorien}{19}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}Personenzahl}{21}{subsection.3.2.2}
+\contentsline {subsection}{\numberline {3.2.3}Personenfluss}{22}{subsection.3.2.3}
+\contentsline {subsection}{\numberline {3.2.4}Dynamik}{23}{subsection.3.2.4}
+\contentsline {subsection}{\numberline {3.2.5}Dichtefaktor}{24}{subsection.3.2.5}
+\contentsline {subsection}{\numberline {3.2.6}Darstellung der Messgr\IeC {\"o}\IeC {\ss }en - Aufbereitung}{24}{subsection.3.2.6}
+\contentsline {section}{\numberline {3.3}Konfigurierung}{26}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}Patch-Map Dimension}{26}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}Geschwindigkeitsschwelle}{27}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}Maximale Verweilzeit}{27}{subsection.3.3.3}
+\contentsline {subsection}{\numberline {3.3.4}Mittelungsdistanz}{28}{subsection.3.3.4}
+\contentsline {subsection}{\numberline {3.3.5}Suchradius}{28}{subsection.3.3.5}
+\contentsline {subsection}{\numberline {3.3.6}Abstands-Radius}{30}{subsection.3.3.6}
+\contentsline {subsection}{\numberline {3.3.7}Ortsbezogener Ausgleich}{30}{subsection.3.3.7}
+\contentsline {subsection}{\numberline {3.3.8}Distanzsch\IeC {\"a}tzung}{32}{subsection.3.3.8}
+\contentsline {subsection}{\numberline {3.3.9}Filtereinstellungen}{33}{subsection.3.3.9}
+\newpage 
+\contentsline {chapter}{\numberline {4}Evaluation}{35}{chapter.4}
+\contentsline {section}{\numberline {4.1}Testdaten}{35}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}3D-Animation: AGORASET/Dispersion \cite {CourtyPRL2014} \cite {Allain2012ICPR}}{35}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Videosequenz: UCF\_CrowdsDataset/Business-Get\IeC {\"u}mmel \cite {AliS07}}{36}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}Videosequenz: UCF\_CrowdsDataset/Marathon \cite {AliS07}}{36}{subsection.4.1.3}
+\contentsline {subsection}{\numberline {4.1.4}Videosequenz: Hamburger Hafenfest 2014}{37}{subsection.4.1.4}
+\contentsline {section}{\numberline {4.2}Testergebnisse}{41}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}3D-Animation: AGORASET/Dispersion \cite {CourtyPRL2014} \cite {Allain2012ICPR}}{41}{subsection.4.2.1}
+\contentsline {subsubsection}{Personenz\IeC {\"a}hlung}{41}{subsubsection*.23}
+\contentsline {subsubsection}{Personenfluss}{42}{subsubsection*.25}
+\contentsline {subsubsection}{Dichtefaktor}{43}{subsubsection*.27}
+\contentsline {subsubsection}{Darstellung als Heat Map}{45}{subsubsection*.29}
+\contentsline {subsection}{\numberline {4.2.2}Videosequenz: UCF\_CrowdsDataset/Business-Get\IeC {\"u}mmel \cite {AliS07}}{46}{subsection.4.2.2}
+\contentsline {subsubsection}{Personenz\IeC {\"a}hlung}{46}{subsubsection*.31}
+\contentsline {subsubsection}{Personenfluss}{47}{subsubsection*.33}
+\contentsline {subsubsection}{Dichtefaktor}{48}{subsubsection*.35}
+\contentsline {subsection}{\numberline {4.2.3}Videosequenz: UCF\_CrowdsDataset/Marathon \cite {AliS07}}{50}{subsection.4.2.3}
+\contentsline {subsection}{\numberline {4.2.4}Videosequenz: Hamburger Hafenfest 2014}{50}{subsection.4.2.4}
+\contentsline {chapter}{\numberline {5}Fazit}{53}{chapter.5}
+\contentsline {chapter}{Abbildungsverzeichnis}{55}{section*.39}

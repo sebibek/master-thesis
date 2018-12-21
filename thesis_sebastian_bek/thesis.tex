@@ -1,0 +1,395 @@
+%%%%%%%%%% HAUPTDOKUMENT DER LATEX-VORLAGE DES IES %%%%%%%%%%%%%%%
+%% Im wesentlichen basierend auf der Vorlage von Matthias Pospiech
+%% http://www.matthiaspospiech.de/latex/vorlagen/allgemein/
+%% für KOMA-Script 3.x
+%% Erweitert und angepasst von Philipp Woock
+%% Version 1.0
+%% Januar 2011
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Thesis31.08} 
+%% PW: Paket silence unterdrückt Warnungen. Schreibt die unterdrückten Sachen aber in eine .sil Datei
+%% Silence braucht für save auch ein TeX \write :-(
+% \usepackage[debrief, save]{silence}
+
+%\usepackage[debrief]{silence}
+%\RequirePackage[options]{silence} vor \documentclass{}
+%\WarningFilter[PWfilt]{typearea}{Maybe no}
+%\ActivateWarningFilters[PWfilt]
+
+%\WarningsOff[Mathdots] 
+%\WarningsOff[typearea] %Maybe no optimal type area settings!
+
+
+%% PW: Ausschalten bekannter Warnungen.
+
+
+\RequirePackage{silence}
+\WarningFilter{typearea}{Maybe no optimal type area settings}
+\WarningFilter{Mathdots}{Redefining amsmath commands}
+\WarningFilter{latexfont}{Font shape}
+\WarningFilter{pdfpages}{I will use a dummy}
+\WarningFilter{caption}{Unused}
+\WarningFilter{hyperref}{Rerun to get /PageLabels} 
+
+
+%% Dokumentenklasse (Koma Script) -----------------------------------------
+\documentclass[%
+  %draft,     % Entwurfsstadium
+  final,      % fertiges Dokument
+	% --- Paper Settings ---
+	%%PW: A5 ist auch erlaubt, Univerlag nimmt A4 und A5.
+	%%A4 wird einfach runterskaliert. A5 erfordert meistens Nacharbeit bei Skalierung von Titelblatt, TikZ-Bildern, Langen Formeln
+  paper=a4,%
+	%% Hochformat/Querformat
+  paper=portrait, % landscape 
+  pagesize=auto, % driver
+  % --- Base Font Size ---
+	%% Schriftgröße
+  fontsize=12pt,%  % 9 bei A5, 11 bei A4.
+	% --- Koma Script Version ---
+  version=last, %
+  toc=noindex,
+  toc=bib,
+  toc=nolistof,
+  listof=left, % tabular styles
+  listof=indented, % hierarchical style
+  listof=chaptergapsmall, % New chapter starts are marked by a gap 
+  listof=totoc % add Lists to TOC
+ ]{scrbook} 
+ % Classes: scrartcl, scrreprt, scrbook
+%\linespread{1.4} %% 1.4 für zwei übereinanderliegende inline-Math-Sachen. Man bedenke den Standard-LaTeX-Durchschuss von 1.2. Also 1.4*1.2=1.68 facher Zeilenabstand
+%\usepackage{setspace}
+%\setstretch{1.2}
+%\recalctypearea
+%% PW: Erlaubt mehr interne TeX-Register. In Ruhe lassen!
+\usepackage{etex}
+\usepackage[ngerman]{babel}
+\usepackage{hhline}
+\usepackage[utf8]{inputenc}
+%\usepackage{rotating} 
+
+% Encoding der Quellcode-Dateien (sonst funktionieren Umlaute in den Quellcodedateien nicht)
+%%%% Wer genau weiß, was er tut und unbedingt eine andere Codierung braucht, kann das hier umstellen!
+% Fuer Linux -> utf8
+% Fuer Windows, alte Linux Distributionen -> latin1
+% Empfohlen latin1, da einige Pakete mit utf8 Zeichen nicht
+% funktionieren, z.B: listings, soul.
+%%%\usepackage[T1]{fontenc} % PW: Bringt keinen Vorteil es hier vorne vor inputenc zu haben.
+%\usepackage[latin1]{inputenc} %% Falls es Probleme mit latin9 gibt auf latin1 stellen.
+%\usepackage[latin9]{inputenc}  %%PW: latin9 mit Eurozeichen und Ligaturen
+%\usepackage[ansinew]{inputenc}
+%\usepackage[utf8]{inputenc}
+%\usepackage{ucs}
+%\usepackage[utf8x]{inputenc}  % The simple answer is that utf8x is to be avoided if possible. It loads the ucs package, which for a long time was unmaintained (although there is now a new maintainer) and breaks various other things.
+
+
+%%% Einstellungen für KOMA-Script
+%%% Hier werden die KOMAoptions gesetzt wie z.B. Ränder, Kopfzeilen, einseitig/zweiseitig, Absatzabstände, Inhaltsverzeichnis usw.
+%%% Alle Optionen sind im scrguide.pdf erklärt, die ihr in Eurem LaTeX-Distributionsverzeichnis bei den Docs findet!
+\input{preambel/settings}
+%%% LaTeX-Präambel
+%%% Hier werden Pakete eingebunden, Teil I
+\input{preambel/preambel-commands}
+
+%% Es werden jeweils eines der begrenzt verfügbaren TeX-\writes verwendet für
+% Table of Contents
+% List of figures
+% List of tables
+% List of listings
+% List of theorems
+
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% HIER EINSTELLEN, OB ENGLISCH ODER DEUTSCH USW.
+%% Hier einstellen ob Englisch (true) oder Deutsch (false)
+\setboolean{iesenglishs}{false}
+%% Hier einstellen, ob Fraunhofer mit drin ist oder nicht
+\setboolean{useiosblogo}{true}
+%% Hier einstellen, ob MUSTER-Schriftzug gewünscht ist oder nicht
+\setboolean{printMuster}{false}
+%% Hier einstellen, ob es sich um eine Dissertation handelt oder nicht.
+%% Bewirkt Auslassung der Erklärung der Selbstständigkeit.
+\setboolean{isdissertation}{false}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+
+%% Präambel Teil II
+\input{preambel/preambel}
+
+
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% HIER AUTOR, TITEL, NAME, DATUM, BETREUER USW. EINTRAGEN UND NIRGENDS SONST !!
+\newcommand{\Authorname}{Sebastian Bek}  %% Taucht so im Titelblatt und in der
+% Erklärung der Selbstständigkeit auf
+%
+%
+\newcommand{\Worktitle}{Video-based People Counting, Density Estimation, Flow Estimation and/or
+Activity Recognition of Crowds.
+} \newcommand{\Submissiondate}{\today}  %% Taucht so im
+% Titelblatt und in der Erklärung der Selbstständigkeit auf
+%% Im Englischen dann sowas wie February 35\textsuperscript{th}, 41\textsuperscript{st}, 42\textsuperscript{nd}, 43\textsuperscript{rd}
+\newcommand{\Betreuer}{Dr.-Ing.~Eduardo~Monari}
+\newcommand{\Referent}{\mbox{Prof. Dr. Frieder Keller}}
+\newcommand{\Korreferent}{\mbox{Prof. Dr. Thomas Westermann}}
+\newcommand{\Signplace}{Karlsruhe}  %% Ort der Erklärung der Selbststädigkeit.
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+
+%%% Neue Befehle
+%%% Hier kommen selbst erstellte Befehle rein.
+%%% Vorgefertigt sind schon Dinge wie \Vektor \Matrix, Abk�rzungen wie \zb \usw \bzw \etc \evtl \ca, die Mathebuchstaben \R \N \Q \Z, 
+\input{macros/newcommands}
+
+%%% Wenn man das Aussehen der Tabellen ändern will, findet man die Einstellungen in dieser Datei
+\input{macros/TableCommands}
+
+%%% Falls LaTeX doch mal bei der Silbentrennung einige W�rter nicht blickt,
+%%% kann man diese Problemw�rter hier eintragen und so werden sie dann im ganzen Dokument so getrennt.
+\input{preambel/Hyphenation}
+
+
+%%PW: Glyphtounicode für pdfx, PDF/A-Kompatibilität. In Ruhe lassen!
+\input{glyphtounicode.tex}
+
+
+%%%% Benennung des Symbolverzeichnisses ggf. anpassen
+\ifthenelse{\boolean{iesenglishs}}%
+{%
+	\renewcommand{\nomname}{Table of symbols}%
+}{%
+	\renewcommand{\lstlistlistingname}{Symbolverzeichnisse}%
+}
+
+
+%% Dokument Beginn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% - Deckblatt, 
+% - Inhaltsverzeichnis,
+% - Hauptteil gegliedert z.B. in
+%   Einleitung, Grundlagen, Experimente, Ergebnisse, Zusammenfassung
+% - Literaturverzeichnis,
+% - Abbildungsverzeichnis (ggf.),
+% - Tabellenverzeichnis (ggf.),
+% - Abkürzungsverzeichnis (ggf.),
+% - Formelverzeichnis (ggf.),
+% - Anhang, (nicht mehr Bestandteil der Arbeit! Wird daher nicht bewertet)
+% - Erklärung der Urheberschaft,
+
+%%%% Beispiel fr includeonly
+%\includeonly{content/1-Grundlagen}
+
+
+%%%%%%%%%%% BEGIN DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \xdef\marginnotetextwidth{\the\textwidth}  % Hat auch nix geholfen für die richtigen Marginnotes
+
+\includepdf[pages={1}]{./content/STB_Thesis_Deckblatt.pdf}
+
+\prefrontmatter  %\pagenumbering{roman}%
+
+
+
+%%% Verwendeter Literaturzitierstil
+\bibliographystyle{abbrvdin}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% Nur für A4, nicht für A5
+\addtolength{\marginparsep}{8pt}
+\addtolength{\marginparwidth}{-20pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% Format des Deckblatts
+
+% workaround, if removed title appears as background in externalized 
+% % figures
+  \tikzifexternalizing{}{
+\input{./content/Titel}
+  }
+
+\frontmatter %\pagenumbering{Roman}%
+\newpage
+
+\input{./content/0-Abstract}
+
+
+\setcounter{page}{1}
+% Inhaltsverzeichnis in den PDF-Links eintragen
+\newpage
+
+\pdfbookmark[1]{Inhaltsverzeichnis}{toc}
+
+
+%% PW: Protrusion fürs Inhaltsverzeichnis ausschalten (ist im Microtype Handbuch empfohlen)
+\ifpdf
+ \microtypesetup{protrusion=false}
+\fi
+\tableofcontents
+\ifpdf
+ \microtypesetup{protrusion=false}
+\fi
+\markboth{\empty}{\empty}
+
+%% PW: Todo-Liste
+% \listoftodos
+%Symbol- und Abkürzungsverzeichnisse
+
+\nomlabelwidth=15mm
+
+%% Symbolverzeichnis
+\markboth{Symbol- und Abkürzungsverzeichnisse}{Symbol- und Abkürzungsverzeichnisse}
+\IfDefined{printnomenclature}{\printnomenclature}
+
+\input{./content/nomenclatures.tex}
+
+
+% später dann evtl. \markboth{\empty}{\empty} nötig (http://www.golatex.de/falsche-kopfzeile-im-abkuerzungsverzeichnis-t2074.html)
+
+
+% Hauptteil
+\mainmatter
+\hypersetup{pageanchor=true}
+
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% HIER KOMMEN DIE EINZELNEN QUELLDATEIEN DES AUTORS REIN!!
+%includes sind nicht hierarchisch, input schon
+%\input{./content/0-Anleitung}
+% Einleitung
+% o	Stand der Forschung
+% o	(Grundlagen)
+% Vorbereitung
+% o	Implementierung
+% ·         Konzept
+% §  Trainingsdaten / Annotation / Klassifikation
+% ·         Merkmalsextraktion
+% §  Beschreibung der umgesetzten Features und Variationen
+% ·         Klassifikation
+% ·         Sonstiges…
+% o	Bewertung / Ergebnisse
+% ·         Trainingsdaten / Evaluationsdaten
+% ·         Bewertung der Merkmale
+% ·         Bewertung der "Invarianz des Verfahrens"
+% ·         Bewertung Nutzen des "Aufblähens der Trainingsdaten"
+% ·         Bewertung Kombination der Merkmale
+% ·         Rechenzeit
+
+
+\input{./content/1-Einleitung}
+\input{./content/2-Grundlagen}
+\input{./content/3-Implementierung}
+\input{./content/4-Ergebnis}
+\input{./content/5-Fazit}
+
+
+
+
+
+
+%
+%\blindmathfalse
+%\Blinddocument
+%\blindmathpaper
+%\blindmathpaper
+%\blindmathpaper
+%\blindmathtrue
+%\blinddocument
+
+
+
+% Anhang (Bibliographie darf im deutschen nicht in den Anhang!)
+%\setlength{\itemindent}{-5em} %% Hat keinen sichtbaren Einfluss??
+
+%%% Der btsect-Befehl wird bei Verwendung des bibtopic-Pakets verwendet (default)
+%%% bibtopic erlaubt mehrere Literaturverzeichnisse
+% Verzeichnis 1
+
+%\section{References from books}  % Extra Überschrift - muss nicht rein
+%\btPrintCited[alphadin]{bib/BibtexDatabase}
+%%%%% PW: Für jedes btPrintCited kommt ein Eintrag, der den Titel des Literaturverzeichnisses in dt. oder engl. angibt
+%%%%% Benennung der Verzeichnisse ggf. anpassen
+% \begin{btSect}{bib/test}
+% \ifthenelse{\boolean{iesenglishs}}%
+% {% 
+% 	\renewcommand{\bibname}{First literature index}%
+% }{%
+% 	\renewcommand{\bibname}{Erstes Literaturverzeichnis}%
+% }
+% \chapter*{\bibname}
+% \btPrintCited  %%Die verwendeten Einträge
+% \end{btSect}
+
+
+
+% Nicht mit bibtopic:
+\bibliography{./Bib/Literaturverzeichnis.bib}
+\noindent\rule{8cm}{0.4pt}\\
+Alle URLs wurden zuletzt am 10.\,02.\,2016 geprüft.
+
+
+
+%\clearpage
+%\cleardoubleoddpage
+
+\backmatter
+
+
+% Setzen des Abbildungs- und Tabellenverzeichnisses
+\cleardoublepage
+\phantomsection
+
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename}
+%\newpage
+%\listoftables
+%\addcontentsline{toc}{chapter}{\listtablename}
+%\newpage
+ %\listofformels
+
+
+% Sind alle plain
+% \indexpagestyle
+% \partpagestyle
+% \chapterpagestyle
+
+%% Theoreme, Sätze, Lemmata
+%% Bezeichnung des Theoremverzeichnisses ggf. anpassen
+%\ifthenelse{\boolean{iesenglishs}}{\chapter*{List of
+% Theorems}}{\chapter*{Theoremverzeichnis}}
+%% Art und Weise, wie die Theoreme gelistet werden. Siehe ntheorem-Doku
+%\theoremlisttype{all}
+%\theoremlisttype{allname} 
+
+
+
+%%% Irgendwoher kopiertes Beispiel (ohne Gewähr)
+%%% zur Erstellung eines neuen Auflistungstyps.
+%\newtheoremlisttype{tab}%
+%{\begin{tabular*}{\linewidth}{@{}lrl@{\extracolsep{\fill}}r@{}}}%
+%{##1&##2&##3&##4\\}%
+%{\end{tabular*}}
+%\theoremlisttype{tab}
+
+%% Codelistings setzen
+%\lstlistoflistings
+
+
+% Anhang
+%\appendix
+% % 'Anhang' ins Inhaltsverzeichnis. Wird normalerweise nicht gemacht!
+% %\phantomsection
+% %\addcontentsline{toc}{part}{Anhang}
+
+% %%% Danksagung usw.
+% %\input{content/Z-Appendix} 
+
+% %%% Stichwortverzeichnis/Index
+% \ifthenelse{\boolean{iesenglishs}}%
+% {
+% \IfDefined{printindex}{\renewcommand{\indexname}{Index}\printindex}
+% }{
+% \IfDefined{printindex}{\renewcommand{\indexname}{Stichwortverzeichnis}\printindex}
+% }
+
+
+
+%% Dokument ENDE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
