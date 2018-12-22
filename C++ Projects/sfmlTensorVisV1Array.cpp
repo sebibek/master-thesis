@@ -632,10 +632,11 @@ class propagator
 	std::string fString = "0.0";
 	std::string fStringEllipse = "0.0";
 
-	// create member vectors for storing the symbolic strings and fourier (CH) coefficients (external)
+	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
 	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string>* functionStrEllipse; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::array<std::array<double, 21>, 2>>* coefficientArray;
+	std::vector<std::tuple<double, double, double>>* ellipseArray;
 
 	// define function parser (muparser)
 	mu::Parser parser;
@@ -655,7 +656,7 @@ class propagator
 	std::vector<bool> processMap; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray, std::vector<std::string>* fStrEllipse) : processMap(dim, false)
+	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap(dim, false)
 	{
 		// parser definitions
 		parser.DefineConst("pi", pi);
@@ -670,6 +671,7 @@ public:
 		functionStr = fStr;
 		functionStrEllipse = fStrEllipse;
 		coefficientArray = coeffArray;
+		ellipseArray = ellipseArr;
 
 		// initialize pre-computed fourier coefficient arrays (using wolfram mathematica)
 		cosLobeXCoeff.front() = { 0.31831, 0.5, 0.212207, 0., -0.0424413, 0., 0.0181891, 0., -0.0101051, 0., 0.0064305, 0., -0.00445189, 0., 0.00326472, 0., -0.00249655, 0., 0.00197096, 0., -0.00159554 };
@@ -691,46 +693,33 @@ public:
 		// create neighborhood, for tagging non-existent neighbors..
 		neighborhood hood(jIndex, iIndex, width, processMap);
 
-		// form coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
+		// assign member coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
 		an = coefficientArray->at(iIndex + jIndex * width).front(); // ..cosine coefficient vector
-		bn = coefficientArray->at(iIndex + jIndex * width).back(); // ..sine coefficient vector
+		bn = coefficientArray->at(iIndex + jIndex * width).back(); // ..sine coefficient vector		 
 
-		// create fString w. a0 (offset)
-		fString = std::to_string(an.front());
-		fStringEllipse = "0.0";
-
-		// set up Fourier Series expansion as str expression for the evaluation of the fourier serier (polar function/curve) for each grid cell (j,i)
-		for (int i = 1; i < an.size(); i++)
-		{
-			if (i > 1 && (bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if threshold exceeded..
-				break; // abort Fourier series expansion to obtain shorter functionStrings (approximations)
-			fString += "+" + std::to_string(an.at(i)) + "*cos(" + std::to_string(i) + "*theta)" + "+" + std::to_string(bn.at(i)) + "*sin(" + std::to_string(i) + "*theta)";
-		}
-
-		// update current functionStr w. fString to maintain the polar functions in gríd
-		functionStr->at(iIndex + jIndex * width) = fString;
-
-		// set up Fourier Series expansion as str expression for the evaluation of current transmission ellipse T(w) constructed (obtained) from the tensor field
-		fStringEllipse = functionStrEllipse->at(iIndex + jIndex * width);
-		 
 		// calculate mean and variance.. of I(phi)
 		double sum1 = 0.0;
 		double sum2 = 0.0;
 		double sum3 = 0.0;
-		
-		// set expression T(w)*I(w) as exp for propagation correction and accounting for transmission profiles T(w) stored in fStringEllipse..
-		std::string exp = "(" + fString + ")*" + fStringEllipse;
+
+		// assign singular values and rotational deg(ree)
+		double sv1 = std::get<0>(ellipseArray->at(iIndex + jIndex * width));
+		double sv2 = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
+		double deg = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
 
 		// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
 		for (int i = 0; i < steps; i++)
 		{
-			parser.SetExpr(fString); // set the current parser expression to fString (Fourier-Series (CH) approximation of intensity profile I(w) at current position
-			sum1 += parser.Eval(); // evaluate fString for iMean (sum1)
-			parser.SetExpr(fStringEllipse);
-			sum2 += parser.Eval(); // evaluate exp(T*I) for tiMean (sum2)
-			parser.SetExpr(exp); // ..set parser to modified fString (for propagation)
-			sum3 += parser.Eval(); // evaluate exp(T*I) for tiMean (sum2)
-			t += tinc; // increment theta
+			double sum = an.at(0); // initialize sum w. offset a0
+			// evaluate fourier coefficient array for magnitude at current angular position i*tinc
+			for (int j = 1; j < an.size(); j++)
+				sum += an.at(j)*cos(j*i*tinc) + bn.at(j)*sin(j*i*tinc);
+			sum1 += sum; // evaluate for iMean (sum1)
+
+			if(sv1 != 0 && sv2 != 0)
+				sum2 += sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); //--> ellipse equation, evaluate for tMean (sum2)
+			if (sv1 != 0 && sv2 != 0)
+				sum3 += sum * sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); // evaluate T*I for tiMean (sum2)
 		}
 		
 		// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -745,7 +734,6 @@ public:
 		// cout << "cFactor: " << cFactor << endl;
 
 		// define intensity [W/rad] and area [W]
-		double intensity = 0.0;
 		double area = 0.0;
 
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
@@ -764,9 +752,8 @@ public:
 				continue;
 
 			// set theta variable to current central direction shifted by half an apertureAngle
-			t = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
-			intensity = 0.0; // -->reset energy variables
-			area = 0.0; // -->reset energy variables
+			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
+			double area = 0.0; // -->reset energy variables
 		
 			// compute lSteps to determine # of steps for current apertureAngle
 			int lSteps = apertureAngles.at(k) / tinc;
@@ -774,18 +761,18 @@ public:
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
 			for (int i = 0; i < lSteps; i++) // --> carry out the integral computation as discrete (weghted) sum
 			{
-				intensity = parser.Eval(); // luminous intensity obtained from stringFunction (muParser..)
+				double intensity = an.at(0); // initialize sum w. offset a0
+				// evaluate fourier coefficient array for magnitude at current angular position i*tinc
+				for (int j = 1; j < an.size(); j++)
+					intensity += (an.at(j)*cos(j*i*tinc + offset) + bn.at(j)*sin(j*i*tinc + offset))*sv1 * sv2 / sqrt(sv2*sv2*cos(j*i*tinc + offset - deg)*cos(j*i*tinc + offset - deg) + sv1 * sv1*sin(j*i*tinc + offset - deg)*sin(j*i*tinc + offset - deg));
+
 				area += intensity; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
-				t += tinc; // increment theta
 			}
 
 			// calculate magnitude w. corresponding correction factor and weighting by tinc, which is is a constant dt drawn out of the discrete sum
 			double mag = cFactor*tinc*area / 2.0; // since int(cos(w)) (w. negative values clamped to zero) yields = 2 --> normalize to energy 1 (spread energy area over the cosine)
 
 			// ReProjection of Flow Lobes //
-
-			//// create oriented function (string) from centralLobes vector (corresponding to centralDirections and apertureAngles)
-			//functionString = std::to_string(mag) + "*" + centralLobes.at(k); // strFunction --> functionString
 
 			switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
 			{
@@ -800,7 +787,33 @@ public:
 	}
 };
 
-void computeGlyphs(std::vector<std::string>& functionStrEllipse)
+
+void maintainFunctionStrings(std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray)
+{
+	for (int i = 0; i < fStr->size(); i++)
+	{
+		double thresh = 0.0001;
+		// assign member coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
+		std::array<double, 21> an = coeffArray->at(i).front(); // ..cosine coefficient vector
+		std::array<double, 21> bn = coeffArray->at(i).back(); // ..sine coefficient vector
+
+		// create fString w. a0 (offset)
+		std::string fString = std::to_string(an.front());
+
+		// set up Fourier Series expansion as str expression for the evaluation of the fourier serier (polar function/curve) for each grid cell (j,i)
+		for (int i = 1; i < an.size(); i++)
+		{
+			if (i > 1 && (bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if threshold exceeded..
+				break; // abort Fourier series expansion to obtain shorter functionStrings (approximations)
+			fString += "+" + std::to_string(an.at(i)) + "*cos(" + std::to_string(i) + "*theta)" + "+" + std::to_string(bn.at(i)) + "*sin(" + std::to_string(i) + "*theta)";
+		}
+
+		// update current functionStr w. fString to maintain the polar functions in gríd
+		fStr->at(i) = fString;
+	}
+}
+
+void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std::tuple<double, double, double>>& ellipseArray)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
 	int rows = 0; // create ptr to rows of txt tensor field
@@ -902,6 +915,9 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse)
 			}
 		}
 
+		// assign ellipse parameters in ellipseArray
+		ellipseArray.at(i) = { sv1, sv2, deg*(M_PI / 180.0) };
+
 		// define products as string modules to form (construct) ellipse string for current transmission profile T(w)
 		std::string aSquaredString = std::to_string(a*a);
 		std::string bSquaredString = std::to_string(b*b);
@@ -947,25 +963,27 @@ int main(int argc, char* argv[])
 	const int dim = rows / 2 * cols / 2; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
+	lightSrcPos = { width / 2, width / 2 }; // initialize light src position option w. center point
 
-	lightSrcPos = { width / 2, width / 2 };
-
-	//parse input option file
+	// parse input option file
 	parse_options(argc, argv);
 
 	// create functionStr vectors to efficiently store the respective function strings for plotting..
 	std::vector<std::string> functionStr(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string> functionStrEllipse(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 
-	cout << "before compute glyphs" << endl;
-	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(functionStrEllipse);
-
 	// create fourier (CH) coefficients array (grid)
 	std::array<double, 21> init; init.fill(0.0); // create a std::vector w. n elements initialized to 0..
 	std::array<std::array<double, 21>, 2> initVector; // create an initArray to represent packed (zipped) fourier coeff. vectors
 	initVector.fill(init);
 	std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initVector); // ..use it to initialize the coefficient array w. dim elements
+	
+	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
+	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // ..use it to initialize the coefficient array w. dim elements
+
+	cout << "before compute glyphs" << endl;
+	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
+	computeGlyphs(functionStrEllipse, ellipseArray);
 	
 	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
 	std::string circle = "1.0"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
@@ -988,7 +1006,7 @@ int main(int argc, char* argv[])
 		propRadius = deltaI + deltaJ + minRadius;
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, width, &functionStr, &coefficientArray, &functionStrEllipse);
+	propagator prop(dim, width, &functionStr, &coefficientArray, &functionStrEllipse, &ellipseArray);
 
 	// center 4- neighborhood - start from light src, walk along diagonals to obtain orthogonal propagation and to cope with ray effects (discretization)!!!
 	prop.propagate(j, i); // propagate from the light src position
@@ -1036,6 +1054,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	maintainFunctionStrings(&functionStr, &coefficientArray);
 	cout << "..after propagation" << endl;
 	// PROPAGATION SCHEME END //
 
