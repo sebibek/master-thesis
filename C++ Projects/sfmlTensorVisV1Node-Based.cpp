@@ -244,7 +244,7 @@ std::array<std::array<T, 21>, 2> operator+(const std::array<std::array<T, 21>, 2
 }
 
 template <typename T> // element-wise plus for std::vector
-std::vector<T> operator+(const std::vector <T> a, const std::vector<T>& b)
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 {
 	std::vector<T> result(b.size());
 
@@ -272,8 +272,6 @@ class neighborhood
 	bool neighborT = true;
 	bool neighborL = true;
 	bool neighborB = true;
-
-	std::vector<bool> propagationCue = { true,true,true,true };
 
 public:
 
@@ -460,16 +458,8 @@ public:
 			if (!discretePlot) // use muParser for evaluation 
 				r = p.Eval();
 			else // nearest neighbor interpolation w. samples in sampleVector
-			{
-				for(int j = 0; j < sample.size(); j++)
-					if (j*radres > t)
-					{
-						if (j*radres - t > 0.5*radres)
-							r = sample.at(j - 1);
-						else
-							r = sample.at(j);
-					}
-			}
+				r = sample.at(round(t / radres));
+			
 			// PROPAGATION ATTENUATION TEST //
 			/*if (t == tinc && index/width == 3 && mode == 0)
 			{
@@ -654,8 +644,8 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	}
 
 	infile.close();
-	*colsCount = cols + 1;
-	*rowsCount = rows + 1;
+	*colsCount = cols;
+	*rowsCount = rows;
 	MatrixXd result(rows, cols);
 	for (int j = 0; j < rows; j++) // use (j, i)-index for data matrices, use (i, j) for mathematical matrices (w. apt Transpose/Transformations etc.)
 		for (int i = 0; i < cols; i++)
@@ -686,7 +676,7 @@ class propagator
 	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 	std::array<std::array<std::array<double, 21>, 2>*, 12> centralLobesCoeff{ &cosLobeYnegCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXCoeff };
-
+	std::array<int, 12> coneDirections{ 3,0,1,0,1,2,1,2,3,2,3,0 };
 	// define member strings for parsing (internal)
 	std::string fString = "0.0";
 	std::string fStringEllipse = "0.0";
@@ -702,7 +692,7 @@ class propagator
 	double t = 0.0;
 	double tinc = 2 * pi / 72; // set theta increment tinc
 	double radres = pi / 2; // set radres for discretized theta (phi) directions for sampling
-	unsigned long long steps = (2 * pi) / tinc;
+	unsigned long long steps = (2 * pi) / radres;
 	
 	// create threshhold for aborting the fourier series expansion
 	double thresh = 0.0001;
@@ -715,7 +705,7 @@ class propagator
 	std::vector<bool> processMap; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap(dim, false)
+	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/Width+1)*(Width+1), false)
 	{
 		// parser definitions
 		parser.DefineConst("pi", pi);
@@ -752,17 +742,20 @@ public:
 
 		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
 		std::array<unsigned long long, 2> init{ jIndex,iIndex };
-		std::array<std::array<unsigned long long, 2>, 4> neighborIndices{ init, init, init, init};
-		neighborIndices.at(1) = { jIndex, iIndex + 1};
-		neighborIndices.at(2) = { jIndex + 1 , iIndex};
-		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1};
+		std::array<std::array<unsigned long long, 2>, 4> neighborIndices{ init,init,init,init };
+		//if (hood.getR())
+			neighborIndices.at(1) = { jIndex, iIndex + 1};
+		//if (hood.getB())
+			neighborIndices.at(2) = { jIndex + 1 , iIndex};
+		//if (hood.getR() && hood.getB())
+			neighborIndices.at(3) = { jIndex + 1 , iIndex + 1};
 
 		// initialize member sample w. 0
 		sample = std::vector<double>(steps, 0.0);
 
 		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
-		for(unsigned long long i = 0; i < neighborIndices.size(); i++)
-			sample = sample + 1.0/ neighborIndices.size()*sampleArray->at(neighborIndices.at(i).front()*width + neighborIndices.at(i).back()); // ..cosine coefficient vector 
+		for(unsigned int i = 0; i < neighborIndices.size(); i++)
+			sample = sample + 1.0/neighborIndices.size()*sampleArray->at(neighborIndices.at(i).front()*width + neighborIndices.at(i).back()); // ..cosine coefficient vector 
 
 		// calculate mean and variance.. of I(phi)
 		double sum1 = 0.0;
@@ -807,7 +800,8 @@ public:
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
 		{
-			int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+			unsigned int dirIndex = coneDirections.at(k);
 
 			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
 			if (!hood.getR() && nIndex == 0)
@@ -821,16 +815,11 @@ public:
 
 			// set theta variable to current central direction shifted by half an apertureAngle
 			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
-			//double area = 0.0; // -->reset energy variables
-		
-			// compute lSteps to determine # of steps for current apertureAngle
-			int lSteps = apertureAngles.at(k) / tinc;
 
 			std::vector<double> area(sample.size(), 0.0);
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			for (unsigned long long i = 0; i < lSteps; i++)
-				for (unsigned long long j = 0; j < sample.size(); j++) // --> carry out the integral computation as discrete (weghted) sum
-					area.at(j) += cFactor * sample.at(j)*cos(j*tinc); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+			for (double t = offset; t < apertureAngles.at(k); t+=tinc)
+				area.at(dirIndex) += cFactor * sample.at(round(t*1.0/radres))*clip(cos(t-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 
 			// ReProjection of Flow Lobes //
 
@@ -1053,14 +1042,15 @@ int main(int argc, char* argv[])
 	//std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initArray); // ..use it to initialize the coefficient array w. dim elements
 
 	std::vector<double> initArray{ 0,0,0,0 };
-	std::vector<std::vector<double>> sampleArray(dim, initArray);
+	std::vector<std::vector<double>> sampleArray((width+1)*(height+1), initArray);
 	//
 	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
 	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // ..use it to initialize the coefficient array w. dim elements
 
 	//cout << "before compute glyphs" << endl;
-	//// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	//computeGlyphs(functionStrEllipse, ellipseArray);
+	
+	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
+	computeGlyphs(functionStrEllipse, ellipseArray);
 	
 	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
 	std::string circle = "1.0"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
