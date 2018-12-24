@@ -458,7 +458,7 @@ public:
 			if (!discretePlot) // use muParser for evaluation 
 				r = p.Eval();
 			else // nearest neighbor interpolation w. samples in sampleVector
-				r = sample.at(round(t / radres));
+				r = sample.at(static_cast<int>(round(t / radres))%4); // cyclic value permutation
 			
 			// PROPAGATION ATTENUATION TEST //
 			/*if (t == tinc && index/width == 3 && mode == 0)
@@ -526,97 +526,6 @@ T strFunction(T theta)
 
 	return y;
 }
-
-double integral(double(*f)(double x), double a, double b, int r)
-{
-	double step = (b - a) / r;  // width of each small rectangle
-	double area = 0.0;  // signed area
-	for (int i = 0; i < r; i++)
-		area += f(a + (i + 0.5) * step) * step; // sum up each small rectangle
-
-	return area;
-}
-
-double aIntegral(double(*f)(double x), double a, double b, int r, int n)
-{
-	double step = (b - a) / r;  // width of each small rectangle
-	double area = 0.0;  // signed area
-
-	for (int i = 0; i < r; i++)
-		area += f(a + (i + 0.5) * step)*cos(n*(a + (i + 0.5) * step)) * step; // sum up each small rectangle
-
-	return area;
-}
-
-double bIntegral(double(*f)(double x), double a, double b, int r, int n)
-{
-	double step = (b - a) / r;  // width of each small rectangle
-	double area = 0.0;  // signed area
-	for (int i = 0; i < r; i++)
-		area += f(a + (i + 0.5) * step)*sin(n*(a + (i + 0.5) * step)) * step; // sum up each small rectangle
-
-	return area;
-}
-
-std::array<std::array<double, 21>, 2> calcCoeff(double(*f)(double x)) // for 2Pi periodic functions
-{
-	double a0 = 1 / (2 * M_PI) * integral(f, -M_PI, M_PI, 50);
-	
-	std::array<double, 21> an; // use static array for better performance
-	an.fill(0.0);
-	std::array<double, 21> bn; // use static array for better performance
-	bn.fill(0.0);
-	std::array<std::array<double, 21>, 2> coeff; // init packed (zipped) coefficient vector
-	coeff.fill(an);
-	double thresh = 0.0001;
-
-	an.at(0) = a0; // push a0 in both lists on frequency 0 (offset)
-	bn.at(0) = a0; // push a0 in both lists on frequency 0 (offset)
-	for (int i = 1; i < an.size(); i++)
-	{
-		an.at(i) = 1 / M_PI * aIntegral(f, -M_PI, M_PI, 50, i); // calculate Integrals for the coeff
-		bn.at(i) = 1 / M_PI * bIntegral(f, -M_PI, M_PI, 50, i); // calculate Integrals for the coeff
-
-		/*cout << "an: " << an.at(i) << endl;
-		cout << "bn: " << bn.at(i) << endl;*/
-		if ((bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if coeff < thresh or #>20, abort (finish) series expansion!
-			break;
-	}
-	coeff.front() = an;
-	coeff.back() = bn;
-
-	return coeff;
-}
-
-void countMatrix(std::string filepath, int* colsCount, int* rowsCount)
-{
-	int cols = 0, rows = 0;
-	double buff[MAXBUFSIZE];
-	ifstream infile(filepath);
-
-	while (!infile.eof())
-	{
-		string line;
-		getline(infile, line);
-
-		int temp_cols = 0;
-		stringstream stream(line);
-		while (!stream.eof())
-			stream >> buff[cols*rows + temp_cols++];
-
-		if (temp_cols == 0)
-			continue;
-
-		if (cols == 0)
-			cols = temp_cols;
-
-		rows++;
-	}
-
-	infile.close();
-	*colsCount = cols;
-	*rowsCount = rows;
-};
 
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
@@ -801,7 +710,7 @@ public:
 		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
 		{
 			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-			unsigned int dirIndex = coneDirections.at(k);
+			unsigned int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions
 
 			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
 			if (!hood.getR() && nIndex == 0)
@@ -816,16 +725,26 @@ public:
 			// set theta variable to current central direction shifted by half an apertureAngle
 			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
 
+			// create # of steps for averaging
+			int lSteps = apertureAngles.at(k) / tinc;
 			std::vector<double> area(sample.size(), 0.0);
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
 			for (double t = offset; t < apertureAngles.at(k); t+=tinc)
-				area.at(dirIndex) += cFactor * sample.at(round(t*1.0/radres))*clip(cos(t-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+				area.at(dirIndex) += 1/lSteps * cFactor * sample.at(round(t*1.0/radres))*clip(cos(t-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 
 			// ReProjection of Flow Lobes //
 
-			switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
-			{
-			case 0: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor
+			switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate samples in sampleArray
+			{ // place unexpanded(-explored) nodes w. edge flow contributions
+			//case 0: switch (dirIndex) // TODO: dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
+			//		{
+			//		case 0: break;
+			//		case 1:
+			//		case 2:
+			//		case 3:
+			//		}
+			case 0:
+					sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor
 					sampleArray->at(iIndex + 2 + (jIndex+1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor
 			case 1: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor
 					sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor
