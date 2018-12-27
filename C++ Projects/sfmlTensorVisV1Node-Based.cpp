@@ -358,7 +358,7 @@ public:
 	}
 	
 	//constructor #2 array parser
-	polarPlot(std::vector<double> sampleVector,
+	polarPlot(std::vector<double> Sample,
 		double res,
 		int speed_in,
 		int line_width_in,
@@ -373,7 +373,7 @@ public:
 		tmax(tmax_in),
 		tinc(tinc_in),
 		rotation(rotation_in),
-		sample(sampleVector),
+		sample(Sample),
 		radres(res),
 		color(color_in)
 	{
@@ -457,8 +457,34 @@ public:
 		{
 			if (!discretePlot) // use muParser for evaluation 
 				r = p.Eval();
-			else // nearest neighbor interpolation w. samples in sampleVector
+			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
 				r = sample.at(static_cast<int>(round(t / radres))%4); // cyclic value permutation
+			
+			// PROPAGATION ATTENUATION TEST //
+			/*if (t == tinc && index/width == 3 && mode == 0)
+			{
+				cout << "r: " << r << endl;
+				cout << "attenuation: " << r / 1.0 << endl;
+			}*/
+			plot(index, mode);
+			t += tinc;
+		}
+	}
+	//plots draw_speed points per frame
+	void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray)
+	{
+		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
+		{
+			if (!discretePlot) // use muParser for evaluation 
+				r = p.Eval();
+			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
+			{
+				r = 0;
+				r += 0.25*sampleArray.at(index + 1).at(static_cast<int>(round(t / radres)) % 4);;
+				r += 0.25*sampleArray.at(index + 1 + width).at(static_cast<int>(round(t / radres)) % 4);;
+				r += 0.25*sampleArray.at(index + width).at(static_cast<int>(round(t / radres)) % 4);;
+				r += 0.25*sampleArray.at(index).at(static_cast<int>(round(t / radres)) % 4);;
+			}
 			
 			// PROPAGATION ATTENUATION TEST //
 			/*if (t == tinc && index/width == 3 && mode == 0)
@@ -614,7 +640,7 @@ class propagator
 	std::vector<bool> processMap; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/Width+1)*(Width+1), false)
+	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/Width+1)*(Width+1) /* rows/2*cols/2 */, false)
 	{
 		// parser definitions
 		parser.DefineConst("pi", pi);
@@ -730,28 +756,49 @@ public:
 			std::vector<double> area(sample.size(), 0.0);
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
 			for (double t = offset; t < apertureAngles.at(k); t+=tinc)
-				area.at(dirIndex) += 1/lSteps * cFactor * sample.at(round(t*1.0/radres))*clip(cos(t-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+				for (int i = 0; i < area.size(); i++)
+					area.at(i) += 0.5 * cFactor * sample.at(i)*clip(cos(i*radres-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 
 			// ReProjection of Flow Lobes //
 
 			switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate samples in sampleArray
 			{ // place unexpanded(-explored) nodes w. edge flow contributions
-			//case 0: switch (dirIndex) // TODO: dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
-			//		{
-			//		case 0: break;
-			//		case 1:
-			//		case 2:
-			//		case 3:
-			//		}
-			case 0:
-					sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor
-					sampleArray->at(iIndex + 2 + (jIndex+1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor
-			case 1: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor
-					sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor
-			case 2: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width);// left neighbor
-					sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor
-			case 3: sampleArray->at(iIndex + (jIndex + 1) * width) = area + sampleArray->at(iIndex + (jIndex + 1) * width);// bottom neighbor
-					sampleArray->at(iIndex + 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 1) * width); break;// bottom neighbor
+			case 0: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
+					{
+					case 0: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor (top)
+							sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
+					case 1: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); break; // right neighbor (top)
+					case 2: break;
+					case 3: sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor
+					} break;
+			case 1: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
+					{
+					case 0: sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area; break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor
+					case 1: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor
+							sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor
+					case 2: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor
+					case 3: break;
+					} break;
+				
+			case 2: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
+					{
+					case 0: break;
+					case 1: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); break;// left neighbor
+							
+					case 2: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width);// left neighbor 
+							sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor
+					case 3: sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor
+					} break;
+			case 3: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
+					{
+					case 0: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break;// bottom neighbor
+					case 1: break;
+
+					case 2: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor
+
+					case 3: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor
+							sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor
+					} break;
 			}
 		}
 		// set flag in process(ed) map for cell already processed
@@ -923,11 +970,11 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 	}
 }
 
- void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, unsigned int tinc, unsigned int steps, unsigned int jIndex, unsigned int iIndex)
+ void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, unsigned int steps, unsigned int jIndex, unsigned int iIndex)
 {
 	 std::vector<double> sample{ 0.0, 0.0, 0.0, 0.0 };
-	 for (int i = 0; i < steps; i++)
-		 sample.at(i) = f(i*tinc);
+	 for (int i = 0; i < sample.size(); i++)
+		 sample.at(i) = f(i*radres);
 	 sampleArray.at(iIndex + jIndex * width) = sample;
 	 sampleArray.at(iIndex + 1 + jIndex * width) = sample;
 	 sampleArray.at(iIndex + (jIndex+1) * width) = sample;
@@ -974,13 +1021,13 @@ int main(int argc, char* argv[])
 	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
 	std::string circle = "1.0"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
 	
-	unsigned int tinc = 2*pi/72;
+	double tinc = 2*pi/72;
 	unsigned int steps = 2 * pi / tinc;
-	unsigned int radres = pi / 2;
+	double radres = pi / 2;
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
-	sample(strFunction, sampleArray, tinc, steps, jIndex, iIndex); // sample the light profile w. muParser
+	sample(strFunction, sampleArray, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
 	//coefficientArray.at(i + j * width) = calcCoeff(strFunction);// form coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
 
 	// compute distances to center point
@@ -1187,7 +1234,7 @@ int main(int argc, char* argv[])
 		// draw polar function as graph sprite
 		for (unsigned i = 0; i < funcs.size(); i++) 
 		{
-			funcs.at(i).animation(i, 0);
+			funcs.at(i).animation(i, 0, sampleArray);
 			funcsEllipses.at(i).animation(i, 1);
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
