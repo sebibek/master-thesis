@@ -753,11 +753,11 @@ public:
 
 			// create # of steps for averaging
 			int lSteps = apertureAngles.at(k) / tinc;
-			std::vector<double> area(sample.size(), 0.0);
+			std::vector<double> area(sample.size(), 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			for (double t = offset; t < apertureAngles.at(k); t+=tinc)
+			for (double t = offset; t < apertureAngles.at(k); t += tinc)
 				for (int i = 0; i < area.size(); i++)
-					area.at(i) += 0.5 * cFactor * sample.at(i)*clip(cos(i*radres-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+					area.at(i) += 1.0 / lSteps * 0.5 * cFactor * sample.at(i)*clip(cos(i*radres-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 
 			// ReProjection of Flow Lobes //
 
