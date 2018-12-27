@@ -458,7 +458,7 @@ public:
 			if (!discretePlot) // use muParser for evaluation 
 				r = p.Eval();
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
-				r = sample.at(static_cast<int>(round(t / radres))%4); // cyclic value permutation
+				r = sample.at(static_cast<int>(round(t / radres))% sample.size()); // cyclic value permutation
 			
 			// PROPAGATION ATTENUATION TEST //
 			/*if (t == tinc && index/width == 3 && mode == 0)
@@ -480,10 +480,10 @@ public:
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
 			{
 				r = 0;
-				r += 0.25*sampleArray.at(index + 1).at(static_cast<int>(round(t / radres)) % 4);;
-				r += 0.25*sampleArray.at(index + 1 + width).at(static_cast<int>(round(t / radres)) % 4);;
-				r += 0.25*sampleArray.at(index + width).at(static_cast<int>(round(t / radres)) % 4);;
-				r += 0.25*sampleArray.at(index).at(static_cast<int>(round(t / radres)) % 4);;
+				r += 0.25*sampleArray.at(index + 1).at(static_cast<int>(round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index + 1 + width).at(static_cast<int>(round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index + width).at(static_cast<int>(round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index).at(static_cast<int>(round(t / radres)) % sample.size());;
 			}
 			
 			// PROPAGATION ATTENUATION TEST //
@@ -679,18 +679,18 @@ public:
 		std::array<unsigned long long, 2> init{ jIndex,iIndex };
 		std::array<std::array<unsigned long long, 2>, 4> neighborIndices{ init,init,init,init };
 		//if (hood.getR())
-			neighborIndices.at(1) = { jIndex, iIndex + 1};
+		neighborIndices.at(1) = { jIndex, iIndex + 1 };
 		//if (hood.getB())
-			neighborIndices.at(2) = { jIndex + 1 , iIndex};
+		neighborIndices.at(2) = { jIndex + 1 , iIndex };
 		//if (hood.getR() && hood.getB())
-			neighborIndices.at(3) = { jIndex + 1 , iIndex + 1};
+		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
 
 		// initialize member sample w. 0
 		sample = std::vector<double>(steps, 0.0);
 
 		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
-		for(unsigned int i = 0; i < neighborIndices.size(); i++)
-			sample = sample + 1.0/neighborIndices.size()*sampleArray->at(neighborIndices.at(i).front()*width + neighborIndices.at(i).back()); // ..cosine coefficient vector 
+		for (unsigned int i = 0; i < neighborIndices.size(); i++)
+			sample = sample + 1.0 / neighborIndices.size()*sampleArray->at(neighborIndices.at(i).front()*width + neighborIndices.at(i).back()); // ..cosine coefficient vector 
 
 		// calculate mean and variance.. of I(phi)
 		double sum1 = 0.0;
@@ -720,7 +720,7 @@ public:
 		//	if (sv1 != 0 && sv2 != 0)
 		//		sum3 += sum * sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); // evaluate T*I for tiMean (sum2)
 		//}
-		
+
 		// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 		double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 		// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
@@ -728,7 +728,7 @@ public:
 		// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 		double tiMean = iMean; //sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 		// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-		double cFactor = tMean*iMean / tiMean;
+		double cFactor = tMean * iMean / tiMean;
 
 		// cout << "cFactor: " << cFactor << endl;
 
@@ -750,59 +750,39 @@ public:
 
 			// set theta variable to current central direction shifted by half an apertureAngle
 			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
-
+			
 			// create # of steps for averaging
 			int lSteps = apertureAngles.at(k) / tinc;
-			std::vector<double> area(sample.size(), 0.0); // steps
+			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
 			for (double t = offset; t < apertureAngles.at(k); t += tinc)
-				for (int i = 0; i < area.size(); i++)
-					area.at(i) += 1.0 / lSteps * 0.5 * cFactor * sample.at(i)*clip(cos(i*radres-dirIndex*radres),0.0,1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+				for (int i = 0; i < steps; i++)
+					area.at(i) +=  0.5 * cFactor * sample.at(i)*clip(cos(i*radres - dirIndex * radres), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 
 			// ReProjection of Flow Lobes //
 
-			switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate samples in sampleArray
-			{ // place unexpanded(-explored) nodes w. edge flow contributions
-			case 0: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
-					{
-					case 0: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor (top)
-							sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
-					case 1: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); break; // right neighbor (top)
-					case 2: break;
-					case 3: sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor
-					} break;
-			case 1: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
-					{
-					case 0: sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area; break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor
-					case 1: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor
-							sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor
-					case 2: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor
-					case 3: break;
-					} break;
-				
-			case 2: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
-					{
-					case 0: break;
-					case 1: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); break;// left neighbor
-							
-					case 2: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width);// left neighbor 
-							sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor
-					case 3: sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor
-					} break;
-			case 3: switch (dirIndex) // dependent on dirIndex, accumulate edge flow contributions on nodes yet unprocessed (or averaged on demand)..
-					{
-					case 0: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break;// bottom neighbor
-					case 1: break;
-
-					case 2: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor
-
-					case 3: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor
-							sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor
-					} break;
+			switch (k)
+			{
+			case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
+			case 1: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor (top)
+				sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
+			case 2: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); break; // right neighbor (top)
+			case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area; break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			case 4: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor (left)
+				sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			case 5: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor (left)
+			case 6: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); break;// left neighbor (top)
+			case 7: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); // left neighbor (top)
+				sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
+			case 8: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
+			case 9:	sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor (right)
+				sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
+			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break; // bottom neighbor (right)
 			}
+
+			// set flag in process(ed) map for cell already processed
+			processMap.at(iIndex + jIndex * width) = true;
 		}
-		// set flag in process(ed) map for cell already processed
-		processMap.at(iIndex + jIndex * width) = true;
 	}
 };
 
@@ -1023,7 +1003,7 @@ int main(int argc, char* argv[])
 	
 	double tinc = 2*pi/72;
 	unsigned int steps = 2 * pi / tinc;
-	double radres = pi / 2;
+	double radres = pi / 4;
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
