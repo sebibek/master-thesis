@@ -260,7 +260,7 @@ std::vector<T> operator*(const T a, const std::vector<T>& b)
 	std::vector<T> result(b.size());
 
 	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a + b.at(i);
+		result.at(i) = a * b.at(i);
 
 	return result;
 }
@@ -591,26 +591,12 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 
 class propagator
 {
-	// define cosine lobes (4 neighbors/directions)
-	std::string cosLobeX = "clip(cos(theta))"; // cosine lobe in +x-direction (in polar plot)
-	std::string cosLobeY = "clip(cos(theta-pi/2))"; // cosine lobe in +y-direction (in polar plot)
-	std::string cosLobeXneg = "clip(cos(theta+pi))"; // cosine lobe in -x-direction (in polar plot)
-	std::string cosLobeYneg = "clip(cos(theta+pi/2))"; // cosine lobe in -y-direction (in polar plot)
-	// std::array<std::string, 12> centralLobes{ cosLobeYneg, cosLobeX, cosLobeY, cosLobeX, cosLobeY, cosLobeXneg, cosLobeY, cosLobeXneg, cosLobeYneg, cosLobeXneg, cosLobeYneg, cosLobeX };
-
-	// create arrays for storing pre-computed fourier (CH) coefficients for cosine lobes
-	std::array<std::array<double, 21>, 2> cosLobeXCoeff;
-	std::array<std::array<double, 21>, 2> cosLobeYCoeff;
-	std::array<std::array<double, 21>, 2> cosLobeXnegCoeff;
-	std::array<std::array<double, 21>, 2> cosLobeYnegCoeff;
-
 	// set principal arture angles in rads
 	double alpha = 36.8699 * M_PI / 180;
 	double beta = 26.5651 * M_PI / 180;
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
 	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
-	std::array<std::array<std::array<double, 21>, 2>*, 12> centralLobesCoeff{ &cosLobeYnegCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXCoeff };
 	std::array<int, 12> coneDirections{ 3,0,1,0,1,2,1,2,3,2,3,0 };
 	// define member strings for parsing (internal)
 	std::string fString = "0.0";
@@ -623,10 +609,8 @@ class propagator
 	std::vector<std::tuple<double, double, double>>* ellipseArray;
 
 	// define function parser (muparser)
-	mu::Parser parser;
-	double t = 0.0;
 	double tinc = 2 * pi / 72; // set theta increment tinc
-	double radres = pi / 2; // set radres for discretized theta (phi) directions for sampling
+	double radres = pi / 4; // set radres for discretized theta (phi) directions for sampling
 	unsigned long long steps = (2 * pi) / radres;
 	
 	// create threshhold for aborting the fourier series expansion
@@ -640,13 +624,8 @@ class propagator
 	std::vector<bool> processMap; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/Width+1)*(Width+1) /* rows/2*cols/2 */, false)
+	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/Width)*(Width) /* rows/2*cols/2 */, false)
 	{
-		// parser definitions
-		parser.DefineConst("pi", pi);
-		parser.DefineVar("theta", &t);
-		parser.DefineFun(_T("clip"), clipNeg, false);
-
 		// initialize member sample w. 0
 		sample = std::vector<double>(steps, 0.0);
 
@@ -655,16 +634,6 @@ public:
 		functionStrEllipse = fStrEllipse;
 		sampleArray = sampArray;
 		ellipseArray = ellipseArr;
-
-		// initialize pre-computed fourier coefficient arrays (using wolfram mathematica)
-		cosLobeXCoeff.front() = { 0.31831, 0.5, 0.212207, 0., -0.0424413, 0., 0.0181891, 0., -0.0101051, 0., 0.0064305, 0., -0.00445189, 0., 0.00326472, 0., -0.00249655, 0., 0.00197096, 0., -0.00159554 };
-		cosLobeXCoeff.back().fill(0); // initialize bn array w. 0 --> no sine coefficients
-		cosLobeYCoeff.front() = { 0.31831, 0., -0.212207, 0., -0.0424413 , 0., -0.0181891 , 0., -0.0101051, 0., -0.0064305 , 0., -0.00445189, 0., -0.00326472, 0., -0.00249655, 0., -0.00197096 , 0., -0.00159554 };
-		cosLobeYCoeff.back() = { 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-		cosLobeXnegCoeff.front() = { 0.31831, -0.5, 0.212207, 0., -0.0424413, 0., 0.0181891, 0., -0.0101051, 0., 0.0064305, 0., -0.00445189, 0., 0.00326472, 0., -0.00249655, 0., 0.00197096, 0., -0.00159554 };
-		cosLobeXnegCoeff.back().fill(0); // initialize bn array w. 0 --> no sine coefficients
-		cosLobeYnegCoeff.front() = { 0.31831, 0., -0.212207, 0., -0.0424413 , 0., -0.0181891 , 0., -0.0101051, 0., -0.0064305 , 0., -0.00445189, 0., -0.00326472, 0., -0.00249655, 0., -0.00197096 , 0., -0.00159554 };
-		cosLobeYnegCoeff.back() = { 0., -0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
 
 		// assign width
 		width = Width;
@@ -689,22 +658,22 @@ public:
 		sample = std::vector<double>(steps, 0.0);
 
 		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
-		for (unsigned int i = 0; i < neighborIndices.size(); i++)
-			sample = sample + 1.0 / neighborIndices.size()*sampleArray->at(neighborIndices.at(i).front()*width + neighborIndices.at(i).back()); // ..cosine coefficient vector 
+		for (unsigned int j = 0; j < 4; j++)
+			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()); // ..cosine coefficient vector 
 
 		// calculate mean and variance.. of I(phi)
 		double sum1 = 0.0;
 		double sum2 = 0.0;
 		double sum3 = 0.0;
 
-		// assign singular values and rotational deg(ree)
-		double sv1 = std::get<0>(ellipseArray->at(iIndex + jIndex * width));
-		double sv2 = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
-		double deg = std::get<2>(ellipseArray->at(iIndex + jIndex * width));
-
 		// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
 		for (int i = 0; i < steps; i++)
 			sum1 += sample.at(i);
+
+		//// assign singular values and rotational deg(ree)
+		//double sv1 = std::get<0>(ellipseArray->at(iIndex + jIndex * width));
+		//double sv2 = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
+		//double deg = std::get<2>(ellipseArray->at(iIndex + jIndex * width));
 
 		//// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
 		//for (int i = 0; i < steps; i++)
@@ -749,35 +718,36 @@ public:
 				continue;
 
 			// set theta variable to current central direction shifted by half an apertureAngle
-			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
+			double offset = centralDirections.at(k);
 			
 			// create # of steps for averaging
 			int lSteps = apertureAngles.at(k) / tinc;
 			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			for (double t = offset; t < apertureAngles.at(k); t += tinc)
-				for (int i = 0; i < steps; i++)
-					area.at(i) +=  0.5 * cFactor * sample.at(i)*clip(cos(i*radres - dirIndex * radres), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+			//for (double t = offset; t < apertureAngles.at(k); t += tinc)
+			
+			area.at(round(offset / radres)) += sample.at(round(offset / radres))* cFactor *clip(cos(offset - dirIndex * pi/2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 
-			// ReProjection of Flow Lobes //
+			// Conduction of Flow Samples //
 
 			switch (k)
 			{
 			case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
 			case 1: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor (top)
-				sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
+					sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
 			case 2: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); break; // right neighbor (top)
-			case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area; break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			case 3: sampleArray->at(iIndex + 1 + (jIndex-1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
 			case 4: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor (left)
-				sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-			case 5: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor (left)
+					sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			case 5: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); break;// top neighbor (left)
 			case 6: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); break;// left neighbor (top)
 			case 7: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); // left neighbor (top)
-				sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
-			case 8: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
-			case 9:	sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor (right)
-				sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
-			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break; // bottom neighbor (right)
+					sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
+			case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
+			case 9: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
+			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor (right)
+					 sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
+			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break; // bottom neighbor (right)
 			}
 
 			// set flag in process(ed) map for cell already processed
@@ -952,7 +922,7 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 
  void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, unsigned int steps, unsigned int jIndex, unsigned int iIndex)
 {
-	 std::vector<double> sample{ 0.0, 0.0, 0.0, 0.0 };
+	 std::vector<double> sample(steps, 0.0);
 	 for (int i = 0; i < sample.size(); i++)
 		 sample.at(i) = f(i*radres);
 	 sampleArray.at(iIndex + jIndex * width) = sample;
@@ -987,7 +957,11 @@ int main(int argc, char* argv[])
 	//initVector.fill(init);
 	//std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initArray); // ..use it to initialize the coefficient array w. dim elements
 
-	std::vector<double> initArray{ 0,0,0,0 };
+	double tinc = 2 * pi / 72;
+	double radres = pi / 4;
+	unsigned int steps = 2 * pi / radres;
+
+	std::vector<double> initArray(steps, 0.0);
 	std::vector<std::vector<double>> sampleArray((width+1)*(height+1), initArray);
 	//
 	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
@@ -1001,9 +975,7 @@ int main(int argc, char* argv[])
 	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
 	std::string circle = "1.0"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
 	
-	double tinc = 2*pi/72;
-	unsigned int steps = 2 * pi / tinc;
-	double radres = pi / 4;
+	
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
@@ -1094,7 +1066,7 @@ int main(int argc, char* argv[])
 	//
 	//double grandSum = 0.0;
 	//double grandError = 0.0;
-	//// walk along circle in 16 pre-defined steps (heuristic)
+	//// walk along circle in 16 pre-defined (heuristic)
 	//for (theta = 0; theta < tmax; theta+=tInc)
 	//{
 	//	//theta = circularAngles.at(i);
