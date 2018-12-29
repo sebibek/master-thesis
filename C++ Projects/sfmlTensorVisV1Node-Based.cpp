@@ -718,15 +718,20 @@ public:
 				continue;
 
 			// set theta variable to current central direction shifted by half an apertureAngle
-			double offset = centralDirections.at(k);
+			double offset = centralDirections.at(k) - apertureAngles.at(k)/2.0;
 			
 			// create # of steps for averaging
 			int lSteps = apertureAngles.at(k) / tinc;
 			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			//for (double t = offset; t < apertureAngles.at(k); t += tinc)
-			
-			area.at(round(offset / radres)) += sample.at(round(offset / radres))* cFactor *clip(cos(offset - dirIndex * pi/2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+			int ctr = 0;
+			for (double t = offset; t < apertureAngles.at(k); t += tinc)
+			{
+				double weight = 0.0;
+				if (t - (dirIndex - 1) * pi / 2 > 0 && t - (dirIndex - 1) * pi / 2 < pi) // if inside semi-circle 
+					weight = 1.0;
+				area.at(round(t / radres)) += 1.0/lSteps*sample.at(round(t / radres))* cFactor *weight; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+			}
 
 			// Conduction of Flow Samples //
 
