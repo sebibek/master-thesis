@@ -606,6 +606,7 @@ class propagator
 	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string>* functionStrEllipse; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::vector<double>>* sampleArray;
+	std::vector<int>* ctrArray;
 	std::vector<std::tuple<double, double, double>>* ellipseArray;
 
 	// define function parser (muparser)
@@ -634,7 +635,7 @@ public:
 		functionStrEllipse = fStrEllipse;
 		sampleArray = sampArray;
 		ellipseArray = ellipseArr;
-
+		ctrArray = new std::vector<int>(steps, 0);
 		// assign width
 		width = Width;
 	}
@@ -700,12 +701,11 @@ public:
 		double cFactor = tMean * iMean / tiMean;
 
 		// cout << "cFactor: " << cFactor << endl;
-
-		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		
+		// prepare ctrArray for on-the-fly (implicit) normalization --> count mutual/common bin (discrete direction) occurences/hits in central directions
 		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
 		{
 			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-			unsigned int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions
 
 			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
 			if (!hood.getR() && nIndex == 0)
@@ -719,31 +719,70 @@ public:
 
 			// set theta variable to current central direction shifted by half an apertureAngle
 			double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
-			
+			unsigned int index = round(offset / radres);
+			ctrArray->at(index)++; // increment ctrArray for normalization
+		}
+		// prepare ctrArray for on-the-fly (implicit) normalization --> count bin (discrete direction) occurences/hits per central directions
+		for (int t = 0; t < 2*pi; t++) // k - (Strahl-)keulenindex
+		{
+			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+
+			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+			if (!hood.getR() && nIndex == 0)
+				continue;
+			if (!hood.getT() && nIndex == 1)
+				continue;
+			if (!hood.getL() && nIndex == 2)
+				continue;
+			if (!hood.getB() && nIndex == 3)
+				continue;
+
+			// set theta variable to current central direction shifted by half an apertureAngle
+			double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
+			unsigned int index = round(offset / radres);
+			ctrArray->at(index)++; // increment ctrArray for normalization
+		}
+
+		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
+		{
+			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+			unsigned int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
+
+				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+			if (!hood.getR() && nIndex == 0)
+				continue;
+			if (!hood.getT() && nIndex == 1)
+				continue;
+			if (!hood.getL() && nIndex == 2)
+				continue;
+			if (!hood.getB() && nIndex == 3)
+				continue;
+
+			// set theta variable to current central direction shifted by half an apertureAngle
+			double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
+			unsigned int index = round(offset / radres);
+
+			double factor = 1.0 / ctrArray->at(index);
 			// create # of steps for averaging
 			int lSteps = apertureAngles.at(k) / tinc;
 			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			//int ctr = 0;
-			//for (double t = offset; t < apertureAngles.at(k); t += tinc)
-			//{
-			//	double weight = 0.0;
-			//	if (t - (dirIndex - 1) * pi / 2 > 0 && t - (dirIndex - 1) * pi / 2 < pi) // if inside semi-circle 
-			//		weight = 1.0;
-			//	area.at(round(t / radres)) += 1.0/lSteps*sample.at(round(t / radres))* cFactor *weight; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
-			//}
+
 			double weight = 0.0;
 			if (dirIndex == 0)
-				if (offset > 3/2*pi || offset < pi/2)
+			{
+				if (offset >= 3 / 2 * pi || offset <= pi / 2)
 					weight = 1.0;
 				else
 					continue;
-			else if ((offset - (dirIndex - 1) * pi / 2) > 0 && (offset - (dirIndex - 1) * pi / 2) < pi) // if inside semi-circle 
+			}
+			else if ((offset - (dirIndex - 1) * pi / 2) >= 0 && (offset - (dirIndex - 1) * pi / 2) <= pi) // if inside semi-circle 
 				weight = 1.0;
 			else
 				continue;
-			
-			area.at(round(offset / radres)) = sample.at(round(offset / radres))* cFactor*weight; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+
+			area.at(index) = sample.at(index)*weight*factor;//*cos(round(offset / radres) - dirIndex*pi/2)* cFactor*weight; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 
 			// Conduction of Flow Samples //
 
@@ -767,9 +806,9 @@ public:
 			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break; // bottom neighbor (right)
 			}
 
-			// set flag in process(ed) map for cell already processed
-			processMap.at(iIndex + jIndex * width) = true;
 		}
+		// set flag in process(ed) map for cell already processed
+		processMap.at(iIndex + jIndex * width) = true;
 	}
 };
 
@@ -992,7 +1031,6 @@ int main(int argc, char* argv[])
 	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
 	std::string circle = "1.0"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
 	
-	
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
@@ -1006,7 +1044,7 @@ int main(int argc, char* argv[])
 	int minRadius = width - 1; // use larger grid radius to reach outer cells in diagonal propagation - adjust for varying light src position
 	// create propagation radius for propagation scheme - deltas added to minRadius!
 	int propRadius;
-	if (cols%2 == 0) // if even grid
+	if (width%2 == 0) // if even grid
 		propRadius = deltaI + deltaJ + minRadius + 1;
 	else // ..odd grid
 		propRadius = deltaI + deltaJ + minRadius;
