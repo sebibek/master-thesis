@@ -611,7 +611,7 @@ class propagator
 
 	// define function parser (muparser)
 	double tinc = 2 * pi / 72; // set theta increment tinc
-	double radres = pi / 4; // set radres for discretized theta (phi) directions for sampling
+	double radres = 0.1745; // set radres for discretized theta (phi) directions for sampling
 	unsigned long long steps = (2 * pi) / radres;
 	
 	// create threshhold for aborting the fourier series expansion
@@ -635,7 +635,7 @@ public:
 		functionStrEllipse = fStrEllipse;
 		sampleArray = sampArray;
 		ellipseArray = ellipseArr;
-		ctrArray = new std::vector<int>(steps, 0);
+		ctrArray = new std::vector<int>(steps, 1);
 		// assign width
 		width = Width;
 	}
@@ -702,46 +702,28 @@ public:
 
 		// cout << "cFactor: " << cFactor << endl;
 		
-		// prepare ctrArray for on-the-fly (implicit) normalization --> count mutual/common bin (discrete direction) occurences/hits in central directions
-		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
-		{
-			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+		//// prepare ctrArray for on-the-fly (implicit) normalization --> count mutual/common bin (discrete direction) occurences/hits in central directions
+		//for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
+		//{
+		//	unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
 
-			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-			if (!hood.getR() && nIndex == 0)
-				continue;
-			if (!hood.getT() && nIndex == 1)
-				continue;
-			if (!hood.getL() && nIndex == 2)
-				continue;
-			if (!hood.getB() && nIndex == 3)
-				continue;
+		//	// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+		//	if (!hood.getR() && nIndex == 0)
+		//		continue;
+		//	if (!hood.getT() && nIndex == 1)
+		//		continue;
+		//	if (!hood.getL() && nIndex == 2)
+		//		continue;
+		//	if (!hood.getB() && nIndex == 3)
+		//		continue;
 
-			// set theta variable to current central direction shifted by half an apertureAngle
-			double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
-			unsigned int index = round(offset / radres);
-			ctrArray->at(index)++; // increment ctrArray for normalization
-		}
-		// prepare ctrArray for on-the-fly (implicit) normalization --> count bin (discrete direction) occurences/hits per central directions
-		for (int t = 0; t < 2*pi; t++) // k - (Strahl-)keulenindex
-		{
-			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-
-			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-			if (!hood.getR() && nIndex == 0)
-				continue;
-			if (!hood.getT() && nIndex == 1)
-				continue;
-			if (!hood.getL() && nIndex == 2)
-				continue;
-			if (!hood.getB() && nIndex == 3)
-				continue;
-
-			// set theta variable to current central direction shifted by half an apertureAngle
-			double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
-			unsigned int index = round(offset / radres);
-			ctrArray->at(index)++; // increment ctrArray for normalization
-		}
+		//	// set theta variable to current central direction shifted by half an apertureAngle
+		//	double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
+		//	int index = round(offset / radres);
+		//	if (index < 0) // cyclic value permutation in case i negative
+		//		index = steps + index;
+		//	ctrArray->at(index)++; // increment ctrArray for normalization
+		//}
 
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
@@ -760,30 +742,27 @@ public:
 				continue;
 
 			// set theta variable to current central direction shifted by half an apertureAngle
-			double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
-			unsigned int index = round(offset / radres);
+			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
+			int index = round(offset / radres);
 
-			double factor = 1.0 / ctrArray->at(index);
+			if (index < 0) // cyclic value permutation in case i negative
+				index = steps + index;
+			double factor = 1.0;// / ctrArray->at(index);
+
 			// create # of steps for averaging
-			int lSteps = apertureAngles.at(k) / tinc;
+			int lSteps = static_cast<int>(apertureAngles.at(k) / radres);
 			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-
-			double weight = 0.0;
-			if (dirIndex == 0)
-			{
-				if (offset >= 3 / 2 * pi || offset <= pi / 2)
-					weight = 1.0;
-				else
-					continue;
-			}
-			else if ((offset - (dirIndex - 1) * pi / 2) >= 0 && (offset - (dirIndex - 1) * pi / 2) <= pi) // if inside semi-circle 
-				weight = 1.0;
-			else
-				continue;
-
-			area.at(index) = sample.at(index)*weight*factor;//*cos(round(offset / radres) - dirIndex*pi/2)* cFactor*weight; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
-
+			for (int j = 0; j < sample.size(); j++)
+				for(int i = index; i < (index+lSteps); i++)
+				{
+					int iIndex;
+					if (i >= sample.size()) // cyclic value permutation in case i exceeds the full circle degree 2pi
+						iIndex = i - sample.size();
+					else
+						iIndex = i;
+					area.at(j) += sample.at(iIndex)*clip(cos(i*radres-j*radres),0.0,1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+				}
 			// Conduction of Flow Samples //
 
 			switch (k)
@@ -1014,7 +993,7 @@ int main(int argc, char* argv[])
 	//std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initArray); // ..use it to initialize the coefficient array w. dim elements
 
 	double tinc = 2 * pi / 72;
-	double radres = pi / 4;
+	double radres = 0.1745;
 	unsigned int steps = 2 * pi / radres;
 
 	std::vector<double> initArray(steps, 0.0);
