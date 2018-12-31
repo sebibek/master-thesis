@@ -611,7 +611,7 @@ class propagator
 
 	// define function parser (muparser)
 	double tinc = 2 * pi / 72; // set theta increment tinc
-	double radres = 0.1745; // set radres for discretized theta (phi) directions for sampling
+	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
 	unsigned long long steps = (2 * pi) / radres;
 	
 	// create threshhold for aborting the fourier series expansion
@@ -761,7 +761,7 @@ public:
 						iIndex = i - sample.size();
 					else
 						iIndex = i;
-					area.at(j) += sample.at(iIndex)*clip(cos(i*radres-j*radres),0.0,1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+					area.at(j) += 1.0/lSteps*sample.at(iIndex)*clip(cos(iIndex*radres-j*radres),0.0,1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 				}
 			// Conduction of Flow Samples //
 
@@ -993,7 +993,7 @@ int main(int argc, char* argv[])
 	//std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initArray); // ..use it to initialize the coefficient array w. dim elements
 
 	double tinc = 2 * pi / 72;
-	double radres = 0.1745;
+	double radres = 0.01745;
 	unsigned int steps = 2 * pi / radres;
 
 	std::vector<double> initArray(steps, 0.0);
