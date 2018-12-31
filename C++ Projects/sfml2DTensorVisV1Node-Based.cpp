@@ -744,6 +744,7 @@ public:
 			// set theta variable to current central direction shifted by half an apertureAngle
 			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
 			int index = round(offset / radres);
+			double cd = centralDirections.at(k);
 
 			if (index < 0) // cyclic value permutation in case i negative
 				index = steps + index;
@@ -753,16 +754,32 @@ public:
 			int lSteps = static_cast<int>(apertureAngles.at(k) / radres);
 			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			for (int j = 0; j < sample.size(); j++)
+			
+			unsigned int shift = static_cast<int>(pi / (2 * radres));
+			for (int j = (shift)*(dirIndex - 1); j < (shift)*(dirIndex + 1); j++)
+			{
+				int jIndex;
+				if (j < 0)
+					jIndex = j + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
+				else if (j >= steps)
+					jIndex = j - steps;
+				else
+					jIndex = j;
 				for(int i = index; i < (index+lSteps); i++)
 				{
 					int iIndex;
-					if (i >= sample.size()) // cyclic value permutation in case i exceeds the full circle degree 2pi
-						iIndex = i - sample.size();
+					if (i < 0)
+						iIndex = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
+					else if (i >= steps)
+						iIndex = i - steps;
 					else
 						iIndex = i;
-					area.at(j) += 1.0/lSteps*sample.at(iIndex)*clip(cos(iIndex*radres-j*radres),0.0,1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+				
+					area.at(jIndex) += 0.5*(1.0/lSteps)*sample.at(iIndex)*clip(cos(iIndex*radres- jIndex *radres),0.0,1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 				}
+
+			}
+
 			// Conduction of Flow Samples //
 
 			switch (k)
