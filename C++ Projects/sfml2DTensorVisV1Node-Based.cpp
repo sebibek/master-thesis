@@ -418,8 +418,8 @@ public:
 		int offsetX = (index % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
 		int offsetY = (index / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
 
-		int xIndex = round(x + static_cast<double>(offsetX));
-		int yIndex = round(y + static_cast<double>(offsetY));
+		int xIndex = static_cast<int>(std::round(x + offsetX));
+		int yIndex = static_cast<int>(std::round(y + offsetY));
 
 		if (xIndex < 0)
 			xIndex = 0;
@@ -458,7 +458,7 @@ public:
 			if (!discretePlot) // use muParser for evaluation 
 				r = p.Eval();
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
-				r = sample.at(static_cast<int>(round(t / radres))% sample.size()); // cyclic value permutation
+				r = sample.at(static_cast<int>(std::round(t / radres))% sample.size()); // cyclic value permutation
 			
 			// PROPAGATION ATTENUATION TEST //
 			/*if (t == tinc && index/width == 3 && mode == 0)
@@ -480,10 +480,10 @@ public:
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
 			{
 				r = 0;
-				r += 0.25*sampleArray.at(index + 1).at(static_cast<int>(round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index + 1 + width).at(static_cast<int>(round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index + width).at(static_cast<int>(round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index).at(static_cast<int>(round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index + 1).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index + 1 + width).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index + width).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index).at(static_cast<int>(std::round(t / radres)) % sample.size());;
 			}
 			
 			// PROPAGATION ATTENUATION TEST //
@@ -725,8 +725,12 @@ public:
 		//	ctrArray->at(index)++; // increment ctrArray for normalization
 		//}
 
+
+		double shift = pi / (2.0) / radres;
+		int shiftIndex = 90;
+
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
-		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
+		for (unsigned int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
 		{
 			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
 			unsigned int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
@@ -743,41 +747,41 @@ public:
 
 			// set theta variable to current central direction shifted by half an apertureAngle
 			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
-			int index = round(offset / radres);
-			double cd = centralDirections.at(k);
+			int index = offset / radres;
 
-			if (index < 0) // cyclic value permutation in case i negative
-				index = steps + index;
-			double factor = 1.0;// / ctrArray->at(index);
+			//if (index < 0)
+			//	index = 360 + index;
+			double aperture = apertureAngles.at(k);// / ctrArray->at(index);
 
 			// create # of steps for averaging
-			int lSteps = static_cast<int>(apertureAngles.at(k) / radres);
+			int lSteps = aperture / radres;
 			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
 			
-			unsigned int shift = static_cast<int>(pi / (2 * radres));
-			for (int j = (shift)*(dirIndex - 1); j < (shift)*(dirIndex + 1); j++)
+			
+			for (int j = index; j < (index + lSteps); j++)
 			{
-				int jIndex;
+				int j_index = j;
+			
 				if (j < 0)
-					jIndex = j + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
+					j_index = j + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
 				else if (j >= steps)
-					jIndex = j - steps;
+					j_index = j - steps;
 				else
-					jIndex = j;
-				for(int i = index; i < (index+lSteps); i++)
-				{
-					int iIndex;
-					if (i < 0)
-						iIndex = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-					else if (i >= steps)
-						iIndex = i - steps;
-					else
-						iIndex = i;
-				
-					area.at(jIndex) += 0.5*(1.0/lSteps)*sample.at(iIndex)*clip(cos(iIndex*radres- jIndex *radres),0.0,1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
-				}
+					j_index = j;
 
+				for (int i = shiftIndex *(dirIndex - 1); i < shiftIndex*(dirIndex + 1); i++)
+				{
+					int i_index = i;
+					if (i < 0)
+						i_index = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
+					else if (j >= steps)
+						i_index = i - steps;
+					else
+						i_index = i;
+
+					area.at(i_index) += (0.5 / lSteps)*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+				}
 			}
 
 			// Conduction of Flow Samples //
