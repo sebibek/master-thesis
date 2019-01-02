@@ -803,7 +803,7 @@ class propagator
 	std::vector<bool> processMapNodes; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/width)*(width), false), processMapNodes((dim / width+1)*(width+1), false), ctrArray(steps, 1)
+	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((height)*(width), false), processMapNodes((height +1)*(width+1), false), ctrArray(steps, 1)
 	{
 		// initialize member sample w. 0
 		sample = std::vector<double>(steps, 0.0);
@@ -814,6 +814,7 @@ public:
 		sampleArray = sampArray;
 		ellipseArray = ellipseArr;
 	}
+
 	void formNeighborIndices(int jIndex, int iIndex, std::array<std::array<int, 2>, 4>& neighborIndices)
 	{
 		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
@@ -823,52 +824,60 @@ public:
 		neighborIndices.at(2) = { jIndex + 1 , iIndex };
 		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
 	}
+
 	void freezeNodes(int jIndex, int iIndex, int index)
 	{
 		std::array<std::array<int, 2>, 4> neighborIndices;
 		formNeighborIndices(jIndex, iIndex, neighborIndices);
 
-		for (int j = 0; j < 4; j++)
-			processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+		if (index == 0)
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 
 		if (index != 1) // remember: step 0 is the first right step, step 1 already there...
 		{
 			jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
 			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			for (int j = 0; j < 4; j++)
-				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 		}
 
 		for (int l = 0; l < index - 1; l++) // perform p steps of incrementation/decrementation
 		{
 			jIndex -= 1; iIndex += 1; // + 45 degrees
 			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			for (int j = 0; j < 4; j++)
-				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 		}
 
 		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
 		{
 			jIndex -= 1; iIndex -= 1; // + 135 degrees
 			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			for (int j = 0; j < 4; j++)
-				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 		}
 
 		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
 		{
 			jIndex += 1; iIndex -= 1; // - 135 degrees
 			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			for (int j = 0; j < 4; j++)
-				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 		}
 
 		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
 		{
 			jIndex += 1; iIndex += 1; // - 45 degrees
 			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			for(int j = 0; j < 4; j++)
-				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 		}
 	}
 
@@ -889,7 +898,7 @@ public:
 
 		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
 		for (int j = 0; j < 4; j++)
-			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()); // ..cosine coefficient vector 
+			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*(width) + neighborIndices.at(j).back()); // ..cosine coefficient vector 
 
 		// calculate mean and variance.. of I(phi)
 		double sum1 = 0.0;
@@ -1011,28 +1020,68 @@ public:
 					area.at(i_index) += 0.5 /lSteps*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 				}
 			}
-
+			
 			// Conduction of Flow Samples //
+			//switch (k)
+			//{
+			//case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
+			//case 1: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); // right neighbor (top)
+			//	sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
+			//case 2: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); break; // right neighbor (top)
+			//case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			//case 4: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); // top neighbor (left)
+			//	sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break; // top neighbor (right)
+			//case 5: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); break;// top neighbor (left)
+			//case 6: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); break;// left neighbor (top)
+			//case 7: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); // left neighbor (top)
+			//	sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
+			//case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
+			//case 9: sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
+			//case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); // bottom neighbor (right)
+			//	sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
+			//case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
+			//}
 
 			switch (k)
 			{
 			case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
 			case 1: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor (top)
-					sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
+				sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
 			case 2: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); break; // right neighbor (top)
-			case 3: sampleArray->at(iIndex + 1 + (jIndex-1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
 			case 4: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor (left)
-					sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+				sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
 			case 5: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); break;// top neighbor (left)
 			case 6: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); break;// left neighbor (top)
 			case 7: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); // left neighbor (top)
-					sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
+				sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
 			case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
 			case 9: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
 			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor (right)
-					 sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
+				sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
 			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break; // bottom neighbor (right)
 			}
+
+
+			//switch (k)
+			//{
+			//case 0: if (!processMapNodes.at(iIndex + 2 + (jIndex + 1)*(width+1))) { sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); }break; // right neighbor (bottom)
+			//case 1: if (!processMapNodes.at(iIndex + 2 + jIndex * (width + 1))) { sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); } // right neighbor (center)
+			//		if (!processMapNodes.at(iIndex + 2 + (jIndex + 1)* (width + 1))) { sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); } break; // right neighbor (bottom)
+			//case 2: if (!processMapNodes.at(iIndex + 2 + jIndex * (width + 1))) { sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); } break; // right neighbor (top)				
+			//case 3:  if (!processMapNodes.at(iIndex + 1 + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); } break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			//case 4:  if (!processMapNodes.at(iIndex + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); } // top neighbor (left)
+			//		 if (!processMapNodes.at(iIndex + 1 + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); } break; // top neighbor (right)
+			//case 5: if (!processMapNodes.at(iIndex + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); } break;// top neighbor (left)
+			//case 6: if (!processMapNodes.at(iIndex - 1 + jIndex * (width + 1))) { sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); } break;// left neighbor (top)
+			//case 7: if (!processMapNodes.at(iIndex - 1 + jIndex * (width + 1))) { sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); }// left neighbor (top)
+			//		if (!processMapNodes.at(iIndex - 1 + (jIndex + 1) * (width + 1))) { sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); } break;// left neighbor (bottom)
+			//case 8: if (!processMapNodes.at(iIndex - 1 + (jIndex + 1) * (width + 1))) { sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); } break;// left neighbor (bottom)
+			//case 9: if (!processMapNodes.at(iIndex + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (left)
+			//case 10: if (!processMapNodes.at(iIndex + 1 + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); } // bottom neighbor (right)
+			//		 if (!processMapNodes.at(iIndex + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (left)
+			//case 11: if (!processMapNodes.at(iIndex + 1 + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (right)
+			//}
 
 		}
 		// set flag in process(ed) map for cell already processed
