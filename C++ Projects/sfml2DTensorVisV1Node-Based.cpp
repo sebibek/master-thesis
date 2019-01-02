@@ -589,6 +589,184 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
+
+void maintainFunctionStrings(std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray)
+{
+	for (int i = 0; i < fStr->size(); i++)
+	{
+		double thresh = 0.0001;
+		// assign member coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
+		std::array<double, 21> an = coeffArray->at(i).front(); // ..cosine coefficient vector
+		std::array<double, 21> bn = coeffArray->at(i).back(); // ..sine coefficient vector
+
+		// create fString w. a0 (offset)
+		std::string fString = std::to_string(an.front());
+
+		// set up Fourier Series expansion as str expression for the evaluation of the fourier serier (polar function/curve) for each grid cell (j,i)
+		for (int i = 1; i < an.size(); i++)
+		{
+			if (i > 1 && (bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if threshold exceeded..
+				break; // abort Fourier series expansion to obtain shorter functionStrings (approximations)
+			fString += "+" + std::to_string(an.at(i)) + "*cos(" + std::to_string(i) + "*theta)" + "+" + std::to_string(bn.at(i)) + "*sin(" + std::to_string(i) + "*theta)";
+		}
+
+		// update current functionStr w. fString to maintain the polar functions in gríd
+		fStr->at(i) = fString;
+	}
+}
+
+void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std::tuple<double, double, double>>& ellipseArray)
+{
+	int cols = 0; // create ptr to cols of txt tensor field
+	int rows = 0; // create ptr to rows of txt tensor field
+	std::string workDir = GetCurrentWorkingDir();
+	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows);
+	int dim = rows / 2 * cols / 2; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
+
+	// block the read-out matrices into a list of MatrixXd types (hardcoded 2x2 read-out)
+	std::vector<MatrixXd> matrixList(dim, MatrixXd::Ones(2, 2));
+
+	// REMEMBER: Grid size is half the amount of numbers for 2x2 matrices!
+	for (int i = 0; i < rows / 2; i++)
+		for (int j = 0; j < cols / 2; j++)
+		{
+			MatrixXd a = m.block<2, 2>(2 * i, 2 * j);
+			matrixList.at(j + i * (cols / 2)) = a;
+		}
+
+	// compute the SVD (singular value decomposition)of all matrices in matrixList into svdList
+	std::vector<JacobiSVD<MatrixXd>> svdList(dim, JacobiSVD<MatrixXd>(matrixList.at(0), ComputeThinU | ComputeThinV));
+	for (int i = 0; i < dim; i++)
+	{
+		// SVD-based
+		JacobiSVD<MatrixXd> svd(matrixList.at(i), ComputeThinU | ComputeThinV);
+		svdList.at(i) = svd;
+	}
+
+	// define parser parameters
+	double t = 0; // ->theta: set initial theta
+	double tinc = 2 * pi / 72; // set theta increment tinc
+	int steps = (2 * pi) / tinc; // set # of steps
+
+	// define function parser (muparser)
+	mu::Parser parser;
+	parser.DefineConst("pi", pi);
+	parser.DefineVar("theta", &t);
+
+	// iterate through the matrixList/svdList and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
+	for (int i = 0; i < matrixList.size(); i++)
+	{
+		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
+		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes "sigma_xx"
+		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
+		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
+		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
+		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
+		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
+		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
+
+		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
+		if (deg1 < 0)
+			deg1 = 360 + deg1;
+		if (deg2 < 0)
+			deg2 = 360 + deg2;
+
+		double deg = 0;
+		if (deg1 >= 270 && deg2 <= 90) // caveat: if basis vector u1 in 4th quadrant and u2 in 1st - continuity/consistency constraint
+			deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
+		else if (deg2 >= 270 && deg1 <= 90) // caveat: if basis vector u2 in 4th quadrant and u2 in 1st - continuity/consistency constraint
+			deg = atan(y2 / x2) * 180.0 / M_PI;
+		else if (deg2 > deg1) // if u2 is leading vector 
+			deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
+		else // if u1 is leading vector
+			deg = atan(y2 / x2) * 180.0 / M_PI; // use u2 as lagging vector
+		// --> u1 and u2 form basis vectors obtained from SVD, whereas the phase(leading vector) - phase(lagging vector) = 90 --> determine u1,u2
+
+		double sv1 = svdList.at(i).singularValues()[0];
+		double sv2 = svdList.at(i).singularValues()[1];
+
+		double dot = sv2 * sv1;
+		double a = 0; // x-scale
+		double b = 0; // y-scale
+
+		// --> eventually, use std::swap to swap ptrs to sv1,sv2 dynamically
+		if (((yy < 0 && xx < 0) || (yy >= 0 && xx >= 0))) // if not mirroring at one single axis..
+		{
+			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
+			{
+				a = sv1;
+				b = sv2;
+			}
+			else // if anisotropic y-scaling, scale y
+			{
+				a = sv2;
+				b = sv1;
+			}
+		}
+		else // if mirroring at one single axis.. swap!
+		{
+			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
+			{
+				a = sv2;
+				b = sv1;
+			}
+			else // if anisotropic y-scaling, scale y
+			{
+				a = sv1;
+				b = sv2;
+			}
+		}
+
+		// assign ellipse parameters in ellipseArray
+		ellipseArray.at(i) = { sv1, sv2, deg*(M_PI / 180.0) };
+
+		// define products as string modules to form (construct) ellipse string for current transmission profile T(w)
+		std::string aSquaredString = std::to_string(a*a);
+		std::string bSquaredString = std::to_string(b*b);
+		std::string dotString = std::to_string(dot);
+		std::string radString = std::to_string(deg*(M_PI / 180.0));
+
+		std::string ellipse = dotString + "/sqrt(" + bSquaredString + "*cos(theta-" + radString + ")*cos(theta-" + radString + ")+" + aSquaredString + "*sin(theta-" + radString + ")*sin(theta-" + radString + "))";
+
+		// define parser parameters
+		t = 0; // ->theta: set initial theta
+		parser.SetExpr(ellipse);
+
+		double sum = 0.0;
+		// sum r(theta) over (around) the ellipse to obtain mean(r)
+		for (int i = 0; i < steps; i++)
+		{
+			sum += parser.Eval(); t += tinc;
+		}
+
+		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+
+		if (rMean != 0) // only w. rMean != 0, else neglect normalization to prevent division by zero (NANs)...
+		{
+			// scale string-modules of ellipse string to rMean(Max)
+			aSquaredString = std::to_string(a*a*(1 / rMean)*(1 / rMean));
+			bSquaredString = std::to_string(b*b*(1 / rMean)*(1 / rMean));
+			dotString = std::to_string(dot*(1 / rMean)*(1 / rMean));
+		}
+
+		ellipse = dotString + "/sqrt(" + bSquaredString + "*cos(theta-" + radString + ")*cos(theta-" + radString + ")+" + aSquaredString + "*sin(theta-" + radString + ")*sin(theta-" + radString + "))"; // insert normalization factor right into polar ellipse function at pos. 0
+
+		// TODO: use ellipses normalized to mean(e)=1 for testing!, use ellipses normalized to mean(e)=max(mean(e)) for real fields!
+		functionStrEllipse.at(i) = ellipse; // transmission profile T(w)
+	}
+}
+
+void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, int steps, int jIndex, int iIndex)
+{
+	std::vector<double> sample(steps, 0.0);
+	for (int i = 0; i < sample.size(); i++)
+		sample.at(i) = f(i*radres);
+	sampleArray.at(iIndex + jIndex * width) = sample;
+	sampleArray.at(iIndex + 1 + jIndex * width) = sample;
+	sampleArray.at(iIndex + (jIndex + 1) * width) = sample;
+	sampleArray.at(iIndex + 1 + (jIndex + 1)* width) = sample;
+}
+
 class propagator
 {
 	// set principal arture angles in rads
@@ -606,7 +784,7 @@ class propagator
 	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string>* functionStrEllipse; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::vector<double>>* sampleArray;
-	std::vector<int>* ctrArray;
+	std::vector<int> ctrArray;
 	std::vector<std::tuple<double, double, double>>* ellipseArray;
 
 	// define function parser (muparser)
@@ -616,16 +794,16 @@ class propagator
 	
 	// create threshhold for aborting the fourier series expansion
 	double thresh = 0.0001;
-	int width = 0;
 
 	// create sample vector (dynamic)
 	std::vector<double> sample;
 
 	// create process(ed) map for cells already processed
 	std::vector<bool> processMap; // create a binary process(ed) map
+	std::vector<bool> processMapNodes; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/Width)*(Width) /* rows/2*cols/2 */, false)
+	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((dim/width)*(width), false), processMapNodes((dim / width+1)*(width+1), false), ctrArray(steps, 1)
 	{
 		// initialize member sample w. 0
 		sample = std::vector<double>(steps, 0.0);
@@ -635,9 +813,63 @@ public:
 		functionStrEllipse = fStrEllipse;
 		sampleArray = sampArray;
 		ellipseArray = ellipseArr;
-		ctrArray = new std::vector<int>(steps, 1);
-		// assign width
-		width = Width;
+	}
+	void formNeighborIndices(int jIndex, int iIndex, std::array<std::array<int, 2>, 4>& neighborIndices)
+	{
+		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
+		std::array<int, 2> init{ jIndex,iIndex };
+		neighborIndices = { init,init,init,init };
+		neighborIndices.at(1) = { jIndex, iIndex + 1 };
+		neighborIndices.at(2) = { jIndex + 1 , iIndex };
+		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
+	}
+	void freezeNodes(int jIndex, int iIndex, int index)
+	{
+		std::array<std::array<int, 2>, 4> neighborIndices;
+		formNeighborIndices(jIndex, iIndex, neighborIndices);
+
+		for (int j = 0; j < 4; j++)
+			processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+
+		if (index != 1) // remember: step 0 is the first right step, step 1 already there...
+		{
+			jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			for (int j = 0; j < 4; j++)
+				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+		}
+
+		for (int l = 0; l < index - 1; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex -= 1; iIndex += 1; // + 45 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			for (int j = 0; j < 4; j++)
+				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+		}
+
+		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex -= 1; iIndex -= 1; // + 135 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			for (int j = 0; j < 4; j++)
+				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+		}
+
+		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex -= 1; // - 135 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			for (int j = 0; j < 4; j++)
+				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+		}
+
+		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex += 1; // - 45 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			for(int j = 0; j < 4; j++)
+				processMapNodes.at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()) = true;
+		}
 	}
 
 	void propagate(int jIndex, int iIndex)
@@ -647,12 +879,9 @@ public:
 
 		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
 		std::array<int, 2> init{ jIndex,iIndex };
-		std::array<std::array<int, 2>, 4> neighborIndices{ init,init,init,init };
-		//if (hood.getR())
+		std::array<std::array<int, 2>, 4> neighborIndices{ init,init,init,init };	
 		neighborIndices.at(1) = { jIndex, iIndex + 1 };
-		//if (hood.getB())
 		neighborIndices.at(2) = { jIndex + 1 , iIndex };
-		//if (hood.getR() && hood.getB())
 		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
 
 		// initialize member sample w. 0
@@ -725,9 +954,8 @@ public:
 		//	ctrArray->at(index)++; // increment ctrArray for normalization
 		//}
 
-
 		double shift = pi / (2.0) / radres;
-		int shiftIndex = 90;
+		int shiftIndex = pi/(2*radres);
 
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
@@ -812,180 +1040,6 @@ public:
 	}
 };
 
-void maintainFunctionStrings(std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray)
-{
-	for (int i = 0; i < fStr->size(); i++)
-	{
-		double thresh = 0.0001;
-		// assign member coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
-		std::array<double, 21> an = coeffArray->at(i).front(); // ..cosine coefficient vector
-		std::array<double, 21> bn = coeffArray->at(i).back(); // ..sine coefficient vector
-
-		// create fString w. a0 (offset)
-		std::string fString = std::to_string(an.front());
-
-		// set up Fourier Series expansion as str expression for the evaluation of the fourier serier (polar function/curve) for each grid cell (j,i)
-		for (int i = 1; i < an.size(); i++)
-		{
-			if (i > 1 && (bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if threshold exceeded..
-				break; // abort Fourier series expansion to obtain shorter functionStrings (approximations)
-			fString += "+" + std::to_string(an.at(i)) + "*cos(" + std::to_string(i) + "*theta)" + "+" + std::to_string(bn.at(i)) + "*sin(" + std::to_string(i) + "*theta)";
-		}
-
-		// update current functionStr w. fString to maintain the polar functions in gríd
-		fStr->at(i) = fString;
-	}
-}
-
-void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std::tuple<double, double, double>>& ellipseArray)
-{
-	int cols = 0; // create ptr to cols of txt tensor field
-	int rows = 0; // create ptr to rows of txt tensor field
-	std::string workDir = GetCurrentWorkingDir();
-	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows);
-	int dim = rows / 2 * cols / 2; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
-
-	// block the read-out matrices into a list of MatrixXd types (hardcoded 2x2 read-out)
-	std::vector<MatrixXd> matrixList(dim, MatrixXd::Ones(2, 2));
-
-	// REMEMBER: Grid size is half the amount of numbers for 2x2 matrices!
-	for (int i = 0; i < rows / 2; i++)
-		for (int j = 0; j < cols / 2; j++)
-		{
-			MatrixXd a = m.block<2, 2>(2 * i, 2 * j);
-			matrixList.at(j + i * (cols / 2)) = a;
-		}
-
-	// compute the SVD (singular value decomposition)of all matrices in matrixList into svdList
-	std::vector<JacobiSVD<MatrixXd>> svdList(dim, JacobiSVD<MatrixXd>(matrixList.at(0), ComputeThinU | ComputeThinV));
-	for (int i = 0; i < dim; i++)
-	{
-		// SVD-based
-		JacobiSVD<MatrixXd> svd(matrixList.at(i), ComputeThinU | ComputeThinV);
-		svdList.at(i) = svd;
-	}
-
-	// define parser parameters
-	double t = 0; // ->theta: set initial theta
-	double tinc = 2*pi / 72; // set theta increment tinc
-	int steps = (2 * pi) / tinc; // set # of steps
-
-	// define function parser (muparser)
-	mu::Parser parser;
-	parser.DefineConst("pi", pi);
-	parser.DefineVar("theta", &t);
-
-	// iterate through the matrixList/svdList and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
-	for (int i = 0; i < matrixList.size(); i++)
-	{
-		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
-		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes "sigma_xx"
-		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
-		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
-		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
-		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
-		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
-		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
-
-		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
-		if (deg1 < 0)
-			deg1 = 360 + deg1;
-		if (deg2 < 0)
-			deg2 = 360 + deg2;
-
-		double deg = 0;
-		if (deg1 >= 270 && deg2 <= 90) // caveat: if basis vector u1 in 4th quadrant and u2 in 1st - continuity/consistency constraint
-			deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-		else if (deg2 >= 270 && deg1 <= 90) // caveat: if basis vector u2 in 4th quadrant and u2 in 1st - continuity/consistency constraint
-			deg = atan(y2 / x2) * 180.0 / M_PI;
-		else if (deg2 > deg1) // if u2 is leading vector 
-			deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-		else // if u1 is leading vector
-			deg = atan(y2 / x2) * 180.0 / M_PI; // use u2 as lagging vector
-		// --> u1 and u2 form basis vectors obtained from SVD, whereas the phase(leading vector) - phase(lagging vector) = 90 --> determine u1,u2
-
-		double sv1 = svdList.at(i).singularValues()[0];
-		double sv2 = svdList.at(i).singularValues()[1];
-	
-		double dot = sv2 * sv1;
-		double a = 0; // x-scale
-		double b = 0; // y-scale
-
-		// --> eventually, use std::swap to swap ptrs to sv1,sv2 dynamically
-		if (((yy < 0 && xx < 0) || (yy >= 0 && xx >= 0))) // if not mirroring at one single axis..
-		{
-			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
-			{
-				a = sv1;
-				b = sv2;
-			}
-			else // if anisotropic y-scaling, scale y
-			{
-				a = sv2;
-				b = sv1;
-			}
-		}
-		else // if mirroring at one single axis.. swap!
-		{
-			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
-			{
-				a = sv2;
-				b = sv1;
-			}
-			else // if anisotropic y-scaling, scale y
-			{
-				a = sv1;
-				b = sv2;
-			}
-		}
-
-		// assign ellipse parameters in ellipseArray
-		ellipseArray.at(i) = { sv1, sv2, deg*(M_PI / 180.0) };
-
-		// define products as string modules to form (construct) ellipse string for current transmission profile T(w)
-		std::string aSquaredString = std::to_string(a*a);
-		std::string bSquaredString = std::to_string(b*b);
-		std::string dotString = std::to_string(dot);
-		std::string radString = std::to_string(deg*(M_PI / 180.0));
-
-		std::string ellipse = dotString + "/sqrt(" + bSquaredString + "*cos(theta-" + radString + ")*cos(theta-" + radString + ")+" + aSquaredString + "*sin(theta-" + radString + ")*sin(theta-" + radString + "))";
-
-		// define parser parameters
-		t = 0; // ->theta: set initial theta
-		parser.SetExpr(ellipse);
-
-		double sum = 0.0;
-		// sum r(theta) over (around) the ellipse to obtain mean(r)
-		for (int i = 0; i < steps; i++)
-			{sum += parser.Eval(); t += tinc;}
-
-		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-		
-		if (rMean != 0) // only w. rMean != 0, else neglect normalization to prevent division by zero (NANs)...
-		{
-			// scale string-modules of ellipse string to rMean(Max)
-			aSquaredString = std::to_string(a*a*(1 / rMean)*(1 / rMean));
-			bSquaredString = std::to_string(b*b*(1 / rMean)*(1 / rMean));
-			dotString = std::to_string(dot*(1 / rMean)*(1 / rMean));
-		}
-
-		ellipse = dotString + "/sqrt(" + bSquaredString + "*cos(theta-" + radString + ")*cos(theta-" + radString + ")+" + aSquaredString + "*sin(theta-" + radString + ")*sin(theta-" + radString + "))"; // insert normalization factor right into polar ellipse function at pos. 0
-
-		// TODO: use ellipses normalized to mean(e)=1 for testing!, use ellipses normalized to mean(e)=max(mean(e)) for real fields!
-		functionStrEllipse.at(i) = ellipse; // transmission profile T(w)
-	}
-}
-
- void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, int steps, int jIndex, int iIndex)
-{
-	 std::vector<double> sample(steps, 0.0);
-	 for (int i = 0; i < sample.size(); i++)
-		 sample.at(i) = f(i*radres);
-	 sampleArray.at(iIndex + jIndex * width) = sample;
-	 sampleArray.at(iIndex + 1 + jIndex * width) = sample;
-	 sampleArray.at(iIndex + (jIndex+1) * width) = sample;
-	 sampleArray.at(iIndex + 1 + (jIndex+1)* width) = sample;
-}
 
 int main(int argc, char* argv[])
 {
@@ -1050,7 +1104,7 @@ int main(int argc, char* argv[])
 		propRadius = deltaI + deltaJ + minRadius;
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, width, &functionStr, &sampleArray, &functionStrEllipse, &ellipseArray);
+	propagator prop(dim, &functionStr, &sampleArray, &functionStrEllipse, &ellipseArray);
 
 	// center 4- neighborhood - start from light src, walk along diagonals to obtain orthogonal propagation and to cope with ray effects (discretization)!!!
 	prop.propagate(jIndex, iIndex); // propagate from the light src position
@@ -1060,6 +1114,8 @@ int main(int argc, char* argv[])
 	// PROPAGATION SCHEME START //
 	for (int p = 0; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
 	{
+		prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
+
 		if (p != 1) // remember: step 0 is the first right step, step 1 already there...
 		{
 			jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
