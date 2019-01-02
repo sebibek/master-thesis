@@ -63,7 +63,7 @@ std::string GetCurrentWorkingDir(void) {
 
 void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality)
 {
-	for (unsigned short i = 0; i < quality; ++i)
+	for (int i = 0; i < quality; ++i)
 	{
 		double rad = (360 / quality * i) / (360 / M_PI / 2);
 		double x = cos(rad)*radius_x;
@@ -612,11 +612,11 @@ class propagator
 	// define function parser (muparser)
 	double tinc = 2 * pi / 72; // set theta increment tinc
 	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
-	unsigned long long steps = (2 * pi) / radres;
+	int steps = (2 * pi) / radres;
 	
 	// create threshhold for aborting the fourier series expansion
 	double thresh = 0.0001;
-	unsigned long long width = 0;
+	int width = 0;
 
 	// create sample vector (dynamic)
 	std::vector<double> sample;
@@ -640,14 +640,14 @@ public:
 		width = Width;
 	}
 
-	void propagate(unsigned long long jIndex, unsigned long long iIndex)
+	void propagate(int jIndex, int iIndex)
 	{
 		// create neighborhood, for tagging non-existent neighbors..
 		neighborhood hood(jIndex, iIndex, width, processMap);
 
 		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
-		std::array<unsigned long long, 2> init{ jIndex,iIndex };
-		std::array<std::array<unsigned long long, 2>, 4> neighborIndices{ init,init,init,init };
+		std::array<int, 2> init{ jIndex,iIndex };
+		std::array<std::array<int, 2>, 4> neighborIndices{ init,init,init,init };
 		//if (hood.getR())
 		neighborIndices.at(1) = { jIndex, iIndex + 1 };
 		//if (hood.getB())
@@ -659,7 +659,7 @@ public:
 		sample = std::vector<double>(steps, 0.0);
 
 		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
-		for (unsigned int j = 0; j < 4; j++)
+		for (int j = 0; j < 4; j++)
 			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*width + neighborIndices.at(j).back()); // ..cosine coefficient vector 
 
 		// calculate mean and variance.. of I(phi)
@@ -730,10 +730,10 @@ public:
 		int shiftIndex = 90;
 
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
-		for (unsigned int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
+		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
 		{
-			unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-			unsigned int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
+			int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+			int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
 
 				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
 			if (!hood.getR() && nIndex == 0)
@@ -775,12 +775,12 @@ public:
 					int i_index = i;
 					if (i < 0)
 						i_index = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-					else if (j >= steps)
+					else if (i >= steps)
 						i_index = i - steps;
 					else
 						i_index = i;
 
-					area.at(i_index) += (0.5 / lSteps)*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+					area.at(i_index) += 0.5 /lSteps*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 				}
 			}
 
@@ -976,7 +976,7 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 	}
 }
 
- void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, unsigned int steps, unsigned int jIndex, unsigned int iIndex)
+ void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, int steps, int jIndex, int iIndex)
 {
 	 std::vector<double> sample(steps, 0.0);
 	 for (int i = 0; i < sample.size(); i++)
@@ -1015,7 +1015,7 @@ int main(int argc, char* argv[])
 
 	double tinc = 2 * pi / 72;
 	double radres = 0.01745;
-	unsigned int steps = 2 * pi / radres;
+	int steps = 2 * pi / radres;
 
 	std::vector<double> initArray(steps, 0.0);
 	std::vector<std::vector<double>> sampleArray((width+1)*(height+1), initArray);
@@ -1202,7 +1202,7 @@ int main(int argc, char* argv[])
 	windowsize.y = window.getSize().y;
 
 	//initialize function graphics
-	for (unsigned i = 0; i < funcs.size(); i++)
+	for (int i = 0; i < funcs.size(); i++)
 		{funcs.at(i).init(); funcsEllipses.at(i).init();}
 
 	//initialize rendertexture for output image
@@ -1239,7 +1239,7 @@ int main(int argc, char* argv[])
 		out.clear(sf::Color::Black);
 
 		// draw polar function as graph sprite
-		for (unsigned i = 0; i < funcs.size(); i++) 
+		for (int i = 0; i < funcs.size(); i++) 
 		{
 			funcs.at(i).animation(i, 0, sampleArray);
 			funcsEllipses.at(i).animation(i, 1);
