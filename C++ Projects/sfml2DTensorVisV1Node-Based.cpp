@@ -1012,7 +1012,7 @@ public:
 					else
 						i_index = i;
 
-					area.at(i_index) += 1.0/180*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+					area.at(i_index) += 0.5*0.5*radres*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 				}
 			}
 			
