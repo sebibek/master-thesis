@@ -1147,50 +1147,49 @@ int main(int argc, char* argv[])
 	propagator prop(dim, &functionStr, &sampleArray, &functionStrEllipse, &ellipseArray);
 
 	// center 4- neighborhood - start from light src, walk along diagonals to obtain orthogonal propagation and to cope with ray effects (discretization)!!!
-	//prop.propagate(jIndex, iIndex); // propagate from the light src position
+	prop.propagate(jIndex, iIndex); // propagate from the light src position
 
 	std::cout << "before propagation..propagating.." << endl;
 
 	// PROPAGATION SCHEME START //
-	//for (int p = 1; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
-	//{
+	for (int p = 1; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
+	{
 
-	//	jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
-	//	if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-	//		prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
+		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+			prop.propagate(jIndex, iIndex); // .. propagate from this cell
 
-	//	if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-	//		prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
+		//if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+		//	prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
 
+		for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex -= 1; iIndex += 1; // + 45 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
 
-	//	for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
-	//	{
-	//		jIndex -= 1; iIndex += 1; // + 45 degrees
-	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
-	//	}
+		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex -= 1; iIndex -= 1; // + 135 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
 
-	//	for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
-	//	{
-	//		jIndex -= 1; iIndex -= 1; // + 135 degrees
-	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
-	//	}
+		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex -= 1; // - 135 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
 
-	//	for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
-	//	{
-	//		jIndex += 1; iIndex -= 1; // - 135 degrees
-	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
-	//	}
-
-	//	for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
-	//	{
-	//		jIndex += 1; iIndex += 1; // - 45 degrees
-	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
-	//	}
-	//}
+		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex += 1; // - 45 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
+	}
 
 	//maintainFunctionStrings(&functionStr, &coefficientArray);
 	cout << "..after propagation" << endl;
