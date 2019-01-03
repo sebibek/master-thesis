@@ -955,7 +955,9 @@ public:
 		//}
 
 		double shift = pi / (2.0) / radres;
-		int shiftIndex = pi/(2*radres);
+		
+
+		
 
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
@@ -985,8 +987,10 @@ public:
 			int lSteps = aperture / radres;
 			std::vector<double> area(steps, 0.0); // steps
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			
-			
+		
+			int shiftIndex = pi / (2 * radres);
+			int startIndex = centralDirections.at(k) / (radres);
+
 			for (int j = index; j < (index + lSteps); j++)
 			{
 				int j_index = j;
@@ -998,7 +1002,7 @@ public:
 				else
 					j_index = j;
 
-				for (int i = shiftIndex *(dirIndex - 1); i < shiftIndex*(dirIndex + 1); i++)
+				for (int i = startIndex - shiftIndex; i < startIndex + shiftIndex; i++)
 				{
 					int i_index = i;
 					if (i < 0)
@@ -1008,7 +1012,7 @@ public:
 					else
 						i_index = i;
 
-					area.at(i_index) += 0.3333 /lSteps*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+					area.at(i_index) += 1.0/180*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 				}
 			}
 			
@@ -1137,8 +1141,8 @@ int main(int argc, char* argv[])
 		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
 			prop.propagate(jIndex, iIndex); // .. propagate from this cell
 
-		//if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-		//	prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
+		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+			prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
 
 		for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
 		{

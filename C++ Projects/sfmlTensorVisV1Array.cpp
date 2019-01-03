@@ -621,7 +621,7 @@ class propagator
 
 	// set principal arture angles in rads
 	double alpha = 36.8699 * M_PI / 180;
-	double beta = 26.5651 * M_PI / 180;
+	double beta = 26.5651 * M_PI / 180;	
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
 	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
