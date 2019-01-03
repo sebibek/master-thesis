@@ -480,10 +480,10 @@ public:
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
 			{
 				r = 0;
-				r += 0.25*sampleArray.at(index + 1).at(static_cast<int>(std::round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index + 1 + width).at(static_cast<int>(std::round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index + width).at(static_cast<int>(std::round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index%width + 1 + index / width * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index%width + 1 + (index / width + 1)*(width+1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index%width + (index / width + 1) * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index%width + index / width * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
 			}
 			
 			// PROPAGATION ATTENUATION TEST //
@@ -761,10 +761,10 @@ void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray,
 	std::vector<double> sample(steps, 0.0);
 	for (int i = 0; i < sample.size(); i++)
 		sample.at(i) = f(i*radres);
-	sampleArray.at(iIndex + jIndex * width) = sample;
-	sampleArray.at(iIndex + 1 + jIndex * width) = sample;
-	sampleArray.at(iIndex + (jIndex + 1) * width) = sample;
-	sampleArray.at(iIndex + 1 + (jIndex + 1)* width) = sample;
+	sampleArray.at(iIndex + jIndex * (width+1)) = sample;
+	sampleArray.at(iIndex + 1 + jIndex * (width + 1)) = sample;
+	sampleArray.at(iIndex + (jIndex + 1) * (width + 1)) = sample;
+	sampleArray.at(iIndex + 1 + (jIndex + 1)* (width + 1)) = sample;
 }
 
 class propagator
@@ -830,19 +830,10 @@ public:
 		std::array<std::array<int, 2>, 4> neighborIndices;
 		formNeighborIndices(jIndex, iIndex, neighborIndices);
 
-		if (index == 0)
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < jIndex < (height) && iIndex < (width)) // if inside frame (window)..
-				for (int j = 0; j < 4; j++)
-					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
+		if (iIndex >= 0 && jIndex >= 0 && jIndex < jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+			for (int j = 0; j < 4; j++)
+				processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 
-		if (index != 1) // remember: step 0 is the first right step, step 1 already there...
-		{
-			jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
-			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
-				for (int j = 0; j < 4; j++)
-					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
-		}
 
 		for (int l = 0; l < index - 1; l++) // perform p steps of incrementation/decrementation
 		{
@@ -898,7 +889,7 @@ public:
 
 		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
 		for (int j = 0; j < 4; j++)
-			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*(width) + neighborIndices.at(j).back()); // ..cosine coefficient vector 
+			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()); // ..cosine coefficient vector 
 
 		// calculate mean and variance.. of I(phi)
 		double sum1 = 0.0;
@@ -1022,45 +1013,45 @@ public:
 			}
 			
 			// Conduction of Flow Samples //
-			//switch (k)
-			//{
-			//case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-			//case 1: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); // right neighbor (top)
-			//	sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-			//case 2: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); break; // right neighbor (top)
-			//case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-			//case 4: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); // top neighbor (left)
-			//	sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break; // top neighbor (right)
-			//case 5: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); break;// top neighbor (left)
-			//case 6: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); break;// left neighbor (top)
-			//case 7: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); // left neighbor (top)
-			//	sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-			//case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-			//case 9: sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-			//case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); // bottom neighbor (right)
-			//	sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-			//case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
-			//}
-
 			switch (k)
 			{
-			case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
-			case 1: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor (top)
-				sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
-			case 2: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); break; // right neighbor (top)
-			case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-			case 4: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor (left)
-				sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-			case 5: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); break;// top neighbor (left)
-			case 6: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); break;// left neighbor (top)
-			case 7: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); // left neighbor (top)
-				sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
-			case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
-			case 9: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
-			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor (right)
-				sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
-			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break; // bottom neighbor (right)
+			case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
+			case 1: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); // right neighbor (top)
+					sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
+			case 2: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); break; // right neighbor (top)
+			case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			case 4: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); // top neighbor (left)
+					sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break; // top neighbor (right)
+			case 5: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); break;// top neighbor (left)
+			case 6: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); break;// left neighbor (top)
+			case 7: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); // left neighbor (top)
+					sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
+			case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
+			case 9: sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
+			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); // bottom neighbor (right)
+					sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
+			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
 			}
+
+			//switch (k)
+			//{
+			//case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
+			//case 1: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); // right neighbor (top)
+			//	sampleArray->at(iIndex + 2 + (jIndex + 1) * width) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * width); break; // right neighbor (bottom)
+			//case 2: sampleArray->at(iIndex + 2 + jIndex * width) = area + sampleArray->at(iIndex + 2 + jIndex * width); break; // right neighbor (top)
+			//case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			//case 4: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); // top neighbor (left)
+			//	sampleArray->at(iIndex + 1 + (jIndex - 1) * width) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			//case 5: sampleArray->at(iIndex + (jIndex - 1) * width) = area + sampleArray->at(iIndex + (jIndex - 1) * width); break;// top neighbor (left)
+			//case 6: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); break;// left neighbor (top)
+			//case 7: sampleArray->at(iIndex - 1 + jIndex * width) = area + sampleArray->at(iIndex - 1 + jIndex * width); // left neighbor (top)
+			//	sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
+			//case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * width) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * width); break;// left neighbor (bottom)
+			//case 9: sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
+			//case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); // bottom neighbor (right)
+			//	sampleArray->at(iIndex + (jIndex + 2) * width) = area + sampleArray->at(iIndex + (jIndex + 2) * width); break; // bottom neighbor (left)
+			//case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * width) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * width); break; // bottom neighbor (right)
+			//}
 
 
 			//switch (k)
@@ -1156,50 +1147,50 @@ int main(int argc, char* argv[])
 	propagator prop(dim, &functionStr, &sampleArray, &functionStrEllipse, &ellipseArray);
 
 	// center 4- neighborhood - start from light src, walk along diagonals to obtain orthogonal propagation and to cope with ray effects (discretization)!!!
-	prop.propagate(jIndex, iIndex); // propagate from the light src position
+	//prop.propagate(jIndex, iIndex); // propagate from the light src position
 
 	std::cout << "before propagation..propagating.." << endl;
 
 	// PROPAGATION SCHEME START //
-	for (int p = 0; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
-	{
-		prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
+	//for (int p = 1; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
+	//{
 
-		if (p != 1) // remember: step 0 is the first right step, step 1 already there...
-		{
-			jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-				prop.propagate(jIndex, iIndex); // .. propagate from this cell
-		}
+	//	jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
+	//	if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+	//		prop.propagate(jIndex, iIndex); // .. propagate from this cell
 
-		for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex -= 1; iIndex += 1; // + 45 degrees
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-				prop.propagate(jIndex, iIndex); // .. propagate from this cell
-		}
+	//	if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+	//		prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
 
-		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex -= 1; iIndex -= 1; // + 135 degrees
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-				prop.propagate(jIndex, iIndex); // .. propagate from this cell
-		}
 
-		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex += 1; iIndex -= 1; // - 135 degrees
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-				prop.propagate(jIndex, iIndex); // .. propagate from this cell
-		}
+	//	for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
+	//	{
+	//		jIndex -= 1; iIndex += 1; // + 45 degrees
+	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
+	//	}
 
-		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex += 1; iIndex += 1; // - 45 degrees
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-				prop.propagate(jIndex, iIndex); // .. propagate from this cell
-		}
-	}
+	//	for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+	//	{
+	//		jIndex -= 1; iIndex -= 1; // + 135 degrees
+	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
+	//	}
+
+	//	for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+	//	{
+	//		jIndex += 1; iIndex -= 1; // - 135 degrees
+	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
+	//	}
+
+	//	for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+	//	{
+	//		jIndex += 1; iIndex += 1; // - 45 degrees
+	//		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+	//			prop.propagate(jIndex, iIndex); // .. propagate from this cell
+	//	}
+	//}
 
 	//maintainFunctionStrings(&functionStr, &coefficientArray);
 	cout << "..after propagation" << endl;
@@ -1292,7 +1283,7 @@ int main(int argc, char* argv[])
 	// add pre-computed function as string
 	for (int i = 0; i < dim; i++)
 	{
-		funcs.push_back(polarPlot(sampleArray.at(i), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
+		funcs.push_back(polarPlot(sampleArray.at(i%width + i/width*(width+1)), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
 		funcsEllipses.push_back(polarPlot(functionStrEllipse.at(i), drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, green));
 	}
 
@@ -1344,7 +1335,7 @@ int main(int argc, char* argv[])
 		out.clear(sf::Color::Black);
 
 		// draw polar function as graph sprite
-		for (int i = 0; i < funcs.size(); i++) 
+		for (int i = 0; i < dim; i++) 
 		{
 			funcs.at(i).animation(i, 0, sampleArray);
 			funcsEllipses.at(i).animation(i, 1);
