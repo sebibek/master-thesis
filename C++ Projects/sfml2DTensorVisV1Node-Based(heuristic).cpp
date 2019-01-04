@@ -63,7 +63,7 @@ std::string GetCurrentWorkingDir(void) {
 
 void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality)
 {
-	for (int i = 0; i < quality; ++i)
+	for (unsigned short i = 0; i < quality; ++i)
 	{
 		double rad = (360 / quality * i) / (360 / M_PI / 2);
 		double x = cos(rad)*radius_x;
@@ -195,6 +195,7 @@ void parse_options(int argc, char* argv[]) {
 	}
 }
 
+
 template <typename T> // element-wise plus for std::vector
 std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
 {
@@ -243,28 +244,6 @@ std::array<std::array<T, 21>, 2> operator+(const std::array<std::array<T, 21>, 2
 	return result;
 }
 
-template <typename T> // element-wise plus for std::vector
-std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
-{
-	std::vector<T> result(b.size());
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a.at(i) + b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::vector
-std::vector<T> operator*(const T a, const std::vector<T>& b)
-{
-	std::vector<T> result(b.size());
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
-
 // CLASS DEFINITIONS //
 class neighborhood
 {
@@ -272,6 +251,8 @@ class neighborhood
 	bool neighborT = true;
 	bool neighborL = true;
 	bool neighborB = true;
+
+	std::vector<bool> propagationCue = { true,true,true,true };
 
 public:
 
@@ -329,14 +310,11 @@ class polarPlot
 	double tmax;
 	double tinc;
 	double rotation;
-	double radres;
 	sf::Color color;
-	std::vector<double> sample;
-	bool discretePlot = false;
 
 public:
 
-	//constructor #1 string parser - muParser
+	//constructor
 	polarPlot(std::string tag,
 		int speed_in,
 		int line_width_in,
@@ -355,29 +333,6 @@ public:
 	{
 		p.DefineVar("theta", &t);
 		p.SetExpr(tag);
-	}
-	
-	//constructor #2 array parser
-	polarPlot(std::vector<double> Sample,
-		double res,
-		int speed_in,
-		int line_width_in,
-		double tmax_in,
-		double tinc_in,
-		double rotation_in,
-		sf::Color color_in)
-
-		: speed(speed_in),
-		line_width(line_width_in),
-		t(0),
-		tmax(tmax_in),
-		tinc(tinc_in),
-		rotation(rotation_in),
-		sample(Sample),
-		radres(res),
-		color(color_in)
-	{
-		discretePlot = true;
 	}
 
 	//initialize muparser and graphics 
@@ -412,14 +367,15 @@ public:
 		double x = scale * r * cos(t);
 		double y = -1*scale * r * sin(t);
 
+
 		if (x + 1 + wSize / 2 > wSize || x - 1 + wSize / 2 < 0 || y + 1 + wSize / 2 > wSize || y - 1 + wSize / 2 < 0)
 			return;
 
 		int offsetX = (index % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
 		int offsetY = (index / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
 
-		int xIndex = static_cast<int>(std::round(x + offsetX));
-		int yIndex = static_cast<int>(std::round(y + offsetY));
+		int xIndex = round(x + offsetX);
+		int yIndex = round(y + offsetY);
 
 		if (xIndex < 0)
 			xIndex = 0;
@@ -453,13 +409,10 @@ public:
 	//plots draw_speed points per frame
 	void animation(int index = 0, int mode = 0)
 	{
-		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
+		for (int i = 0; (i < speed || speed == 0) && t <= tmax; i++)
 		{
-			if (!discretePlot) // use muParser for evaluation 
-				r = p.Eval();
-			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
-				r = sample.at(static_cast<int>(std::round(t / radres))% sample.size()); // cyclic value permutation
-			
+			t += tinc;
+			r = p.Eval();
 			// PROPAGATION ATTENUATION TEST //
 			/*if (t == tinc && index/width == 3 && mode == 0)
 			{
@@ -467,33 +420,6 @@ public:
 				cout << "attenuation: " << r / 1.0 << endl;
 			}*/
 			plot(index, mode);
-			t += tinc;
-		}
-	}
-	//plots draw_speed points per frame
-	void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray)
-	{
-		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
-		{
-			if (!discretePlot) // use muParser for evaluation 
-				r = p.Eval();
-			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
-			{
-				r = 0;
-				r += 0.25*sampleArray.at(index%width + 1 + index / width * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index%width + 1 + (index / width + 1)*(width+1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index%width + (index / width + 1) * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
-				r += 0.25*sampleArray.at(index%width + index / width * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
-			}
-			
-			// PROPAGATION ATTENUATION TEST //
-			/*if (t == tinc && index/width == 3 && mode == 0)
-			{
-				cout << "r: " << r << endl;
-				cout << "attenuation: " << r / 1.0 << endl;
-			}*/
-			plot(index, mode);
-			t += tinc;
 		}
 	}
 };
@@ -525,7 +451,6 @@ double circleFunction(double x)
 	return os;
 }
 
-// template function for evaluating string functions via ptr 
 template <typename T>
 T strFunction(T theta)
 {
@@ -552,6 +477,97 @@ T strFunction(T theta)
 
 	return y;
 }
+
+double integral(double(*f)(double x), double a, double b, int r)
+{
+	double step = (b - a) / r;  // width of each small rectangle
+	double area = 0.0;  // signed area
+	for (int i = 0; i < r; i++)
+		area += f(a + (i + 0.5) * step) * step; // sum up each small rectangle
+
+	return area;
+}
+
+double aIntegral(double(*f)(double x), double a, double b, int r, int n)
+{
+	double step = (b - a) / r;  // width of each small rectangle
+	double area = 0.0;  // signed area
+
+	for (int i = 0; i < r; i++)
+		area += f(a + (i + 0.5) * step)*cos(n*(a + (i + 0.5) * step)) * step; // sum up each small rectangle
+
+	return area;
+}
+
+double bIntegral(double(*f)(double x), double a, double b, int r, int n)
+{
+	double step = (b - a) / r;  // width of each small rectangle
+	double area = 0.0;  // signed area
+	for (int i = 0; i < r; i++)
+		area += f(a + (i + 0.5) * step)*sin(n*(a + (i + 0.5) * step)) * step; // sum up each small rectangle
+
+	return area;
+}
+
+std::array<std::array<double, 21>, 2> calcCoeff(double(*f)(double x)) // for 2Pi periodic functions
+{
+	double a0 = 1 / (2 * M_PI) * integral(f, -M_PI, M_PI, 50);
+	
+	std::array<double, 21> an; // use static array for better performance
+	an.fill(0.0);
+	std::array<double, 21> bn; // use static array for better performance
+	bn.fill(0.0);
+	std::array<std::array<double, 21>, 2> coeff; // init packed (zipped) coefficient vector
+	coeff.fill(an);
+	double thresh = 0.0001;
+
+	an.at(0) = a0; // push a0 in both lists on frequency 0 (offset)
+	bn.at(0) = a0; // push a0 in both lists on frequency 0 (offset)
+	for (int i = 1; i < an.size(); i++)
+	{
+		an.at(i) = 1 / M_PI * aIntegral(f, -M_PI, M_PI, 50, i); // calculate Integrals for the coeff
+		bn.at(i) = 1 / M_PI * bIntegral(f, -M_PI, M_PI, 50, i); // calculate Integrals for the coeff
+
+		/*cout << "an: " << an.at(i) << endl;
+		cout << "bn: " << bn.at(i) << endl;*/
+		if ((bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if coeff < thresh or #>20, abort (finish) series expansion!
+			break;
+	}
+	coeff.front() = an;
+	coeff.back() = bn;
+
+	return coeff;
+}
+
+void countMatrix(std::string filepath, int* colsCount, int* rowsCount)
+{
+	int cols = 0, rows = 0;
+	double buff[MAXBUFSIZE];
+	ifstream infile(filepath);
+
+	while (!infile.eof())
+	{
+		string line;
+		getline(infile, line);
+
+		int temp_cols = 0;
+		stringstream stream(line);
+		while (!stream.eof())
+			stream >> buff[cols*rows + temp_cols++];
+
+		if (temp_cols == 0)
+			continue;
+
+		if (cols == 0)
+			cols = temp_cols;
+
+		rows++;
+	}
+
+	infile.close();
+	*colsCount = cols;
+	*rowsCount = rows;
+};
 
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
@@ -589,6 +605,187 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
+class propagator
+{
+	// define cosine lobes (4 neighbors/directions)
+	std::string cosLobeX = "clip(cos(theta))"; // cosine lobe in +x-direction (in polar plot)
+	std::string cosLobeY = "clip(cos(theta-pi/2))"; // cosine lobe in +y-direction (in polar plot)
+	std::string cosLobeXneg = "clip(cos(theta+pi))"; // cosine lobe in -x-direction (in polar plot)
+	std::string cosLobeYneg = "clip(cos(theta+pi/2))"; // cosine lobe in -y-direction (in polar plot)
+	// std::array<std::string, 12> centralLobes{ cosLobeYneg, cosLobeX, cosLobeY, cosLobeX, cosLobeY, cosLobeXneg, cosLobeY, cosLobeXneg, cosLobeYneg, cosLobeXneg, cosLobeYneg, cosLobeX };
+
+	// create arrays for storing pre-computed fourier (CH) coefficients for cosine lobes
+	std::array<std::array<double, 21>, 2> cosLobeXCoeff;
+	std::array<std::array<double, 21>, 2> cosLobeYCoeff;
+	std::array<std::array<double, 21>, 2> cosLobeXnegCoeff;
+	std::array<std::array<double, 21>, 2> cosLobeYnegCoeff;
+
+	// set principal arture angles in rads
+	double alpha = 36.8699 * M_PI / 180;
+	double beta = 26.5651 * M_PI / 180;	
+	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
+	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
+	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
+	std::array<std::array<std::array<double, 21>, 2>*, 12> centralLobesCoeff{ &cosLobeYnegCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXCoeff };
+
+	// define member strings for parsing (internal)
+	std::string fString = "0.0";
+	std::string fStringEllipse = "0.0";
+
+	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
+	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
+	std::vector<std::string>* functionStrEllipse; // initialize w. 0.0 to prevent parser errors
+	std::vector<std::array<std::array<double, 21>, 2>>* coefficientArray;
+	std::vector<std::tuple<double, double, double>>* ellipseArray;
+
+	// define function parser (muparser)
+	mu::Parser parser;
+	double t = 0.0;
+	double tinc = 2*pi / 72; // set theta increment tinc
+	int steps = (2 * pi) / tinc;
+	
+	// create threshhold for aborting the fourier series expansion
+	double thresh = 0.0001;
+	int width = 0;
+
+	// create fourier (CH) coefficient vectors
+	std::array<double, 21> an;
+	std::array<double, 21> bn;// (21, 0.0);
+
+	// create process(ed) map for cells already processed
+	std::vector<bool> processMap; // create a binary process(ed) map
+
+public:
+	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap(dim, false)
+	{
+		// parser definitions
+		parser.DefineConst("pi", pi);
+		parser.DefineVar("theta", &t);
+		parser.DefineFun(_T("clip"), clipNeg, false);
+
+		// initialize fourier (CH) coefficient arrays w. 0.0
+		an.fill(0.0);
+		bn.fill(0.0);
+
+		// assign ptrs to member vectors
+		functionStr = fStr;
+		functionStrEllipse = fStrEllipse;
+		coefficientArray = coeffArray;
+		ellipseArray = ellipseArr;
+
+		// initialize pre-computed fourier coefficient arrays (using wolfram mathematica)
+		cosLobeXCoeff.front() = { 0.31831, 0.5, 0.212207, 0., -0.0424413, 0., 0.0181891, 0., -0.0101051, 0., 0.0064305, 0., -0.00445189, 0., 0.00326472, 0., -0.00249655, 0., 0.00197096, 0., -0.00159554 };
+		cosLobeXCoeff.back().fill(0); // initialize bn array w. 0 --> no sine coefficients
+		cosLobeYCoeff.front() = { 0.31831, 0., -0.212207, 0., -0.0424413 , 0., -0.0181891 , 0., -0.0101051, 0., -0.0064305 , 0., -0.00445189, 0., -0.00326472, 0., -0.00249655, 0., -0.00197096 , 0., -0.00159554 };
+		cosLobeYCoeff.back() = { 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
+		cosLobeXnegCoeff.front() = { 0.31831, -0.5, 0.212207, 0., -0.0424413, 0., 0.0181891, 0., -0.0101051, 0., 0.0064305, 0., -0.00445189, 0., 0.00326472, 0., -0.00249655, 0., 0.00197096, 0., -0.00159554 };
+		cosLobeXnegCoeff.back().fill(0); // initialize bn array w. 0 --> no sine coefficients
+		cosLobeYnegCoeff.front() = { 0.31831, 0., -0.212207, 0., -0.0424413 , 0., -0.0181891 , 0., -0.0101051, 0., -0.0064305 , 0., -0.00445189, 0., -0.00326472, 0., -0.00249655, 0., -0.00197096 , 0., -0.00159554 };
+		cosLobeYnegCoeff.back() = { 0., -0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
+
+
+		// assign width
+		width = Width;
+	}
+
+	void propagate(int jIndex, int iIndex)
+	{
+		// create neighborhood, for tagging non-existent neighbors..
+		neighborhood hood(jIndex, iIndex, width, processMap);
+
+		// assign member coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
+		an = coefficientArray->at(iIndex + jIndex * width).front(); // ..cosine coefficient vector
+		bn = coefficientArray->at(iIndex + jIndex * width).back(); // ..sine coefficient vector		 
+
+		// calculate mean and variance.. of I(phi)
+		double sum1 = 0.0;
+		double sum2 = 0.0;
+		double sum3 = 0.0;
+
+		// assign singular values and rotational deg(ree)
+		double sv1 = std::get<0>(ellipseArray->at(iIndex + jIndex * width));
+		double sv2 = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
+		double deg = std::get<2>(ellipseArray->at(iIndex + jIndex * width));
+
+		// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
+		for (int i = 0; i < steps; i++)
+		{
+			double sum = an.at(0); // initialize sum w. offset a0
+			// evaluate fourier coefficient array for magnitude at current angular position i*tinc
+			for (int j = 1; j < an.size(); j++)
+				sum += an.at(j)*cos(j*i*tinc) + bn.at(j)*sin(j*i*tinc);
+			sum1 += sum; // evaluate for iMean (sum1)
+
+			if(sv1 != 0 && sv2 != 0)
+				sum2 += sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); //--> ellipse equation, evaluate for tMean (sum2)
+			if (sv1 != 0 && sv2 != 0)
+				sum3 += sum * sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); // evaluate T*I for tiMean (sum2)
+		}
+		
+		// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+		// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
+		double tMean = sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+		// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+		// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
+		double cFactor = tMean*iMean / tiMean;
+
+		// cout << "cFactor: " << cFactor << endl;
+
+		// define intensity [W/rad] and area [W]
+		double area = 0.0;
+
+		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
+		{
+			int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+
+			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+			if (!hood.getR() && nIndex == 0)
+				continue;
+			if (!hood.getT() && nIndex == 1)
+				continue;
+			if (!hood.getL() && nIndex == 2)
+				continue;
+			if (!hood.getB() && nIndex == 3)
+				continue;
+
+			// set theta variable to current central direction shifted by half an apertureAngle
+			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
+			double area = 0.0; // -->reset energy variables
+		
+			// compute lSteps to determine # of steps for current apertureAngle
+			int lSteps = apertureAngles.at(k) / tinc;
+
+			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
+			for (long long i = 0; i < lSteps; i++) // --> carry out the integral computation as discrete (weghted) sum
+			{
+				double intensity = an.at(0); // initialize sum w. offset a0
+				// evaluate fourier coefficient array for magnitude at current angular position i*tinc
+				for (long long j = 1; j < an.size(); j++)
+					intensity += (an.at(j)*cos(j*i*tinc + offset) + bn.at(j)*sin(j*i*tinc + offset))*sv1 * sv2 / sqrt(sv2*sv2*cos(j*i*tinc + offset - deg)*cos(j*i*tinc + offset - deg) + sv1 * sv1*sin(j*i*tinc + offset - deg)*sin(j*i*tinc + offset - deg));
+
+				area += intensity; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+			}
+
+			// calculate magnitude w. corresponding correction factor and weighting by tinc, which is is a constant dt drawn out of the discrete sum
+			double mag = cFactor*tinc*area / 2.0; // since int(cos(w)) (w. negative values clamped to zero) yields = 2 --> normalize to energy 1 (spread energy area over the cosine)
+
+			// ReProjection of Flow Lobes //
+
+			switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
+			{
+			case 0: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break; // right neighbor
+			case 1: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + mag * *centralLobesCoeff.at(k); break; // top neighbor
+			case 2: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break;// left neighbor
+			case 3: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+			}
+		}
+		// set flag in process(ed) map for cell already processed
+		processMap.at(iIndex + jIndex * width) = true;
+	}
+};
 
 void maintainFunctionStrings(std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray)
 {
@@ -645,7 +842,7 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 
 	// define parser parameters
 	double t = 0; // ->theta: set initial theta
-	double tinc = 2 * pi / 72; // set theta increment tinc
+	double tinc = 2*pi / 72; // set theta increment tinc
 	int steps = (2 * pi) / tinc; // set # of steps
 
 	// define function parser (muparser)
@@ -684,7 +881,7 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 
 		double sv1 = svdList.at(i).singularValues()[0];
 		double sv2 = svdList.at(i).singularValues()[1];
-
+	
 		double dot = sv2 * sv1;
 		double a = 0; // x-scale
 		double b = 0; // y-scale
@@ -735,12 +932,10 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 		double sum = 0.0;
 		// sum r(theta) over (around) the ellipse to obtain mean(r)
 		for (int i = 0; i < steps; i++)
-		{
-			sum += parser.Eval(); t += tinc;
-		}
+			{sum += parser.Eval(); t += tinc;}
 
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-
+		
 		if (rMean != 0) // only w. rMean != 0, else neglect normalization to prevent division by zero (NANs)...
 		{
 			// scale string-modules of ellipse string to rMean(Max)
@@ -755,315 +950,6 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 		functionStrEllipse.at(i) = ellipse; // transmission profile T(w)
 	}
 }
-
-void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, int steps, int jIndex, int iIndex)
-{
-	std::vector<double> sample(steps, 0.0);
-	for (int i = 0; i < sample.size(); i++)
-		sample.at(i) = f(i*radres);
-	sampleArray.at(iIndex + jIndex * (width+1)) = sample;
-	sampleArray.at(iIndex + 1 + jIndex * (width + 1)) = sample;
-	sampleArray.at(iIndex + (jIndex + 1) * (width + 1)) = sample;
-	sampleArray.at(iIndex + 1 + (jIndex + 1)* (width + 1)) = sample;
-}
-
-class propagator
-{
-	// set principal arture angles in rads
-	double alpha = 36.8699 * M_PI / 180;
-	double beta = 26.5651 * M_PI / 180;
-	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
-	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
-	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
-	std::array<int, 12> coneDirections{ 3,0,1,0,1,2,1,2,3,2,3,0 };
-	// define member strings for parsing (internal)
-	std::string fString = "0.0";
-	std::string fStringEllipse = "0.0";
-
-
-	// define function parser (muparser)
-	double tinc = 2 * pi / 72; // set theta increment tinc
-	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
-	int steps = (2 * pi) / radres;
-
-	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
-	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
-	std::vector<std::string>* functionStrEllipse; // initialize w. 0.0 to prevent parser errors
-	std::vector<std::vector<double>>* sampleArray;
-	std::vector<int> ctrArray;
-	std::vector<std::tuple<double, double, double>>* ellipseArray;
-
-	
-	// create threshhold for aborting the fourier series expansion
-	double thresh = 0.0001;
-
-	// create sample vector (dynamic)
-	std::vector<double> sample;
-
-	// create process(ed) map for cells already processed
-	std::vector<bool> processMap; // create a binary process(ed) map
-	std::vector<bool> processMapNodes; // create a binary process(ed) map
-
-public:
-	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((height)*(width), false), processMapNodes((height +1)*(width+1), false), ctrArray(steps,0)
-	{
-		// initialize member sample w. 0
-		sample = std::vector<double>(steps, 0.0);
-
-		// assign ptrs to member vectors
-		functionStr = fStr;
-		functionStrEllipse = fStrEllipse;
-		sampleArray = sampArray;
-		ellipseArray = ellipseArr;
-	}
-
-	void formNeighborIndices(int jIndex, int iIndex, std::array<std::array<int, 2>, 4>& neighborIndices)
-	{
-		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
-		std::array<int, 2> init{ jIndex,iIndex };
-		neighborIndices = { init,init,init,init };
-		neighborIndices.at(1) = { jIndex, iIndex + 1 };
-		neighborIndices.at(2) = { jIndex + 1 , iIndex };
-		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
-	}
-
-	void freezeNodes(int jIndex, int iIndex, int index)
-	{
-		std::array<std::array<int, 2>, 4> neighborIndices;
-		formNeighborIndices(jIndex, iIndex, neighborIndices);
-
-		if (iIndex >= 0 && jIndex >= 0 && jIndex < jIndex < (height) && iIndex < (width)) // if inside frame (window)..
-			for (int j = 0; j < 4; j++)
-				processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
-
-
-		for (int l = 0; l < index - 1; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex -= 1; iIndex += 1; // + 45 degrees
-			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
-				for (int j = 0; j < 4; j++)
-					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
-		}
-
-		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex -= 1; iIndex -= 1; // + 135 degrees
-			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
-				for (int j = 0; j < 4; j++)
-					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
-		}
-
-		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex += 1; iIndex -= 1; // - 135 degrees
-			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
-				for (int j = 0; j < 4; j++)
-					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
-		}
-
-		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
-		{
-			jIndex += 1; iIndex += 1; // - 45 degrees
-			formNeighborIndices(jIndex, iIndex, neighborIndices);
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
-				for (int j = 0; j < 4; j++)
-					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
-		}
-	}
-
-	void propagate(int jIndex, int iIndex)
-	{
-		// create neighborhood, for tagging non-existent neighbors..
-		neighborhood hood(jIndex, iIndex, width, processMap);
-
-		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
-		std::array<int, 2> init{ jIndex,iIndex };
-		std::array<std::array<int, 2>, 4> neighborIndices{ init,init,init,init };	
-		neighborIndices.at(1) = { jIndex, iIndex + 1 };
-		neighborIndices.at(2) = { jIndex + 1 , iIndex };
-		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
-
-		// initialize member sample w. 0
-		sample = std::vector<double>(steps, 0.0);
-
-		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
-		for (int j = 0; j < 4; j++)
-			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()); // ..cosine coefficient vector 
-
-		// calculate mean and variance.. of I(phi)
-		double sum1 = 0.0;
-		double sum2 = 0.0;
-		double sum3 = 0.0;
-
-		// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
-		for (int i = 0; i < steps; i++)
-			sum1 += sample.at(i);
-
-		//// assign singular values and rotational deg(ree)
-		//double sv1 = std::get<0>(ellipseArray->at(iIndex + jIndex * width));
-		//double sv2 = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
-		//double deg = std::get<2>(ellipseArray->at(iIndex + jIndex * width));
-
-		//// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
-		//for (int i = 0; i < steps; i++)
-		//{
-		//	double sum = an.at(0); // initialize sum w. offset a0
-		//	// evaluate fourier coefficient array for magnitude at current angular position i*tinc
-		//	for (int j = 0; j < an.size(); j++)
-		//		sum += an.at(j)*cos(j*i*tinc) + bn.at(j)*sin(j*i*tinc);
-		//	sum1 += sum; // evaluate for iMean (sum1)
-
-		//	if(sv1 != 0 && sv2 != 0)
-		//		sum2 += sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); //--> ellipse equation, evaluate for tMean (sum2)
-		//	if (sv1 != 0 && sv2 != 0)
-		//		sum3 += sum * sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); // evaluate T*I for tiMean (sum2)
-		//}
-
-		// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-		double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
-		// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
-		double tMean = 1.0; //sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
-		// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-		double tiMean = iMean; //sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
-		// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-		double cFactor = tMean * iMean / tiMean;
-
-		// cout << "cFactor: " << cFactor << endl;
-		
-		//// prepare ctrArray for on-the-fly (implicit) normalization --> count mutual/common bin (discrete direction) occurences/hits in central directions
-		//for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
-		//{
-		//	unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-
-		//	// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-		//	if (!hood.getR() && nIndex == 0)
-		//		continue;
-		//	if (!hood.getT() && nIndex == 1)
-		//		continue;
-		//	if (!hood.getL() && nIndex == 2)
-		//		continue;
-		//	if (!hood.getB() && nIndex == 3)
-		//		continue;
-
-		//	// set theta variable to current central direction shifted by half an apertureAngle
-		//	double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
-		//	int index = round(offset / radres);
-		//	if (index < 0) // cyclic value permutation in case i negative
-		//		index = steps + index;
-		//	ctrArray->at(index)++; // increment ctrArray for normalization
-		//}
-
-
-		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
-		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
-		{
-			int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-			int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
-
-				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-			if (!hood.getR() && (nIndex == 0 || dirIndex == 0))
-				continue;
-			if (!hood.getT() && (nIndex == 1 || dirIndex == 1))
-				continue;
-			if (!hood.getL() && (nIndex == 2 || dirIndex == 2))
-				continue;
-			if (!hood.getB() && (nIndex == 3 || dirIndex == 3))
-				continue;
-
-			// set theta variable to current central direction shifted by half an apertureAngle
-			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
-			int index = std::round(offset / radres);
-
-			//if (index < 0)
-			//	index = 360 + index;
-			double aperture = apertureAngles.at(k);// / ctrArray->at(index);
-
-			// create # of steps for averaging
-			int lSteps = aperture / radres;
-			std::vector<double> area(steps, 0.0); // steps
-			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-		
-			int shiftIndex = pi / (2 * radres);
-			int startIndex = centralDirections.at(k) / (radres);
-
-			for (int i = 0; i < steps; i++)
-				ctrArray.at(i) = 0;
-
-			for (int j = index; j < (index + lSteps); j++)
-			{
-				int j_index = j;
-			
-				if (j < 0)
-					j_index = j + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-				else if (j >= steps)
-					j_index = j - steps;
-				else
-					j_index = j;
-
-				for (int i = startIndex - shiftIndex; i < startIndex + shiftIndex; i++)
-				{
-					int i_index = i;
-					if (i < 0)
-						i_index = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-					else if (i >= steps)
-						i_index = i - steps;
-					else
-						i_index = i;
-
-					area.at(i_index) += 0.3333/lSteps*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
-				}
-			}
-			
-			// Conduction of Flow Samples //
-			switch (k)
-			{
-			case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-			case 1: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); // right neighbor (top)
-					sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-			case 2: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); break; // right neighbor (top)
-			case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-			case 4: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); // top neighbor (left)
-					sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break; // top neighbor (right)
-			case 5: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); break;// top neighbor (left)
-			case 6: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); break;// left neighbor (top)
-			case 7: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); // left neighbor (top)
-					sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-			case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-			case 9: sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); // bottom neighbor (right)
-					sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
-			}
-
-			//switch (k)
-			//{
-			//case 0: if (!processMapNodes.at(iIndex + 2 + (jIndex + 1)*(width+1))) { sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); }break; // right neighbor (bottom)
-			//case 1: if (!processMapNodes.at(iIndex + 2 + jIndex * (width + 1))) { sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); } // right neighbor (center)
-			//		if (!processMapNodes.at(iIndex + 2 + (jIndex + 1)* (width + 1))) { sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); } break; // right neighbor (bottom)
-			//case 2: if (!processMapNodes.at(iIndex + 2 + jIndex * (width + 1))) { sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); } break; // right neighbor (top)				
-			//case 3:  if (!processMapNodes.at(iIndex + 1 + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); } break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-			//case 4:  if (!processMapNodes.at(iIndex + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); } // top neighbor (left)
-			//		 if (!processMapNodes.at(iIndex + 1 + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); } break; // top neighbor (right)
-			//case 5: if (!processMapNodes.at(iIndex + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); } break;// top neighbor (left)
-			//case 6: if (!processMapNodes.at(iIndex - 1 + jIndex * (width + 1))) { sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); } break;// left neighbor (top)
-			//case 7: if (!processMapNodes.at(iIndex - 1 + jIndex * (width + 1))) { sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); }// left neighbor (top)
-			//		if (!processMapNodes.at(iIndex - 1 + (jIndex + 1) * (width + 1))) { sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); } break;// left neighbor (bottom)
-			//case 8: if (!processMapNodes.at(iIndex - 1 + (jIndex + 1) * (width + 1))) { sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); } break;// left neighbor (bottom)
-			//case 9: if (!processMapNodes.at(iIndex + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (left)
-			//case 10: if (!processMapNodes.at(iIndex + 1 + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); } // bottom neighbor (right)
-			//		 if (!processMapNodes.at(iIndex + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (left)
-			//case 11: if (!processMapNodes.at(iIndex + 1 + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (right)
-			//}
-
-		}
-		// set flag in process(ed) map for cell already processed
-		processMap.at(iIndex + jIndex * width) = true;
-	}
-};
-
 
 int main(int argc, char* argv[])
 {
@@ -1085,24 +971,16 @@ int main(int argc, char* argv[])
 	std::vector<std::string> functionStr(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string> functionStrEllipse(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 
-	//// create fourier (CH) coefficients array (grid)
-	//std::array<double, 21> init; init.fill(0.0); // create a std::vector w. n elements initialized to 0..
-	//std::array<std::array<double, 21>, 2> initArray; // create an initArray to represent packed (zipped) fourier coeff. vectors
-	//initVector.fill(init);
-	//std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initArray); // ..use it to initialize the coefficient array w. dim elements
-
-	double tinc = 2 * pi / 72;
-	double radres = 0.01745;
-	int steps = 2 * pi / radres;
-
-	std::vector<double> initArray(steps, 0.0);
-	std::vector<std::vector<double>> sampleArray((width+1)*(height+1), initArray);
-	//
+	// create fourier (CH) coefficients array (grid)
+	std::array<double, 21> init; init.fill(0.0); // create a std::vector w. n elements initialized to 0..
+	std::array<std::array<double, 21>, 2> initVector; // create an initArray to represent packed (zipped) fourier coeff. vectors
+	initVector.fill(init);
+	std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initVector); // ..use it to initialize the coefficient array w. dim elements
+	
 	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
 	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // ..use it to initialize the coefficient array w. dim elements
 
-	//cout << "before compute glyphs" << endl;
-	
+	cout << "before compute glyphs" << endl;
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(functionStrEllipse, ellipseArray);
 	
@@ -1111,39 +989,40 @@ int main(int argc, char* argv[])
 	
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
-	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
-	sample(strFunction, sampleArray, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
-	//coefficientArray.at(i + j * width) = calcCoeff(strFunction);// form coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
+	int j = lightSrcPos.jIndex; int i = lightSrcPos.iIndex; // create light src position indices
+	coefficientArray.at(i + j * width) = calcCoeff(strFunction);// form coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
 
 	// compute distances to center point
-	int deltaJ = abs(width / 2 - jIndex);
-	int deltaI = abs(width / 2 - iIndex);
+	int deltaJ = abs(width / 2 - j);
+	int deltaI = abs(width / 2 - i);
 	// create minRadius to determine propRadius (propagation radius: necessary to reach all cells!)
 	int minRadius = width - 1; // use larger grid radius to reach outer cells in diagonal propagation - adjust for varying light src position
 	// create propagation radius for propagation scheme - deltas added to minRadius!
 	int propRadius;
-	if (width%2 == 0) // if even grid
+	if (cols%2 == 0) // if even grid
 		propRadius = deltaI + deltaJ + minRadius + 1;
 	else // ..odd grid
 		propRadius = deltaI + deltaJ + minRadius;
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &functionStr, &sampleArray, &functionStrEllipse, &ellipseArray);
+	propagator prop(dim, width, &functionStr, &coefficientArray, &functionStrEllipse, &ellipseArray);
 
-	std::cout << "before propagation..propagating.." << endl;
+	// center 4- neighborhood - start from light src, walk along diagonals to obtain orthogonal propagation and to cope with ray effects (discretization)!!!
+	prop.propagate(j, i); // propagate from the light src position
+	int jIndex = j;
+	int iIndex = i;
+
+	cout << "before propagation..propagating.." << endl;
 
 	// PROPAGATION SCHEME START //
-	for (int p = 1; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
+	for (int p = 0; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
 	{
-		if (p==1)
-			prop.propagate(jIndex, iIndex); // propagate from the light src position
-
-		jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
-		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-			prop.propagate(jIndex, iIndex); // .. propagate from this cell
-
-		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-			prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
+		if (p != 1) // remember: step 0 is the first right step, step 1 already there...
+		{
+			jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
 
 		for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
 		{
@@ -1174,7 +1053,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	//maintainFunctionStrings(&functionStr, &coefficientArray);
+	maintainFunctionStrings(&functionStr, &coefficientArray);
 	cout << "..after propagation" << endl;
 	// PROPAGATION SCHEME END //
 
@@ -1199,7 +1078,7 @@ int main(int argc, char* argv[])
 	//
 	//double grandSum = 0.0;
 	//double grandError = 0.0;
-	//// walk along circle in 16 pre-defined (heuristic)
+	//// walk along circle in 16 pre-defined steps (heuristic)
 	//for (theta = 0; theta < tmax; theta+=tInc)
 	//{
 	//	//theta = circularAngles.at(i);
@@ -1263,9 +1142,9 @@ int main(int argc, char* argv[])
 	sf::Color green = sf::Color(0, 255, 0, Alpha);
 
 	// add pre-computed function as string
-	for (int i = 0; i < dim; i++)
+	for (int i = 0; i < width*height; i++)
 	{
-		funcs.push_back(polarPlot(sampleArray.at(i%width + i/width*(width+1)), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
+		funcs.push_back(polarPlot(functionStr.at(i), drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
 		funcsEllipses.push_back(polarPlot(functionStrEllipse.at(i), drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, green));
 	}
 
@@ -1280,7 +1159,7 @@ int main(int argc, char* argv[])
 	windowsize.y = window.getSize().y;
 
 	//initialize function graphics
-	for (int i = 0; i < funcs.size(); i++)
+	for (unsigned i = 0; i < funcs.size(); i++)
 		{funcs.at(i).init(); funcsEllipses.at(i).init();}
 
 	//initialize rendertexture for output image
@@ -1317,9 +1196,9 @@ int main(int argc, char* argv[])
 		out.clear(sf::Color::Black);
 
 		// draw polar function as graph sprite
-		for (int i = 0; i < dim; i++) 
+		for (unsigned i = 0; i < funcs.size(); i++) 
 		{
-			funcs.at(i).animation(i, 0, sampleArray);
+			funcs.at(i).animation(i, 0);
 			funcsEllipses.at(i).animation(i, 1);
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
