@@ -51,7 +51,7 @@ std::string record_folder = "frames";
 bool fullscreen = false;
 
 //definition of pi
-const double pi = M_PI;
+const double pi = 3.141592653589793;
 
 // get current working directory to assign matrix.txt path
 std::string GetCurrentWorkingDir(void) {
@@ -197,7 +197,7 @@ void parse_options(int argc, char* argv[]) {
 
 
 template <typename T> // element-wise plus for std::vector
-std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
+std::array<T, 21> operator*(const T& a, const std::array<T, 21>& b)
 {
 	std::array<T, 21> result;
 
@@ -208,7 +208,7 @@ std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
 }
 
 template <typename T> // element-wise plus for std::array
-std::array<std::array<T, 21>, 2> operator*(const T a, const std::array<std::array<T, 21>, 2> &b)
+std::array<std::array<T, 21>, 2> operator*(const T& a, const std::array<std::array<T, 21>, 2> &b)
 {
 	std::array<std::array<T, 21>, 2> result;
 
@@ -367,14 +367,15 @@ public:
 		double x = scale * r * cos(t);
 		double y = -1*scale * r * sin(t);
 
+
 		if (x + 1 + wSize / 2 > wSize || x - 1 + wSize / 2 < 0 || y + 1 + wSize / 2 > wSize || y - 1 + wSize / 2 < 0)
 			return;
 
 		int offsetX = (index % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
 		int offsetY = (index / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
 
-		int xIndex = round(x + static_cast<double>(offsetX));
-		int yIndex = round(y + static_cast<double>(offsetY));
+		int xIndex = round(x + offsetX);
+		int yIndex = round(y + offsetY);
 
 		if (xIndex < 0)
 			xIndex = 0;
@@ -413,11 +414,11 @@ public:
 			t += tinc;
 			r = p.Eval();
 			// PROPAGATION ATTENUATION TEST //
-			/*if (t == tinc && index/width == 3 && mode == 0)
+			if (t == tinc && index/width == 3 && mode == 0)
 			{
 				cout << "r: " << r << endl;
 				cout << "attenuation: " << r / 1.0 << endl;
-			}*/
+			}
 			plot(index, mode);
 		}
 	}
@@ -620,11 +621,13 @@ class propagator
 	std::array<std::array<double, 21>, 2> cosLobeYnegCoeff;
 
 	// set principal arture angles in rads
-	double alpha = 36.8699 * M_PI / 180;
-	double beta = 26.5651 * M_PI / 180;	
+	double alpha = 36.8699 * pi / 180;
+	double beta = 26.5651 * pi / 180;
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
-	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
+	std::array<double, 12> centralDirections{ 3.0 / 2 * pi + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, pi / 2, pi / 2 + 0.5535748055013016, pi / 2 + 1.0172232666228471, pi, 3.141592653589793 + 0.5535748055013016, pi + 1.0172232666228471, 3.0 / 2 * pi, 3.0 / 2 * pi + 0.5535748055013016 };
+	std::array<int, 12> coneDirections{ 3,0,1,0,1,2,1,2,3,2,3,0 };
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
+	std::array<int, 12> apertureIndex{ 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 }; // define aperture angles array in order
 	std::array<std::array<std::array<double, 21>, 2>*, 12> centralLobesCoeff{ &cosLobeYnegCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXnegCoeff, &cosLobeYnegCoeff, &cosLobeXCoeff };
 
 	// define member strings for parsing (internal)
@@ -640,12 +643,11 @@ class propagator
 	// define function parser (muparser)
 	mu::Parser parser;
 	double t = 0.0;
-	double tinc = 2*pi / 72; // set theta increment tinc
+	double tinc = 2*pi / 360; // set theta increment tinc
 	int steps = (2 * pi) / tinc;
 	
 	// create threshhold for aborting the fourier series expansion
 	double thresh = 0.0001;
-	int width = 0;
 
 	// create fourier (CH) coefficient vectors
 	std::array<double, 21> an;
@@ -655,7 +657,7 @@ class propagator
 	std::vector<bool> processMap; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, int Width, std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap(dim, false)
+	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap(dim, false)
 	{
 		// parser definitions
 		parser.DefineConst("pi", pi);
@@ -676,15 +678,13 @@ public:
 		cosLobeXCoeff.front() = { 0.31831, 0.5, 0.212207, 0., -0.0424413, 0., 0.0181891, 0., -0.0101051, 0., 0.0064305, 0., -0.00445189, 0., 0.00326472, 0., -0.00249655, 0., 0.00197096, 0., -0.00159554 };
 		cosLobeXCoeff.back().fill(0); // initialize bn array w. 0 --> no sine coefficients
 		cosLobeYCoeff.front() = { 0.31831, 0., -0.212207, 0., -0.0424413 , 0., -0.0181891 , 0., -0.0101051, 0., -0.0064305 , 0., -0.00445189, 0., -0.00326472, 0., -0.00249655, 0., -0.00197096 , 0., -0.00159554 };
-		cosLobeYCoeff.back() = { 0., 0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
+		cosLobeYCoeff.back().fill(0); // initialize bn array w. 0 
+		cosLobeYCoeff.back().at(1) = 0.5;
 		cosLobeXnegCoeff.front() = { 0.31831, -0.5, 0.212207, 0., -0.0424413, 0., 0.0181891, 0., -0.0101051, 0., 0.0064305, 0., -0.00445189, 0., 0.00326472, 0., -0.00249655, 0., 0.00197096, 0., -0.00159554 };
 		cosLobeXnegCoeff.back().fill(0); // initialize bn array w. 0 --> no sine coefficients
 		cosLobeYnegCoeff.front() = { 0.31831, 0., -0.212207, 0., -0.0424413 , 0., -0.0181891 , 0., -0.0101051, 0., -0.0064305 , 0., -0.00445189, 0., -0.00326472, 0., -0.00249655, 0., -0.00197096 , 0., -0.00159554 };
-		cosLobeYnegCoeff.back() = { 0., -0.5, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-
-
-		// assign width
-		width = Width;
+		cosLobeYnegCoeff.back().fill(0); // initialize bn array w. 0 
+		cosLobeYnegCoeff.back().at(1) = -0.5;
 	}
 
 	void propagate(int jIndex, int iIndex)
@@ -732,53 +732,101 @@ public:
 
 		// cout << "cFactor: " << cFactor << endl;
 
-		// define intensity [W/rad] and area [W]
-		double area = 0.0;
-
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
 		{
-			int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+			int nIndex = std::floor(k / 3); // create index to capture the 4 neighbors (in 2D)
+			int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions
 
-			// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-			if (!hood.getR() && nIndex == 0)
+				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+			if (!hood.getR() && (nIndex == 0 || dirIndex == 0))
 				continue;
-			if (!hood.getT() && nIndex == 1)
+			if (!hood.getT() && (nIndex == 1 || dirIndex == 1))
 				continue;
-			if (!hood.getL() && nIndex == 2)
+			if (!hood.getL() && (nIndex == 2 || dirIndex == 2))
 				continue;
-			if (!hood.getB() && nIndex == 3)
+			if (!hood.getB() && (nIndex == 3 || dirIndex == 3))
 				continue;
 
 			// set theta variable to current central direction shifted by half an apertureAngle
 			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
 			double area = 0.0; // -->reset energy variables
-		
+
 			// compute lSteps to determine # of steps for current apertureAngle
-			int lSteps = apertureAngles.at(k) / tinc;
+			int lSteps = std::floor(apertureAngles.at(k) / tinc);
+			int shiftIndex = offset / tinc;
 
 			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-			for (unsigned long long i = 0; i < lSteps; i++) // --> carry out the integral computation as discrete (weghted) sum
+			for (int i = 0; i < lSteps; i++) // --> carry out the integral computation as discrete (weghted) sum
 			{
-				double intensity = an.at(0); // initialize sum w. offset a0
+				double intensity = an.front(); // initialize sum w. offset a0
 				// evaluate fourier coefficient array for magnitude at current angular position i*tinc
-				for (unsigned long long j = 1; j < an.size(); j++)
-					intensity += (an.at(j)*cos(j*i*tinc + offset) + bn.at(j)*sin(j*i*tinc + offset))*sv1 * sv2 / sqrt(sv2*sv2*cos(j*i*tinc + offset - deg)*cos(j*i*tinc + offset - deg) + sv1 * sv1*sin(j*i*tinc + offset - deg)*sin(j*i*tinc + offset - deg));
+				for (int j = 1; j < an.size(); j++)
+					intensity += (an.at(j)*cos(j*(i + shiftIndex)*tinc) + bn.at(j)*sin(j*(i + shiftIndex)*tinc))*sv1 * sv2 / sqrt(sv2*sv2*cos(j*(i + shiftIndex)*tinc - deg)*cos(j*(i + shiftIndex)*tinc - deg) + sv1 * sv1*sin(j*(i + shiftIndex)*tinc - deg)*sin(j*(i + shiftIndex)*tinc - deg));
 
 				area += intensity; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 			}
 
-			// calculate magnitude w. corresponding correction factor and weighting by tinc, which is is a constant dt drawn out of the discrete sum
-			double mag = cFactor*tinc*area / 2.0; // since int(cos(w)) (w. negative values clamped to zero) yields = 2 --> normalize to energy 1 (spread energy area over the cosine)
 
+			// calculate magnitude w. corresponding correction factor and weighting by tinc, which is is a constant dt drawn out of the discrete sum
+			double mag =/* (cFactor**/area * tinc; // since int(cos(w)) (w. negative values clamped to zero) yields = 2 --> normalize to energy 1 (spread energy area over the cosine)
+			cout << "mag: " << mag << endl;
+
+			if (k == 5)
+				int a = 1;
+			if (k == 11)
+				int a = 1;
 			// ReProjection of Flow Lobes //
 
-			switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
+			//switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
+			//{
+			//case 0: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break; // right neighbor
+			//case 1: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + mag * *centralLobesCoeff.at(k); break; // top neighbor
+			//case 2: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break;// left neighbor
+			//case 3: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+			//default: break;
+			//}
+
+
+			//switch (k) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
+			//{
+			//case 0: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // right neighbor
+			//case 1: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break; // right neighbor
+			//case 2: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // right neighbor
+			//case 3: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // top neighbor
+			//case 4: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + mag * *centralLobesCoeff.at(k); break; // top neighbor
+			//case 5: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // top neighbor
+			//case 6: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break;// left neighbor
+			//case 7: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break;// left neighbor
+			//case 8: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break;// left neighbor
+			//case 9: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + 0.707 *mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+			//case 10: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+			//case 11: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + 0.707 *mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+			//default: break;
+			//}
+
+			if (apertureIndex.at(k) == 1)
 			{
-			case 0: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break; // right neighbor
-			case 1: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + mag * *centralLobesCoeff.at(k); break; // top neighbor
-			case 2: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break;// left neighbor
-			case 3: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+				switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
+				{
+				case 0: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break; // right neighbor
+				case 1: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + mag * *centralLobesCoeff.at(k); break; // top neighbor
+				case 2: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break;// left neighbor
+				case 3: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+				default: break;
+				}
+			}
+			else
+			{
+				switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
+				{
+				case 0: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // right neighbor
+				case 1: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // top neighbor
+				case 2: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break;// left neighbor
+				case 3: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + 0.707 *mag * *centralLobesCoeff.at(k); break;// bottom neighbor
+				default: break;
+				}
+
 			}
 		}
 		// set flag in process(ed) map for cell already processed
@@ -800,12 +848,8 @@ void maintainFunctionStrings(std::vector<std::string>* fStr, std::vector<std::ar
 
 		// set up Fourier Series expansion as str expression for the evaluation of the fourier serier (polar function/curve) for each grid cell (j,i)
 		for (int i = 1; i < an.size(); i++)
-		{
-			if (i > 1 && (bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if threshold exceeded..
-				break; // abort Fourier series expansion to obtain shorter functionStrings (approximations)
 			fString += "+" + std::to_string(an.at(i)) + "*cos(" + std::to_string(i) + "*theta)" + "+" + std::to_string(bn.at(i)) + "*sin(" + std::to_string(i) + "*theta)";
-		}
-
+		
 		// update current functionStr w. fString to maintain the polar functions in gríd
 		fStr->at(i) = fString;
 	}
@@ -1004,24 +1048,28 @@ int main(int argc, char* argv[])
 		propRadius = deltaI + deltaJ + minRadius;
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, width, &functionStr, &coefficientArray, &functionStrEllipse, &ellipseArray);
+	propagator prop(dim, &functionStr, &coefficientArray, &functionStrEllipse, &ellipseArray);
 
 	// center 4- neighborhood - start from light src, walk along diagonals to obtain orthogonal propagation and to cope with ray effects (discretization)!!!
-	prop.propagate(j, i); // propagate from the light src position
 	int jIndex = j;
 	int iIndex = i;
 
-	cout << "before propagation..propagating.." << endl;
 
+	//jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
+	//if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+	//	prop.propagate(jIndex, iIndex); // .. propagate from this cell
+
+	cout << "before propagation..propagating.." << endl;
+	//prop.propagate(jIndex, iIndex); // propagate from the light src position
 	// PROPAGATION SCHEME START //
-	for (int p = 0; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
+	for (int p = 1; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
 	{
-		if (p != 1) // remember: step 0 is the first right step, step 1 already there...
-		{
-			jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
-			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-				prop.propagate(jIndex, iIndex); // .. propagate from this cell
-		}
+		if (p==1)
+			prop.propagate(jIndex, iIndex); // propagate from the light src position
+
+		jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
+		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+			prop.propagate(jIndex, iIndex); // .. propagate from this cell
 
 		for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
 		{
@@ -1135,7 +1183,7 @@ int main(int argc, char* argv[])
 	int drawSpeed = 0; // set instant drawing
 	int lineWidth = 0; // set line width = 1px
 	double thetaMax = 2 * pi;
-	double thetaInc = pi / 300; // set theta increment
+	double thetaInc = pi / 360; // set theta increment
 	double rotSpeed = 0; // set rotation speed
 	sf::Color red = sf::Color(255, 0, 0);
 	sf::Color green = sf::Color(0, 255, 0, Alpha);
