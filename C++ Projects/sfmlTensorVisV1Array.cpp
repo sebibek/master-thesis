@@ -1,4 +1,4 @@
-#define _USE_MATH_DEFINES
+ï»¿#define _USE_MATH_DEFINES
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "muParser.h"
@@ -749,6 +749,7 @@ public:
 				continue;
 
 			// set theta variable to current central direction shifted by half an apertureAngle
+			double aperture = apertureAngles.at(k);
 			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
 			double area = 0.0; // -->reset energy variables
 
@@ -769,13 +770,9 @@ public:
 
 
 			// calculate magnitude w. corresponding correction factor and weighting by tinc, which is is a constant dt drawn out of the discrete sum
-			double mag =/* (cFactor**/area * tinc; // since int(cos(w)) (w. negative values clamped to zero) yields = 2 --> normalize to energy 1 (spread energy area over the cosine)
+			double mag = cFactor*area/2.0*tinc/aperture; // since int(cos(w)) (w. negative values clamped to zero) yields = 2 --> normalize to energy 1 (spread energy area over the cosine)
 			cout << "mag: " << mag << endl;
 
-			if (k == 5)
-				int a = 1;
-			if (k == 11)
-				int a = 1;
 			// ReProjection of Flow Lobes //
 
 			//switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
@@ -787,25 +784,7 @@ public:
 			//default: break;
 			//}
 
-
-			//switch (k) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
-			//{
-			//case 0: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // right neighbor
-			//case 1: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break; // right neighbor
-			//case 2: coefficientArray->at(iIndex + 1 + jIndex * width) = coefficientArray->at(iIndex + 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // right neighbor
-			//case 3: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // top neighbor
-			//case 4: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + mag * *centralLobesCoeff.at(k); break; // top neighbor
-			//case 5: coefficientArray->at(iIndex + (jIndex - 1) * width) = coefficientArray->at(iIndex + (jIndex - 1) * width) + 0.707*mag * *centralLobesCoeff.at(k); break; // top neighbor
-			//case 6: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break;// left neighbor
-			//case 7: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + mag * *centralLobesCoeff.at(k); break;// left neighbor
-			//case 8: coefficientArray->at(iIndex - 1 + jIndex * width) = coefficientArray->at(iIndex - 1 + jIndex * width) + 0.707*mag * *centralLobesCoeff.at(k); break;// left neighbor
-			//case 9: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + 0.707 *mag * *centralLobesCoeff.at(k); break;// bottom neighbor
-			//case 10: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + mag * *centralLobesCoeff.at(k); break;// bottom neighbor
-			//case 11: coefficientArray->at(iIndex + (jIndex + 1) * width) = coefficientArray->at(iIndex + (jIndex + 1) * width) + 0.707 *mag * *centralLobesCoeff.at(k); break;// bottom neighbor
-			//default: break;
-			//}
-
-			if (apertureIndex.at(k) == 1)
+			if (apertureIndex.at(k) == 1) // big aperture leave as it is
 			{
 				switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
 				{
@@ -816,7 +795,7 @@ public:
 				default: break;
 				}
 			}
-			else
+			else // small aperture: scale w. 1/âˆš2 to 1, heuristic obtained from geometric superposition (mathematica)
 			{
 				switch (nIndex) // switch nIndex to cope with changing neighbor locations..., accumulate fourier coefficients in coefficientArray
 				{
@@ -850,7 +829,7 @@ void maintainFunctionStrings(std::vector<std::string>* fStr, std::vector<std::ar
 		for (int i = 1; i < an.size(); i++)
 			fString += "+" + std::to_string(an.at(i)) + "*cos(" + std::to_string(i) + "*theta)" + "+" + std::to_string(bn.at(i)) + "*sin(" + std::to_string(i) + "*theta)";
 		
-		// update current functionStr w. fString to maintain the polar functions in gríd
+		// update current functionStr w. fString to maintain the polar functions in grÃ­d
 		fStr->at(i) = fString;
 	}
 }
@@ -902,10 +881,10 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
 		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
-		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
-		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
+		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180Â°,180Â°]
+		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180Â°,180Â°]
 
-		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
+		// shift (normalize) degs from [-180Â°,180Â°] into the interval [0Â°,360Â°] - "circular value permutation"
 		if (deg1 < 0)
 			deg1 = 360 + deg1;
 		if (deg2 < 0)
@@ -1032,12 +1011,12 @@ int main(int argc, char* argv[])
 	
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
-	int j = lightSrcPos.jIndex; int i = lightSrcPos.iIndex; // create light src position indices
-	coefficientArray.at(i + j * width) = calcCoeff(strFunction);// form coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
+	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
+	coefficientArray.at(iIndex + jIndex * width) = calcCoeff(strFunction);// form coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
 
 	// compute distances to center point
-	int deltaJ = abs(width / 2 - j);
-	int deltaI = abs(width / 2 - i);
+	int deltaJ = abs(width / 2 - jIndex);
+	int deltaI = abs(width / 2 - jIndex);
 	// create minRadius to determine propRadius (propagation radius: necessary to reach all cells!)
 	int minRadius = width - 1; // use larger grid radius to reach outer cells in diagonal propagation - adjust for varying light src position
 	// create propagation radius for propagation scheme - deltas added to minRadius!
@@ -1050,18 +1029,9 @@ int main(int argc, char* argv[])
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &functionStr, &coefficientArray, &functionStrEllipse, &ellipseArray);
 
-	// center 4- neighborhood - start from light src, walk along diagonals to obtain orthogonal propagation and to cope with ray effects (discretization)!!!
-	int jIndex = j;
-	int iIndex = i;
-
-
-	//jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
-	//if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-	//	prop.propagate(jIndex, iIndex); // .. propagate from this cell
-
 	cout << "before propagation..propagating.." << endl;
-	//prop.propagate(jIndex, iIndex); // propagate from the light src position
 	// PROPAGATION SCHEME START //
+
 	for (int p = 1; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
 	{
 		if (p==1)
