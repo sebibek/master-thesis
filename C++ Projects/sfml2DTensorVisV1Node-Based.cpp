@@ -453,6 +453,8 @@ public:
 	//plots draw_speed points per frame
 	void animation(int index = 0, int mode = 0)
 	{
+		
+
 		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
 		{
 			if (!discretePlot) // use muParser for evaluation 
@@ -487,11 +489,11 @@ public:
 			}
 			
 			// PROPAGATION ATTENUATION TEST //
-			/*if (t == tinc && index/width == 3 && mode == 0)
+			if (t == tinc && index / width == 3 && mode == 0)
 			{
 				cout << "r: " << r << endl;
 				cout << "attenuation: " << r / 1.0 << endl;
-			}*/
+			}
 			plot(index, mode);
 			t += tinc;
 		}
@@ -1013,7 +1015,7 @@ public:
 					else
 						i_index = i;
 
-					area.at(i_index) += 0.3333/lSteps*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+					area.at(i_index) += 0.3333/lSteps*1.0/(pi/2)*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
 				}
 			}
 			
@@ -1037,26 +1039,6 @@ public:
 					sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
 			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
 			}
-
-			//switch (k)
-			//{
-			//case 0: if (!processMapNodes.at(iIndex + 2 + (jIndex + 1)*(width+1))) { sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); }break; // right neighbor (bottom)
-			//case 1: if (!processMapNodes.at(iIndex + 2 + jIndex * (width + 1))) { sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); } // right neighbor (center)
-			//		if (!processMapNodes.at(iIndex + 2 + (jIndex + 1)* (width + 1))) { sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); } break; // right neighbor (bottom)
-			//case 2: if (!processMapNodes.at(iIndex + 2 + jIndex * (width + 1))) { sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); } break; // right neighbor (top)				
-			//case 3:  if (!processMapNodes.at(iIndex + 1 + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); } break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-			//case 4:  if (!processMapNodes.at(iIndex + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); } // top neighbor (left)
-			//		 if (!processMapNodes.at(iIndex + 1 + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); } break; // top neighbor (right)
-			//case 5: if (!processMapNodes.at(iIndex + (jIndex - 1) * (width + 1))) { sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); } break;// top neighbor (left)
-			//case 6: if (!processMapNodes.at(iIndex - 1 + jIndex * (width + 1))) { sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); } break;// left neighbor (top)
-			//case 7: if (!processMapNodes.at(iIndex - 1 + jIndex * (width + 1))) { sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); }// left neighbor (top)
-			//		if (!processMapNodes.at(iIndex - 1 + (jIndex + 1) * (width + 1))) { sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); } break;// left neighbor (bottom)
-			//case 8: if (!processMapNodes.at(iIndex - 1 + (jIndex + 1) * (width + 1))) { sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); } break;// left neighbor (bottom)
-			//case 9: if (!processMapNodes.at(iIndex + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (left)
-			//case 10: if (!processMapNodes.at(iIndex + 1 + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); } // bottom neighbor (right)
-			//		 if (!processMapNodes.at(iIndex + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (left)
-			//case 11: if (!processMapNodes.at(iIndex + 1 + (jIndex + 2) * (width + 1))) { sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); } break; // bottom neighbor (right)
-			//}
 
 		}
 		// set flag in process(ed) map for cell already processed
@@ -1141,9 +1123,6 @@ int main(int argc, char* argv[])
 		jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
 		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
 			prop.propagate(jIndex, iIndex); // .. propagate from this cell
-
-		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
-			prop.freezeNodes(jIndex, iIndex, p); // freeze adjacent cell nodes once after each iteration!
 
 		for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
 		{
@@ -1315,15 +1294,29 @@ int main(int argc, char* argv[])
 
 		window.clear(sf::Color::Black);
 		out.clear(sf::Color::Black);
+		
+		
 
 		// draw polar function as graph sprite
 		for (int i = 0; i < dim; i++) 
 		{
+			double offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+			double offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
+			// ellipse parameters
+			unsigned short quality = 70;
+			// define ellipses as convex shapes (with semi-axes u scaled to the specific singular values
+			sf::ConvexShape ellipse;
+			ellipse.setPointCount(quality);
+			defineConvexEllipse(&ellipse, 2.0, 2.0, quality);
+
+			ellipse.setPosition(offsetX, offsetY); // set ellipse position
+
 			funcs.at(i).animation(i, 0, sampleArray);
 			funcsEllipses.at(i).animation(i, 1);
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			spr.setPosition(wSize / 2, wSize / 2);
+			window.draw(ellipse);
 			if (showBase)
 				{window.draw(spr); out.draw(spr);}
 			if (showOverlay)

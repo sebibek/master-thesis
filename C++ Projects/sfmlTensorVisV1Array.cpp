@@ -1215,11 +1215,22 @@ int main(int argc, char* argv[])
 		// draw polar function as graph sprite
 		for (unsigned i = 0; i < funcs.size(); i++) 
 		{
+			double offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+			double offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
+			// ellipse parameters
+			unsigned short quality = 70;
+			// define ellipses as convex shapes (with semi-axes u scaled to the specific singular values
+			sf::ConvexShape ellipse;
+			ellipse.setPointCount(quality);
+			defineConvexEllipse(&ellipse, 2.0, 2.0, quality);
+			ellipse.setPosition(offsetX, offsetY); // set ellipse position
+			
 			funcs.at(i).animation(i, 0);
 			funcsEllipses.at(i).animation(i, 1);
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			spr.setPosition(wSize / 2, wSize / 2);
+			window.draw(ellipse);
 			if (showBase)
 				{window.draw(spr); out.draw(spr);}
 			if (showOverlay)
