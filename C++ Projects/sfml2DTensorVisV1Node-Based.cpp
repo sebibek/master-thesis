@@ -853,7 +853,7 @@ public:
 				{
 					sample = std::vector<double>(steps, 0.0);
 					for (int k = 0; k < steps; k++)
-						sample.at(k) += pos/steps*static_cast<double>((steps - k)) / steps * abs(sampleBufferA->at(i).at(k)*cos(k*radres + ((j + 1) % 2 * pi / 2)));
+						sample.at(k) += pos/steps * abs(sampleBufferA->at(i).at(k)*cos(k*radres + ((j + 1) % 2 * pi / 2)));
 
 					assignNodes(j, i);
 				}
@@ -953,71 +953,6 @@ public:
 		//	if (!hood.getB() && (nIndex == 3 || dirIndex == 3))
 		//		continue;
 
-		//	// set theta variable to current central direction shifted by half an apertureAngle
-		//	double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
-		//	int index = std::round(offset / radres);
-
-		//	//if (index < 0)
-		//	//	index = 360 + index;
-		//	double aperture = apertureAngles.at(k);// / ctrArray->at(index);
-
-		//	// create # of steps for averaging
-		//	int lSteps = aperture / radres;
-		//	std::vector<double> area(steps, 0.0); // steps
-		//	// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-		//
-		//	int shiftIndex = pi / (2 * radres);
-		//	int startIndex = centralDirections.at(k) / (radres);
-
-		//	for (int i = 0; i < steps; i++)
-		//		ctrArray.at(i) = 0;
-
-		//	for (int j = index; j < (index + lSteps); j++)
-		//	{
-		//		int j_index = j;
-		//	
-		//		if (j < 0)
-		//			j_index = j + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-		//		else if (j >= steps)
-		//			j_index = j - steps;
-		//		else
-		//			j_index = j;
-
-		//		for (int i = startIndex - shiftIndex; i < startIndex + shiftIndex; i++)
-		//		{
-		//			int i_index = i;
-		//			if (i < 0)
-		//				i_index = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-		//			else if (i >= steps)
-		//				i_index = i - steps;
-		//			else
-		//				i_index = i;
-
-		//			area.at(i_index) += 0.3333/lSteps*1.0/(pi/2)*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
-		//		}
-		//	}
-		//	
-		//	// Conduction of Flow Samples //
-		//	switch (k)
-		//	{
-		//	case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-		//	case 1: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); // right neighbor (top)
-		//			sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-		//	case 2: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); break; // right neighbor (top)
-		//	case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-		//	case 4: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); // top neighbor (left)
-		//			sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break; // top neighbor (right)
-		//	case 5: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); break;// top neighbor (left)
-		//	case 6: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); break;// left neighbor (top)
-		//	case 7: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); // left neighbor (top)
-		//			sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-		//	case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-		//	case 9: sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-		//	case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); // bottom neighbor (right)
-		//			sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-		//	case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
-		//	}
-
 		//}
 		//// set flag in process(ed) map for cell already processed
 		//processMap.at(iIndex + jIndex * width) = true;
@@ -1081,6 +1016,7 @@ int main(int argc, char* argv[])
 		prop.propagate(); // propagate until finished..
 		sampleBufferA = sampleBufferB;
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
+		sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // overwrite (stamp) light src in BufferA
 	}
 
 	//maintainFunctionStrings(&functionStr, &coefficientArray);
