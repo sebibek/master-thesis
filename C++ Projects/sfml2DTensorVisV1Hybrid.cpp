@@ -480,7 +480,13 @@ public:
 			if (!discretePlot) // use muParser for evaluation 
 				r = p.Eval();
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
-				r = sampleArray.at(index).at(static_cast<int>(std::round(t / radres)) % sample.size());
+			{
+				r = 0;
+				r += 0.25*sampleArray.at(index%width + 1 + index / width * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index%width + 1 + (index / width + 1)*(width+1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index%width + (index / width + 1) * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+				r += 0.25*sampleArray.at(index%width + index / width * (width + 1)).at(static_cast<int>(std::round(t / radres)) % sample.size());;
+			}
 			
 			// PROPAGATION ATTENUATION TEST //
 			if (t == tinc && index / width == 3 && mode == 0)
@@ -757,7 +763,10 @@ void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray,
 	std::vector<double> sample(steps, 0.0);
 	for (int i = 0; i < sample.size(); i++)
 		sample.at(i) = f(i*radres);
-	sampleArray.at(iIndex + jIndex * (width)) = sample;
+	sampleArray.at(iIndex + jIndex * (width+1)) = sample;
+	sampleArray.at(iIndex + 1 + jIndex * (width + 1)) = sample;
+	sampleArray.at(iIndex + (jIndex + 1) * (width + 1)) = sample;
+	sampleArray.at(iIndex + 1 + (jIndex + 1)* (width + 1)) = sample;
 }
 
 class propagator
@@ -766,15 +775,12 @@ class propagator
 	double alpha = 36.8699 * M_PI / 180;
 	double beta = 26.5651 * M_PI / 180;
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
-	//std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
+	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 	std::array<int, 12> coneDirections{ 3,0,1,0,1,2,1,2,3,2,3,0 };
 	// define member strings for parsing (internal)
 	std::string fString = "0.0";
 	std::string fStringEllipse = "0.0";
-
-	std::array<int, 4> centralEdgeIndex{ 0,1,2,3 };
-
 
 
 	// define function parser (muparser)
@@ -785,8 +791,7 @@ class propagator
 	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
 	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string>* functionStrEllipse; // initialize w. 0.0 to prevent parser errors
-	std::vector<std::vector<double>>* sampleBufferA;
-	std::vector<std::vector<double>>* sampleBufferB;
+	std::vector<std::vector<double>>* sampleArray;
 	std::vector<int> ctrArray;
 	std::vector<std::tuple<double, double, double>>* ellipseArray;
 
@@ -802,225 +807,242 @@ class propagator
 	std::vector<bool> processMapNodes; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((height)*(width), false), processMapNodes((height)*(width), false), ctrArray(steps,0)
+	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampArray, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((height)*(width), false), processMapNodes((height +1)*(width+1), false), ctrArray(steps,0)
 	{
 		// initialize member sample w. 0
-		//sample = std::vector<double>(steps, 0.0);
+		sample = std::vector<double>(steps, 0.0);
 
 		// assign ptrs to member vectors
 		functionStr = fStr;
 		functionStrEllipse = fStrEllipse;
-		sampleBufferA = sampleBuffA;
-		sampleBufferB = sampleBuffB;
+		sampleArray = sampArray;
 		ellipseArray = ellipseArr;
 	}
 
-	void assignNodes(int j, int i) // --> j: edge index, i: sample index
+	void formNeighborIndices(int jIndex, int iIndex, std::array<std::array<int, 2>, 4>& neighborIndices)
 	{
-		// create neighborhood, for tagging non-existent neighbors..
-		neighborhood hood(i / width, i%width, width, processMap);
+		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
+		std::array<int, 2> init{ jIndex,iIndex };
+		neighborIndices = { init,init,init,init };
+		neighborIndices.at(1) = { jIndex, iIndex + 1 };
+		neighborIndices.at(2) = { jIndex + 1 , iIndex };
+		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
+	}
 
-		// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-		if (!hood.getR() && j == 0)
-			return;
-		if (!hood.getT() && j == 1)
-			return;
-		if (!hood.getL() && j == 2)
-			return;
-		if (!hood.getB() && j == 3)
-			return;
+	void freezeNodes(int jIndex, int iIndex, int index)
+	{
+		std::array<std::array<int, 2>, 4> neighborIndices;
+		formNeighborIndices(jIndex, iIndex, neighborIndices);
 
-		switch (j)
+		if (iIndex >= 0 && jIndex >= 0 && jIndex < jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+			for (int j = 0; j < 4; j++)
+				processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
+
+
+		for (int l = 0; l < index - 1; l++) // perform p steps of incrementation/decrementation
 		{
-			case 0: sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; break;
-			case 1: sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; break;
-			case 2: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; break;
-			case 3: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; break;
+			jIndex -= 1; iIndex += 1; // + 45 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
+		}
 
-			default: break;
+		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex -= 1; iIndex -= 1; // + 135 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
+		}
+
+		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex -= 1; // - 135 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
+		}
+
+		for (int l = 0; l < index; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex += 1; // - 45 degrees
+			formNeighborIndices(jIndex, iIndex, neighborIndices);
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < (height) && iIndex < (width)) // if inside frame (window)..
+				for (int j = 0; j < 4; j++)
+					processMapNodes.at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()) = true;
 		}
 	}
-	void propagate()
-	{		
 
-		for (int h = 0; h < steps; h++)
-		{
-			double pos = 1.0 - static_cast<double>(h) / (steps - 1);
-			// 1 propagation cycle
-			for (int i = 0; i < sampleBufferA->size(); i++)
-			{
-				for (int j = 0; j < 4; j++)
-				{
-					sample = std::vector<double>(steps, 0.0);
-					for (int k = 0; k < steps; k++)
-						sample.at(k) += pos/steps*static_cast<double>((steps - k)) / steps * abs(sampleBufferA->at(i).at(k)*cos(k*radres + ((j + 1) % 2 * pi / 2)));
+	void propagate(int jIndex, int iIndex)
+	{
+		// create neighborhood, for tagging non-existent neighbors..
+		neighborhood hood(jIndex, iIndex, width, processMap);
 
-					assignNodes(j, i);
-				}
-			}
-		}
-		//// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
-		//std::array<int, 2> init{ jIndex,iIndex };
-		//std::array<std::array<int, 2>, 4> neighborIndices{ init,init,init,init };	
-		//neighborIndices.at(1) = { jIndex, iIndex + 1 };
-		//neighborIndices.at(2) = { jIndex + 1 , iIndex };
-		//neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
+		// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
+		std::array<int, 2> init{ jIndex,iIndex };
+		std::array<std::array<int, 2>, 4> neighborIndices{ init,init,init,init };	
+		neighborIndices.at(1) = { jIndex, iIndex + 1 };
+		neighborIndices.at(2) = { jIndex + 1 , iIndex };
+		neighborIndices.at(3) = { jIndex + 1 , iIndex + 1 };
 
-		//// initialize member sample w. 0
-		//sample = std::vector<double>(steps, 0.0);
+		// initialize member sample w. 0
+		sample = std::vector<double>(steps, 0.0);
 
-		//// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
-		//for (int j = 0; j < 4; j++)
-		//	sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()); // ..cosine coefficient vector 
+		// interpolate member sample arrays for evaluating current light profile in cell centers... get from current neighborIndices (jIndex,iIndex)
+		for (int j = 0; j < 4; j++)
+			sample = sample + 1.0 / 4*sampleArray->at(neighborIndices.at(j).front()*(width + 1) + neighborIndices.at(j).back()); // ..cosine coefficient vector 
 
-		//// calculate mean and variance.. of I(phi)
-		//double sum1 = 0.0;
-		//double sum2 = 0.0;
-		//double sum3 = 0.0;
+		// calculate mean and variance.. of I(phi)
+		double sum1 = 0.0;
+		double sum2 = 0.0;
+		double sum3 = 0.0;
+
+		// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
+		for (int i = 0; i < steps; i++)
+			sum1 += sample.at(i);
+
+		//// assign singular values and rotational deg(ree)
+		//double sv1 = std::get<0>(ellipseArray->at(iIndex + jIndex * width));
+		//double sv2 = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
+		//double deg = std::get<2>(ellipseArray->at(iIndex + jIndex * width));
 
 		//// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
 		//for (int i = 0; i < steps; i++)
-		//	sum1 += sample.at(i);
+		//{
+		//	double sum = an.at(0); // initialize sum w. offset a0
+		//	// evaluate fourier coefficient array for magnitude at current angular position i*tinc
+		//	for (int j = 0; j < an.size(); j++)
+		//		sum += an.at(j)*cos(j*i*tinc) + bn.at(j)*sin(j*i*tinc);
+		//	sum1 += sum; // evaluate for iMean (sum1)
 
-		////// assign singular values and rotational deg(ree)
-		////double sv1 = std::get<0>(ellipseArray->at(iIndex + jIndex * width));
-		////double sv2 = std::get<1>(ellipseArray->at(iIndex + jIndex * width));
-		////double deg = std::get<2>(ellipseArray->at(iIndex + jIndex * width));
+		//	if(sv1 != 0 && sv2 != 0)
+		//		sum2 += sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); //--> ellipse equation, evaluate for tMean (sum2)
+		//	if (sv1 != 0 && sv2 != 0)
+		//		sum3 += sum * sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); // evaluate T*I for tiMean (sum2)
+		//}
 
-		////// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
-		////for (int i = 0; i < steps; i++)
-		////{
-		////	double sum = an.at(0); // initialize sum w. offset a0
-		////	// evaluate fourier coefficient array for magnitude at current angular position i*tinc
-		////	for (int j = 0; j < an.size(); j++)
-		////		sum += an.at(j)*cos(j*i*tinc) + bn.at(j)*sin(j*i*tinc);
-		////	sum1 += sum; // evaluate for iMean (sum1)
+		// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+		// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
+		double tMean = 1.0; //sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+		// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		double tiMean = iMean; //sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+		// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
+		double cFactor = tMean * iMean / tiMean;
 
-		////	if(sv1 != 0 && sv2 != 0)
-		////		sum2 += sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); //--> ellipse equation, evaluate for tMean (sum2)
-		////	if (sv1 != 0 && sv2 != 0)
-		////		sum3 += sum * sv1 * sv2 / sqrt(sv2*sv2*cos(i*tinc - deg)*cos(i*tinc - deg) + sv1 * sv1*sin(i*tinc - deg)*sin(i*tinc - deg)); // evaluate T*I for tiMean (sum2)
-		////}
-
-		//// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-		//double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
-		//// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
-		//double tMean = 1.0; //sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
-		//// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-		//double tiMean = iMean; //sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
-		//// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-		//double cFactor = tMean * iMean / tiMean;
-
-		//// cout << "cFactor: " << cFactor << endl;
-		//
-		////// prepare ctrArray for on-the-fly (implicit) normalization --> count mutual/common bin (discrete direction) occurences/hits in central directions
-		////for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
-		////{
-		////	unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-
-		////	// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-		////	if (!hood.getR() && nIndex == 0)
-		////		continue;
-		////	if (!hood.getT() && nIndex == 1)
-		////		continue;
-		////	if (!hood.getL() && nIndex == 2)
-		////		continue;
-		////	if (!hood.getB() && nIndex == 3)
-		////		continue;
-
-		////	// set theta variable to current central direction shifted by half an apertureAngle
-		////	double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
-		////	int index = round(offset / radres);
-		////	if (index < 0) // cyclic value permutation in case i negative
-		////		index = steps + index;
-		////	ctrArray->at(index)++; // increment ctrArray for normalization
-		////}
-
-
-		//// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		// cout << "cFactor: " << cFactor << endl;
+		
+		//// prepare ctrArray for on-the-fly (implicit) normalization --> count mutual/common bin (discrete direction) occurences/hits in central directions
 		//for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
 		//{
-		//	int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
-		//	int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
+		//	unsigned int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
 
-		//		// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-		//	if (!hood.getR() && (nIndex == 0 || dirIndex == 0))
+		//	// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+		//	if (!hood.getR() && nIndex == 0)
 		//		continue;
-		//	if (!hood.getT() && (nIndex == 1 || dirIndex == 1))
+		//	if (!hood.getT() && nIndex == 1)
 		//		continue;
-		//	if (!hood.getL() && (nIndex == 2 || dirIndex == 2))
+		//	if (!hood.getL() && nIndex == 2)
 		//		continue;
-		//	if (!hood.getB() && (nIndex == 3 || dirIndex == 3))
+		//	if (!hood.getB() && nIndex == 3)
 		//		continue;
 
 		//	// set theta variable to current central direction shifted by half an apertureAngle
-		//	double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
-		//	int index = std::round(offset / radres);
-
-		//	//if (index < 0)
-		//	//	index = 360 + index;
-		//	double aperture = apertureAngles.at(k);// / ctrArray->at(index);
-
-		//	// create # of steps for averaging
-		//	int lSteps = aperture / radres;
-		//	std::vector<double> area(steps, 0.0); // steps
-		//	// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
-		//
-		//	int shiftIndex = pi / (2 * radres);
-		//	int startIndex = centralDirections.at(k) / (radres);
-
-		//	for (int i = 0; i < steps; i++)
-		//		ctrArray.at(i) = 0;
-
-		//	for (int j = index; j < (index + lSteps); j++)
-		//	{
-		//		int j_index = j;
-		//	
-		//		if (j < 0)
-		//			j_index = j + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-		//		else if (j >= steps)
-		//			j_index = j - steps;
-		//		else
-		//			j_index = j;
-
-		//		for (int i = startIndex - shiftIndex; i < startIndex + shiftIndex; i++)
-		//		{
-		//			int i_index = i;
-		//			if (i < 0)
-		//				i_index = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
-		//			else if (i >= steps)
-		//				i_index = i - steps;
-		//			else
-		//				i_index = i;
-
-		//			area.at(i_index) += 0.3333/lSteps*1.0/(pi/2)*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
-		//		}
-		//	}
-		//	
-		//	// Conduction of Flow Samples //
-		//	switch (k)
-		//	{
-		//	case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-		//	case 1: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); // right neighbor (top)
-		//			sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
-		//	case 2: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); break; // right neighbor (top)
-		//	case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
-		//	case 4: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); // top neighbor (left)
-		//			sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break; // top neighbor (right)
-		//	case 5: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); break;// top neighbor (left)
-		//	case 6: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); break;// left neighbor (top)
-		//	case 7: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); // left neighbor (top)
-		//			sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-		//	case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
-		//	case 9: sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-		//	case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); // bottom neighbor (right)
-		//			sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
-		//	case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
-		//	}
-
+		//	double offset = centralDirections.at(k);// -apertureAngles.at(k) / 2.0;
+		//	int index = round(offset / radres);
+		//	if (index < 0) // cyclic value permutation in case i negative
+		//		index = steps + index;
+		//	ctrArray->at(index)++; // increment ctrArray for normalization
 		//}
-		//// set flag in process(ed) map for cell already processed
-		//processMap.at(iIndex + jIndex * width) = true;
+
+
+		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		for (int k = 0; k < centralDirections.size(); k++) // k - (Strahl-)keulenindex
+		{
+			int nIndex = k / 3; // create index to capture the 4 neighbors (in 2D)
+			int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
+
+				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+			if (!hood.getR() && (nIndex == 0 || dirIndex == 0))
+				continue;
+			if (!hood.getT() && (nIndex == 1 || dirIndex == 1))
+				continue;
+			if (!hood.getL() && (nIndex == 2 || dirIndex == 2))
+				continue;
+			if (!hood.getB() && (nIndex == 3 || dirIndex == 3))
+				continue;
+
+			// set theta variable to current central direction shifted by half an apertureAngle
+			double offset = centralDirections.at(k) - apertureAngles.at(k) / 2.0;
+			int index = std::round(offset / radres);
+
+			//if (index < 0)
+			//	index = 360 + index;
+			double aperture = apertureAngles.at(k);// / ctrArray->at(index);
+
+			// create # of steps for averaging
+			int lSteps = aperture / radres;
+			std::vector<double> area(steps, 0.0); // steps
+			// integrate over the profile T(w)*I(w) to obtain total intensity received by respective face (of current neighbor nIndex)
+		
+			int shiftIndex = pi / (2 * radres);
+			int startIndex = centralDirections.at(k) / (radres);
+
+			for (int i = 0; i < steps; i++)
+				ctrArray.at(i) = 0;
+
+			for (int j = index; j < (index + lSteps); j++)
+			{
+				int j_index = j;
+			
+				if (j < 0)
+					j_index = j + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
+				else if (j >= steps)
+					j_index = j - steps;
+				else
+					j_index = j;
+
+				for (int i = startIndex - shiftIndex; i < startIndex + shiftIndex; i++)
+				{
+					int i_index = i;
+					if (i < 0)
+						i_index = i + 360; // cyclic value permutation in case i exceeds the full circle degree 2pi
+					else if (i >= steps)
+						i_index = i - steps;
+					else
+						i_index = i;
+
+					area.at(i_index) += 0.3333/lSteps*1.0/(pi/2)*sample.at(j_index)*clip(cos((j_index - i_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
+				}
+			}
+			
+			// Conduction of Flow Samples //
+			switch (k)
+			{
+			case 0: sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
+			case 1: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); // right neighbor (top)
+					sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex + 2 + (jIndex + 1) * (width + 1)); break; // right neighbor (bottom)
+			case 2: sampleArray->at(iIndex + 2 + jIndex * (width + 1)) = area + sampleArray->at(iIndex + 2 + jIndex * (width + 1)); break; // right neighbor (top)
+			case 3: sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break;// = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * width); break; // top neighbor (right)
+			case 4: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); // top neighbor (left)
+					sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex - 1) * (width + 1)); break; // top neighbor (right)
+			case 5: sampleArray->at(iIndex + (jIndex - 1) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex - 1) * (width + 1)); break;// top neighbor (left)
+			case 6: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); break;// left neighbor (top)
+			case 7: sampleArray->at(iIndex - 1 + jIndex * (width + 1)) = area + sampleArray->at(iIndex - 1 + jIndex * (width + 1)); // left neighbor (top)
+					sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
+			case 8: sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)) = area + sampleArray->at(iIndex - 1 + (jIndex + 1) * (width + 1)); break;// left neighbor (bottom)
+			case 9: sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
+			case 10: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); // bottom neighbor (right)
+					sampleArray->at(iIndex + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + (jIndex + 2) * (width + 1)); break; // bottom neighbor (left)
+			case 11: sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)) = area + sampleArray->at(iIndex + 1 + (jIndex + 2) * (width + 1)); break; // bottom neighbor (right)
+			}
+
+		}
+		// set flag in process(ed) map for cell already processed
+		processMap.at(iIndex + jIndex * width) = true;
 	}
 };
 
@@ -1045,14 +1067,18 @@ int main(int argc, char* argv[])
 	std::vector<std::string> functionStr(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string> functionStrEllipse(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 
+	//// create fourier (CH) coefficients array (grid)
+	//std::array<double, 21> init; init.fill(0.0); // create a std::vector w. n elements initialized to 0..
+	//std::array<std::array<double, 21>, 2> initArray; // create an initArray to represent packed (zipped) fourier coeff. vectors
+	//initVector.fill(init);
+	//std::vector<std::array<std::array<double, 21>, 2>> coefficientArray(dim, initArray); // ..use it to initialize the coefficient array w. dim elements
+
 	double tinc = 2 * pi / 72;
 	double radres = 0.01745;
 	int steps = 2 * pi / radres;
 
-	// define dual buffers for propagation
 	std::vector<double> initArray(steps, 0.0);
-	std::vector<std::vector<double>> sampleBufferA((width)*(height), initArray);
-	std::vector<std::vector<double>> sampleBufferB((width)*(height), initArray);
+	std::vector<std::vector<double>> sampleArray((width+1)*(height+1), initArray);
 	//
 	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
 	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // ..use it to initialize the coefficient array w. dim elements
@@ -1068,19 +1094,63 @@ int main(int argc, char* argv[])
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
-	sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
+	sample(strFunction, sampleArray, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
+	//coefficientArray.at(i + j * width) = calcCoeff(strFunction);// form coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
 
-	// DUAL BUFFER PROPAGATION //
+	// compute distances to center point
+	int deltaJ = abs(width / 2 - jIndex);
+	int deltaI = abs(width / 2 - iIndex);
+	// create minRadius to determine propRadius (propagation radius: necessary to reach all cells!)
+	int minRadius = width - 1; // use larger grid radius to reach outer cells in diagonal propagation - adjust for varying light src position
+	// create propagation radius for propagation scheme - deltas added to minRadius!
+	int propRadius;
+	if (width%2 == 0) // if even grid
+		propRadius = deltaI + deltaJ + minRadius + 1;
+	else // ..odd grid
+		propRadius = deltaI + deltaJ + minRadius;
+
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
+	propagator prop(dim, &functionStr, &sampleArray, &functionStrEllipse, &ellipseArray);
 
-	double thresh = 0.000001;
-	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
-	for(int i = 0; i < 3; i++)
+	std::cout << "before propagation..propagating.." << endl;
+
+	// PROPAGATION SCHEME START //
+	for (int p = 1; p <= propRadius; p++) // ..walk along diagonals to encircle point light for unbiased radial propagation
 	{
-		prop.propagate(); // propagate until finished..
-		sampleBufferA = sampleBufferB;
-		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
+		if (p==1)
+			prop.propagate(jIndex, iIndex); // propagate from the light src position
+
+		jIndex += 0; iIndex += 1; // 0 degrees... -> step right once each iteration, except in step 1
+		if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+			prop.propagate(jIndex, iIndex); // .. propagate from this cell
+
+		for (int l = 0; l < p - 1; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex -= 1; iIndex += 1; // + 45 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
+
+		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex -= 1; iIndex -= 1; // + 135 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
+
+		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex -= 1; // - 135 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
+
+		for (int l = 0; l < p; l++) // perform p steps of incrementation/decrementation
+		{
+			jIndex += 1; iIndex += 1; // - 45 degrees
+			if (iIndex >= 0 && jIndex >= 0 && jIndex < height && iIndex < width) // if inside frame (window)..
+				prop.propagate(jIndex, iIndex); // .. propagate from this cell
+		}
 	}
 
 	//maintainFunctionStrings(&functionStr, &coefficientArray);
@@ -1174,7 +1244,7 @@ int main(int argc, char* argv[])
 	// add pre-computed function as string
 	for (int i = 0; i < dim; i++)
 	{
-		funcs.push_back(polarPlot(sampleBufferA.at(i), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
+		funcs.push_back(polarPlot(sampleArray.at(i%width + i/width*(width+1)), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
 		funcsEllipses.push_back(polarPlot(functionStrEllipse.at(i), drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, green));
 	}
 
@@ -1238,7 +1308,7 @@ int main(int argc, char* argv[])
 			defineConvexEllipse(&ellipse, 2.0, 2.0, quality);
 			ellipse.setPosition(offsetX, offsetY); // set ellipse position
 
-			funcs.at(i).animation(i, 0, sampleBufferA);
+			funcs.at(i).animation(i, 0, sampleArray);
 			funcsEllipses.at(i).animation(i, 1);
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
