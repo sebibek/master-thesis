@@ -116,8 +116,9 @@ class myPair
 		}
 };
 
-myPair lightSrcPos;
-
+// create pair for light src position (j,i)
+myPair lightSrcPos{ width / 2, width / 2 };
+bool parallel = false;
 // OPERATOR DEFINITIONS //
 
 void parse_options(int argc, char* argv[]) {
@@ -127,15 +128,14 @@ void parse_options(int argc, char* argv[]) {
 	std::string size_opt = "-1";
 	std::string directory_opt = "";
 	std::string light_opt = "-1";
+	std::string parallel_opt = "-1";
 	//	extern char *optarg;
 	//	extern int optind, optopt;
 
 	//using getopts 
-	while ((c = getopt(argc, argv, "fs:r:d:l:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
+	while ((c = getopt(argc, argv, "fs:r:d:l:p:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
 	{
 		int f = -1, s = -1;
-		// create pair for light src position (j,i)
-		lightSrcPos = { width / 2, width / 2 };
 
 		switch (c) 
 		{
@@ -143,6 +143,11 @@ void parse_options(int argc, char* argv[]) {
 		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
+			break;
+		}
+		case 'p': {
+			parallel_opt.assign(optarg);
+			std::istringstream(parallel_opt) >> parallel;
 			break;
 		}
 		case 'f': {
@@ -184,6 +189,10 @@ void parse_options(int argc, char* argv[]) {
 				break;
 			case 'l':
 				std::cerr << "option -l requires argument, using default position (center-point)\n";
+				lightSrcPos = { width / 2, width / 2 };
+				break;
+			case 'p':
+				std::cerr << "option -p requires argument, using default position (center-point)\n";
 				lightSrcPos = { width / 2, width / 2 };
 				break;
 			}
@@ -585,32 +594,6 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
-
-void maintainFunctionStrings(std::vector<std::string>* fStr, std::vector<std::array<std::array<double, 21>, 2>>* coeffArray)
-{
-	for (int i = 0; i < fStr->size(); i++)
-	{
-		double thresh = 0.0001;
-		// assign member coefficient arrays for evaluating current light profile... get from current position (jIndex,iIndex)
-		std::array<double, 21> an = coeffArray->at(i).front(); // ..cosine coefficient vector
-		std::array<double, 21> bn = coeffArray->at(i).back(); // ..sine coefficient vector
-
-		// create fString w. a0 (offset)
-		std::string fString = std::to_string(an.front());
-
-		// set up Fourier Series expansion as str expression for the evaluation of the fourier serier (polar function/curve) for each grid cell (j,i)
-		for (int i = 1; i < an.size(); i++)
-		{
-			if (i > 1 && (bn.at(i) < thresh && an.at(i) < thresh && an.at(i - 1) < thresh && bn.at(i - 1) < thresh)) // if threshold exceeded..
-				break; // abort Fourier series expansion to obtain shorter functionStrings (approximations)
-			fString += "+" + std::to_string(an.at(i)) + "*cos(" + std::to_string(i) + "*theta)" + "+" + std::to_string(bn.at(i)) + "*sin(" + std::to_string(i) + "*theta)";
-		}
-
-		// update current functionStr w. fString to maintain the polar functions in gríd
-		fStr->at(i) = fString;
-	}
-}
-
 void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std::tuple<double, double, double>>& ellipseArray)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
@@ -775,8 +758,6 @@ class propagator
 
 	std::array<int, 4> centralEdgeIndex{ 0,1,2,3 };
 
-
-
 	// define function parser (muparser)
 	double tinc = 2 * pi / 72; // set theta increment tinc
 	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
@@ -840,7 +821,7 @@ public:
 			default: break;
 		}
 	}
-	void propagate()
+	void propagate(bool parallel = false)
 	{		
 
 		for (int h = 0; h < steps; h++)
@@ -852,8 +833,12 @@ public:
 				for (int j = 0; j < 4; j++)
 				{
 					sample = std::vector<double>(steps, 0.0);
-					for (int k = 0; k < steps; k++)
-						sample.at(k) += pos/steps * abs(sampleBufferA->at(i).at(k)*cos(k*radres + ((j + 1) % 2 * pi / 2)));
+					if (parallel)
+						for (int k = 0; k < steps; k++)
+							sample.at(k) += pos / steps * abs(sampleBufferA->at(i).at(k)*cos(k*radres + (j % 2 * pi / 2)));
+					else
+						for (int k = 0; k < steps; k++)
+							sample.at(k) += pos / steps * abs(sampleBufferA->at(i).at(k)*cos(k*radres + ((j + 1) % 2 * pi / 2)));
 
 					assignNodes(j, i);
 				}
@@ -1004,8 +989,8 @@ int main(int argc, char* argv[])
 	functionString = circle; // set circular (isotroic) profile for light src
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
 	sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
-
-	// DUAL BUFFER PROPAGATION //
+	//parallel = true;
+																	   // DUAL BUFFER PROPAGATION //
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
 
@@ -1013,7 +998,7 @@ int main(int argc, char* argv[])
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 	for(int i = 0; i < 3; i++)
 	{
-		prop.propagate(); // propagate until finished..
+		prop.propagate(parallel); // propagate until finished..
 		sampleBufferA = sampleBufferB;
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 		sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // overwrite (stamp) light src in BufferA
