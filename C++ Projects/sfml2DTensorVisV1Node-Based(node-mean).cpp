@@ -116,8 +116,10 @@ class myPair
 		}
 };
 
-myPair lightSrcPos;
-
+// create pair for light src position (j,i)
+myPair lightSrcPos{ width / 2, width / 2 };
+bool parallel = false;
+bool backprop = false;
 // OPERATOR DEFINITIONS //
 
 void parse_options(int argc, char* argv[]) {
@@ -127,15 +129,15 @@ void parse_options(int argc, char* argv[]) {
 	std::string size_opt = "-1";
 	std::string directory_opt = "";
 	std::string light_opt = "-1";
+	std::string parallel_opt = "-1";
+	std::string backprop_opt = "-1";
 	//	extern char *optarg;
 	//	extern int optind, optopt;
 
 	//using getopts 
-	while ((c = getopt(argc, argv, "fs:r:d:l:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
+	while ((c = getopt(argc, argv, "fs:r:d:l:p:b:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
 	{
 		int f = -1, s = -1;
-		// create pair for light src position (j,i)
-		lightSrcPos = { width / 2, width / 2 };
 
 		switch (c) 
 		{
@@ -143,6 +145,16 @@ void parse_options(int argc, char* argv[]) {
 		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
+			break;
+		}
+		case 'p': {
+			parallel_opt.assign(optarg);
+			std::istringstream(parallel_opt) >> parallel;
+			break;
+		}
+		case 'b': {
+			backprop_opt.assign(optarg);
+			std::istringstream(backprop_opt) >> backprop;
 			break;
 		}
 		case 'f': {
@@ -184,6 +196,10 @@ void parse_options(int argc, char* argv[]) {
 				break;
 			case 'l':
 				std::cerr << "option -l requires argument, using default position (center-point)\n";
+				lightSrcPos = { width / 2, width / 2 };
+				break;
+			case 'p':
+				std::cerr << "option -p requires argument, using default position (center-point)\n";
 				lightSrcPos = { width / 2, width / 2 };
 				break;
 			}
@@ -747,12 +763,17 @@ class propagator
 	std::string fString = "0.0";
 	std::string fStringEllipse = "0.0";
 
+	int jIndex = 0;
+	int iIndex = 0;
+
+
 	std::array<int, 4> centralEdgeIndex{ 0,1,2,3 };
 
 	// define function parser (muparser)
 	double tinc = 2 * pi / 72; // set theta increment tinc
 	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
 	int steps = (2 * pi) / radres;
+	int stepsQuarter = steps / 4;
 
 	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
 	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
@@ -774,11 +795,13 @@ class propagator
 	std::vector<bool> processMapNodes; // create a binary process(ed) map
 
 public:
-	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((height)*(width), false), processMapNodes((height)*(width), false), ctrArray(steps,0)
+	propagator(const int dim, const int j, const int i, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((height)*(width), false), processMapNodes((height)*(width), false), ctrArray(dim, 0)
 	{
 		// initialize member sample w. 0
 		//sample = std::vector<double>(steps, 0.0);
-
+		// assign light src position indices
+		jIndex = j;
+		iIndex = i;
 		// assign ptrs to member vectors
 		functionStr = fStr;
 		functionStrEllipse = fStrEllipse;
@@ -802,34 +825,126 @@ public:
 		if (!hood.getB() && j == 3)
 			return;
 
-		switch (j)
+		// create forward flags for propagation w.r.t to light src position jIndex, iIndex
+		bool fw0 = true;
+		bool fw1 = true;
+		bool fw2 = true;
+		bool fw3 = true;
+
+		if (!backprop)
 		{
-			case 0: sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; break;
-			case 1: sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; break;
-			case 2: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; break;
-			case 3: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; break;
+			if (i%width < iIndex)
+				fw0 = false;
+			if (i / width > jIndex)
+				fw1 = false;
+			if (i % width > iIndex)
+				fw2 = false;
+			if (i / width < jIndex)
+				fw3 = false;
+		}
+		
+		switch (j) // propagate correspondent to each edge dir w.r.t forward edges
+		{
+			case 0: if (fw0)
+						{sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; ctrArray.at(i + 1)++;} break;
+			case 1: if (fw1)
+						{sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample;ctrArray.at(i - width)++;} break;
+			case 2: if (fw2)
+						{sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample;ctrArray.at(i - 1)++;} break;
+			case 3: if (fw3)
+						{sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample;ctrArray.at(i + width)++;} break;
 
 			default: break;
 		}
 	}
-	void propagate()
-	{		
-
-		for (int h = 0; h < steps; h++)
+	void propagate(bool parallel = false)
+	{
+		std::fill(ctrArray.begin(), ctrArray.end(), 0);
+		double factor = 1.0;// 1.0 / steps;
+		// 1 propagation cycle
+		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			double pos = 1.0 - static_cast<double>(h) / (steps - 1);
-			// 1 propagation cycle
-			for (int i = 0; i < sampleBufferA->size(); i++)
+			for (int j = 0; j < 4; j++) // for each adjacent edge...
 			{
-				for (int j = 0; j < 4; j++)
+				// create neighborhood, for tagging non-existent neighbors..
+				neighborhood hood(i / width, i%width, width, processMap);
+
+				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+				if (!hood.getR() && j == 0)
+					continue;
+				if (!hood.getT() && j == 1)
+					continue;
+				if (!hood.getL() && j == 2)
+					continue;
+				if (!hood.getB() && j == 3)
+					continue;
+
+				for (int k = 0; k < steps; k++) // for each step (along edge)..
 				{
+					// define weights for linear interpolation
+					double weight = static_cast<double>(k) / (steps - 1);
+					double pos = 1.0 - static_cast<double>(k) / (steps - 1);
+					// empty (reset) sample for each edge
 					sample = std::vector<double>(steps, 0.0);
-					for (int k = 0; k < steps; k++)
-						sample.at(k) += pos/steps * abs(sampleBufferA->at(i).at(k)*cos(k*radres + ((j + 1) % 2 * pi / 2)));
+					if (parallel)
+					{
+						switch (j)
+						{
+						case 0:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + 1).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
+							break;
+						case 1:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - width).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
+							break;
+						case 2:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - 1).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
+							break;
+						case 3:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + width).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
+							break;
+
+						default: break;
+						}
+					}
+					else
+					{
+						switch (j)
+						{
+						case 0:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + 1).at(l))*abs(cos(l*radres + (j+1) % 2 * pi / 2));
+							break;
+						case 1:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - width).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+							break;
+						case 2:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - 1).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+							break;
+						case 3:
+							for (int l = 0; l < steps; l++)
+								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + width).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+							break;
+
+						default: break;
+						}
+					}
 
 					assignNodes(j, i);
 				}
 			}
+			
+		}
+
+		for (int i = 0; i < width*height; i++) // for each node..
+		{
+			if (ctrArray.at(i) != 0)
+				sampleBufferB->at(i) = 1.0 / ctrArray.at(i) * sampleBufferB->at(i);
 		}
 		//// compute adjacent dual grid indices (cnf. block command -MatrixXd) - jIndex,iIndex meant to be dual grid interpolation positions starting from light src
 		//std::array<int, 2> init{ jIndex,iIndex };
@@ -976,16 +1091,16 @@ int main(int argc, char* argv[])
 	functionString = circle; // set circular (isotroic) profile for light src
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
 	sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
-
-	// DUAL BUFFER PROPAGATION //
+	//parallel = true;
+																	   // DUAL BUFFER PROPAGATION //
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
+	propagator prop(dim, jIndex, iIndex, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
 
 	double thresh = 0.000001;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 5; i++)
 	{
-		prop.propagate(); // propagate until finished..
+		prop.propagate(parallel); // propagate until finished..
 		sampleBufferA = sampleBufferB;
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 		sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // overwrite (stamp) light src in BufferA
