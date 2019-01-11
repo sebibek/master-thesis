@@ -120,6 +120,7 @@ class myPair
 myPair lightSrcPos{ width / 2, width / 2 };
 bool parallel = false;
 bool backprop = false;
+bool reverse_interpolation = false;
 // OPERATOR DEFINITIONS //
 
 void parse_options(int argc, char* argv[]) {
@@ -131,11 +132,12 @@ void parse_options(int argc, char* argv[]) {
 	std::string light_opt = "-1";
 	std::string parallel_opt = "-1";
 	std::string backprop_opt = "-1";
+	std::string reverse_interpolation_opt = "-1";
 	//	extern char *optarg;
 	//	extern int optind, optopt;
 
 	//using getopts 
-	while ((c = getopt(argc, argv, "fs:r:d:l:p:b:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
+	while ((c = getopt(argc, argv, "fs:a:d:l:p:b:r:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
 	{
 		int f = -1, s = -1;
 
@@ -157,10 +159,15 @@ void parse_options(int argc, char* argv[]) {
 			std::istringstream(backprop_opt) >> backprop;
 			break;
 		}
+		case 'r': {
+			reverse_interpolation_opt.assign(optarg);
+			std::istringstream(reverse_interpolation_opt) >> reverse_interpolation;
+			break;
+		}
 		case 'f': {
 			fullscreen = true;
 			break; }
-		case 'r':
+		case 'a':
 			frameskip_opt.assign(optarg);
 			std::istringstream(frameskip_opt) >> f;
 			if (f <= -1) {
@@ -810,60 +817,49 @@ public:
 		ellipseArray = ellipseArr;
 	}
 
-	void assignNodes(int j, int i) // --> j: edge index, i: sample index
-	{
-		// create neighborhood, for tagging non-existent neighbors..
-		neighborhood hood(i / width, i%width, width, processMap);
-
-		// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-		if (!hood.getR() && j == 0)
-			return;
-		if (!hood.getT() && j == 1)
-			return;
-		if (!hood.getL() && j == 2)
-			return;
-		if (!hood.getB() && j == 3)
-			return;
-
-		// create forward flags for propagation w.r.t to light src position jIndex, iIndex
-		bool fw0 = true;
-		bool fw1 = true;
-		bool fw2 = true;
-		bool fw3 = true;
-
-		if (!backprop)
-		{
-			if (i%width < iIndex)
-				fw0 = false;
-			if (i / width > jIndex)
-				fw1 = false;
-			if (i % width > iIndex)
-				fw2 = false;
-			if (i / width < jIndex)
-				fw3 = false;
-		}
-		
-		switch (j) // propagate correspondent to each edge dir w.r.t forward edges
-		{
-			case 0: if (fw0)
-						{sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; ctrArray.at(i + 1)++;} break;
-			case 1: if (fw1)
-						{sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample;ctrArray.at(i - width)++;} break;
-			case 2: if (fw2)
-						{sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample;ctrArray.at(i - 1)++;} break;
-			case 3: if (fw3)
-						{sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample;ctrArray.at(i + width)++;} break;
-
-			default: break;
-		}
-	}
 	void propagate(bool parallel = false)
 	{
 		std::fill(ctrArray.begin(), ctrArray.end(), 0);
-		double factor = 1.0;// 1.0 / steps;
+		double factor = 1.0 / steps;
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
+			// create forward flags for propagation w.r.t to light src position jIndex, iIndex
+			bool fw0 = true;
+			bool fw1 = true;
+			bool fw2 = true;
+			bool fw3 = true;
+
+			if (!backprop)
+			{
+				if (i%width < iIndex)
+					fw0 = false;
+				if (i / width > jIndex)
+					fw1 = false;
+				if (i % width > iIndex)
+					fw2 = false;
+				if (i / width < jIndex)
+					fw3 = false;
+			}
+
+			// create forward flags for interpolation w.r.t to light src position jIndex, iIndex
+			bool bw0 = true;
+			bool bw1 = true;
+			bool bw2 = true;
+			bool bw3 = true;
+
+			if (!reverse_interpolation)
+			{
+				if (i%width >= iIndex)
+					bw0 = false;
+				if (i / width <= jIndex)
+					bw1 = false;
+				if (i % width <= iIndex)
+					bw2 = false;
+				if (i / width >= jIndex)
+					bw3 = false;
+			}
+
 			for (int j = 0; j < 4; j++) // for each adjacent edge...
 			{
 				// create neighborhood, for tagging non-existent neighbors..
@@ -879,66 +875,141 @@ public:
 				if (!hood.getB() && j == 3)
 					continue;
 
+				// empty (reset) sample for each edge
+				sample = std::vector<double>(steps, 0.0);
+
 				for (int k = 0; k < steps; k++) // for each step (along edge)..
 				{
 					// define weights for linear interpolation
 					double weight = static_cast<double>(k) / (steps - 1);
 					double pos = 1.0 - static_cast<double>(k) / (steps - 1);
-					// empty (reset) sample for each edge
-					sample = std::vector<double>(steps, 0.0);
-					if (parallel)
-					{
-						switch (j)
-						{
-						case 0:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + 1).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
-							break;
-						case 1:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - width).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
-							break;
-						case 2:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - 1).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
-							break;
-						case 3:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + width).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
-							break;
 
-						default: break;
+					for (int l = 0; l < steps; l++) // for each step along dir..
+					{
+						if (parallel)
+						{
+							switch (j)
+							{
+							case 0:	if (bw0)
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + 1).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
+									else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight*0.0) *abs(cos(l*radres + j % 2 * pi / 2));
+									break;
+							case 1: if (bw1)
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - width).at(l))*abs(cos(l*radres + j % 2 * pi / 2)); 
+								   else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight *0.0)*abs(cos(l*radres + j % 2 * pi / 2));
+									break;
+							case 2: if (bw2)
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - 1).at(l))*abs(cos(l*radres + j % 2 * pi / 2)); 
+									else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * 0.0)*abs(cos(l*radres + j % 2 * pi / 2));
+								break;
+							case 3: if (bw3)	
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + width).at(l))*abs(cos(l*radres + j % 2 * pi / 2));
+									else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * 0.0)*abs(cos(l*radres + j % 2 * pi / 2));
+									break;
+							default: break;
+							}
+						}
+						else
+						{
+							switch (j)
+							{
+							case 0:	if (bw0)
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + 1).at(l))*abs(cos(l*radres + (j+1) % 2 * pi / 2));
+									else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * 0.0) *abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+									break;
+							case 1: if (bw1)
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - width).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+									else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * 0.0)*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+									break;
+							case 2: if (bw2)
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - 1).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+									else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * 0.0)*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+									break;
+							case 3: if (bw3)
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + width).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+									else
+										sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * 0.0)*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
+									break;
+							default: break;
+							}
 						}
 					}
-					else
+				}
+				
+				bool content = false;
+				double sum = 0.0;
+				for (int l = 0; l < steps; l++) // for each step along dir..
+					sum += sample.at(l);
+					
+				if (sum/steps > thresh)
+					content = true; 
+
+				if (content)
+				{
+					switch (j) // propagate correspondent to each edge dir w.r.t forward edges
 					{
-						switch (j)
+					case 0: if (fw0)
+					{
+						sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; ctrArray.at(i + 1)++;
+						if (hood.getR() && hood.getB() && fw3)
 						{
-						case 0:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + 1).at(l))*abs(cos(l*radres + (j+1) % 2 * pi / 2));
-							break;
-						case 1:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - width).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
-							break;
-						case 2:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i - 1).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
-							break;
-						case 3:
-							for (int l = 0; l < steps; l++)
-								sample.at(l) += factor * (pos*sampleBufferA->at(i).at(l) + weight * sampleBufferA->at(i + width).at(l))*abs(cos(l*radres + (j + 1) % 2 * pi / 2));
-							break;
-
-						default: break;
+							sampleBufferB->at((i + width) + 1) = sampleBufferB->at((i + width) + 1) + sample; ctrArray.at((i + width) + 1)++;
 						}
-					}
+						if (hood.getR() && hood.getT() && fw1)
+						{
+							sampleBufferB->at(i - width + 1) = sampleBufferB->at(i - width + 1) + sample; ctrArray.at(i - width + 1)++;
+						}
+					} break;
+					case 1: if (fw1)
+					{
+						sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; ctrArray.at(i - width)++;
 
-					assignNodes(j, i);
+						if (hood.getT() && hood.getR() && fw0)
+						{
+							sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + sample; ctrArray.at(i + 1 - width)++;
+						}
+						if (hood.getL() && hood.getT() && fw2)
+						{
+							sampleBufferB->at(i - width - 1) = sampleBufferB->at(i - width - 1) + sample; ctrArray.at(i - width - 1)++;
+						}
+					} break;
+					case 2: if (fw2)
+					{
+						sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; ctrArray.at(i - 1)++;
+						if (hood.getB() && hood.getL() && fw3)
+						{
+							sampleBufferB->at(i - 1 + width) = sampleBufferB->at((i - 1) + width) + sample; ctrArray.at(i - 1 + width)++;
+						}
+						if (hood.getT() && hood.getL() && fw1)
+						{
+							sampleBufferB->at(i - 1 - width) = sampleBufferB->at((i - 1) - width) + sample; ctrArray.at(i - 1 - width)++;
+						}
+					} break;
+					case 3: if (fw3)
+					{
+						sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; ctrArray.at(i + width)++;
+
+						if (hood.getL() && hood.getB() && fw2)
+						{
+							sampleBufferB->at((i + width) - 1) = sampleBufferB->at((i + width) - 1) + sample; ctrArray.at((i + width) - 1)++;
+						}
+						if (hood.getB() && hood.getR() && fw0)
+						{
+							sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + sample; ctrArray.at(i + 1 + width)++;
+						}
+					} break;
+
+					default: break;
+					}
 				}
 			}
-			
 		}
 
 		for (int i = 0; i < width*height; i++) // for each node..

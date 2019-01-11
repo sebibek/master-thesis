@@ -944,26 +944,37 @@ public:
 					}
 				}
 				
-				switch (j) // propagate correspondent to each edge dir w.r.t forward edges
-				{
-				case 0: if (fw0)
-				{
-					sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; ctrArray.at(i + 1)++;
-				} break;
-				case 1: if (fw1)
-				{
-					sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; ctrArray.at(i - width)++;
-				} break;
-				case 2: if (fw2)
-				{
-					sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; ctrArray.at(i - 1)++;
-				} break;
-				case 3: if (fw3)
-				{
-					sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; ctrArray.at(i + width)++;
-				} break;
+				bool content = false;
+				double sum = 0.0;
+				for (int l = 0; l < steps; l++) // for each step along dir..
+					sum += sample.at(l);
 
-				default: break;
+				if (sum / steps > thresh)
+					content = true;
+
+				if (content)
+				{
+					switch (j) // propagate correspondent to each edge dir w.r.t forward edges
+					{
+					case 0: if (fw0)
+					{
+						sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; ctrArray.at(i + 1)++;
+					} break;
+					case 1: if (fw1)
+					{
+						sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; ctrArray.at(i - width)++;
+					} break;
+					case 2: if (fw2)
+					{
+						sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; ctrArray.at(i - 1)++;
+					} break;
+					case 3: if (fw3)
+					{
+						sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; ctrArray.at(i + width)++;
+					} break;
+
+					default: break;
+					}
 				}
 			}
 			
