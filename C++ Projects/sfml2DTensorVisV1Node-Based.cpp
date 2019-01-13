@@ -1114,6 +1114,7 @@ int main(int argc, char* argv[])
 	std::vector<double> initArray(steps, 0.0);
 	std::vector<std::vector<double>> sampleBufferA((width)*(height), initArray);
 	std::vector<std::vector<double>> sampleBufferB((width)*(height), initArray);
+	std::vector<std::vector<double>> sampleBufferMem((width)*(height), initArray);
 	//
 	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
 	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // ..use it to initialize the coefficient array w. dim elements
@@ -1136,17 +1137,22 @@ int main(int argc, char* argv[])
 	propagator prop(dim, jIndex, iIndex, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
 
 	double thresh = 0.000001;
+	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
-	for(int i = 0; i < 5; i++)
+	while (!finished)
 	{
 		prop.propagate(parallel); // propagate until finished..
 		sampleBufferA = sampleBufferB;
-		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 		sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // overwrite (stamp) light src in BufferA
+		if (sampleBufferA == sampleBufferMem)
+			finished = true;
+		sampleBufferMem = sampleBufferA;
+		
+		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
 
 	//maintainFunctionStrings(&functionStr, &coefficientArray);
-	cout << "..after propagation" << endl;
+	cout << "..after propagation, ctr:" << endl;
 	// PROPAGATION SCHEME END //
 
 	// TESTS START //
