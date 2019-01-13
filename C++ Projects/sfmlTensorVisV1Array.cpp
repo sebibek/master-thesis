@@ -762,7 +762,7 @@ public:
 			{
 				double intensity = an.front(); // initialize sum w. offset a0
 				// evaluate fourier coefficient array for magnitude at current angular position i*tinc
-				for (int j = 1; j < an.size(); j++)
+				for (int j = 1; j < an.size(); j++) // BIG ERROR FIXED: varying function shift corresponding to frequency necessary! TODO: fix in string versions!!!
 					intensity += (an.at(j)*cos(j*(i + shiftIndex)*tinc) + bn.at(j)*sin(j*(i + shiftIndex)*tinc))*sv1 * sv2 / sqrt(sv2*sv2*cos(j*(i + shiftIndex)*tinc - deg)*cos(j*(i + shiftIndex)*tinc - deg) + sv1 * sv1*sin(j*(i + shiftIndex)*tinc - deg)*sin(j*(i + shiftIndex)*tinc - deg));
 
 				area += intensity; // integrate over angle in cart. coordinates (int(I(w),0,2Pi) to obtain total luminous flux (power) received by adjacent cell faces
