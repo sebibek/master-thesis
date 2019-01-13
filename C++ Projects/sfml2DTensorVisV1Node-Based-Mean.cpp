@@ -1,22 +1,4 @@
-#define _USE_MATH_DEFINES
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include "muParser.h"
-#include <cmath>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <unistd.h>
-#include <math.h>
-#include "exprtk.hpp"
-#include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
-#include <algorithm>
-#include <functional>
-#include <array>
-#include <filesystem>
-#include <sstream>
-#include <string>
+// INLINE DEFINES
 
 #ifdef WINDOWS
 #include <direct.h>
@@ -27,31 +9,68 @@
 #endif
 
 #define MAXBUFSIZE  ((int) 1e3)
+#define _USE_MATH_DEFINES
 
+// INCLUDES (IMPORTS)
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include "muParser.h"
+#include <sstream>
+#include <fstream>
+#include <vector>
+#include <unistd.h>
+#include <math.h>
+#include "exprtk.hpp"
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
+#include <array>
+#include <filesystem>
+#include <string>
+//#include <algorithm>
+//#include <functional>
+//#include <cmath>
+
+// NAMESPACE IMPORTS
 using namespace std;
 using namespace Eigen;
 using namespace mu;
 
 // PROTOTYPES
-std::string functionString; // Prototyping of functionString for strFunction!
+std::string functionString; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
+template <typename T>
+T clip(const T& n, const T& lower, const T& upper); // template clip function
 
 //length and width of window
 int wSize = 700;
 sf::Vector2i windowsize;
 
-//recording frameskip 
-int record_frameskip = 0; // --> disables recording
-
-//directory to write images to, must exist
-std::string record_folder = "frames";
-
-//fullscreen flag
-bool fullscreen = false;
-
 //definition of pi
 const double pi = M_PI;
+
+// GENERIC FUNCTION DEFINITIONS
+
+// -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
+static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
+
+//writes frames to file 
+//directory must already exist -- parse file methods
+void record(sf::RenderTexture& in, int frameskip, std::string directory)
+{
+	// create frame index
+	static int frame = 0;
+
+	if (frameskip > 0 && frame % frameskip == 0) {
+		in.display();
+		sf::Texture outTx = in.getTexture();
+		sf::Image outImg = outTx.copyToImage();
+		std::stringstream ugh;
+		ugh << directory << "/" << frame << ".png";
+		outImg.saveToFile(ugh.str());
+	}
+	frame++;
+}
 
 // get current working directory to assign matrix.txt path
 std::string GetCurrentWorkingDir(void) {
@@ -73,222 +92,8 @@ void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radiu
 	}
 }
 
-
-// OPERATORS
-template <typename T>
-T clip(const T& n, const T& lower, const T& upper) // template clip function
-{
-	return std::max(lower, std::min(n, upper));
-}
-
-// -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
-static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
-
-//template <typename T1, typename T2>
-class myPair
-{			
-	public:
-		int jIndex = width / 2;
-		int iIndex = width / 2;
-
-		myPair() {}
-		myPair(int j, int i)
-		{
-			jIndex = j;
-			iIndex = i;
-		}
-	
-		friend istringstream& operator>>(istringstream& stream, myPair& pair)
-		{
-			std::string token;
-			int i = 0;
-			while (getline(stream, token, ','))
-			{
-				if (i == 0)
-					pair.jIndex = std::stoi(token);
-				else
-					pair.iIndex = std::stoi(token);
-				i++;
-			}
-
-
-			return stream;
-		}
-};
-
-// create pair for light src position (j,i)
-myPair lightSrcPos{ width / 2, width / 2 };
-bool parallel = false;
-bool backprop = false;
-bool reverse_interpolation = false;
-// OPERATOR DEFINITIONS //
-
-void parse_options(int argc, char* argv[]) {
-
-	int c;
-	std::string frameskip_opt = "-1";
-	std::string size_opt = "-1";
-	std::string directory_opt = "";
-	std::string light_opt = "-1";
-	std::string parallel_opt = "-1";
-	std::string backprop_opt = "-1";
-	std::string reverse_interpolation_opt = "-1";
-	//	extern char *optarg;
-	//	extern int optind, optopt;
-
-	//using getopts 
-	while ((c = getopt(argc, argv, "fs:a:d:l:p:b:r:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
-	{
-		int f = -1, s = -1;
-
-		switch (c) 
-		{
-		// correct option use
-		case 'l': {
-			light_opt.assign(optarg);
-			std::istringstream(light_opt) >> lightSrcPos;
-			break;
-		}
-		case 'p': {
-			parallel_opt.assign(optarg);
-			std::istringstream(parallel_opt) >> parallel;
-			break;
-		}
-		case 'b': {
-			backprop_opt.assign(optarg);
-			std::istringstream(backprop_opt) >> backprop;
-			break;
-		}
-		case 'r': {
-			reverse_interpolation_opt.assign(optarg);
-			std::istringstream(reverse_interpolation_opt) >> reverse_interpolation;
-			break;
-		}
-		case 'f': {
-			fullscreen = true;
-			break; }
-		case 'a':
-			frameskip_opt.assign(optarg);
-			std::istringstream(frameskip_opt) >> f;
-			if (f <= -1) {
-				std::cerr << "invalid argument \'" << frameskip_opt << "\' to option -r\n";
-				optind--;
-			}
-			record_frameskip = f > 0 ? f : 0;
-			break;
-		case 's':
-			size_opt.assign(optarg);
-			std::istringstream(size_opt) >> s;
-			if (s <= 0) {
-				std::cerr << "invalid argument \'" << size_opt << "\' to option -s\n";
-				optind--;
-			}
-			wSize = s > 0 ? s : wSize;
-			break;
-		case 'd':
-			directory_opt.assign(optarg);
-			record_folder = directory_opt;
-			break;
-		case ':': // missing option use..
-			switch (optopt) {
-			case 's':
-				std::cout << "option -s requires argument, using default size 700\n";
-				break;
-			case 'r':
-				std::cerr << "using default frameskip of 0 for option -r\n";
-				break;
-			case 'd':
-				std::cerr << "option -d requires argument, disabling recording.\n";
-				record_frameskip = -1;
-				break;
-			case 'l':
-				std::cerr << "option -l requires argument, using default position (center-point)\n";
-				lightSrcPos = { width / 2, width / 2 };
-				break;
-			case 'p':
-				std::cerr << "option -p requires argument, using default position (center-point)\n";
-				lightSrcPos = { width / 2, width / 2 };
-				break;
-			}
-			break;
-		case '?':
-			std::cerr << "Unrecognized option: '-" << optopt << "\n";
-			break;
-		}
-	}
-}
-
-template <typename T> // element-wise plus for std::vector
-std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
-{
-	std::array<T, 21> result;
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::array
-std::array<std::array<T, 21>, 2> operator*(const T a, const std::array<std::array<T, 21>, 2> &b)
-{
-	std::array<std::array<T, 21>, 2> result;
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::vector
-std::array<T, 21> operator+(const std::array<T, 21>& a, const std::array<T, 21>& b)
-{
-	assert(a.size() == b.size());
-
-	std::array<T, 21> result;
-
-	for (int i = 0; i < a.size(); i++)
-		result.at(i) = a.at(i) + b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::array
-std::array<std::array<T, 21>, 2> operator+(const std::array<std::array<T, 21>, 2>& a, const std::array<std::array<T, 21>, 2> &b)
-{
-	assert(a.size() == b.size());
-
-	std::array<std::array<T, 21>, 2> result;
-
-	for (int i = 0; i < a.size(); i++)
-		result.at(i) = a.at(i) + b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::vector
-std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
-{
-	std::vector<T> result(b.size());
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a.at(i) + b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::vector
-std::vector<T> operator*(const T a, const std::vector<T>& b)
-{
-	std::vector<T> result(b.size());
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
-
 // CLASS DEFINITIONS //
+
 class neighborhood
 {
 	bool neighborR = true;
@@ -379,7 +184,7 @@ public:
 		p.DefineVar("theta", &t);
 		p.SetExpr(tag);
 	}
-	
+
 	//constructor #2 array parser
 	polarPlot(std::vector<double> Sample,
 		double res,
@@ -433,7 +238,7 @@ public:
 			scale = 50;
 		//convert polar to cartesian
 		double x = scale * r * cos(t);
-		double y = -1*scale * r * sin(t);
+		double y = -1 * scale * r * sin(t);
 
 		if (x + 1 + wSize / 2 > wSize || x - 1 + wSize / 2 < 0 || y + 1 + wSize / 2 > wSize || y - 1 + wSize / 2 < 0)
 			return;
@@ -476,15 +281,15 @@ public:
 	//plots draw_speed points per frame
 	void animation(int index = 0, int mode = 0)
 	{
-		
+
 
 		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
 		{
 			if (!discretePlot) // use muParser for evaluation 
 				r = p.Eval();
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
-				r = sample.at(static_cast<int>(std::round(t / radres))% sample.size()); // cyclic value permutation
-			
+				r = sample.at(static_cast<int>(std::round(t / radres)) % sample.size()); // cyclic value permutation
+
 			// PROPAGATION ATTENUATION TEST //
 			/*if (t == tinc && index/width == 3 && mode == 0)
 			{
@@ -504,7 +309,7 @@ public:
 				r = p.Eval();
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
 				r = sampleArray.at(index).at(static_cast<int>(std::round(t / radres)) % sample.size());
-			
+
 			// PROPAGATION ATTENUATION TEST //
 			if (t == tinc && index / width == 3 && mode == 0)
 			{
@@ -517,32 +322,215 @@ public:
 	}
 };
 
-//writes frames to file 
-//directory must already exist -- parse file methods
-void record(sf::RenderTexture& in, int frameskip, std::string directory)
-{
-	// create frame index
-	static int frame = 0;
+class myPair
+{			
+	public:
+		int jIndex = width / 2;
+		int iIndex = width / 2;
 
-	if (frameskip > 0 && frame % frameskip == 0) {
-		in.display();
-		sf::Texture outTx = in.getTexture();
-		sf::Image outImg = outTx.copyToImage();
-		std::stringstream ugh;
-		ugh << directory << "/" << frame << ".png";
-		outImg.saveToFile(ugh.str());
+		myPair() {}
+		myPair(int j, int i)
+		{
+			jIndex = j;
+			iIndex = i;
+		}
+	
+		friend istringstream& operator>>(istringstream& stream, myPair& pair)
+		{
+			std::string token;
+			int i = 0;
+			while (getline(stream, token, ','))
+			{
+				if (i == 0)
+					pair.jIndex = std::stoi(token);
+				else
+					pair.iIndex = std::stoi(token);
+				i++;
+			}
+
+
+			return stream;
+		}
+};
+
+// OPTION (cmd args) DEFINITIONS - getopt
+
+// create options for getopt(.c)
+myPair lightSrcPos{ width / 2, width / 2 };
+bool parallel = false;
+bool backprop = false;
+bool reverse_interpolation = false;
+bool fullscreen = false; //fullscreen flag
+std::string record_folder = "frames";//directory to write images to, must exist
+int record_frameskip = 0; // --> disables recording //recording frameskip 
+
+void parse_options(int argc, char* argv[]) {
+
+	int c;
+	std::string frameskip_opt = "-1";
+	std::string size_opt = "-1";
+	std::string directory_opt = "";
+	std::string light_opt = "-1";
+	std::string parallel_opt = "-1";
+	std::string backprop_opt = "-1";
+	std::string reverse_interpolation_opt = "-1";
+	//	extern char *optarg;
+	//	extern int optind, optopt;
+
+	//using getopts 
+	while ((c = getopt(argc, argv, "fs:a:d:l:p:b:r:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
+	{
+		int f = -1, s = -1;
+
+		switch (c)
+		{
+			// correct option use
+		case 'l': {
+			light_opt.assign(optarg);
+			std::istringstream(light_opt) >> lightSrcPos;
+			break;
+		}
+		case 'p': {
+			parallel_opt.assign(optarg);
+			std::istringstream(parallel_opt) >> parallel;
+			break;
+		}
+		case 'b': {
+			backprop_opt.assign(optarg);
+			std::istringstream(backprop_opt) >> backprop;
+			break;
+		}
+		case 'r': {
+			reverse_interpolation_opt.assign(optarg);
+			std::istringstream(reverse_interpolation_opt) >> reverse_interpolation;
+			break;
+		}
+		case 'f': {
+			fullscreen = true;
+			break; }
+		case 'a':
+			frameskip_opt.assign(optarg);
+			std::istringstream(frameskip_opt) >> f;
+			if (f <= -1) {
+				std::cerr << "invalid argument \'" << frameskip_opt << "\' to option -r\n";
+				optind--;
+			}
+			record_frameskip = f > 0 ? f : 0;
+			break;
+		case 's':
+			size_opt.assign(optarg);
+			std::istringstream(size_opt) >> s;
+			if (s <= 0) {
+				std::cerr << "invalid argument \'" << size_opt << "\' to option -s\n";
+				optind--;
+			}
+			wSize = s > 0 ? s : wSize;
+			break;
+		case 'd':
+			directory_opt.assign(optarg);
+			record_folder = directory_opt;
+			break;
+		case ':': // missing option use..
+			switch (optopt) {
+			case 's':
+				std::cout << "option -s requires argument, using default size 700\n";
+				break;
+			case 'r':
+				std::cerr << "using default frameskip of 0 for option -r\n";
+				break;
+			case 'd':
+				std::cerr << "option -d requires argument, disabling recording.\n";
+				record_frameskip = -1;
+				break;
+			case 'l':
+				std::cerr << "option -l requires argument, using default position (center-point)\n";
+				lightSrcPos = { width / 2, width / 2 };
+				break;
+			case 'p':
+				std::cerr << "option -p requires argument, using default position (center-point)\n";
+				lightSrcPos = { width / 2, width / 2 };
+				break;
+			}
+			break;
+		case '?':
+			std::cerr << "Unrecognized option: '-" << optopt << "\n";
+			break;
+		}
 	}
-	frame++;
 }
 
-
-
-// mathematical functions
-double circleFunction(double x)
+// OPERATOR DEFINITIONS //
+template <typename T> // element-wise plus for std::vector
+std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
 {
-	double os = 1.0 / sqrt(M_PI);
-	return os;
+	std::array<T, 21> result;
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a * b.at(i);
+
+	return result;
 }
+
+template <typename T> // element-wise plus for std::array
+std::array<std::array<T, 21>, 2> operator*(const T a, const std::array<std::array<T, 21>, 2> &b)
+{
+	std::array<std::array<T, 21>, 2> result;
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a * b.at(i);
+
+	return result;
+}
+
+template <typename T> // element-wise plus for std::vector
+std::array<T, 21> operator+(const std::array<T, 21>& a, const std::array<T, 21>& b)
+{
+	assert(a.size() == b.size());
+
+	std::array<T, 21> result;
+
+	for (int i = 0; i < a.size(); i++)
+		result.at(i) = a.at(i) + b.at(i);
+
+	return result;
+}
+
+template <typename T> // element-wise plus for std::array
+std::array<std::array<T, 21>, 2> operator+(const std::array<std::array<T, 21>, 2>& a, const std::array<std::array<T, 21>, 2> &b)
+{
+	assert(a.size() == b.size());
+
+	std::array<std::array<T, 21>, 2> result;
+
+	for (int i = 0; i < a.size(); i++)
+		result.at(i) = a.at(i) + b.at(i);
+
+	return result;
+}
+
+template <typename T> // element-wise plus for std::vector
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
+{
+	std::vector<T> result(b.size());
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a.at(i) + b.at(i);
+
+	return result;
+}
+
+template <typename T> // element-wise plus for std::vector
+std::vector<T> operator*(const T a, const std::vector<T>& b)
+{
+	std::vector<T> result(b.size());
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a * b.at(i);
+
+	return result;
+}
+
+// SPECIFIC (MATHEMATICAL-PROGRAM USE) FUNCTIONS
 
 // template function for evaluating string functions via ptr 
 template <typename T>
@@ -570,6 +558,12 @@ T strFunction(T theta)
 	y = expression.value();
 
 	return y;
+}
+
+template <typename T>
+T clip(const T& n, const T& lower, const T& upper) // template clip function
+{
+	return std::max(lower, std::min(n, upper));
 }
 
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
@@ -772,7 +766,6 @@ class propagator
 
 	int jIndex = 0;
 	int iIndex = 0;
-
 
 	std::array<int, 4> centralEdgeIndex{ 0,1,2,3 };
 
@@ -1117,6 +1110,7 @@ public:
 	}
 };
 
+// MAIN FUNCTION DEFINTION Linker Entry Point
 
 int main(int argc, char* argv[])
 {
