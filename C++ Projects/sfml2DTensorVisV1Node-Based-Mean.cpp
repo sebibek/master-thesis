@@ -1169,6 +1169,7 @@ int main(int argc, char* argv[])
 	propagator prop(dim, jIndex, iIndex, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
 
 	double thresh = 0.000001;
+	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 	while (!finished)
 	{
