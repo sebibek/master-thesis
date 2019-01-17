@@ -757,12 +757,9 @@ class propagator
 	double alpha = 36.8699 * M_PI / 180;
 	double beta = 26.5651 * M_PI / 180;
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
-	//std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
+	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 	std::array<int, 12> coneDirections{ 3,0,1,0,1,2,1,2,3,2,3,0 };
-	// define member strings for parsing (internal)
-	std::string fString = "0.0";
-	std::string fStringEllipse = "0.0";
 
 	int jIndex = 0;
 	int iIndex = 0;
@@ -792,6 +789,10 @@ class propagator
 	std::vector<double> sample;
 	std::vector<double> upper;
 	std::vector<double> lower;
+	std::vector<double> one;
+	std::vector<double> two;
+	std::vector<double> three;
+	std::vector<double> four;
 
 	// create process(ed) map for cells already processed
 	std::vector<bool> processMap; // create a binary process(ed) map
@@ -816,6 +817,11 @@ public:
 		sample = std::vector<double>(steps, 0.0);
 		upper = std::vector<double>(steps, 0.0);
 		lower = std::vector<double>(steps, 0.0);
+		
+		one = std::vector<double>(steps, 0.0);
+		two = std::vector<double>(steps, 0.0);
+		three = std::vector<double>(steps, 0.0);
+		four = std::vector<double>(steps, 0.0);
 	}
 
 	void propagate(bool parallel = false)
@@ -828,11 +834,67 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
+			// create forward flags for interpolation w.r.t to light src position jIndex, iIndex
+			bool bw0 = true;
+			bool bw1 = true;
+			bool bw2 = true;
+			bool bw3 = true;
+
+			if (!reverse_interpolation)
+			{
+				if (i%width >= iIndex)
+					bw0 = false;
+				if (i / width <= jIndex)
+					bw1 = false;
+				if (i % width <= iIndex)
+					bw2 = false;
+				if (i / width >= jIndex)
+					bw3 = false;
+			}
+			// create neighborhood, for tagging non-existent neighbors..
+			neighborhood hood(i / width, i%width, width, processMap);
+			/*if (!(i / width == jIndex && i%width == iIndex))
+				int a = 1;*/
+			// empty (reset) sample for each corner
+			std::fill(one.begin(), one.end(), 0);
+			std::fill(two.begin(), two.end(), 0);
+			std::fill(three.begin(), three.end(), 0);
+			std::fill(four.begin(), four.end(), 0);
+
+			// assign center position contribution as initialization..
+			one = two = three = four = part * sampleBufferA->at(i);
+
+			// compute one sample
+			if (hood.getR() && bw0)
+				one = one + part * sampleBufferA->at(i + 1);
+			if (hood.getB() && bw3)
+				one = one + part * sampleBufferA->at(i + width);
+			if (hood.getB() && hood.getR() && bw0 && bw3)
+				one = one + part * sampleBufferA->at(i + width + 1);
+			// compute two sample
+			if (hood.getT() && bw1)
+				two = two + part * sampleBufferA->at(i - width);
+			if (hood.getR() && bw0)
+				two = two + part * sampleBufferA->at(i + 1);
+			if (hood.getR() && hood.getT() && bw1 && bw0)
+				two = two + part * sampleBufferA->at(i - width + 1);
+			// compute three sample
+			if (hood.getT() && bw1)
+				three = three + part * sampleBufferA->at(i - width);
+			if (hood.getL() && bw2)
+				three = three + part * sampleBufferA->at(i - 1);
+			if (hood.getL() && hood.getT() && bw2 && bw1)
+				three = three + part * sampleBufferA->at(i - width - 1);
+			// compute four sample
+			if (hood.getB() && bw3)
+				four = four + part * sampleBufferA->at(i + width);
+			if (hood.getL() && bw2)
+				four = four + part * sampleBufferA->at(i - 1);
+			if (hood.getL() && hood.getB() && bw2 && bw3)
+				four = four + part * sampleBufferA->at(i + width - 1);
+
 			for (int j = 0; j < 4; j++) // for each adjacent edge...
 			{
-				// create neighborhood, for tagging non-existent neighbors..
-				neighborhood hood(i / width, i%width, width, processMap);
-
 				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
 				if (!hood.getR() && j == 0)
 					continue;
@@ -843,85 +905,98 @@ public:
 				if (!hood.getB() && j == 3)
 					continue;
 
-				// empty (reset) sample for each edge
+				// empty (reset) sample, upper and lower for each edge
 				std::fill(sample.begin(), sample.end(), 0);
 				std::fill(upper.begin(), upper.end(), 0);
 				std::fill(lower.begin(), lower.end(), 0);
-
+				
 				switch (j)
 				{
-				case 0: upper = upper + part * sampleBufferA->at(i);
-						if (hood.getT())
-							upper = upper + part * sampleBufferA->at(i - width);
-						if (hood.getR())
-							upper = upper + part * sampleBufferA->at(i + 1);
-						if (hood.getR() && hood.getT())
-							upper = upper + part * sampleBufferA->at(i - width + 1);
-						// compute lower sample
-						lower = lower + part * sampleBufferA->at(i);
-						if (hood.getR())
-							lower = lower + part * sampleBufferA->at(i + 1);
-						if (hood.getB())
-							lower = lower + part * sampleBufferA->at(i + width);
-						if (hood.getB() && hood.getR())
-							lower = lower + part * sampleBufferA->at(i + width + 1); break;
-				case 1: upper = upper + part * sampleBufferA->at(i);
-						if (hood.getT())
-							upper = upper + part * sampleBufferA->at(i - width);
-						if (hood.getL())
-							upper = upper + part * sampleBufferA->at(i - 1);
-						if (hood.getL() && hood.getT())
-							upper = upper + part * sampleBufferA->at(i - width - 1);
-						// compute lower sample
-						lower = lower + part * sampleBufferA->at(i);
-						if (hood.getR())
-							lower = lower + part * sampleBufferA->at(i + 1);
-						if (hood.getT())
-							lower = lower + part * sampleBufferA->at(i - width);
-						if (hood.getT() && hood.getR())
-							lower = lower + part * sampleBufferA->at(i - width + 1); break;
-				case 2: upper = upper + part * sampleBufferA->at(i);
-						if (hood.getB())
-							upper = upper + part * sampleBufferA->at(i + width);
-						if (hood.getL())
-							upper = upper + part * sampleBufferA->at(i - 1);
-						if (hood.getL() && hood.getB())
-							upper = upper + part * sampleBufferA->at(i + width - 1);
-						// compute lower sample
-						lower = lower + part * sampleBufferA->at(i);
-						if (hood.getL())
-							lower = lower + part * sampleBufferA->at(i - 1);
-						if (hood.getT())
-							lower = lower + part * sampleBufferA->at(i - width);
-						if (hood.getT() && hood.getL())
-							lower = lower + part * sampleBufferA->at(i - width - 1); break;
-				case 3: upper = upper + part * sampleBufferA->at(i);
-						if (hood.getB())
-							upper = upper + part * sampleBufferA->at(i + width);
-						if (hood.getR())
-							upper = upper + part * sampleBufferA->at(i + 1);
-						if (hood.getR() && hood.getB())
-							upper = upper + part * sampleBufferA->at(i + width + 1);
-						// compute lower sample
-						lower = lower + part * sampleBufferA->at(i);
-						if (hood.getL())
-							lower = lower + part * sampleBufferA->at(i - 1);
-						if (hood.getB())
-							lower = lower + part * sampleBufferA->at(i + width);
-						if (hood.getB() && hood.getL())
-							lower = lower + part * sampleBufferA->at(i + width - 1); break;
+				case 0: upper = two;
+					    lower = one; break;
+				case 1: upper = three;
+						lower = two; break;
+				case 2: upper = four;
+						lower = three; break;
+				case 3: upper = one;
+						lower = four; break;
 				}
 
-				if (i / width == jIndex && i%width == iIndex)
+				//switch (j)
+				//{
+				//case 0:  upper = upper + part * sampleBufferA->at(i);
+				//		if (hood.getT())
+				//			upper = upper + part * sampleBufferA->at(i - width);
+				//		if (hood.getR())
+				//			upper = upper + part * sampleBufferA->at(i + 1);
+				//		if (hood.getR() && hood.getT())
+				//			upper = upper + part * sampleBufferA->at(i - width + 1);
+				//		// compute lower sample
+				//		lower = lower + part * sampleBufferA->at(i);
+				//		if (hood.getR())
+				//			lower = lower + part * sampleBufferA->at(i + 1);
+				//		if (hood.getB())
+				//			lower = lower + part * sampleBufferA->at(i + width);
+				//		if (hood.getB() && hood.getR())
+				//			lower = lower + part * sampleBufferA->at(i + width + 1); break;
+				//case 1: upper = upper + part * sampleBufferA->at(i);
+				//		if (hood.getT())
+				//			upper = upper + part * sampleBufferA->at(i - width);
+				//		if (hood.getL())
+				//			upper = upper + part * sampleBufferA->at(i - 1);
+				//		if (hood.getL() && hood.getT())
+				//			upper = upper + part * sampleBufferA->at(i - width - 1);
+				//		// compute lower sample
+				//		lower = lower + part * sampleBufferA->at(i);
+				//		if (hood.getR())
+				//			lower = lower + part * sampleBufferA->at(i + 1);
+				//		if (hood.getT())
+				//			lower = lower + part * sampleBufferA->at(i - width);
+				//		if (hood.getT() && hood.getR())
+				//			lower = lower + part * sampleBufferA->at(i - width + 1); break;
+				//case 2: upper = upper + part * sampleBufferA->at(i);
+				//		if (hood.getB())
+				//			upper = upper + part * sampleBufferA->at(i + width);
+				//		if (hood.getL())
+				//			upper = upper + part * sampleBufferA->at(i - 1);
+				//		if (hood.getL() && hood.getB())
+				//			upper = upper + part * sampleBufferA->at(i + width - 1);
+				//		// compute lower sample
+				//		lower = lower + part * sampleBufferA->at(i);
+				//		if (hood.getL())
+				//			lower = lower + part * sampleBufferA->at(i - 1);
+				//		if (hood.getT())
+				//			lower = lower + part * sampleBufferA->at(i - width);
+				//		if (hood.getT() && hood.getL())
+				//			lower = lower + part * sampleBufferA->at(i - width - 1); break;
+				//case 3: upper = upper + part * sampleBufferA->at(i);
+				//		if (hood.getB())
+				//			upper = upper + part * sampleBufferA->at(i + width);
+				//		if (hood.getR())
+				//			upper = upper + part * sampleBufferA->at(i + 1);
+				//		if (hood.getR() && hood.getB())
+				//			upper = upper + part * sampleBufferA->at(i + width + 1);
+				//		// compute lower sample
+				//		lower = lower + part * sampleBufferA->at(i);
+				//		if (hood.getL())
+				//			lower = lower + part * sampleBufferA->at(i - 1);
+				//		if (hood.getB())
+				//			lower = lower + part * sampleBufferA->at(i + width);
+				//		if (hood.getB() && hood.getL())
+				//			lower = lower + part * sampleBufferA->at(i + width - 1); break;
+				//}
+
+				if (i/width == jIndex && i%width == iIndex)
 					int a = 1;
 
 				int midIndex = (j * pi / 2) / radres;
-				int startIndex = midIndex - shiftIndex;
-				double startRad = (j * pi / 2);
+				double startRad = j * pi / 2;
 
-				for (int k = startIndex; k < midIndex + shiftIndex; k++) // for each step (along edge)..
+				for (int k = midIndex - shiftIndex; k < midIndex + shiftIndex; k++) // for each step (along edge)..
 				{
-					double pos = 0.5*(1 + tan(k*radres - startRad));
+					int deltaK = k - midIndex;
+					double pos = 0.5*(1 + tan(deltaK*radres));
+
 					if (pos < 0.0)
 						pos = 0.0;
 					else if (pos > 1.0)
@@ -936,8 +1011,21 @@ public:
 					else if (k >= steps)
 						kIndex = k - steps;
 
-					sample.at(kIndex) += factor * (weight*upper.at(kIndex) + pos * lower.at(kIndex))*abs(cos(kIndex*radres + j % 2 * pi / 2));
-					
+					sample.at(kIndex) = factor * (pos* upper.at(kIndex) + weight * lower.at(kIndex))*abs(cos(kIndex*radres - startRad));
+
+					/*if(!(abs(deltaK*radres) > alpha / 2.0))
+						sample.at(kIndex) = factor * (weight* upper.at(kIndex) + pos * lower.at(kIndex))*abs(cos(kIndex*radres - startRad));
+					else if(deltaK*radres > 0)
+					{
+
+					}
+					else
+					{
+
+					}*/
+
+					if (sample.at(kIndex) < 0)
+						int a = 1;
 					//for (int l = startIndex; l < startIndex + shiftIndex; l++) // for each step along dir..
 					//{
 					//	
@@ -1281,7 +1369,7 @@ int main(int argc, char* argv[])
 	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 	int ctr = 0;
-	for(int i = 0; i < 1 ; i++)
+	for(int i = 0; i < 10 ; i++)
 	//while (!finished)
 	{
 		prop.propagate(parallel); // propagate until finished..
