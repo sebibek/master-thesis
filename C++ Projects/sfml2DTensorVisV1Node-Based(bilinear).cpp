@@ -787,6 +787,8 @@ class propagator
 
 	// create sample vector (dynamic)
 	std::vector<double> sample;
+	std::vector<double> upper_sample;
+	std::vector<double> lower_sample;
 	std::vector<double> upper;
 	std::vector<double> lower;
 	std::vector<double> one;
@@ -815,6 +817,8 @@ public:
 
 		// empty (reset) sample for each edge
 		sample = std::vector<double>(steps, 0.0);
+		upper_sample = std::vector<double>(steps, 0.0);
+		lower_sample = std::vector<double>(steps, 0.0);
 		upper = std::vector<double>(steps, 0.0);
 		lower = std::vector<double>(steps, 0.0);
 		
@@ -834,23 +838,41 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			// create forward flags for interpolation w.r.t to light src position jIndex, iIndex
-			bool bw0 = true;
-			bool bw1 = true;
-			bool bw2 = true;
-			bool bw3 = true;
+			// create forward flags for propagation w.r.t to light src position jIndex, iIndex
+			bool fw0 = true;
+			bool fw1 = true;
+			bool fw2 = true;
+			bool fw3 = true;
 
-			if (!reverse_interpolation)
+			if (!backprop)
 			{
-				if (i%width >= iIndex)
-					bw0 = false;
-				if (i / width <= jIndex)
-					bw1 = false;
-				if (i % width <= iIndex)
-					bw2 = false;
-				if (i / width >= jIndex)
-					bw3 = false;
+				if (i%width < iIndex)
+					fw0 = false;
+				if (i / width > jIndex)
+					fw1 = false;
+				if (i % width > iIndex)
+					fw2 = false;
+				if (i / width < jIndex)
+					fw3 = false;
 			}
+
+			//// create forward flags for interpolation w.r.t to light src position jIndex, iIndex
+			//bool bw0 = true;
+			//bool bw1 = true;
+			//bool bw2 = true;
+			//bool bw3 = true;
+
+			//if (!reverse_interpolation)
+			//{
+			//	if (i%width >= iIndex)
+			//		bw0 = false;
+			//	if (i / width <= jIndex)
+			//		bw1 = false;
+			//	if (i % width <= iIndex)
+			//		bw2 = false;
+			//	if (i / width >= jIndex)
+			//		bw3 = false;
+			//}
 			// create neighborhood, for tagging non-existent neighbors..
 			neighborhood hood(i / width, i%width, width, processMap);
 			/*if (!(i / width == jIndex && i%width == iIndex))
@@ -864,34 +886,34 @@ public:
 			// assign center position contribution as initialization..
 			one = two = three = four = part * sampleBufferA->at(i);
 
-			// compute one sample
-			if (hood.getR() && bw0)
-				one = one + part * sampleBufferA->at(i + 1);
-			if (hood.getB() && bw3)
-				one = one + part * sampleBufferA->at(i + width);
-			if (hood.getB() && hood.getR() && bw0 && bw3)
-				one = one + part * sampleBufferA->at(i + width + 1);
-			// compute two sample
-			if (hood.getT() && bw1)
-				two = two + part * sampleBufferA->at(i - width);
-			if (hood.getR() && bw0)
-				two = two + part * sampleBufferA->at(i + 1);
-			if (hood.getR() && hood.getT() && bw1 && bw0)
-				two = two + part * sampleBufferA->at(i - width + 1);
-			// compute three sample
-			if (hood.getT() && bw1)
-				three = three + part * sampleBufferA->at(i - width);
-			if (hood.getL() && bw2)
-				three = three + part * sampleBufferA->at(i - 1);
-			if (hood.getL() && hood.getT() && bw2 && bw1)
-				three = three + part * sampleBufferA->at(i - width - 1);
-			// compute four sample
-			if (hood.getB() && bw3)
-				four = four + part * sampleBufferA->at(i + width);
-			if (hood.getL() && bw2)
-				four = four + part * sampleBufferA->at(i - 1);
-			if (hood.getL() && hood.getB() && bw2 && bw3)
-				four = four + part * sampleBufferA->at(i + width - 1);
+			//// compute one sample
+			//if (hood.getR() && bw0)
+			//	one = one + part * sampleBufferA->at(i + 1);
+			//if (hood.getB() && bw3)
+			//	one = one + part * sampleBufferA->at(i + width);
+			//if (hood.getB() && hood.getR() && bw0 && bw3)
+			//	one = one + part * sampleBufferA->at(i + width + 1);
+			//// compute two sample
+			//if (hood.getT() && bw1)
+			//	two = two + part * sampleBufferA->at(i - width);
+			//if (hood.getR() && bw0)
+			//	two = two + part * sampleBufferA->at(i + 1);
+			//if (hood.getR() && hood.getT() && bw1 && bw0)
+			//	two = two + part * sampleBufferA->at(i - width + 1);
+			//// compute three sample
+			//if (hood.getT() && bw1)
+			//	three = three + part * sampleBufferA->at(i - width);
+			//if (hood.getL() && bw2)
+			//	three = three + part * sampleBufferA->at(i - 1);
+			//if (hood.getL() && hood.getT() && bw2 && bw1)
+			//	three = three + part * sampleBufferA->at(i - width - 1);
+			//// compute four sample
+			//if (hood.getB() && bw3)
+			//	four = four + part * sampleBufferA->at(i + width);
+			//if (hood.getL() && bw2)
+			//	four = four + part * sampleBufferA->at(i - 1);
+			//if (hood.getL() && hood.getB() && bw2 && bw3)
+			//	four = four + part * sampleBufferA->at(i + width - 1);
 
 			for (int j = 0; j < 4; j++) // for each adjacent edge...
 			{
@@ -907,6 +929,8 @@ public:
 
 				// empty (reset) sample, upper and lower for each edge
 				std::fill(sample.begin(), sample.end(), 0);
+				std::fill(upper_sample.begin(), upper_sample.end(), 0);
+				std::fill(lower_sample.begin(), lower_sample.end(), 0);
 				std::fill(upper.begin(), upper.end(), 0);
 				std::fill(lower.begin(), lower.end(), 0);
 				
@@ -922,124 +946,108 @@ public:
 						lower = four; break;
 				}
 
-				//switch (j)
-				//{
-				//case 0:  upper = upper + part * sampleBufferA->at(i);
-				//		if (hood.getT())
-				//			upper = upper + part * sampleBufferA->at(i - width);
-				//		if (hood.getR())
-				//			upper = upper + part * sampleBufferA->at(i + 1);
-				//		if (hood.getR() && hood.getT())
-				//			upper = upper + part * sampleBufferA->at(i - width + 1);
-				//		// compute lower sample
-				//		lower = lower + part * sampleBufferA->at(i);
-				//		if (hood.getR())
-				//			lower = lower + part * sampleBufferA->at(i + 1);
-				//		if (hood.getB())
-				//			lower = lower + part * sampleBufferA->at(i + width);
-				//		if (hood.getB() && hood.getR())
-				//			lower = lower + part * sampleBufferA->at(i + width + 1); break;
-				//case 1: upper = upper + part * sampleBufferA->at(i);
-				//		if (hood.getT())
-				//			upper = upper + part * sampleBufferA->at(i - width);
-				//		if (hood.getL())
-				//			upper = upper + part * sampleBufferA->at(i - 1);
-				//		if (hood.getL() && hood.getT())
-				//			upper = upper + part * sampleBufferA->at(i - width - 1);
-				//		// compute lower sample
-				//		lower = lower + part * sampleBufferA->at(i);
-				//		if (hood.getR())
-				//			lower = lower + part * sampleBufferA->at(i + 1);
-				//		if (hood.getT())
-				//			lower = lower + part * sampleBufferA->at(i - width);
-				//		if (hood.getT() && hood.getR())
-				//			lower = lower + part * sampleBufferA->at(i - width + 1); break;
-				//case 2: upper = upper + part * sampleBufferA->at(i);
-				//		if (hood.getB())
-				//			upper = upper + part * sampleBufferA->at(i + width);
-				//		if (hood.getL())
-				//			upper = upper + part * sampleBufferA->at(i - 1);
-				//		if (hood.getL() && hood.getB())
-				//			upper = upper + part * sampleBufferA->at(i + width - 1);
-				//		// compute lower sample
-				//		lower = lower + part * sampleBufferA->at(i);
-				//		if (hood.getL())
-				//			lower = lower + part * sampleBufferA->at(i - 1);
-				//		if (hood.getT())
-				//			lower = lower + part * sampleBufferA->at(i - width);
-				//		if (hood.getT() && hood.getL())
-				//			lower = lower + part * sampleBufferA->at(i - width - 1); break;
-				//case 3: upper = upper + part * sampleBufferA->at(i);
-				//		if (hood.getB())
-				//			upper = upper + part * sampleBufferA->at(i + width);
-				//		if (hood.getR())
-				//			upper = upper + part * sampleBufferA->at(i + 1);
-				//		if (hood.getR() && hood.getB())
-				//			upper = upper + part * sampleBufferA->at(i + width + 1);
-				//		// compute lower sample
-				//		lower = lower + part * sampleBufferA->at(i);
-				//		if (hood.getL())
-				//			lower = lower + part * sampleBufferA->at(i - 1);
-				//		if (hood.getB())
-				//			lower = lower + part * sampleBufferA->at(i + width);
-				//		if (hood.getB() && hood.getL())
-				//			lower = lower + part * sampleBufferA->at(i + width - 1); break;
-				//}
-
 				if (i/width == jIndex && i%width == iIndex)
 					int a = 1;
 
 				int midIndex = (j * pi / 2) / radres;
-				double startRad = j * pi / 2;
+				int centralIndex = (pi / 8) / radres;
 
+				double sum = 0.0;
+				double lower_valsum = 0.0;
+				double upper_valsum = 0.0;
+				double valsum = 0.0;
+				double lower_sum = 0.0;
+				double upper_sum = 0.0;
 				for (int k = midIndex - shiftIndex; k < midIndex + shiftIndex; k++) // for each step (along edge)..
 				{
 					int deltaK = k - midIndex;
-					double pos = 0.5*(1 + tan(deltaK*radres));
-
-					if (pos < 0.0)
-						pos = 0.0;
-					else if (pos > 1.0)
-						pos = 1.0;
+					double pos = clip(0.5*(1 + tan(deltaK*radres)), 0.0, 1.0);
 
 					// define weights for linear interpolation
 					double weight = 1.0 - pos;
 
-					int kIndex = k;
+					int kIndex = k % steps;
 					if (k < 0) // circ value permutation
 						kIndex = k + steps;
-					else if (k >= steps)
-						kIndex = k - steps;
+					double val = 4 * (pos* upper.at(kIndex) + weight * lower.at(kIndex));
+					valsum += val;
+				}
+				double valMean = valsum / (2 * shiftIndex);
 
-					sample.at(kIndex) = factor * (pos* upper.at(kIndex) + weight * lower.at(kIndex))*abs(cos(kIndex*radres - startRad));
+				for (int k = midIndex - shiftIndex; k < midIndex + shiftIndex; k++) // for each step (along edge)..
+				{
+					int deltaK = k - midIndex;
+					double pos = clip(0.5*(1 + tan(deltaK*radres)), 0.0, 1.0);
 
-					/*if(!(abs(deltaK*radres) > alpha / 2.0))
-						sample.at(kIndex) = factor * (weight* upper.at(kIndex) + pos * lower.at(kIndex))*abs(cos(kIndex*radres - startRad));
-					else if(deltaK*radres > 0)
+					// define weights for linear interpolation
+					double weight = 1.0 - pos;
+
+					int kIndex = k%steps;
+					if (k < 0) // circ value permutation
+						kIndex = k + steps;
+
+					double val = 4 * (pos* upper.at(kIndex) + weight * lower.at(kIndex));
+					if ((abs(deltaK) <= centralIndex))
+						sum += val * radres;
+					else if (deltaK < centralIndex)
 					{
-
+						
+						lower_sample.at(kIndex) += factor * /*val / valMean **/ abs(cos(k*radres + (2 * j + 1) * pi / 4));
+						lower_sum += val * radres;
+						lower_valsum += val;
 					}
 					else
 					{
+						
+						upper_sample.at(kIndex) += factor * /*val / valMean **/ abs(cos(k*radres - (2 * j + 1) * pi / 4));
+						upper_sum += val * radres;
+						upper_valsum += val;
+					}
 
-					}*/
-
-					if (sample.at(kIndex) < 0)
-						int a = 1;
-					//for (int l = startIndex; l < startIndex + shiftIndex; l++) // for each step along dir..
-					//{
-					//	
-					//	
-					//}
-
+					
+					sample.at(kIndex) += factor/**val / valMean*/ *abs(cos(k*radres - j * pi / 2));
 				}
+				
+
+				// original grid size s=1.274 units ([m] in case dt = 1ns and c=3*10^^8m/2) ==> correct: semi-empiric factor to scale grid size s to 1..
+				sample = 1.274 *(sum / sqrt(2.0))*sample; // center cosine mean to neighbor angle mean
+				upper_sample = 1.274  *(sum / sqrt(2.0))*upper_sample; // center cosine mean to neighbor angle mean
+				lower_sample = 1.274  *(sum / sqrt(2.0))*lower_sample; // center cosine mean to neighbor angle mean
 
 				switch (j) // propagate correspondent to each edge dir w.r.t forward edges
 				{
-				case 0: sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; ctrArray.at(i + 1)++; break;
-				case 1: sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; ctrArray.at(i - width)++; break;
-				case 2: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; ctrArray.at(i - 1)++; break;
-				case 3: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; ctrArray.at(i + width)++; break;
+				case 0: if (fw0)
+				{
+					sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; 
+					if(fw1 && hood.getT())
+						sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + upper_sample;
+					if (fw3 && hood.getB())
+						sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + lower_sample;
+				} break;
+				case 1: if (fw1)
+				{
+					sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; ctrArray.at(i - width)++;
+					if (fw2 && hood.getL())
+						sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + upper_sample;
+					if (fw0 && hood.getR())
+						sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + lower_sample;
+				} break;
+				case 2: if (fw2)
+				{
+					sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; ctrArray.at(i - 1)++;
+					if (fw3 && hood.getB())
+						sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + upper_sample;
+					if (fw1 && hood.getT())
+						sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + lower_sample;
+				} break;
+				case 3: if (fw3)
+				{
+					sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; ctrArray.at(i + width)++;
+					if (fw0 && hood.getR())
+						sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + upper_sample;
+					if (fw2 && hood.getL())
+						sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + lower_sample;
+				} break;
 
 				default: break;
 				}
