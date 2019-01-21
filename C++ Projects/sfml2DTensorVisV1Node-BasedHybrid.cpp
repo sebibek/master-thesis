@@ -789,7 +789,7 @@ class propagator
 	std::vector<double> sample;
 	std::vector<double> upper_sample;
 	std::vector<double> lower_sample;
-	std::vector<double> upper;
+	std::vector<double> read;
 	std::vector<double> lower;
 	std::vector<double> one;
 	std::vector<double> two;
@@ -819,7 +819,8 @@ public:
 		sample = std::vector<double>(steps, 0.0);
 		upper_sample = std::vector<double>(steps, 0.0);
 		lower_sample = std::vector<double>(steps, 0.0);
-		upper = std::vector<double>(steps, 0.0);
+		
+		read = std::vector<double>(steps, 0.0);
 		lower = std::vector<double>(steps, 0.0);
 		
 		one = std::vector<double>(steps, 0.0);
@@ -838,214 +839,106 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			// create forward flags for propagation w.r.t to light src position jIndex, iIndex
-			bool fw0 = true;
-			bool fw1 = true;
-			bool fw2 = true;
-			bool fw3 = true;
-
-			if (!backprop)
-			{
-				if (i%width < iIndex)
-					fw0 = false;
-				if (i / width > jIndex)
-					fw1 = false;
-				if (i % width > iIndex)
-					fw2 = false;
-				if (i / width < jIndex)
-					fw3 = false;
-			}
-
-			//// create forward flags for interpolation w.r.t to light src position jIndex, iIndex
-			//bool bw0 = true;
-			//bool bw1 = true;
-			//bool bw2 = true;
-			//bool bw3 = true;
-
-			//if (!reverse_interpolation)
-			//{
-			//	if (i%width >= iIndex)
-			//		bw0 = false;
-			//	if (i / width <= jIndex)
-			//		bw1 = false;
-			//	if (i % width <= iIndex)
-			//		bw2 = false;
-			//	if (i / width >= jIndex)
-			//		bw3 = false;
-			//}
-			// create neighborhood, for tagging non-existent neighbors..
 			neighborhood hood(i / width, i%width, width, processMap);
-			/*if (!(i / width == jIndex && i%width == iIndex))
-				int a = 1;*/
-			// empty (reset) sample for each corner
-			std::fill(one.begin(), one.end(), 0);
-			std::fill(two.begin(), two.end(), 0);
-			std::fill(three.begin(), three.end(), 0);
-			std::fill(four.begin(), four.end(), 0);
+		
+			
+			std::fill(read.begin(), read.end(), 0);
+			std::fill(lower.begin(), lower.end(), 0);
 
-			// assign center position contribution as initialization..
-			one = two = three = four = part * sampleBufferA->at(i);
+			read = sampleBufferA->at(i);
 
-			//// compute one sample
-			//if (hood.getR() && bw0)
-			//	one = one + part * sampleBufferA->at(i + 1);
-			//if (hood.getB() && bw3)
-			//	one = one + part * sampleBufferA->at(i + width);
-			//if (hood.getB() && hood.getR() && bw0 && bw3)
-			//	one = one + part * sampleBufferA->at(i + width + 1);
-			//// compute two sample
-			//if (hood.getT() && bw1)
-			//	two = two + part * sampleBufferA->at(i - width);
-			//if (hood.getR() && bw0)
-			//	two = two + part * sampleBufferA->at(i + 1);
-			//if (hood.getR() && hood.getT() && bw1 && bw0)
-			//	two = two + part * sampleBufferA->at(i - width + 1);
-			//// compute three sample
-			//if (hood.getT() && bw1)
-			//	three = three + part * sampleBufferA->at(i - width);
-			//if (hood.getL() && bw2)
-			//	three = three + part * sampleBufferA->at(i - 1);
-			//if (hood.getL() && hood.getT() && bw2 && bw1)
-			//	three = three + part * sampleBufferA->at(i - width - 1);
-			//// compute four sample
-			//if (hood.getB() && bw3)
-			//	four = four + part * sampleBufferA->at(i + width);
-			//if (hood.getL() && bw2)
-			//	four = four + part * sampleBufferA->at(i - 1);
-			//if (hood.getL() && hood.getB() && bw2 && bw3)
-			//	four = four + part * sampleBufferA->at(i + width - 1);
-
-			for (int j = 0; j < 4; j++) // for each adjacent edge...
+			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+			for (int k = 0; k < 4; k++) // for each adjacent edge...
 			{
-				// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-				if (!hood.getR() && j == 0)
-					continue;
-				if (!hood.getT() && j == 1)
-					continue;
-				if (!hood.getL() && j == 2)
-					continue;
-				if (!hood.getB() && j == 3)
-					continue;
-
 				// empty (reset) sample, upper and lower for each edge
 				std::fill(sample.begin(), sample.end(), 0);
 				std::fill(upper_sample.begin(), upper_sample.end(), 0);
 				std::fill(lower_sample.begin(), lower_sample.end(), 0);
-				std::fill(upper.begin(), upper.end(), 0);
-				std::fill(lower.begin(), lower.end(), 0);
-				
-				switch (j)
-				{
-				case 0: upper = two;
-					    lower = one; break;
-				case 1: upper = three;
-						lower = two; break;
-				case 2: upper = four;
-						lower = three; break;
-				case 3: upper = one;
-						lower = four; break;
-				}
+				int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
 
-				if (i/width == jIndex && i%width == iIndex)
-					int a = 1;
+					// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
+				if (!hood.getR() && k == 0)
+					continue;
+				if (!hood.getT() && k == 1)
+					continue;
+				if (!hood.getL() && k == 2)
+					continue;
+				if (!hood.getB() && k == 3)
+					continue;
 
-				int midIndex = (j * pi / 2) / radres;
+				int shiftIndex = (pi/4) / ( radres);
+				int midIndex = (k * pi / 2) / radres;
 				int centralIndex = (alpha/2) / radres;
 
-				double sum = 0.0;
-				double lower_valsum = 0.0;
-				double upper_valsum = 0.0;
-				double valsum = 0.0;
-				double lower_sum = 0.0;
-				double upper_sum = 0.0;
-
-				for (int k = midIndex - shiftIndex; k < midIndex + shiftIndex; k++) // for each step (along edge)..
+		/*		for (int i = 0; i < steps; i++)
+					ctrArray.at(i) = 0;
+*/
+				for (int j = midIndex - shiftIndex; j < midIndex + shiftIndex; j++) // for each step (along edge)..
 				{
-					int deltaK = k - midIndex;
-					double pos = clip(0.5*(1 + tan(deltaK*radres)), 0.0, 1.0);
+					int deltaJ = j - midIndex;
+					int j_index = j%steps;
 
-					// define weights for linear interpolation
-					double weight = 1.0 - pos;
+					if (j < 0)
+						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+					double val = read.at(j_index);
+					if ((abs(deltaJ) <= centralIndex))
+						for (int l = midIndex - shiftIndex; l < midIndex + shiftIndex; l++)
+						{
+							int l_index = l % steps;;
+							if (l < 0)
+								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					int kIndex = k%steps;
-					if (k < 0) // circ value permutation
-						kIndex = k + steps;
+							sample.at(l_index) += 0.707*radres/0.633/* / (alpha / radres)*/* read.at(j_index)*abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+						}
+					else if (deltaJ < centralIndex)
+						for (int l = midIndex - 2*shiftIndex; l < midIndex; l++)
+						{
+							int l_index = l % steps;;
+							if (l < 0)
+								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = 4 * (pos* upper.at(kIndex) + weight * lower.at(kIndex));
-					if ((abs(deltaK) <= centralIndex))
-					{
-						valsum += val;
-						sum += val * radres;
-					}
-					else if (deltaK < centralIndex)
-					{
-						lower_sample.at(kIndex) += factor * val * abs(cos(k*radres + (2 * j + 1) * pi / 4));
-						lower_sum += val * radres;
-						lower_valsum += val;
-					}
+							lower_sample.at(l_index) += 0.5 *radres / 0.633/*/(2*beta/radres) */*  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+						}
 					else
 					{
-						upper_sample.at(kIndex) += factor * val * abs(cos(k*radres - (2 * j + 1) * pi / 4));
-						upper_sum += val * radres;
-						upper_valsum += val;
+						for (int l = midIndex ; l < midIndex + 2 * shiftIndex; l++)
+						{
+							int l_index = l % steps;;
+							if (l < 0)
+								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
+							upper_sample.at(l_index) += 0.5*radres / 0.633/* / (2*beta / radres)*/ *  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+						}
 					}
-
-					
-					sample.at(kIndex) += factor *val*abs(cos(k*radres - j * pi / 2));
 				}
 				
-				double valMean = valsum / (alpha / radres);
-				double lower_valMean = lower_valsum / (beta/radres);
-				double upper_valMean = upper_valsum / (beta / radres);
-				
-				// original grid size s=1.274 units ([m] in case dt = 1ns and c=3*10^^8m/2) ==> correct: semi-empiric factor to scale grid size s to 1..
-				if (valMean > 0)
-				{
-					sample = 1.547/valMean *(sum / sqrt(2.0))*sample; // center cosine mean to neighbor angle mean
-					upper_sample = 1.547 / upper_valMean *(upper_sum / sqrt(2.0))*upper_sample; // center cosine mean to neighbor angle mean
-					lower_sample = 1.547 / lower_valMean *(lower_sum / sqrt(2.0))*lower_sample; // center cosine mean to neighbor angle mean
-				}
-				else
-				{
-					sample = 1.547 *(sum / sqrt(2.0))*sample; // center cosine mean to neighbor angle mean
-					upper_sample = 1.547  *(sum / sqrt(2.0))*upper_sample; // center cosine mean to neighbor angle mean
-					lower_sample = 1.547  *(sum / sqrt(2.0))*lower_sample; // center cosine mean to neighbor angle mean
-				}
 
-				switch (j) // propagate correspondent to each edge dir w.r.t forward edges
+				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
-				case 0: if (fw0)
-				{
-					sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; 
-					if(fw1 && hood.getT())
+				case 0:	sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; 
+					if(hood.getT())
 						sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + upper_sample;
-					if (fw3 && hood.getB())
-						sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + lower_sample;
-				} break;
-				case 1: if (fw1)
-				{
+					if (hood.getB())
+						sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + lower_sample; break;
+				case 1:
+				
 					sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; ctrArray.at(i - width)++;
-					if (fw2 && hood.getL())
+					if (hood.getL())
 						sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + upper_sample;
-					if (fw0 && hood.getR())
-						sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + lower_sample;
-				} break;
-				case 2: if (fw2)
-				{
+					if (hood.getR())
+						sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + lower_sample; break;
+				case 2: 
 					sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; ctrArray.at(i - 1)++;
-					if (fw3 && hood.getB())
+					if (hood.getB())
 						sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + upper_sample;
-					if (fw1 && hood.getT())
-						sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + lower_sample;
-				} break;
-				case 3: if (fw3)
-				{
+					if (hood.getT())
+						sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + lower_sample;break;
+				case 3:
 					sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; ctrArray.at(i + width)++;
-					if (fw0 && hood.getR())
+					if (hood.getR())
 						sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + upper_sample;
-					if (fw2 && hood.getL())
-						sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + lower_sample;
-				} break;
+					if (hood.getL())
+						sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + lower_sample; break;
 
 				default: break;
 				}
@@ -1367,7 +1260,8 @@ int main(int argc, char* argv[])
 	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
 	sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
 	//parallel = true;
-																	   // DUAL BUFFER PROPAGATION //
+	
+	// DUAL BUFFER PROPAGATION //
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, jIndex, iIndex, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
 
@@ -1375,8 +1269,8 @@ int main(int argc, char* argv[])
 	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 	int ctr = 0;
-	//for(int i = 0; i < 10 ; i++)
-	while (!finished)
+	for(int i = 0; i < 10 ; i++)
+	//while (!finished)
 	{
 		prop.propagate(parallel); // propagate until finished..
 		sampleBufferA = sampleBufferB;
