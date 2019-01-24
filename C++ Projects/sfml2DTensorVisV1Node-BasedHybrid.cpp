@@ -316,6 +316,12 @@ public:
 				cout << "r: " << r << endl;
 				cout << "attenuation: " << r / 1.0 << endl;
 			}
+
+			if(t > 45*tinc && t < 47*tinc && index/width == width/2 - 1 && index%width == width/2 + 1 )
+			{
+				cout << "r(diag): " << r << endl;
+				cout << "attenuation: " << r / 1.0 << endl;
+			}
 			plot(index, mode);
 			t += tinc;
 		}
@@ -866,16 +872,27 @@ public:
 				if (!hood.getB() && k == 3)
 					continue;
 
+				if (i / width == jIndex && i%width == iIndex)
+					int a = 1;
+
 				double cellSize = 1.0;
 				double gamma = atan(1.5 / (1.0/cellSize + 0.5));
 
 				int widthIndex = 30;
+				int diagWidthIndex = 42;
 				int shiftIndex = (pi / 4) / radres;
+				
 				int midIndex = (k * pi / 2) / radres;
+				int diagUpIndex = (k * pi / 2 + pi / 4) / radres;
+				int diagDwnIndex = (k * pi / 2 - pi / 4) / radres;
 				int centralIndex = (alpha / 2) / radres;
 
 				double sum = 0.0;
+				double upper_sum = 0.0;
+				double lower_sum = 0.0;
 				double valsum = 0.0;
+				double upper_valsum = 0.0;
+				double lower_valsum = 0.0;
 				for (int j = midIndex - shiftIndex; j < midIndex + shiftIndex; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
@@ -891,7 +908,7 @@ public:
 						for (int l = midIndex - widthIndex; l < midIndex + widthIndex; l++) // for each step (along edge)..
 						{
 							double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-				
+
 
 							int l_index = l % steps;
 							if (l < 0)
@@ -901,55 +918,52 @@ public:
 							sum += res * radres;
 						}
 					}
-					
-					//else if (deltaJ < centralIndex)
-					//{
-					//	for (int l = j - widthIndex; l < j + widthIndex; l++)
-					//	{
-					//		double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-					//		int deltaL = l - midIndex;
-					//		if ((abs(deltaL) > shiftIndex))
-					//			continue;
+					else if (deltaJ < centralIndex)
+					{
+						lower_valsum += val * radres;
+						for (int l = diagDwnIndex - widthIndex; l < diagDwnIndex + widthIndex; l++)
+						{
+							double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+						/*	int deltaL = l - midIndex;
+							if ((abs(deltaL) > shiftIndex))
+								continue;*/
 
-					//		int l_index = l % steps;;
-					//		if (l < 0)
-					//			l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+							int l_index = l % steps;;
+							if (l < 0)
+								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					//		sample.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-					//		sum += res * radres;
-					//		//lower_sample.at(l_index) += 0.707 /*/ 0.633/(2*beta/radres) */*  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-					//		//sum += lower_sample.at(l_index)*radres;
-					//	}
-					//}
-					//else
-					//{
-					//	for (int l = j - widthIndex; l < j + widthIndex; l++)
-					//	{
-					//		double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-					//		int deltaL = l - midIndex;
-					//		if ((abs(deltaL) > shiftIndex))
-					//			continue;
+							lower_sample.at(l_index) += 0.5*res;// 0.707 /*/ 0.633/(2*beta/radres) */*  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							lower_sum += res*radres;
+						}
+					}
+					else
+					{
+						upper_valsum += val * radres;
+						for (int l = diagUpIndex - widthIndex; l < diagUpIndex + widthIndex; l++)
+						{
+							double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							/*int deltaL = l - midIndex;
+							if ((abs(deltaL) > shiftIndex))
+								continue;*/
 
-					//		int l_index = l % steps;;
-					//		if (l < 0)
-					//			l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+							int l_index = l % steps;;
+							if (l < 0)
+								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					//		sample.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-					//		sum += res * radres;
-					//		//upper_sample.at(l_index) += 0.707 /* / 0.633 / (2*beta / radres)*/ *  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-					//		//sum += upper_sample.at(l_index)*radres;
-					//	}
-					//}
+							upper_sample.at(l_index) += 0.5*res;// 0.707 /* / 0.633 / (2*beta / radres)*/ *  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							upper_sum += res*radres;
+						}
+					}
 
 
 				}
 
 				if (sum > 0)
-				{
 					sample = valsum / sum * sample;
-					upper_sample = valsum / sum * sample;
-					lower_sample = valsum / sum * sample;
-				}
+				if (upper_sum > 0)
+					upper_sample = upper_valsum / upper_sum * upper_sample;
+				if (lower_sum > 0)
+					lower_sample = lower_valsum / lower_sum * lower_sample;
 				
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
@@ -1398,7 +1412,7 @@ int main(int argc, char* argv[])
 	int drawSpeed = 0; // set instant drawing
 	int lineWidth = 0; // set line width = 1px
 	double thetaMax = 2 * pi;
-	double thetaInc = pi / 300; // set theta increment
+	double thetaInc = (2*pi) / 360; // set theta increment
 	double rotSpeed = 0; // set rotation speed
 	sf::Color red = sf::Color(255, 0, 0);
 	sf::Color green = sf::Color(0, 255, 0, Alpha);
