@@ -311,7 +311,7 @@ public:
 				r = sampleArray.at(index).at(static_cast<int>(std::round(t / radres)) % sample.size());
 
 			// PROPAGATION ATTENUATION TEST //
-			if (t == tinc && index / width == 3 && mode == 0)
+			if (t == tinc && index / width == width/2 && mode == 0)
 			{
 				cout << "r: " << r << endl;
 				cout << "attenuation: " << r / 1.0 << endl;
@@ -846,7 +846,7 @@ public:
 			std::fill(lower.begin(), lower.end(), 0);
 
 			read = sampleBufferA->at(i);
-
+		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 4; k++) // for each adjacent edge...
 			{
@@ -866,13 +866,16 @@ public:
 				if (!hood.getB() && k == 3)
 					continue;
 
-				int shiftIndex = (pi/4) / ( radres);
-				int midIndex = (k * pi / 2) / radres;
-				int centralIndex = (alpha/2) / radres;
+				double cellSize = 1.0;
+				double gamma = atan(1.5 / (1.0/cellSize + 0.5));
 
-		/*		for (int i = 0; i < steps; i++)
-					ctrArray.at(i) = 0;
-*/
+				int widthIndex = 27;
+				int shiftIndex = (pi / 4) / radres;
+				int midIndex = (k * pi / 2) / radres;
+				int centralIndex = (alpha / 2) / radres;
+
+				double sum = 0.0;
+				double valsum = 0.0;
 				for (int j = midIndex - shiftIndex; j < midIndex + shiftIndex; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
@@ -881,35 +884,69 @@ public:
 					if (j < 0)
 						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = read.at(j_index);
+					
 					if ((abs(deltaJ) <= centralIndex))
-						for (int l = midIndex - shiftIndex; l < midIndex + shiftIndex; l++)
-						{
-							int l_index = l % steps;;
-							if (l < 0)
-								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
-
-							sample.at(l_index) += 0.707*radres/0.633/* / (alpha / radres)*/* read.at(j_index)*abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-						}
-					else if (deltaJ < centralIndex)
-						for (int l = midIndex - 2*shiftIndex; l < midIndex; l++)
-						{
-							int l_index = l % steps;;
-							if (l < 0)
-								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
-
-							lower_sample.at(l_index) += 0.5 *radres / 0.633/*/(2*beta/radres) */*  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-						}
-					else
 					{
-						for (int l = midIndex ; l < midIndex + 2 * shiftIndex; l++)
+						valsum += val * radres;
+						for (int l = j - widthIndex; l < j + widthIndex; l++)
 						{
-							int l_index = l % steps;;
+							double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+
+							int l_index = l % steps;
 							if (l < 0)
 								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-							upper_sample.at(l_index) += 0.5*radres / 0.633/* / (2*beta / radres)*/ *  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							sample.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							sum += res * radres;
 						}
 					}
+					else if (deltaJ < centralIndex)
+					{
+						for (int l = j - widthIndex; l < j + widthIndex; l++)
+						{
+							double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							int deltaL = l - midIndex;
+							if ((abs(deltaL) > centralIndex))
+								continue;
+
+							int l_index = l % steps;;
+							if (l < 0)
+								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
+							sample.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							sum += res * radres;
+							//lower_sample.at(l_index) += 0.707 /*/ 0.633/(2*beta/radres) */*  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							//sum += lower_sample.at(l_index)*radres;
+						}
+					}
+					else
+					{
+						for (int l = j - widthIndex; l < j + widthIndex; l++)
+						{
+							double res = val;// *abs(cos((j_index - l_index) * radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							int deltaL = l - midIndex;
+							if ((abs(deltaL) > centralIndex))
+								continue;
+
+							int l_index = l % steps;;
+							if (l < 0)
+								l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
+							sample.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							sum += res * radres;
+							//upper_sample.at(l_index) += 0.707 /* / 0.633 / (2*beta / radres)*/ *  read.at(j_index)*abs(cos((j_index - l_index)*radres));// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+							//sum += upper_sample.at(l_index)*radres;
+						}
+					}
+
+
+				}
+
+				if (sum > 0)
+				{
+					sample = valsum / sum * sample;
+					upper_sample = valsum / sum * sample;
+					lower_sample = valsum / sum * sample;
 				}
 				
 
@@ -944,12 +981,6 @@ public:
 				}
 			}
 		
-		}
-
-		for (int i = 0; i < width*height; i++) // for each node..
-		{
-			/*if (ctrArray.at(i) != 0)
-				sampleBufferB->at(i) = 1.0 / ctrArray.at(i) * sampleBufferB->at(i);*/
 		}
 
 		//std::fill(ctrArray.begin(), ctrArray.end(), 0);
