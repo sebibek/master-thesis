@@ -770,7 +770,6 @@ class propagator
 	int jIndex = 0;
 	int iIndex = 0;
 
-
 	std::array<int, 4> centralEdgeIndex{ 0,1,2,3 };
 
 	// define function parser (muparser)
@@ -793,14 +792,7 @@ class propagator
 
 	// create sample vector (dynamic)
 	std::vector<double> sample;
-	std::vector<double> upper_sample;
-	std::vector<double> lower_sample;
 	std::vector<double> read;
-	std::vector<double> lower;
-	std::vector<double> one;
-	std::vector<double> two;
-	std::vector<double> three;
-	std::vector<double> four;
 
 	// create process(ed) map for cells already processed
 	std::vector<bool> processMap; // create a binary process(ed) map
@@ -823,16 +815,8 @@ public:
 
 		// empty (reset) sample for each edge
 		sample = std::vector<double>(steps, 0.0);
-		upper_sample = std::vector<double>(steps, 0.0);
-		lower_sample = std::vector<double>(steps, 0.0);
 		
 		read = std::vector<double>(steps, 0.0);
-		lower = std::vector<double>(steps, 0.0);
-		
-		one = std::vector<double>(steps, 0.0);
-		two = std::vector<double>(steps, 0.0);
-		three = std::vector<double>(steps, 0.0);
-		four = std::vector<double>(steps, 0.0);
 	}
 
 	void propagate(bool parallel = false)
@@ -893,7 +877,7 @@ public:
 						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = read.at(j_index);
 					
-					if ((abs(deltaJ) > centralIndex && k % 2 == 0) || (k%2 != 0))
+					if ((abs(deltaJ) > centralIndex) || (k%2 != 0))
 						val = 0.5*read.at(j_index);
 					
 					valsum += val * radres;
