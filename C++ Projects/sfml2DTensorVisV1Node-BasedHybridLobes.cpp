@@ -868,7 +868,7 @@ public:
 				double sum = 0.0;
 				double valsum = 0.0;
 
-				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
+				for (int j = midIndex - index; j < midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
 					int j_index = j%steps;
@@ -877,8 +877,12 @@ public:
 						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = read.at(j_index);
 					
-					if ((abs(deltaJ) > centralIndex) || (k%2 != 0))
-						val = 0.5*read.at(j_index);
+					if ((abs(deltaJ) > centralIndex) && k % 2 == 0)
+						val = 0.3712*read.at(j_index);
+					else if (k%2 != 0)
+						val = 0.6288*read.at(j_index);
+					/*if ((abs(deltaJ) > centralIndex) || (k % 2 != 0))
+						val = 0.5*read.at(j_index);*/
 					
 					valsum += val * radres;
 					for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
@@ -889,9 +893,10 @@ public:
 						int l_index = l % steps;
 						if (l < 0)
 							l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
 						double res = val * clip(cos((j_index - l_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-						if (k%2 != 0)
-							res = val * pow(clip(cos((j_index - l_index) * radres), 0.0, 1.0),1.4);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+						//if (k%2 != 0)
+						//	res = val * pow(clip(cos((j_index - l_index) * radres), 0.0, 1.0),1.4);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
 
 						sample.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
 						sum += res * radres;
@@ -962,7 +967,7 @@ int main(int argc, char* argv[])
 	computeGlyphs(functionStrEllipse, ellipseArray);
 	
 	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
-	std::string circle = "1.9"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
+	std::string circle = "2.1"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
 	
 	// write light src in coefficientArray
 	functionString = circle; // set circular (isotroic) profile for light src
