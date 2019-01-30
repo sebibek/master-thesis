@@ -27,7 +27,10 @@
 #include <filesystem>
 #include <string>
 //#include <algorithm>
-//#include <functional>
+#include <functional>
+#include <numeric>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/tee.hpp>
 //#include <cmath>
 
 // NAMESPACE IMPORTS
@@ -50,9 +53,6 @@ sf::Vector2i windowsize;
 const double pi = M_PI;
 
 // GENERIC FUNCTION DEFINITIONS
-
-// -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
-static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
 
 //writes frames to file 
 //directory must already exist -- parse file methods
@@ -354,52 +354,154 @@ bool reverse_interpolation = false;
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
 int record_frameskip = 0; // --> disables recording //recording frameskip 
+double intensity = 2.1; // --> initial intensity val
+std::string workDir;
 
-void parse_options(int argc, char* argv[]) {
+// parse files
+void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myPair>& positions) {
+
+	std::ifstream f(filename);
+
+	std::string line;
+
+	//default function attributes
+	sf::Color color = sf::Color::Cyan;
+	std::string func_literal = "100*cos(theta)";
+	int speed = 100;
+	int line_width = 0;
+	double tmax = 50 * pi;
+	double tinc = pi / 3000;
+	double rotation = 0;
+
+	if (f.is_open()) {
+
+		while (std::getline(f, line)) {
+
+			//ignore comments
+			if (line[0] == '#')
+				continue;
+			//write function to vector
+			else if (line == "end") {
+				funcs.push_back(func_literal);
+				//reset default values
+				func_literal = "100*cos(theta)";
+			}
+			
+			//parse other statements
+			else {
+				//grab keyword
+				std::string::size_type pos;
+				pos = line.find(' ', 0);
+				std::string tag = line.substr(0, pos);
+
+				//get function literal
+				if (tag == "function")
+					func_literal = line.substr(pos + 1);
+				//draw speed
+				else if (tag == "draw_speed") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> speed;
+				}
+				//check for fullscreen
+				else if (line == "fullscreen") {
+					fullscreen = true;
+				}
+				//line color
+				else if (tag == "color") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					int r = 0, g = 0, b = 0;
+					s >> r >> g >> b;
+					color = sf::Color(r, g, b);
+				}
+				else if (tag == "pos") 
+				{
+					myPair pair;
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					std::string str;
+					s >> str;
+					std::istringstream(str) >> pair;
+					positions.push_back(pair);
+				}
+				//window/graph size
+				else if (tag == "window_size") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> wSize;
+				}
+				//theta max
+				else if (tag == "theta_max") {
+					mu::Parser p;
+					p.DefineConst("pi", pi);
+					p.SetExpr(line.substr(pos + 1));
+					tmax = p.Eval();
+				}
+				//theta increment
+				else if (tag == "theta_increment") {
+					mu::Parser p;
+					p.DefineConst("pi", pi);
+					p.SetExpr(line.substr(pos + 1));
+					tinc = p.Eval();
+				}
+				//line width
+				else if (tag == "line_width") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> line_width;
+				}
+				else if (tag == "rotation_speed") {
+					mu::Parser p;
+					p.DefineConst("pi", pi);
+					p.SetExpr(line.substr(pos + 1));
+					rotation = p.Eval();
+				}
+				else if (tag == "record_frameskip") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> record_frameskip >> record_folder;
+				}
+			}
+		}
+
+		f.close();
+	}
+	else
+		std::cerr << filename << " is not a valid filename.\n";
+}
+
+void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<myPair>& positions) {
 
 	int c;
 	std::string frameskip_opt = "-1";
 	std::string size_opt = "-1";
 	std::string directory_opt = "";
 	std::string light_opt = "-1";
-	std::string parallel_opt = "-1";
-	std::string backprop_opt = "-1";
-	std::string reverse_interpolation_opt = "-1";
+	std::string intensity_opt = "-1";
+
 	//	extern char *optarg;
 	//	extern int optind, optopt;
 
 	//using getopts 
-	while ((c = getopt(argc, argv, "fs:a:d:l:p:b:r:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
+	while ((c = getopt(argc, argv, "fs:d:l:i:r:")) != -1) // --> classic getopt call: argc: # of args; argv: array of args(strings); "": optstring (registered options, followed by colon when taking args itself) 
 	{
 		int f = -1, s = -1;
 
 		switch (c)
 		{
-			// correct option use
+		// correct option use
 		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
 			break;
 		}
-		case 'p': {
-			parallel_opt.assign(optarg);
-			std::istringstream(parallel_opt) >> parallel;
+		case 'i': {
+			intensity_opt.assign(optarg);
+			std::istringstream(intensity_opt) >> intensity;
 			break;
 		}
-		case 'b': {
-			backprop_opt.assign(optarg);
-			std::istringstream(backprop_opt) >> backprop;
-			break;
-		}
-		case 'r': {
-			reverse_interpolation_opt.assign(optarg);
-			std::istringstream(reverse_interpolation_opt) >> reverse_interpolation;
-			break;
-		}
-		case 'f': {
-			fullscreen = true;
-			break; }
-		case 'a':
+		case 'r':
 			frameskip_opt.assign(optarg);
 			std::istringstream(frameskip_opt) >> f;
 			if (f <= -1) {
@@ -408,6 +510,9 @@ void parse_options(int argc, char* argv[]) {
 			}
 			record_frameskip = f > 0 ? f : 0;
 			break;
+		case 'f': {
+			fullscreen = true;
+			break; }
 		case 's':
 			size_opt.assign(optarg);
 			std::istringstream(size_opt) >> s;
@@ -447,6 +552,17 @@ void parse_options(int argc, char* argv[]) {
 			std::cerr << "Unrecognized option: '-" << optopt << "\n";
 			break;
 		}
+	}
+	int optmem = optind; // set up option index memory variable
+	for (int i = optind; i < argc; i++)
+		parse_file(argv[i], funcs, positions); // parse "filename.txt" passed as LAST cmd line arg
+	if (optind == optmem) // if optind did not change.., use standard config.txt in workDir for configuration
+	{
+		std::string str = workDir + "/config.txt";
+		char* cstr = new char[str.length() + 1];
+		strcpy_s(cstr, str.length() + 1, str.c_str());
+		parse_file(cstr, funcs, positions); // parse config.txt in workDir
+		free(cstr);
 	}
 }
 
@@ -536,7 +652,6 @@ T strFunction(T theta)
 	symbol_table_t symbol_table;
 	symbol_table.add_variable("theta", theta);
 	symbol_table.add_constants();
-	symbol_table.add_function(_T("clip"), clipNeg);
 
 	expression_t expression;
 	expression.register_symbol_table(symbol_table);
@@ -756,6 +871,8 @@ class propagator
 	int steps = (2 * pi) / radres;
 	int stepsQuarter = steps / 4;
 
+	double* sumA; double* sumMem;
+
 	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
@@ -766,12 +883,13 @@ class propagator
 	std::vector<double> out;
 
 public:
-	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
+	propagator(const int dim, double* summeA, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
 	{
 		// assign ptrs to member vectors
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
 		ellipseArray = ellipseArr;
+		sumA = summeA;
 
 		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
@@ -860,7 +978,8 @@ public:
 
 				if(sum> 0)
 					out = (valsum / sum) * out;
-						
+				
+				*sumA += std::accumulate(out.begin(), out.end(), 0.0) / (steps*sampleBufferA->size());
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
@@ -878,8 +997,6 @@ public:
 			}
 		
 		}
-
-	
 	}
 };
 
@@ -889,15 +1006,18 @@ int main(int argc, char* argv[])
 	int cols = 0; // create cols of txt tensor field
 	int rows = 0; // create rows of txt tensor field
 	cout << "before matrix read" << endl;
-	std::string workDir = GetCurrentWorkingDir();
+	workDir = GetCurrentWorkingDir();
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
 	const int dim = rows / 2 * cols / 2; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
-	lightSrcPos = { width / 2, width / 2 }; // initialize light src position option w. center point
+	lightSrcPos = { height / 2, width / 2 }; // initialize light src position option w. center point
 
+	// create vector for light src's symbolic user-input functions in convenient string format
+	std::vector<std::string> userFunctions;
+	std::vector<myPair> userPositions;
 	// parse input option file
-	parse_options(argc, argv);
+	parse_options(argc, argv, userFunctions, userPositions);
 
 	// create functionStr vectors to efficiently store the respective function strings for plotting..
 	std::vector<std::string> functionStr(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
@@ -921,32 +1041,58 @@ int main(int argc, char* argv[])
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(functionStrEllipse, ellipseArray);
 	
-	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
-	std::string circle = "2.1"; // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
-	
-	// write light src in coefficientArray
-	functionString = circle; // set circular (isotroic) profile for light src
-	int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
-	sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
-	//parallel = true;
-	
-	// DUAL BUFFER PROPAGATION //
-	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
+	//// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
+	//std::string circle = std::to_string(intensity); // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
+	//
+	//// write light src in coefficientArray
+	//functionString = circle; // set circular (isotroic) profile for light src
+	//int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
+	//sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
+	//
+	for (int i = 0; i < userFunctions.size(); i++)
+	{
+		functionString = userFunctions.at(i);
+		lightSrcPos = userPositions.at(i);
+		sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
+	}
 
-	double thresh = 0.000001;
+	// DUAL BUFFER PROPAGATION //
+	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
+	double meanMem = 0.0;
+
+	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
+	propagator prop(dim, &meanA, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
+
+	double thresh = 0.001;
 	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 	int ctr = 0;
-	for(int i = 0; i < 10; i++)
-	//while (!finished)
+
+	while (!finished)
 	{
+		meanA = 0.0;
 		prop.propagate(parallel); // propagate until finished..
 		sampleBufferA = sampleBufferB;
-		sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // overwrite (stamp) light src in BufferA
-		if (sampleBufferA == sampleBufferMem)
+		for (int i = 0; i < userFunctions.size(); i++)
+		{
+			functionString = userFunctions.at(i);
+			lightSrcPos = userPositions.at(i);
+			sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
+		}
+		if (abs(meanA - meanMem) < thresh)
 			finished = true;
-		sampleBufferMem = sampleBufferA;
+		meanMem = meanA;
+		/*double averageA = 0.0;
+		double averageMem = 0.0;
+		for (int j = 0; j < sampleBufferA.size(); j++)
+		{
+			averageA += std::accumulate(sampleBufferA.at(j).begin(), sampleBufferA.at(j).end(), 0.0) / (steps*sampleBufferA.size());
+			averageMem += std::accumulate(sampleBufferMem.at(j).begin(), sampleBufferMem.at(j).end(), 0.0) / (steps*sampleBufferMem.size());
+		}
+		if(abs(averageA - averageMem) < thresh)
+			finished = true;*/
+
+		//sampleBufferMem = sampleBufferA;
 		ctr++;
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
