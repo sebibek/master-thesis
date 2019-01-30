@@ -104,7 +104,7 @@ class neighborhood
 public:
 
 	//constructor
-	neighborhood(int j, int i, const int length, std::vector<bool>& processMap) // check the neighbourhood of (j,i) for missing neighbors..
+	neighborhood(int j, int i, const int length) // check the neighbourhood of (j,i) for missing neighbors..
 	{
 		// check if frame exceeded, outside FOV, offscreen..
 		if (i == 0)
@@ -116,21 +116,6 @@ public:
 		else if (j == height - 1)
 			neighborB = false; // bottom
 		// leave order.. functional!
-
-		// check neighbors in process(ed) map, for neighbors already processed ..
-		if (neighborR) // if neighbor existent..
-			if (processMap.at(i + 1 + j * width) == true)
-				neighborR = false; // right
-		if (neighborT)
-			if (processMap.at(i + (j - 1) * width) == true)
-				neighborT = false; // top
-		if (neighborL)
-			if (processMap.at(i - 1 + j * width) == true)
-				neighborL = false; // left
-		if (neighborB)
-			if (processMap.at(i + (j + 1) * width) == true)
-				neighborB = false; // bottom
-		// ordered again..
 	}
 
 	bool getR() { return neighborR; }
@@ -765,58 +750,32 @@ class propagator
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
 	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
-	std::array<int, 12> coneDirections{ 3,0,1,0,1,2,1,2,3,2,3,0 };
-
-	int jIndex = 0;
-	int iIndex = 0;
-
-	std::array<int, 4> centralEdgeIndex{ 0,1,2,3 };
 
 	// define function parser (muparser)
-	double tinc = 2 * pi / 72; // set theta increment tinc
 	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
 	int steps = (2 * pi) / radres;
 	int stepsQuarter = steps / 4;
 
 	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
-	std::vector<std::string>* functionStr; // initialize w. 0.0 to prevent parser errors
-	std::vector<std::string>* functionStrEllipse; // initialize w. 0.0 to prevent parser errors
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
-	std::vector<int> ctrArray;
 	std::vector<std::tuple<double, double, double>>* ellipseArray;
-
 	
-	// create threshhold for aborting the fourier series expansion
-	double thresh = 0.0001;
-
 	// create sample vector (dynamic)
-	std::vector<double> sample;
 	std::vector<double> read;
-
-	// create process(ed) map for cells already processed
-	std::vector<bool> processMap; // create a binary process(ed) map
-	std::vector<bool> processMapNodes; // create a binary process(ed) map
+	std::vector<double> out;
 
 public:
-	propagator(const int dim, const int j, const int i, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr) : processMap((height)*(width), false), processMapNodes((height)*(width), false), ctrArray(dim, 0)
+	propagator(const int dim, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
 	{
-		// initialize member sample w. 0
-		//sample = std::vector<double>(steps, 0.0);
-		// assign light src position indices
-		jIndex = j;
-		iIndex = i;
 		// assign ptrs to member vectors
-		functionStr = fStr;
-		functionStrEllipse = fStrEllipse;
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
 		ellipseArray = ellipseArr;
 
-		// empty (reset) sample for each edge
-		sample = std::vector<double>(steps, 0.0);
-		
+		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
+		out = std::vector<double>(steps, 0.0);
 	}
 
 	void propagate(bool parallel = false)
@@ -824,7 +783,7 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			neighborhood hood(i / width, i%width, width, processMap);
+			neighborhood hood(i / width, i%width, width);
 			
 			std::fill(read.begin(), read.end(), 0);
 			read = sampleBufferA->at(i);
@@ -833,8 +792,7 @@ public:
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
 				// empty (reset) sample, upper and lower for each edge
-				std::fill(sample.begin(), sample.end(), 0);
-				int dirIndex = coneDirections.at(k); // create index to capture the 4 cone directions	
+				std::fill(out.begin(), out.end(), 0);
 
 					// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
 				if (!hood.getR() && k == 0)
@@ -853,9 +811,6 @@ public:
 					continue;
 				if ((!hood.getB() || !hood.getR()) && k == 7)
 					continue;
-
-				if (i / width == jIndex && i%width == iIndex)
-					int a = 1;
 
 				int betaIndex = (beta)/radres;
 				int shiftIndex = pi/2/radres;
@@ -878,9 +833,9 @@ public:
 					double val = read.at(j_index);
 					
 					if ((abs(deltaJ) > centralIndex) && k % 2 == 0)
-						val = 0.3712*read.at(j_index);
+						val = 0.3712*val;
 					else if (k%2 != 0)
-						val = 0.6288*read.at(j_index);
+						val = 0.6288*val;
 					/*if ((abs(deltaJ) > centralIndex) || (k % 2 != 0))
 						val = 0.5*read.at(j_index);*/
 					
@@ -898,25 +853,25 @@ public:
 						//if (k%2 != 0)
 						//	res = val * pow(clip(cos((j_index - l_index) * radres), 0.0, 1.0),1.4);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
 
-						sample.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+						out.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
 						sum += res * radres;
 					}
 				}
 
 				if(sum> 0)
-					sample = (valsum / sum) * sample;
+					out = (valsum / sum) * out;
 						
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
-				case 0:	sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + sample; break;
-				case 1:	sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + sample; break;
-				case 2:	sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + sample; break;
-				case 3: sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + sample; break;
-				case 4: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + sample; break;
-				case 5: sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + sample; break;
-				case 6: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + sample; break;
-				case 7: sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + sample; break;
+				case 0:	sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + out; break;
+				case 1:	sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + out; break;
+				case 2:	sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + out; break;
+				case 3: sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + out; break;
+				case 4: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + out; break;
+				case 5: sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + out; break;
+				case 6: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + out; break;
+				case 7: sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + out; break;
 		
 				default: break;
 				}
@@ -977,7 +932,7 @@ int main(int argc, char* argv[])
 	
 	// DUAL BUFFER PROPAGATION //
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, jIndex, iIndex, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
+	propagator prop(dim, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
 
 	double thresh = 0.000001;
 	bool finished = false;

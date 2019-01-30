@@ -924,12 +924,12 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 		}
 		else // if mirroring at one single axis.. swap!
 		{
-			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
+			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale y
 			{
 				a = sv2;
 				b = sv1;
 			}
-			else // if anisotropic y-scaling, scale y
+			else // if anisotropic y-scaling, scale x
 			{
 				a = sv1;
 				b = sv2;
