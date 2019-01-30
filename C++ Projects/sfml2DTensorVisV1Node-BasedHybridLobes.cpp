@@ -494,6 +494,7 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
 			positions.push_back(lightSrcPos);
+			funcs.push_back(std::to_string(intensity));
 			break;
 		}
 		case 'i': {
