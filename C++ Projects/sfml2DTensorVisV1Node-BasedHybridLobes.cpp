@@ -347,7 +347,7 @@ public:
 // OPTION (cmd args) DEFINITIONS - getopt
 
 // create options for getopt(.c)
-myPair lightSrcPos{ width / 2, width / 2 };
+myPair lightSrcPos{ height / 2, width / 2 };
 bool parallel = false;
 bool backprop = false;
 bool reverse_interpolation = false;
@@ -417,13 +417,12 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 				}
 				else if (tag == "pos") 
 				{
-					myPair pair;
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					std::string str;
 					s >> str;
-					std::istringstream(str) >> pair;
-					positions.push_back(pair);
+					std::istringstream(str) >> lightSrcPos;
+					positions.push_back(lightSrcPos);
 				}
 				//window/graph size
 				else if (tag == "window_size") {
@@ -494,6 +493,7 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
+			positions.push_back(lightSrcPos);
 			break;
 		}
 		case 'i': {
