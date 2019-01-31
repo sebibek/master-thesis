@@ -1,0 +1,6 @@
+https://blogs.mathworks.com/cleve/2013/07/08/eigshow-week-1/
+"Notice that the eigenvectors are not the major and minor axes of the ellipse. This matrix is not quite symmetric. If it were symmetric, the eigenvectors would be the axes."
+
+Caveat: week 3 ERROR: use->
+http://www.automatedtrader.net/articles/42/144202/eigshow--week-3
+https://blogs.mathworks.com/cleve/2016/08/08/bug-report-revives-interest-in-svd-option-of-eigshow/

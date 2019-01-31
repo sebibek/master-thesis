@@ -20,7 +20,7 @@
 #include <vector>
 #include <unistd.h>
 #include <math.h>
-#include "exprtk.hpp"
+//#include "exprtk.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <array>
@@ -39,20 +39,23 @@ using namespace Eigen;
 using namespace mu;
 
 // PROTOTYPES
-std::string functionString; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
+std::string functionString = "1.0"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper); // template clip function
 
 //length and width of window
-int wSize = 700;
+int wSize = 701;
 sf::Vector2i windowsize;
 
 //definition of pi
 const double pi = M_PI;
 
 // GENERIC FUNCTION DEFINITIONS
+
+// -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
+static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
 
 //writes frames to file 
 //directory must already exist -- parse file methods
@@ -644,25 +647,16 @@ std::vector<T> operator*(const T a, const std::vector<T>& b)
 template <typename T>
 T strFunction(T theta)
 {
-	typedef exprtk::symbol_table<T> symbol_table_t;
-	typedef exprtk::expression<T>     expression_t;
-	typedef exprtk::parser<T>             parser_t;
+	// define function parser (muparser)
+	T t = theta; // ->theta: set initial theta
+	mu::Parser parser;
+	parser.DefineConst("pi", pi);
+	parser.DefineVar("theta", &t);
+	parser.SetExpr(functionString);
+	parser.DefineFun(_T("clip"), clipNeg, false);
 
-	std::string expression_string = functionString;
 
-	symbol_table_t symbol_table;
-	symbol_table.add_variable("theta", theta);
-	symbol_table.add_constants();
-
-	expression_t expression;
-	expression.register_symbol_table(symbol_table);
-
-	parser_t parser;
-	//parser.DefineFun(_T("clip"), clipNeg, false);
-	parser.compile(expression_string, expression);
-	T y = 0;
-
-	y = expression.value();
+	T y = parser.Eval(); // evaluate parser expression
 
 	return y;
 }
@@ -709,7 +703,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
-void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std::tuple<double, double, double>>& ellipseArray)
+void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::tuple<double, double, double>>& ellipseArray)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
 	int rows = 0; // create ptr to rows of txt tensor field
@@ -737,15 +731,9 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 		svdList.at(i) = svd;
 	}
 
-	// define parser parameters
-	double t = 0; // ->theta: set initial theta
-	double tinc = 2 * pi / 72; // set theta increment tinc
-	int steps = (2 * pi) / tinc; // set # of steps
-
-	// define function parser (muparser)
-	mu::Parser parser;
-	parser.DefineConst("pi", pi);
-	parser.DefineVar("theta", &t);
+	// define parameters
+	double radres = 0.01745;
+	int steps = (2 * pi) / radres; // set # of steps
 
 	// iterate through the matrixList/svdList and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
@@ -765,88 +753,28 @@ void computeGlyphs(std::vector<std::string>& functionStrEllipse, std::vector<std
 		if (deg2 < 0)
 			deg2 = 360 + deg2;
 
-		double deg = 0;
-		if (deg1 >= 270 && deg2 <= 90) // caveat: if basis vector u1 in 4th quadrant and u2 in 1st - continuity/consistency constraint
-			deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-		else if (deg2 >= 270 && deg1 <= 90) // caveat: if basis vector u2 in 4th quadrant and u2 in 1st - continuity/consistency constraint
-			deg = atan(y2 / x2) * 180.0 / M_PI;
-		else if (deg2 > deg1) // if u2 is leading vector 
-			deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-		else // if u1 is leading vector
-			deg = atan(y2 / x2) * 180.0 / M_PI; // use u2 as lagging vector
-		// --> u1 and u2 form basis vectors obtained from SVD, whereas the phase(leading vector) - phase(lagging vector) = 90 --> determine u1,u2
-
+		// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
 		double sv1 = svdList.at(i).singularValues()[0];
 		double sv2 = svdList.at(i).singularValues()[1];
-
 		double dot = sv2 * sv1;
-		double a = 0; // x-scale
-		double b = 0; // y-scale
 
-		// --> eventually, use std::swap to swap ptrs to sv1,sv2 dynamically
-		if (((yy < 0 && xx < 0) || (yy >= 0 && xx >= 0))) // if not mirroring at one single axis..
-		{
-			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
-			{
-				a = sv1;
-				b = sv2;
-			}
-			else // if anisotropic y-scaling, scale y
-			{
-				a = sv2;
-				b = sv1;
-			}
-		}
-		else // if mirroring at one single axis.. swap!
-		{
-			if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
-			{
-				a = sv2;
-				b = sv1;
-			}
-			else // if anisotropic y-scaling, scale y
-			{
-				a = sv1;
-				b = sv2;
-			}
-		}
+		double deg = 0;
+		deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
 
 		// assign ellipse parameters in ellipseArray
 		ellipseArray.at(i) = { sv1, sv2, deg*(M_PI / 180.0) };
 
-		// define products as string modules to form (construct) ellipse string for current transmission profile T(w)
-		std::string aSquaredString = std::to_string(a*a);
-		std::string bSquaredString = std::to_string(b*b);
-		std::string dotString = std::to_string(dot);
-		std::string radString = std::to_string(deg*(M_PI / 180.0));
-
-		std::string ellipse = dotString + "/sqrt(" + bSquaredString + "*cos(theta-" + radString + ")*cos(theta-" + radString + ")+" + aSquaredString + "*sin(theta-" + radString + ")*sin(theta-" + radString + "))";
-
-		// define parser parameters
-		t = 0; // ->theta: set initial theta
-		parser.SetExpr(ellipse);
-
 		double sum = 0.0;
-		// sum r(theta) over (around) the ellipse to obtain mean(r)
-		for (int i = 0; i < steps; i++)
+		for (int j = 0; j < steps; j++)
 		{
-			sum += parser.Eval(); t += tinc;
+			double val = dot / sqrt(sv2*sv2*cos(j*radres - deg * (M_PI / 180.0))*cos(j*radres - deg * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg * (M_PI / 180.0))*sin(j*radres - deg * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
+			sum += val;
+			glyphBuffer.at(i).at(j) = val;
 		}
 
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 
-		if (rMean != 0) // only w. rMean != 0, else neglect normalization to prevent division by zero (NANs)...
-		{
-			// scale string-modules of ellipse string to rMean(Max)
-			aSquaredString = std::to_string(a*a*(1 / rMean)*(1 / rMean));
-			bSquaredString = std::to_string(b*b*(1 / rMean)*(1 / rMean));
-			dotString = std::to_string(dot*(1 / rMean)*(1 / rMean));
-		}
-
-		ellipse = dotString + "/sqrt(" + bSquaredString + "*cos(theta-" + radString + ")*cos(theta-" + radString + ")+" + aSquaredString + "*sin(theta-" + radString + ")*sin(theta-" + radString + "))"; // insert normalization factor right into polar ellipse function at pos. 0
-
-		// TODO: use ellipses normalized to mean(e)=1 for testing!, use ellipses normalized to mean(e)=max(mean(e)) for real fields!
-		functionStrEllipse.at(i) = ellipse; // transmission profile T(w)
+		glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
 }
 
@@ -872,7 +800,7 @@ class propagator
 	int steps = (2 * pi) / radres;
 	int stepsQuarter = steps / 4;
 
-	double* sumA; double* sumMem;
+	double* meanA;
 
 	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
 	std::vector<std::vector<double>>* sampleBufferA;
@@ -884,13 +812,13 @@ class propagator
 	std::vector<double> out;
 
 public:
-	propagator(const int dim, double* summeA, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
+	propagator(const int dim, double* meana, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
 	{
 		// assign ptrs to member vectors
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
 		ellipseArray = ellipseArr;
-		sumA = summeA;
+		meanA = meana;
 
 		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
@@ -980,7 +908,7 @@ public:
 				if(sum> 0)
 					out = (valsum / sum) * out;
 				
-				*sumA += std::accumulate(out.begin(), out.end(), 0.0) / (steps*sampleBufferA->size());
+				*meanA += std::accumulate(out.begin(), out.end(), 0.0) / (steps*sampleBufferA->size());
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
@@ -1024,7 +952,6 @@ int main(int argc, char* argv[])
 	std::vector<std::string> functionStr(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 	std::vector<std::string> functionStrEllipse(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
 
-	double tinc = 2 * pi / 72;
 	double radres = 0.01745;
 	int steps = 2 * pi / radres;
 
@@ -1033,14 +960,15 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> sampleBufferA((width)*(height), initArray);
 	std::vector<std::vector<double>> sampleBufferB((width)*(height), initArray);
 	std::vector<std::vector<double>> sampleBufferMem((width)*(height), initArray);
+	std::vector<std::vector<double>> glyphBuffer((width)*(height), initArray);
 	//
 	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
-	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // ..use it to initialize the coefficient array w. dim elements
+	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // TODO: REM: unnecessary after ellipse array sampling
 
-	//cout << "before compute glyphs" << endl;
+	cout << "before compute glyphs" << endl;
 	
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(functionStrEllipse, ellipseArray);
+	computeGlyphs(glyphBuffer, ellipseArray);
 	
 	//// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
 	//std::string circle = std::to_string(intensity); // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
@@ -1050,13 +978,17 @@ int main(int argc, char* argv[])
 	//int jIndex = lightSrcPos.jIndex; int iIndex = lightSrcPos.iIndex; // create light src position indices
 	//sample(strFunction, sampleBufferA, radres, steps, jIndex, iIndex); // sample the light profile w. muParser
 	//
-	for (int i = 0; i < userFunctions.size(); i++)
-	{
-		functionString = userFunctions.at(i);
-		lightSrcPos = userPositions.at(i);
+	if(userFunctions.size())
+		for (int i = 0; i < userFunctions.size(); i++)
+		{
+			functionString = userFunctions.at(i);
+			lightSrcPos = userPositions.at(i);
+			sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
+		}
+	else
 		sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
-	}
 
+	cout << "before propagation.., ctr:" << endl;
 	// DUAL BUFFER PROPAGATION //
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 	double meanMem = 0.0;
@@ -1074,12 +1006,15 @@ int main(int argc, char* argv[])
 		meanA = 0.0;
 		prop.propagate(parallel); // propagate until finished..
 		sampleBufferA = sampleBufferB;
-		for (int i = 0; i < userFunctions.size(); i++)
-		{
-			functionString = userFunctions.at(i);
-			lightSrcPos = userPositions.at(i);
+		if (userFunctions.size())
+			for (int i = 0; i < userFunctions.size(); i++)
+			{
+				functionString = userFunctions.at(i);
+				lightSrcPos = userPositions.at(i);
+				sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
+			}
+		else
 			sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
-		}
 		if (abs(meanA - meanMem) < thresh)
 			finished = true;
 		meanMem = meanA;
@@ -1190,7 +1125,7 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < dim; i++)
 	{
 		funcs.push_back(polarPlot(sampleBufferA.at(i), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
-		funcsEllipses.push_back(polarPlot(functionStrEllipse.at(i), drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, green));
+		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, green));
 	}
 
 	//declare renderwindow
@@ -1250,7 +1185,7 @@ int main(int argc, char* argv[])
 			// define ellipses as convex shapes (with semi-axes u scaled to the specific singular values
 			sf::ConvexShape ellipse;
 			ellipse.setPointCount(quality);
-			defineConvexEllipse(&ellipse, 2.0, 2.0, quality);
+			defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
 			ellipse.setPosition(offsetX, offsetY); // set ellipse position
 
 			funcs.at(i).animation(i, 0, sampleBufferA);
