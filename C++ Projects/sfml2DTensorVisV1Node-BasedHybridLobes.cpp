@@ -778,12 +778,12 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	}
 }
 
-void sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, int steps, int jIndex, int iIndex)
+std::vector<double> sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, int steps, int jIndex, int iIndex)
 {
 	std::vector<double> sample(steps, 0.0);
 	for (int i = 0; i < steps; i++)
 		sample.at(i) = f(i*radres);
-	sampleArray.at(iIndex + jIndex * (width)) = sample;
+	return sample;
 }
 
 class propagator
@@ -812,13 +812,13 @@ class propagator
 	std::vector<double> out;
 
 public:
-	propagator(const int dim, double* meana, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
+	propagator(const int dim, double* mean, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
 	{
 		// assign ptrs to member vectors
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
 		ellipseArray = ellipseArr;
-		meanA = meana;
+		meanA = mean;
 
 		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
@@ -965,6 +965,7 @@ int main(int argc, char* argv[])
 	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
 	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // TODO: REM: unnecessary after ellipse array sampling
 
+	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
 	
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
@@ -983,12 +984,17 @@ int main(int argc, char* argv[])
 		{
 			functionString = userFunctions.at(i);
 			lightSrcPos = userPositions.at(i);
-			sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
+			lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
 		}
 	else
-		sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
+	{
+		lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
+		userPositions.push_back(myPair(lightSrcPos.jIndex, lightSrcPos.iIndex));
+	}
+	for (int i = 0; i < lightSrcs.size(); i++)
+		sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
 
-	cout << "before propagation.., ctr:" << endl;
+	cout << "before propagation.." << endl;
 	// DUAL BUFFER PROPAGATION //
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 	double meanMem = 0.0;
@@ -1006,29 +1012,13 @@ int main(int argc, char* argv[])
 		meanA = 0.0;
 		prop.propagate(parallel); // propagate until finished..
 		sampleBufferA = sampleBufferB;
-		if (userFunctions.size())
-			for (int i = 0; i < userFunctions.size(); i++)
-			{
-				functionString = userFunctions.at(i);
-				lightSrcPos = userPositions.at(i);
-				sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
-			}
-		else
-			sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex); // sample the light profile w. muParser
+		for (int i = 0; i < lightSrcs.size(); i++)
+			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);
+		
 		if (abs(meanA - meanMem) < thresh)
 			finished = true;
 		meanMem = meanA;
-		/*double averageA = 0.0;
-		double averageMem = 0.0;
-		for (int j = 0; j < sampleBufferA.size(); j++)
-		{
-			averageA += std::accumulate(sampleBufferA.at(j).begin(), sampleBufferA.at(j).end(), 0.0) / (steps*sampleBufferA.size());
-			averageMem += std::accumulate(sampleBufferMem.at(j).begin(), sampleBufferMem.at(j).end(), 0.0) / (steps*sampleBufferMem.size());
-		}
-		if(abs(averageA - averageMem) < thresh)
-			finished = true;*/
 
-		//sampleBufferMem = sampleBufferA;
 		ctr++;
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
