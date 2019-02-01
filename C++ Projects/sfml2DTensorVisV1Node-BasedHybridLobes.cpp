@@ -38,6 +38,9 @@ using namespace std;
 using namespace Eigen;
 using namespace mu;
 
+typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
+typedef boost::iostreams::stream<Tee> TeeStream;
+
 // PROTOTYPES
 std::string functionString = "1.0"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
@@ -138,6 +141,8 @@ class polarPlot
 	// draw speed
 	int speed;
 	int line_width;
+	int steps;
+	int ctr = 0;
 	// theta
 	double t;
 	// radius
@@ -152,7 +157,7 @@ class polarPlot
 
 public:
 
-	//constructor #1 string parser - muParser
+	//constructor #1 string parser - muParser: class-own this-> resolution tinc passed as tinc_in used for parsing
 	polarPlot(std::string tag,
 		int speed_in,
 		int line_width_in,
@@ -173,28 +178,52 @@ public:
 		p.SetExpr(tag);
 	}
 
-	//constructor #2 array parser
+	//constructor #2 array parser w. array-inherited resolution radres
 	polarPlot(std::vector<double> Sample,
-		double res,
 		int speed_in,
 		int line_width_in,
+		int steps_in,
 		double tmax_in,
-		double tinc_in,
+		double res,
 		double rotation_in,
 		sf::Color color_in)
 
 		: speed(speed_in),
 		line_width(line_width_in),
+		steps(steps_in),
 		t(0),
 		tmax(tmax_in),
-		tinc(tinc_in),
-		rotation(rotation_in),
-		sample(Sample),
 		radres(res),
+		rotation(rotation_in),
 		color(color_in)
 	{
 		discretePlot = true;
 	}
+
+	////constructor #3 array parser w. 2 different resolutions, array-inherited resolution radres and plot resolution tinc_in, usually coarser resolutions for performance reasons
+	//polarPlot(std::vector<double> Sample,
+	//	int speed_in,
+	//	int line_width_in,
+	//	int steps_in,
+	//	double tmax_in,
+	//	double tinc_in,
+	//	double res,
+	//	double rotation_in,
+	//	sf::Color color_in)
+
+	//	: speed(speed_in),
+	//	line_width(line_width_in),
+	//	steps(steps_in),
+	//	t(0),
+	//	tmax(tmax_in),
+	//	tinc(tinc_in),
+	//	sample(Sample),
+	//	rotation(rotation_in),
+	//	radres(res),
+	//	color(color_in)
+	//{
+	//	discretePlot = true;
+	//}
 
 	//initialize muparser and graphics 
 	void init() {
@@ -266,10 +295,9 @@ public:
 		}
 	}
 
-	//plots draw_speed points per frame
+	// STRING PARSER OVERLOAD of animation - use w. string/mixed resolution constructor overload
 	void animation(int index = 0, int mode = 0)
 	{
-
 
 		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
 		{
@@ -278,42 +306,37 @@ public:
 			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
 				r = sample.at(static_cast<int>(std::round(t / radres)) % sample.size()); // cyclic value permutation
 
-			// PROPAGATION ATTENUATION TEST //
-			/*if (t == tinc && index/width == 3 && mode == 0)
-			{
-				cout << "r: " << r << endl;
-				cout << "attenuation: " << r / 1.0 << endl;
-			}*/
 			plot(index, mode);
 			t += tinc;
 		}
 	}
-	//plots draw_speed points per frame
-	void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray)
-	{
-		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
+	// DISCRETE SAMPING OVERLOAD for animation... faster and no string parsing necessary - use for inherited resolution constructor overload
+	void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray, TeeStream& both)
+	{	
+		t = 0.0; // reset theta variable for each cell to prevent from long-term shifting
+
+		for (int i = 0; (i < speed || speed == 0) && i < steps; i++)
 		{
-			if (!discretePlot) // use muParser for evaluation 
-				r = p.Eval();
-			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
-				r = sampleArray.at(index).at(static_cast<int>(std::round(t / radres)) % sample.size());
+			r = sampleArray.at(index).at(i);
 
 			// PROPAGATION ATTENUATION TEST //
-			if (t == tinc && index / width == width/2 && mode == 0)
+			if (i == 0 && index / width == width/2 && mode == 0 && ctr == 0)
 			{
-				cout << "r: " << r << endl;
-				cout << "attenuation: " << r / 1.0 << endl;
+				both << "r: " << r << endl;
+				both << "attenuation: " << r / 1.0 << endl;
+				ctr++;
 			}
 
-			if(t > 45*tinc && t < 47*tinc && index/width == width/2 - 1 && index%width == width/2 + 1 )
+			/*if(t > 45*tinc && t < 47*tinc && index/width == width/2 - 1 && index%width == width/2 + 1 )
 			{
 				cout << "r(diag): " << r << endl;
 				cout << "attenuation: " << r / 1.0 << endl;
-			}
+			}*/
 			plot(index, mode);
-			t += tinc;
+			t += radres;
 		}
 	}
+
 };
 
 class myPair
@@ -351,14 +374,12 @@ public:
 
 // create options for getopt(.c)
 myPair lightSrcPos{ height / 2, width / 2 };
-bool parallel = false;
-bool backprop = false;
-bool reverse_interpolation = false;
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
 int record_frameskip = 0; // --> disables recording //recording frameskip 
 double intensity = 2.1; // --> initial intensity val
 std::string workDir;
+double thresh = 0.001;
 
 // parse files
 void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myPair>& positions) {
@@ -370,11 +391,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 	//default function attributes
 	sf::Color color = sf::Color::Cyan;
 	std::string func_literal = "100*cos(theta)";
-	int speed = 100;
-	int line_width = 0;
-	double tmax = 50 * pi;
-	double tinc = pi / 3000;
-	double rotation = 0;
+	myPair position{ height / 2, width / 2 };
 
 	if (f.is_open()) {
 
@@ -388,6 +405,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 				funcs.push_back(func_literal);
 				//reset default values
 				func_literal = "100*cos(theta)";
+				positions.push_back(position);
 			}
 			
 			//parse other statements
@@ -400,12 +418,6 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 				//get function literal
 				if (tag == "function")
 					func_literal = line.substr(pos + 1);
-				//draw speed
-				else if (tag == "draw_speed") {
-					std::stringstream s;
-					s << line.substr(pos + 1);
-					s >> speed;
-				}
 				//check for fullscreen
 				else if (line == "fullscreen") {
 					fullscreen = true;
@@ -418,46 +430,26 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 					s >> r >> g >> b;
 					color = sf::Color(r, g, b);
 				}
+				// enter light src position
 				else if (tag == "pos") 
 				{
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					std::string str;
 					s >> str;
-					std::istringstream(str) >> lightSrcPos;
-					positions.push_back(lightSrcPos);
+					std::istringstream(str) >> position;
+				}
+				// thresh
+				else if (tag == "thresh") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> thresh;
 				}
 				//window/graph size
 				else if (tag == "window_size") {
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					s >> wSize;
-				}
-				//theta max
-				else if (tag == "theta_max") {
-					mu::Parser p;
-					p.DefineConst("pi", pi);
-					p.SetExpr(line.substr(pos + 1));
-					tmax = p.Eval();
-				}
-				//theta increment
-				else if (tag == "theta_increment") {
-					mu::Parser p;
-					p.DefineConst("pi", pi);
-					p.SetExpr(line.substr(pos + 1));
-					tinc = p.Eval();
-				}
-				//line width
-				else if (tag == "line_width") {
-					std::stringstream s;
-					s << line.substr(pos + 1);
-					s >> line_width;
-				}
-				else if (tag == "rotation_speed") {
-					mu::Parser p;
-					p.DefineConst("pi", pi);
-					p.SetExpr(line.substr(pos + 1));
-					rotation = p.Eval();
 				}
 				else if (tag == "record_frameskip") {
 					std::stringstream s;
@@ -703,7 +695,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
-void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::tuple<double, double, double>>& ellipseArray)
+void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
 	int rows = 0; // create ptr to rows of txt tensor field
@@ -761,9 +753,6 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double deg = 0;
 		deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
 
-		// assign ellipse parameters in ellipseArray
-		ellipseArray.at(i) = { sv1, sv2, deg*(M_PI / 180.0) };
-
 		double sum = 0.0;
 		for (int j = 0; j < steps; j++)
 		{
@@ -798,26 +787,26 @@ class propagator
 	// define function parser (muparser)
 	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
 	int steps = (2 * pi) / radres;
-	int stepsQuarter = steps / 4;
-
+	int shiftIndex = steps / 4;
+	int betaIndex = (beta) / radres;
+	int centralIndex = (alpha / 2) / radres;
+	
 	double* meanA;
 
-	// create member vectors (arrays) for storing the symbolic strings and fourier (CH) coefficients (external)
+	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
-	std::vector<std::tuple<double, double, double>>* ellipseArray;
 	
 	// create sample vector (dynamic)
 	std::vector<double> read;
 	std::vector<double> out;
 
 public:
-	propagator(const int dim, double* mean, std::vector<std::string>* fStr, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::string>* fStrEllipse, std::vector<std::tuple<double, double, double>>* ellipseArr)
+	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB)
 	{
 		// assign ptrs to member vectors
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
-		ellipseArray = ellipseArr;
 		meanA = mean;
 
 		// initialize member samples w. 0
@@ -825,14 +814,13 @@ public:
 		out = std::vector<double>(steps, 0.0);
 	}
 
-	void propagate(bool parallel = false)
+	void propagate()
 	{
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
 			neighborhood hood(i / width, i%width, width);
 			
-			std::fill(read.begin(), read.end(), 0);
 			read = sampleBufferA->at(i);
 		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
@@ -859,10 +847,7 @@ public:
 				if ((!hood.getB() || !hood.getR()) && k == 7)
 					continue;
 
-				int betaIndex = (beta)/radres;
-				int shiftIndex = pi/2/radres;
 				int midIndex = (k * pi / 4) / radres;
-				int centralIndex = (alpha / 2) / radres;
 				int index = betaIndex;
 				if (k % 2 == 0)
 					index =shiftIndex/2;
@@ -907,8 +892,8 @@ public:
 
 				if(sum> 0)
 					out = (valsum / sum) * out;
-				
-				*meanA += std::accumulate(out.begin(), out.end(), 0.0) / (steps*sampleBufferA->size());
+
+				*meanA += (valsum / radres) /  (steps*sampleBufferA->size());
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
@@ -948,10 +933,6 @@ int main(int argc, char* argv[])
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
 
-	// create functionStr vectors to efficiently store the respective function strings for plotting..
-	std::vector<std::string> functionStr(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
-	std::vector<std::string> functionStrEllipse(dim, "0.0"); // initialize w. 0.0 to prevent parser errors
-
 	double radres = 0.01745;
 	int steps = 2 * pi / radres;
 
@@ -961,15 +942,12 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> sampleBufferB((width)*(height), initArray);
 	std::vector<std::vector<double>> sampleBufferMem((width)*(height), initArray);
 	std::vector<std::vector<double>> glyphBuffer((width)*(height), initArray);
-	//
-	std::tuple<double, double, double> initTuple = { 0.0,0.0,0.0 }; // -->triple: lambda1, lambda2, deg
-	std::vector<std::tuple<double,double,double>> ellipseArray(dim, initTuple); // TODO: REM: unnecessary after ellipse array sampling
 
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
 	
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBuffer, ellipseArray);
+	computeGlyphs(glyphBuffer);
 	
 	//// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
 	//std::string circle = std::to_string(intensity); // circle w. 100% relative intensity - capturing the spread [0..1] normalized to strongest light src in field
@@ -1000,9 +978,8 @@ int main(int argc, char* argv[])
 	double meanMem = 0.0;
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &meanA, &functionStr, &sampleBufferA, &sampleBufferB, &functionStrEllipse, &ellipseArray);
+	propagator prop(dim, &meanA, &sampleBufferA, &sampleBufferB);
 
-	double thresh = 0.001;
 	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 	int ctr = 0;
@@ -1010,7 +987,7 @@ int main(int argc, char* argv[])
 	while (!finished)
 	{
 		meanA = 0.0;
-		prop.propagate(parallel); // propagate until finished..
+		prop.propagate(); // propagate until finished..
 		sampleBufferA = sampleBufferB;
 		for (int i = 0; i < lightSrcs.size(); i++)
 			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);
@@ -1107,15 +1084,16 @@ int main(int argc, char* argv[])
 	int lineWidth = 0; // set line width = 1px
 	double thetaMax = 2 * pi;
 	double thetaInc = (2*pi) / 360; // set theta increment
-	double rotSpeed = 0; // set rotation speed
+	double rotSpeed = 0.0; // set rotation speed
 	sf::Color red = sf::Color(255, 0, 0);
 	sf::Color green = sf::Color(0, 255, 0, Alpha);
+
 
 	// add pre-computed function as string
 	for (int i = 0; i < dim; i++)
 	{
-		funcs.push_back(polarPlot(sampleBufferA.at(i), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
-		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), radres, drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, green));
+		funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
+		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));
 	}
 
 	//declare renderwindow
@@ -1139,6 +1117,11 @@ int main(int argc, char* argv[])
 	// create flags for blending tensors(ellipses)/light distributions(polar plots)
 	bool showOverlay{ true };
 	bool showBase{ true };
+
+	std::ofstream file("cout.txt");
+	Tee tee(cout, file);
+
+	TeeStream both(tee);
 
 	//main loop
 	while (window.isOpen())
@@ -1172,14 +1155,14 @@ int main(int argc, char* argv[])
 			double offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
 			// ellipse parameters
 			unsigned short quality = 70;
-			// define ellipses as convex shapes (with semi-axes u scaled to the specific singular values
+			// define ellipses: white origin dots
 			sf::ConvexShape ellipse;
 			ellipse.setPointCount(quality);
 			defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
 			ellipse.setPosition(offsetX, offsetY); // set ellipse position
-
-			funcs.at(i).animation(i, 0, sampleBufferA);
-			funcsEllipses.at(i).animation(i, 1);
+			// call animation to continously draw sampled arrays in polar space
+			funcs.at(i).animation(i, 0, sampleBufferA, both); // mode 0 for logged test outputs
+			funcsEllipses.at(i).animation(i, 1, glyphBuffer, both); // mode 1 for suppressed test outputs
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			spr.setPosition(wSize / 2, wSize / 2);
