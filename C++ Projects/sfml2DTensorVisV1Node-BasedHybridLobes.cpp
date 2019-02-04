@@ -26,11 +26,14 @@
 #include <array>
 #include <filesystem>
 #include <string>
-//#include <algorithm>
+#include <algorithm> 
+#include <cctype>
+#include <locale>
 #include <functional>
 #include <numeric>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>
+#include <limits>
 //#include <cmath>
 
 // NAMESPACE IMPORTS
@@ -40,6 +43,7 @@ using namespace mu;
 
 typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
+typedef std::numeric_limits< double > dbl;
 
 // PROTOTYPES
 std::string functionString = "1.0"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
@@ -54,6 +58,7 @@ sf::Vector2i windowsize;
 
 //definition of pi
 const double pi = M_PI;
+
 
 // GENERIC FUNCTION DEFINITIONS
 
@@ -320,10 +325,11 @@ public:
 			r = sampleArray.at(index).at(i);
 
 			// PROPAGATION ATTENUATION TEST //
-			if (i == 0 && index / width == width/2 && mode == 0 && ctr == 0)
+			if (i == 0 && index / width == 3 && mode == 0 && ctr == 0)
 			{
-				both << "r: " << r << endl;
-				both << "attenuation: " << r / 1.0 << endl;
+
+				/*both << "r: " << r << endl;
+				both << "attenuation: " << r / 1.0 << endl;*/
 				ctr++;
 			}
 
@@ -659,6 +665,17 @@ T clip(const T& n, const T& lower, const T& upper) // template clip function
 	return std::max(lower, std::min(n, upper));
 }
 
+string trim(const string& str)
+{
+	// strip left (begin)
+	size_t first = str.find_first_not_of(' ');
+	if (string::npos == first) // if empty.., return empty str
+		return str;
+	// strip right (end)
+	size_t last = str.find_last_not_of(' ');
+	return str.substr(first, (last - first + 1)); // return cropped substring
+}
+
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
@@ -671,14 +688,14 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 		getline(infile, line);
 
 		int temp_cols = 0;
-		stringstream stream(line);
+		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
 		while (!stream.eof())
 			stream >> buff[cols*rows + temp_cols++];
 
-		if (temp_cols == 0)
+		if (temp_cols == 0) // if empty line
 			continue;
 
-		if (cols == 0)
+		if (cols == 0) // set col count from first line
 			cols = temp_cols;
 
 		rows++;
@@ -712,6 +729,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 		{
 			MatrixXd a = m.block<2, 2>(2 * i, 2 * j);
 			matrixList.at(j + i * (cols / 2)) = a;
+			//cout << "Matrix a: " << a << std::endl;
 		}
 
 	// compute the SVD (singular value decomposition)of all matrices in matrixList into svdList
@@ -727,6 +745,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 	double radres = 0.01745;
 	int steps = (2 * pi) / radres; // set # of steps
 
+	
 	// iterate through the matrixList/svdList and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
@@ -893,7 +912,7 @@ public:
 				if(sum> 0)
 					out = (valsum / sum) * out;
 
-				*meanA += (valsum / radres) /  (steps*sampleBufferA->size());
+				*meanA += valsum;
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
@@ -988,6 +1007,7 @@ int main(int argc, char* argv[])
 	{
 		meanA = 0.0;
 		prop.propagate(); // propagate until finished..
+		meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 		sampleBufferA = sampleBufferB;
 		for (int i = 0; i < lightSrcs.size(); i++)
 			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);
@@ -1122,6 +1142,7 @@ int main(int argc, char* argv[])
 	Tee tee(cout, file);
 
 	TeeStream both(tee);
+	both.precision(dbl::max_digits10);
 
 	//main loop
 	while (window.isOpen())
