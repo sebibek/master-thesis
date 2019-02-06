@@ -8,7 +8,7 @@
 #define GetCurrentDir getcwd
 #endif
 
-#define MAXBUFSIZE  ((int) 1e3)
+#define MAXBUFSIZE  ((int) 1e5)
 #define _USE_MATH_DEFINES
 
 // INCLUDES (IMPORTS)
@@ -46,7 +46,7 @@ typedef boost::iostreams::stream<Tee> TeeStream;
 typedef std::numeric_limits< double > dbl;
 
 // PROTOTYPES
-std::string functionString = "1.0"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
+std::string functionString = "2.1"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
 template <typename T>
@@ -325,11 +325,11 @@ public:
 			r = sampleArray.at(index).at(i);
 
 			// PROPAGATION ATTENUATION TEST //
-			if (i == 0 && index / width == 3 && mode == 0 && ctr == 0)
+			if (i == 0 && index / width == height/2 && mode == 0 && ctr == 0)
 			{
 
-				/*both << "r: " << r << endl;
-				both << "attenuation: " << r / 1.0 << endl;*/
+				both << "r: " << r << endl;
+				both << "attenuation: " << r / 1.0 << endl;
 				ctr++;
 			}
 
@@ -804,7 +804,7 @@ class propagator
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 
 	// define function parser (muparser)
-	double radres = 0.01745; // set radres for discretized theta (phi) directions for sampling
+	double radres = (2 * pi)/360; // set radres for discretized theta (phi) directions for sampling
 	int steps = (2 * pi) / radres;
 	int shiftIndex = steps / 4;
 	int betaIndex = (beta) / radres;
@@ -819,6 +819,7 @@ class propagator
 	// create sample vector (dynamic)
 	std::vector<double> read;
 	std::vector<double> out;
+	std::vector<double> initArray;
 
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB)
@@ -831,6 +832,7 @@ public:
 		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
 		out = std::vector<double>(steps, 0.0);
+		initArray = std::vector<double>(steps, 0.0);
 	}
 
 	void propagate()
@@ -838,9 +840,11 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
+			read = sampleBufferA->at(i);
+			if (read == initArray)
+				continue;
 			neighborhood hood(i / width, i%width, width);
 			
-			read = sampleBufferA->at(i);
 		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
@@ -874,7 +878,7 @@ public:
 				double sum = 0.0;
 				double valsum = 0.0;
 
-				for (int j = midIndex - index; j < midIndex + index; j++) // for each step (along edge)..
+				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
 					int j_index = j%steps;
@@ -883,10 +887,17 @@ public:
 						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = read.at(j_index);
 					
-					if ((abs(deltaJ) > centralIndex) && k % 2 == 0)
-						val = 0.3712*val;
-					else if (k%2 != 0)
-						val = 0.6288*val;
+
+
+					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
+					{
+						if (abs(deltaJ) == shiftIndex/2)
+							val = 0.5*0.3622909908722584*val;
+						else
+							val = 0.3622909908722584*val;
+					}
+					else if (k%2 != 0) // for betas (diagonals), use static edge overlap-
+						val = 0.6377090091277417*val;
 					/*if ((abs(deltaJ) > centralIndex) || (k % 2 != 0))
 						val = 0.5*read.at(j_index);*/
 					
@@ -909,10 +920,10 @@ public:
 					}
 				}
 
-				if(sum> 0)
+				if (sum > 0)
 					out = (valsum / sum) * out;
 
-				*meanA += valsum;
+				*meanA += valsum/100000.0;
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
@@ -952,7 +963,7 @@ int main(int argc, char* argv[])
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
 
-	double radres = 0.01745;
+	double radres = (2 * pi) / 360;
 	int steps = 2 * pi / radres;
 
 	// define dual buffers for propagation
@@ -985,6 +996,7 @@ int main(int argc, char* argv[])
 		}
 	else
 	{
+		functionString = std::to_string(intensity);
 		lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
 		userPositions.push_back(myPair(lightSrcPos.jIndex, lightSrcPos.iIndex));
 	}
@@ -1002,6 +1014,20 @@ int main(int argc, char* argv[])
 	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 	int ctr = 0;
+	int jIndex = lightSrcPos.jIndex;
+	int iIndex = lightSrcPos.iIndex;
+	std::vector<double> sample = sampleBufferA.at(jIndex*width + iIndex);
+	std::ofstream file("cout.txt");
+	Tee tee(cout, file);
+
+	TeeStream both(tee);
+	both.precision(dbl::max_digits10);
+
+	double src_sum = 0.0;
+	for (int k = 0; k < steps; k++)
+	{
+		src_sum += sample.at(k)*radres;
+	}
 
 	while (!finished)
 	{
@@ -1017,81 +1043,40 @@ int main(int argc, char* argv[])
 		meanMem = meanA;
 
 		ctr++;
+		/*if (ctr == 1)
+			break;
+		*/
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
 
 	//maintainFunctionStrings(&functionStr, &coefficientArray);
 	cout << "..after propagation, ctr:" << ctr << endl;
+	ctr = 0;
 	// PROPAGATION SCHEME END //
 
 	// TESTS START //
+	double energy_sum = 0.0;
+	//for (int j = jIndex - 1; j <= jIndex + 1; j++) walk on inner boundary..
+	//	for (int i = iIndex - 1; i <= iIndex + 1; i++)
+	//	{
+	//		if (i == iIndex && j == jIndex) // skip light src
+	//			continue;
+	//		std::vector<double> sample = sampleBufferA.at(j*width + i);
+	//		for (int k = 0; k < steps; k++)
+	//		{
+	//			energy_sum += sample.at(k)*radres;
+	//		}
+	//		ctr++;
+	//	}
+	for (int i = 0; i < sampleBufferA.size(); i++)
+		for (int k = 0; k < steps; k++)
+			energy_sum += sampleBufferA.at(i).at(k)*radres;
 
-	//// set options
-	//double tmax = 2 * pi;
-	//double theta = 0.0;
-	//double tInc = pi/4; // set theta increment
-	//double t = 0.0;
-	//double tinc = 2 * pi / 72;
-	//double r = 3.0;
-	//int steps = 72;
-
-	//mu::Parser parser;
-	//// parser definitions
-	//parser.DefineConst("pi", pi);
-	//parser.DefineVar("theta", &t);
-	//
-	//// create threshhold for aborting the fourier series expansion
-	//double thresh = 0.0001;
-	//
-	//double grandSum = 0.0;
-	//double grandError = 0.0;
-	//// walk along circle in 16 pre-defined (heuristic)
-	//for (theta = 0; theta < tmax; theta+=tInc)
-	//{
-	//	//theta = circularAngles.at(i);
-	//	// compute continous x/y-position on grid
-	//	double x = r * cos(theta);
-	//	double y = r * sin(theta);
-
-	//	// snap to nearest grid cell center
-	//	int deltaX = round(x);
-	//	int deltaY = round(y);
-
-	//	int xIndex = (width - 1) / 2 + deltaX;
-	//	int yIndex = (width - 1) / 2 + deltaY;
-
-	//	// set current fString to current functionString
-	//	std::string fString = functionStr.at(xIndex + yIndex * width);
-
-	//	// set parser expression to current intensity approximation fString
-	//	parser.SetExpr(fString); // set the current parser expression to fString (Fourier-Series (CH) approximation of intensity profile I(w) at current position
-	//	double sum = 0.0;
-
-	//	// sum over (around) the intensity profile I(w) to obtain mean(I) and T(w) to obtain mean(T) and mean(T*I)=mean(exp)
-	//	for (t = 0.0; t < tmax; t+=tinc)
-	//		sum += parser.Eval(); // evaluate fString for iMean (sum)
-
-	//	// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-	//	double iMean = sum / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
-	//	
-	//	grandSum += iMean;
-	//}
-
-	//double grandMean = grandSum; // compute grand mean from individual means w. equal sample proportions and corresponding weightings
-
-	//cout << "Mean (Sum) Intensity in center: " << circle << endl;
-	//cout << "Mean (Sum) Intensity on circle (line-integral): " << grandMean << endl;
-	//	
-	//// ellipse parameters
-	//unsigned short quality = 70;	
-	//sf::ConvexShape ellipse;
-	//ellipse.setPointCount(quality);
-	//
-	//defineConvexEllipse(&ellipse, 100 * 3.0, 100 * 3.0, quality);
-	//ellipse.setPosition(wSize/2, wSize / 2); // set ellipse position
-	//ellipse.setFillColor(sf::Color::Transparent);
-	//ellipse.setOutlineColor(sf::Color::Green);
-	//ellipse.setOutlineThickness(1);
+	//cout.precision(dbl::max_digits10);
+	both << "energy sum:" << energy_sum << endl;
+	both << "src_sum:" << src_sum << endl;
+	both << "difference:" << src_sum - energy_sum << endl;
+	both << "ctr:" << ctr << endl;
 
 	// POLAR GRAPHER START //
 	//vector to store functions
@@ -1113,7 +1098,7 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < dim; i++)
 	{
 		funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
-		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));
+		/*funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));*/
 	}
 
 	//declare renderwindow
@@ -1128,7 +1113,7 @@ int main(int argc, char* argv[])
 
 	//initialize function graphics
 	for (int i = 0; i < funcs.size(); i++)
-		{funcs.at(i).init(); funcsEllipses.at(i).init();}
+		{funcs.at(i).init();/* funcsEllipses.at(i).init();*/}
 
 	//initialize rendertexture for output image
 	sf::RenderTexture out;
@@ -1137,12 +1122,6 @@ int main(int argc, char* argv[])
 	// create flags for blending tensors(ellipses)/light distributions(polar plots)
 	bool showOverlay{ true };
 	bool showBase{ true };
-
-	std::ofstream file("cout.txt");
-	Tee tee(cout, file);
-
-	TeeStream both(tee);
-	both.precision(dbl::max_digits10);
 
 	//main loop
 	while (window.isOpen())
@@ -1168,30 +1147,33 @@ int main(int argc, char* argv[])
 
 		window.clear(sf::Color::Black);
 		out.clear(sf::Color::Black);		
+		// ellipse parameters
+		unsigned short quality = 90;
+		
+		// define ellipses: white origin dots
+		sf::ConvexShape ellipse;
+		ellipse.setPointCount(quality);
+		defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
 
 		// draw polar function as graph sprite
 		for (int i = 0; i < dim; i++) 
 		{
-			double offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
-			double offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
-			// ellipse parameters
-			unsigned short quality = 70;
-			// define ellipses: white origin dots
-			sf::ConvexShape ellipse;
-			ellipse.setPointCount(quality);
-			defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
+			int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+			int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
+						
 			ellipse.setPosition(offsetX, offsetY); // set ellipse position
+
 			// call animation to continously draw sampled arrays in polar space
 			funcs.at(i).animation(i, 0, sampleBufferA, both); // mode 0 for logged test outputs
-			funcsEllipses.at(i).animation(i, 1, glyphBuffer, both); // mode 1 for suppressed test outputs
+			//funcsEllipses.at(i).animation(i, 1, glyphBuffer, both); // mode 1 for suppressed test outputs
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+			//sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			spr.setPosition(wSize / 2, wSize / 2);
 			window.draw(ellipse);
 			if (showBase)
 				{window.draw(spr); out.draw(spr);}
-			if (showOverlay)
-				{window.draw(sprE); out.draw(sprE);}
+		/*	if (showOverlay)
+				{window.draw(sprE); out.draw(sprE);}*/
 		}
 		// window.draw(ellipse);  // TEST //
 		// record(out, record_frameskip, record_folder); // use frameskip to define recording frameskip
