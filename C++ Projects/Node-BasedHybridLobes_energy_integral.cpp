@@ -8,7 +8,7 @@
 #define GetCurrentDir getcwd
 #endif
 
-#define MAXBUFSIZE  ((int) 1e4)
+#define MAXBUFSIZE  ((int) 1e5)
 #define _USE_MATH_DEFINES
 
 // INCLUDES (IMPORTS)
@@ -1012,6 +1012,17 @@ int main(int argc, char* argv[])
 	int jIndex = lightSrcPos.jIndex;
 	int iIndex = lightSrcPos.iIndex;
 	std::vector<double> sample = sampleBufferA.at(jIndex*width + iIndex);
+	std::ofstream file("cout.txt");
+	Tee tee(cout, file);
+
+	TeeStream both(tee);
+	both.precision(dbl::max_digits10);
+
+	double src_sum = 0.0;
+	for (int k = 0; k < steps; k++)
+	{
+		src_sum += sample.at(k)*radres;
+	}
 
 	while (!finished)
 	{
@@ -1027,8 +1038,32 @@ int main(int argc, char* argv[])
 		meanMem = meanA;
 
 		ctr++;
-		if (ctr == 6)//6
+		if (ctr == 58)//6
 			break;
+		double energy_sum = 0.0;
+		//for (int j = jIndex - 1; j <= jIndex + 1; j++)
+		//	for (int i = iIndex - 1; i <= iIndex + 1; i++)
+		//	{
+		//		if (i == iIndex && j == jIndex) // skip light src
+		//			continue;
+		//		std::vector<double> sample = sampleBufferA.at(j*width + i);
+		//		for (int k = 0; k < steps; k++)
+		//		{
+		//			energy_sum += sample.at(k)*radres;
+		//		}
+		//		ctr++;
+		//	}
+		for (int i = 0; i < sampleBufferA.size(); i++)
+			for (int k = 0; k < steps; k++)
+				energy_sum += sampleBufferA.at(i).at(k)*radres;
+
+		
+		//cout.precision(dbl::max_digits10);
+		both << "energy sum:" << energy_sum << endl;
+		both << "src_sum:" << src_sum << endl;
+		both << "difference:" << src_sum - energy_sum << endl;
+		both << "ctr:" << ctr << endl;
+
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
 
@@ -1038,31 +1073,7 @@ int main(int argc, char* argv[])
 	// PROPAGATION SCHEME END //
 
 	// TESTS START //
-	double energy_sum = 0.0;
-	//for (int j = jIndex - 1; j <= jIndex + 1; j++)
-	//	for (int i = iIndex - 1; i <= iIndex + 1; i++)
-	//	{
-	//		if (i == iIndex && j == jIndex) // skip light src
-	//			continue;
-	//		std::vector<double> sample = sampleBufferA.at(j*width + i);
-	//		for (int k = 0; k < steps; k++)
-	//		{
-	//			energy_sum += sample.at(k)*radres;
-	//		}
-	//		ctr++;
-	//	}
-	for (int i = 0; i < sampleBufferA.size(); i++)
-		for (int k = 0; k < steps; k++)
-			energy_sum += sampleBufferA.at(i).at(k)*radres;
-
-	double src_sum = 0.0;
-	for (int k = 0; k < steps; k++)
-	{
-		src_sum += sample.at(k)*radres;
-	}
-	cout << "energy sum:" << energy_sum << endl;
-	cout << "src_sum:" << src_sum << endl;
-	cout << ".ctr:" << ctr << endl;
+	
 
 
 	//// set options
@@ -1133,129 +1144,129 @@ int main(int argc, char* argv[])
 	//ellipse.setOutlineThickness(1);
 
 	// POLAR GRAPHER START //
-	//vector to store functions
-	std::vector<polarPlot> funcs;
-	std::vector<polarPlot> funcsEllipses;	
+	////vector to store functions
+	//std::vector<polarPlot> funcs;
+	//std::vector<polarPlot> funcsEllipses;	
 
-	// set options
-	int Alpha = 200; // set opacity
-	int drawSpeed = 0; // set instant drawing
-	int lineWidth = 0; // set line width = 1px
-	double thetaMax = 2 * pi;
-	double thetaInc = (2*pi) / 360; // set theta increment
-	double rotSpeed = 0.0; // set rotation speed
-	sf::Color red = sf::Color(255, 0, 0);
-	sf::Color green = sf::Color(0, 255, 0, Alpha);
+	//// set options
+	//int Alpha = 200; // set opacity
+	//int drawSpeed = 0; // set instant drawing
+	//int lineWidth = 0; // set line width = 1px
+	//double thetaMax = 2 * pi;
+	//double thetaInc = (2*pi) / 360; // set theta increment
+	//double rotSpeed = 0.0; // set rotation speed
+	//sf::Color red = sf::Color(255, 0, 0);
+	//sf::Color green = sf::Color(0, 255, 0, Alpha);
 
 
-	// add pre-computed function as string
-	for (int i = 0; i < dim; i++)
-	{
-		funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
-		/*funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));*/
-	}
+	//// add pre-computed function as string
+	//for (int i = 0; i < dim; i++)
+	//{
+	//	funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
+	//	/*funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));*/
+	//}
 
-	//declare renderwindow
-	sf::RenderWindow window;
-	if (fullscreen == false)
-		window.create(sf::VideoMode(wSize, wSize, 32), "Polar Grapher", sf::Style::Default);
-	else
-		window.create(sf::VideoMode::getDesktopMode(), "Polar Grapher", sf::Style::Fullscreen);
-	window.setFramerateLimit(60);
-	windowsize.x = window.getSize().x;
-	windowsize.y = window.getSize().y;
+	////declare renderwindow
+	//sf::RenderWindow window;
+	//if (fullscreen == false)
+	//	window.create(sf::VideoMode(wSize, wSize, 32), "Polar Grapher", sf::Style::Default);
+	//else
+	//	window.create(sf::VideoMode::getDesktopMode(), "Polar Grapher", sf::Style::Fullscreen);
+	//window.setFramerateLimit(60);
+	//windowsize.x = window.getSize().x;
+	//windowsize.y = window.getSize().y;
 
-	//initialize function graphics
-	for (int i = 0; i < funcs.size(); i++)
-		{funcs.at(i).init();/* funcsEllipses.at(i).init();*/}
+	////initialize function graphics
+	//for (int i = 0; i < funcs.size(); i++)
+	//	{funcs.at(i).init();/* funcsEllipses.at(i).init();*/}
 
-	//initialize rendertexture for output image
-	sf::RenderTexture out;
-	out.create(wSize, wSize);
+	////initialize rendertexture for output image
+	//sf::RenderTexture out;
+	//out.create(wSize, wSize);
 
-	// create flags for blending tensors(ellipses)/light distributions(polar plots)
-	bool showOverlay{ true };
-	bool showBase{ true };
+	//// create flags for blending tensors(ellipses)/light distributions(polar plots)
+	//bool showOverlay{ true };
+	//bool showBase{ true };
 
-	std::ofstream file("cout.txt");
-	Tee tee(cout, file);
+	//std::ofstream file("cout.txt");
+	//Tee tee(cout, file);
 
-	TeeStream both(tee);
-	both.precision(dbl::max_digits10);
+	//TeeStream both(tee);
+	//both.precision(dbl::max_digits10);
 
-	//main loop
-	while (window.isOpen())
-	{
-		sf::Event event;
-		// query window poll events
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-				window.close();
-			if (event.type == sf::Event::KeyPressed)
-			{
-				if (event.key.code == sf::Keyboard::Num1) // press 1 to toggle base/clip image
-					showBase = !showBase;
-				else if (event.key.code == sf::Keyboard::Num2) // press 2 to toggle overlay image
-					showOverlay = !showOverlay;
-			}
-		}
+	////main loop
+	//while (window.isOpen())
+	//{
+	//	sf::Event event;
+	//	// query window poll events
+	//	while (window.pollEvent(event))
+	//	{
+	//		if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+	//			window.close();
+	//		if (event.type == sf::Event::KeyPressed)
+	//		{
+	//			if (event.key.code == sf::Keyboard::Num1) // press 1 to toggle base/clip image
+	//				showBase = !showBase;
+	//			else if (event.key.code == sf::Keyboard::Num2) // press 2 to toggle overlay image
+	//				showOverlay = !showOverlay;
+	//		}
+	//	}
 
-		// query opened winow, to break from loop to prevent from overwriting the framebuffer w. black (0,0,0)
-		if (!window.isOpen())
-			break;
+	//	// query opened winow, to break from loop to prevent from overwriting the framebuffer w. black (0,0,0)
+	//	if (!window.isOpen())
+	//		break;
 
-		window.clear(sf::Color::Black);
-		out.clear(sf::Color::Black);		
-		// ellipse parameters
-		unsigned short quality = 90;
-		int offseMidX = (width/2)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
-		int offsetMidY = (height/2 )*(wSize / width) + (wSize / (2 * width)); // check division for y offset
-		// define ellipses: white testcircle
-		sf::ConvexShape circle;
-		circle.setPointCount(quality);
-		defineConvexEllipse(&circle, 320, 320, quality);
-		circle.setFillColor(sf::Color::Transparent);
-		circle.setOutlineColor(sf::Color::White);
-		circle.setOutlineThickness(1);
-		circle.setPosition(offseMidX, offsetMidY); // set ellipse position
-		//circle.setPosition(0, 0); // set ellipse position
-		window.draw(circle);
-		// define ellipses: white origin dots
-		sf::ConvexShape ellipse;
-		ellipse.setPointCount(quality);
-		defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
+	//	window.clear(sf::Color::Black);
+	//	out.clear(sf::Color::Black);		
+	//	// ellipse parameters
+	//	unsigned short quality = 90;
+	//	int offseMidX = (width/2)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+	//	int offsetMidY = (height/2 )*(wSize / width) + (wSize / (2 * width)); // check division for y offset
+	//	// define ellipses: white testcircle
+	//	sf::ConvexShape circle;
+	//	circle.setPointCount(quality);
+	//	defineConvexEllipse(&circle, 320, 320, quality);
+	//	circle.setFillColor(sf::Color::Transparent);
+	//	circle.setOutlineColor(sf::Color::White);
+	//	circle.setOutlineThickness(1);
+	//	circle.setPosition(offseMidX, offsetMidY); // set ellipse position
+	//	//circle.setPosition(0, 0); // set ellipse position
+	//	window.draw(circle);
+	//	// define ellipses: white origin dots
+	//	sf::ConvexShape ellipse;
+	//	ellipse.setPointCount(quality);
+	//	defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
 
-		// draw polar function as graph sprite
-		for (int i = 0; i < dim; i++) 
-		{
-			int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
-			int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
-						
-			ellipse.setPosition(offsetX, offsetY); // set ellipse position
+	//	// draw polar function as graph sprite
+	//	for (int i = 0; i < dim; i++) 
+	//	{
+	//		int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+	//		int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
+	//					
+	//		ellipse.setPosition(offsetX, offsetY); // set ellipse position
 
-			// call animation to continously draw sampled arrays in polar space
-			funcs.at(i).animation(i, 0, sampleBufferA, both); // mode 0 for logged test outputs
-			//funcsEllipses.at(i).animation(i, 1, glyphBuffer, both); // mode 1 for suppressed test outputs
-			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			//sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			spr.setPosition(wSize / 2, wSize / 2);
-			window.draw(ellipse);
-			if (showBase)
-				{window.draw(spr); out.draw(spr);}
-		/*	if (showOverlay)
-				{window.draw(sprE); out.draw(sprE);}*/
-		}
-		// window.draw(ellipse);  // TEST //
-		// record(out, record_frameskip, record_folder); // use frameskip to define recording frameskip
-		window.display(); // update window texture
-	}
+	//		// call animation to continously draw sampled arrays in polar space
+	//		funcs.at(i).animation(i, 0, sampleBufferA, both); // mode 0 for logged test outputs
+	//		//funcsEllipses.at(i).animation(i, 1, glyphBuffer, both); // mode 1 for suppressed test outputs
+	//		sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+	//		//sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+	//		spr.setPosition(wSize / 2, wSize / 2);
+	//		window.draw(ellipse);
+	//		if (showBase)
+	//			{window.draw(spr); out.draw(spr);}
+	//	/*	if (showOverlay)
+	//			{window.draw(sprE); out.draw(sprE);}*/
+	//	}
+	//	// window.draw(ellipse);  // TEST //
+	//	// record(out, record_frameskip, record_folder); // use frameskip to define recording frameskip
+	//	window.display(); // update window texture
+	//}
 
-	//write to image file
-	out.display(); // update output texture
-	sf::Texture outTx = out.getTexture();
-	sf::Image outImg = outTx.copyToImage();
-	outImg.saveToFile("out.png");
+	////write to image file
+	//out.display(); // update output texture
+	//sf::Texture outTx = out.getTexture();
+	//sf::Image outImg = outTx.copyToImage();
+	//outImg.saveToFile("out.png");
 
 	// POLAR GRAPHER END //
 
