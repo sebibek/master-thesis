@@ -46,7 +46,7 @@ typedef boost::iostreams::stream<Tee> TeeStream;
 typedef std::numeric_limits< double > dbl;
 
 // PROTOTYPES
-std::string functionString = "1.0"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
+std::string functionString = "2.1"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
 template <typename T>
@@ -383,7 +383,7 @@ myPair lightSrcPos{ height / 2, width / 2 };
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
 int record_frameskip = 0; // --> disables recording //recording frameskip 
-double intensity = 2.1; // --> initial intensity val
+double intensity = 2.0; // --> initial intensity val
 std::string workDir;
 double thresh = 0.001;
 
@@ -819,6 +819,7 @@ class propagator
 	// create sample vector (dynamic)
 	std::vector<double> read;
 	std::vector<double> out;
+	std::vector<double> initArray;
 
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB)
@@ -831,6 +832,7 @@ public:
 		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
 		out = std::vector<double>(steps, 0.0);
+		initArray = std::vector<double>(steps, 0.0);
 	}
 
 	void propagate()
@@ -838,10 +840,11 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
+			read = sampleBufferA->at(i);
+			if (read == initArray)
+				continue;
 			neighborhood hood(i / width, i%width, width);
 			
-			read = sampleBufferA->at(i);
-		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
@@ -992,6 +995,7 @@ int main(int argc, char* argv[])
 		}
 	else
 	{
+		functionString = std::to_string(intensity);
 		lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
 		userPositions.push_back(myPair(lightSrcPos.jIndex, lightSrcPos.iIndex));
 	}
@@ -1038,7 +1042,7 @@ int main(int argc, char* argv[])
 		meanMem = meanA;
 
 		ctr++;
-		if (ctr == 58)//6
+		if (ctr == 77)//6
 			break;
 		double energy_sum = 0.0;
 		//for (int j = jIndex - 1; j <= jIndex + 1; j++)
@@ -1054,8 +1058,9 @@ int main(int argc, char* argv[])
 		//		ctr++;
 		//	}
 		for (int i = 0; i < sampleBufferA.size(); i++)
-			for (int k = 0; k < steps; k++)
-				energy_sum += sampleBufferA.at(i).at(k)*radres;
+			if (sampleBufferA.at(i) != initArray)
+				for (int k = 0; k < steps; k++)
+					energy_sum += sampleBufferA.at(i).at(k)*radres;
 
 		
 		//cout.precision(dbl::max_digits10);
