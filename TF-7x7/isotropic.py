@@ -51,7 +51,7 @@ def file_len(fname):
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
 zero = np.array([[0, 0],[0, 0]]) ## row-major ordering: row-by-row
-length = 7
+length = 13
 
 deg = 0
 rad = deg*(np.pi/180.0)
@@ -71,10 +71,13 @@ with open('temp.txt', 'wb') as f:
             np.savetxt(f, matrixArray[j][i], fmt='%s', delimiter=' ', newline='\r\n')  # add matrix to temp.txt
 
 
+print("filelen: " + str(file_len('temp.txt'))) # print filelen of temp: should equal length*length*matrixHeight
+print("matrixarray: " + str(len(matrixArray))) # print len of matrixArray: should equal length
+
 # reorder the output tensor field into a regular grid
-i = 1 # create line index starting from 1
-str1 = "" # create empty string for row 1 (in 2D)
-str2 = "" # create empty string for row 2 (in 2D)
+i = 1
+str1 = ""
+str2 = ""
 with open('temp.txt', 'r+') as txtfile:
     for line in txtfile:
         line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
@@ -91,8 +94,8 @@ with open('temp.txt', 'r+') as txtfile:
         i += 1 #increment line index
 
 with open('temp.txt', 'r') as fin:
-    data = fin.read().splitlines(True) # ..read temp.txt as line array in data
+    data = fin.read().splitlines(True)
 with open('tensor_field.txt', 'w+') as fout:
-    fout.writelines(data[length**2*2+1:]) # in 2D.., use generated txt from line: length**2*2+1
+    fout.writelines(data[length*length*2+1:]) # in 2D...
 
-os.remove('temp.txt') # remove tmp file
+os.remove('temp.txt')

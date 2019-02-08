@@ -46,7 +46,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 7
+length = 13
 
 deg = -45
 rad = deg*(np.pi/180.0)
