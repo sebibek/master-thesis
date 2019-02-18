@@ -255,7 +255,7 @@ public:
 		//scale
 		double scale;
 		if (mode == 1)
-			scale = 20;
+			scale = 10;
 		else
 			scale = 50;
 		//convert polar to cartesian
@@ -316,7 +316,7 @@ public:
 		}
 	}
 	// DISCRETE SAMPING OVERLOAD for animation... faster and no string parsing necessary - use for inherited resolution constructor overload
-	void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray, TeeStream& both)
+	void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray, TeeStream* both = NULL)
 	{	
 		t = 0.0; // reset theta variable for each cell to prevent from long-term shifting
 
@@ -815,22 +815,26 @@ class propagator
 	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
+	std::vector<std::vector<double>>* glyphBuffer;
 	
 	// create sample vector (dynamic)
 	std::vector<double> read;
+	std::vector<double> glyph;
 	std::vector<double> out;
 	std::vector<double> initArray;
 
 public:
-	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB)
+	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
 		// assign ptrs to member vectors
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
+		glyphBuffer = ellipseArray;
 		meanA = mean;
 
 		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
+		glyph = std::vector<double>(steps, 0.0);
 		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
 	}
@@ -843,8 +847,29 @@ public:
 			read = sampleBufferA->at(i);
 			if (read == initArray)
 				continue;
+			glyph = glyphBuffer->at(i);
 			neighborhood hood(i / width, i%width, width);
 			
+			// calculate mean and variance.. of I(phi)
+			double sum1 = 0.0;
+			double sum2 = 0.0;
+			double sum3 = 0.0;
+
+			for (int j = 0; j < steps; j++)
+			{
+				sum1 += read.at(j); // evaluate for iMean (sum1)
+				sum2 += glyphBuffer->at(i).at(j);
+				sum3 += read.at(j)*glyphBuffer->at(i).at(j);
+			}
+
+			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+			double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+			// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
+			double tMean = sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+			// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
+			double cFactor = tMean * iMean / tiMean;
 		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
@@ -875,8 +900,8 @@ public:
 				if (k % 2 == 0)
 					index =shiftIndex/2;
 
-				double sum = 0.0;
-				double valsum = 0.0;
+				double energy_sum = 0.0;
+				double val_sum = 0.0;
 
 				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
@@ -885,23 +910,17 @@ public:
 
 					if (j < 0)
 						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
-					double val = read.at(j_index);
+					double val = cFactor * read.at(j_index)*glyph.at(j_index);
 					
-
-
 					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
-					{
 						if (abs(deltaJ) == shiftIndex/2)
 							val = 0.5*0.3622909908722584*val;
 						else
 							val = 0.3622909908722584*val;
-					}
 					else if (k%2 != 0) // for betas (diagonals), use static edge overlap-
 						val = 0.6377090091277417*val;
-					/*if ((abs(deltaJ) > centralIndex) || (k % 2 != 0))
-						val = 0.5*read.at(j_index);*/
 					
-					valsum += val * radres;
+					val_sum += val * radres;
 					for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
 					{
 						int deltaL = l - midIndex;
@@ -912,18 +931,16 @@ public:
 							l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
 						double res = val * clip(cos((j_index - l_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-						//if (k%2 != 0)
-						//	res = val * pow(clip(cos((j_index - l_index) * radres), 0.0, 1.0),1.4);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
 
 						out.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-						sum += res * radres;
+						energy_sum += res * radres;
 					}
 				}
 
-				if (sum > 0)
-					out = (valsum / sum) * out;
+				if (energy_sum > 0)
+					out = (val_sum / energy_sum) * out;
 
-				*meanA += valsum/100000.0;
+				*meanA += val_sum /100000.0;
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
@@ -1002,7 +1019,7 @@ int main(int argc, char* argv[])
 	double meanMem = 0.0;
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &meanA, &sampleBufferA, &sampleBufferB);
+	propagator prop(dim, &meanA, &sampleBufferA, &sampleBufferB, &glyphBuffer);
 
 	bool finished = false;
 	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
@@ -1018,10 +1035,8 @@ int main(int argc, char* argv[])
 
 	double src_sum = 0.0;
 	for (int k = 0; k < steps; k++)
-	{
 		src_sum += sample.at(k)*radres;
-	}
-
+	
 	while (!finished)
 	{
 		meanA = 0.0;
@@ -1036,40 +1051,40 @@ int main(int argc, char* argv[])
 		meanMem = meanA;
 
 		ctr++;
-		/*if (ctr == 1)
-			break;
-		*/
+		/*if (ctr == 5)
+			break;*/
+		
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
-
-	//maintainFunctionStrings(&functionStr, &coefficientArray);
 	cout << "..after propagation, ctr:" << ctr << endl;
-	ctr = 0;
-	// PROPAGATION SCHEME END //
+	////maintainFunctionStrings(&functionStr, &coefficientArray);
+	//cout << "..after propagation, ctr:" << ctr << endl;
+	//ctr = 0;
+	//// PROPAGATION SCHEME END //
 
-	// TESTS START //
-	double energy_sum = 0.0;
-	//for (int j = jIndex - 1; j <= jIndex + 1; j++) walk on inner boundary..
-	//	for (int i = iIndex - 1; i <= iIndex + 1; i++)
-	//	{
-	//		if (i == iIndex && j == jIndex) // skip light src
-	//			continue;
-	//		std::vector<double> sample = sampleBufferA.at(j*width + i);
-	//		for (int k = 0; k < steps; k++)
-	//		{
-	//			energy_sum += sample.at(k)*radres;
-	//		}
-	//		ctr++;
-	//	}
-	for (int i = 0; i < sampleBufferA.size(); i++)
-		for (int k = 0; k < steps; k++)
-			energy_sum += sampleBufferA.at(i).at(k)*radres;
+	//// TESTS START //
+	//double energy_sum = 0.0;
+	////for (int j = jIndex - 1; j <= jIndex + 1; j++) walk on inner boundary..
+	////	for (int i = iIndex - 1; i <= iIndex + 1; i++)
+	////	{
+	////		if (i == iIndex && j == jIndex) // skip light src
+	////			continue;
+	////		std::vector<double> sample = sampleBufferA.at(j*width + i);
+	////		for (int k = 0; k < steps; k++)
+	////		{
+	////			energy_sum += sample.at(k)*radres;
+	////		}
+	////		ctr++;
+	////	}
+	//for (int i = 0; i < sampleBufferA.size(); i++)
+	//	for (int k = 0; k < steps; k++)
+	//		energy_sum += sampleBufferA.at(i).at(k)*radres;
 
-	//cout.precision(dbl::max_digits10);
-	both << "energy sum:" << energy_sum << endl;
-	both << "src_sum:" << src_sum << endl;
-	both << "difference:" << src_sum - energy_sum << endl;
-	both << "ctr:" << ctr << endl;
+	////cout.precision(dbl::max_digits10);
+	//both << "energy sum:" << energy_sum << endl;
+	//both << "src_sum:" << src_sum << endl;
+	//both << "difference:" << src_sum - energy_sum << endl;
+	//both << "ctr:" << ctr << endl;
 
 	// POLAR GRAPHER START //
 	//vector to store functions
@@ -1091,7 +1106,7 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < dim; i++)
 	{
 		funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
-		/*funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));*/
+		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));
 	}
 
 	//declare renderwindow
@@ -1106,7 +1121,7 @@ int main(int argc, char* argv[])
 
 	//initialize function graphics
 	for (int i = 0; i < funcs.size(); i++)
-		{funcs.at(i).init();/* funcsEllipses.at(i).init();*/}
+		{funcs.at(i).init(); funcsEllipses.at(i).init();}
 
 	//initialize rendertexture for output image
 	sf::RenderTexture out;
@@ -1157,16 +1172,17 @@ int main(int argc, char* argv[])
 			ellipse.setPosition(offsetX, offsetY); // set ellipse position
 
 			// call animation to continously draw sampled arrays in polar space
-			funcs.at(i).animation(i, 0, sampleBufferA, both); // mode 0 for logged test outputs
-			//funcsEllipses.at(i).animation(i, 1, glyphBuffer, both); // mode 1 for suppressed test outputs
+			funcs.at(i).animation(i, 0, sampleBufferA); // mode 0 for logged test outputs
+			funcsEllipses.at(i).animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
 			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			//sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			spr.setPosition(wSize / 2, wSize / 2);
 			window.draw(ellipse);
 			if (showBase)
 				{window.draw(spr); out.draw(spr);}
-		/*	if (showOverlay)
-				{window.draw(sprE); out.draw(sprE);}*/
+			if (showOverlay)
+				{window.draw(sprE); out.draw(sprE);}
+
 		}
 		// window.draw(ellipse);  // TEST //
 		// record(out, record_frameskip, record_folder); // use frameskip to define recording frameskip
