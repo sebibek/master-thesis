@@ -922,7 +922,7 @@ public:
 				if (sum > 0)
 					out = (valsum / sum) * out;
 
-				*meanA += valsum/100000.0;
+				*meanA += valsum;
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
