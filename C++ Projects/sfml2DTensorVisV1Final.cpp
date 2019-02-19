@@ -940,7 +940,7 @@ public:
 				if (energy_sum > 0)
 					out = (val_sum / energy_sum) * out;
 
-				*meanA += val_sum /100000.0;
+				*meanA += val_sum;
 
 				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
 				{
