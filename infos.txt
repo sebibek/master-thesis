@@ -66,6 +66,7 @@ Kugelstrahler: -> Modell für Kugelstrahler mit kugelförmigem, isotropem Strahl
 Keulenstrahler: -> Modell für Keulenstrahler mit Leuchtdichte abnehmend mit cos^2phi
 Dir. Light: parallel rays from one single given direction (area light src with infinite distance and extend) - approx. stars/sun (no distance falloff - vacuum)
 (attention: high frequent intensity profile! - do not use LPV grid for approximation)
+LASER: ultimativ kohärent gerichtetes Licht-> Box-Strahlprofil
 
 Lichtquellentypen: (nur nach Ausdehnung) - types of light sources
 Punktlichtquellen (Lambert/Kugel): richtungsabhängige Lichtquellen -> Lichtstärke zur Beschreibung (richtungsunabhängig) -- Definition der Lichtstärke setzt divergentes Licht (Punkt) voraus

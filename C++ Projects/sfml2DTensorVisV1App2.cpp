@@ -1169,6 +1169,7 @@ int main(int argc, char* argv[])
 			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			spr.setPosition(wSize / 2, wSize / 2);
 			window.draw(ellipse);
+			out.draw(ellipse);
 			if (showBase)
 				{window.draw(spr); out.draw(spr);}
 			if (showOverlay)
@@ -1176,7 +1177,6 @@ int main(int argc, char* argv[])
 
 		}
 		// window.draw(ellipse);  // TEST //
-		// record(out, record_frameskip, record_folder); // use frameskip to define recording frameskip
 		window.display(); // update window texture
 	}
 
@@ -1184,7 +1184,13 @@ int main(int argc, char* argv[])
 	out.display(); // update output texture
 	sf::Texture outTx = out.getTexture();
 	sf::Image outImg = outTx.copyToImage();
-	outImg.saveToFile("out.png");
+
+	if(showBase && showOverlay)
+		outImg.saveToFile("all-" + std::to_string(lightSrcPos.jIndex) + "," + std::to_string(lightSrcPos.iIndex) + ".png");
+	else if(showBase)
+		outImg.saveToFile("intensity-" + std::to_string(lightSrcPos.jIndex) + "," + std::to_string(lightSrcPos.iIndex) + ".png");
+	else
+		outImg.saveToFile("out.png");
 
 	// POLAR GRAPHER END //
 
