@@ -345,20 +345,20 @@ public:
 
 };
 
-class myPair
+class Pair
 {
 public:
 	int jIndex = width / 2;
 	int iIndex = width / 2;
 
-	myPair() {}
-	myPair(int j, int i)
+	Pair() {}
+	Pair(int j, int i)
 	{
 		jIndex = j;
 		iIndex = i;
 	}
 
-	friend istringstream& operator>>(istringstream& stream, myPair& pair)
+	friend istringstream& operator>>(istringstream& stream, Pair& pair)
 	{
 		std::string token;
 		int i = 0;
@@ -379,7 +379,7 @@ public:
 // OPTION (cmd args) DEFINITIONS - getopt
 
 // create options for getopt(.c)
-myPair lightSrcPos{ height / 2, width / 2 };
+Pair lightSrcPos{ height / 2, width / 2 };
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
 int record_frameskip = 0; // --> disables recording //recording frameskip 
@@ -388,7 +388,7 @@ std::string workDir;
 double thresh = 0.001;
 
 // parse files
-void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myPair>& positions) {
+void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions) {
 
 	std::ifstream f(filename);
 
@@ -397,7 +397,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 	//default function attributes
 	sf::Color color = sf::Color::Cyan;
 	std::string func_literal = "100*cos(theta)";
-	myPair position{ height / 2, width / 2 };
+	Pair position{ height / 2, width / 2 };
 
 	if (f.is_open()) {
 
@@ -471,7 +471,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 		std::cerr << filename << " is not a valid filename.\n";
 }
 
-void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<myPair>& positions) {
+void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<Pair>& positions) {
 
 	int c;
 	std::string frameskip_opt = "-1";
@@ -967,7 +967,7 @@ int main(int argc, char* argv[])
 
 	// create vector for light src's symbolic user-input functions in convenient string format
 	std::vector<std::string> userFunctions;
-	std::vector<myPair> userPositions;
+	std::vector<Pair> userPositions;
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
 
@@ -999,7 +999,7 @@ int main(int argc, char* argv[])
 	{
 		functionString = std::to_string(intensity);
 		lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-		userPositions.push_back(myPair(lightSrcPos.jIndex, lightSrcPos.iIndex));
+		userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
 	}
 	for (int i = 0; i < lightSrcs.size(); i++)
 		sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs

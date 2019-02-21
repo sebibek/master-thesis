@@ -20,7 +20,6 @@
 #include <vector>
 #include <unistd.h>
 #include <math.h>
-//#include "exprtk.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <array>
@@ -34,7 +33,6 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>
 #include <limits>
-//#include <cmath>
 
 // NAMESPACE IMPORTS
 using namespace std;
@@ -58,7 +56,6 @@ sf::Vector2i windowsize;
 
 //definition of pi
 const double pi = M_PI;
-
 
 // GENERIC FUNCTION DEFINITIONS
 
@@ -162,7 +159,7 @@ class polarPlot
 
 public:
 
-	//constructor #1 string parser - muParser: class-own this-> resolution tinc passed as tinc_in used for parsing
+	//constructor #1 string parser - muParser: tinc_in passed as tinc used for parsing
 	polarPlot(std::string tag,
 		int speed_in,
 		int line_width_in,
@@ -338,6 +335,7 @@ public:
 				cout << "r(diag): " << r << endl;
 				cout << "attenuation: " << r / 1.0 << endl;
 			}*/
+
 			plot(index, mode);
 			t += radres;
 		}
@@ -345,20 +343,20 @@ public:
 
 };
 
-class myPair
+class Pair
 {
 public:
 	int jIndex = width / 2;
 	int iIndex = width / 2;
 
-	myPair() {}
-	myPair(int j, int i)
+	Pair() {}
+	Pair(int j, int i)
 	{
 		jIndex = j;
 		iIndex = i;
 	}
 
-	friend istringstream& operator>>(istringstream& stream, myPair& pair)
+	friend istringstream& operator>>(istringstream& stream, Pair& pair)
 	{
 		std::string token;
 		int i = 0;
@@ -379,16 +377,17 @@ public:
 // OPTION (cmd args) DEFINITIONS - getopt
 
 // create options for getopt(.c)
-myPair lightSrcPos{ height / 2, width / 2 };
+Pair lightSrcPos{ height / 2, width / 2 };
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
-int record_frameskip = 0; // --> disables recording //recording frameskip 
+int record_frameskip = 0; // --> disables recording //recording frameskip
+int steps = 360; // use n steps for angular resolution - radres
 double intensity = 2.1; // --> initial intensity val
 std::string workDir;
 double thresh = 0.001;
 
 // parse files
-void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myPair>& positions) {
+void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions) {
 
 	std::ifstream f(filename);
 
@@ -397,7 +396,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 	//default function attributes
 	sf::Color color = sf::Color::Cyan;
 	std::string func_literal = "100*cos(theta)";
-	myPair position{ height / 2, width / 2 };
+	Pair position{ height / 2, width / 2 };
 
 	if (f.is_open()) {
 
@@ -451,6 +450,12 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 					s << line.substr(pos + 1);
 					s >> thresh;
 				}
+				// steps
+				else if (tag == "steps") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> steps;
+				}
 				//window/graph size
 				else if (tag == "window_size") {
 					std::stringstream s;
@@ -471,7 +476,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<myP
 		std::cerr << filename << " is not a valid filename.\n";
 }
 
-void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<myPair>& positions) {
+void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<Pair>& positions) {
 
 	int c;
 	std::string frameskip_opt = "-1";
@@ -569,54 +574,54 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 }
 
 // OPERATOR DEFINITIONS //
-template <typename T> // element-wise plus for std::vector
-std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
-{
-	std::array<T, 21> result;
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::array
-std::array<std::array<T, 21>, 2> operator*(const T a, const std::array<std::array<T, 21>, 2> &b)
-{
-	std::array<std::array<T, 21>, 2> result;
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::vector
-std::array<T, 21> operator+(const std::array<T, 21>& a, const std::array<T, 21>& b)
-{
-	assert(a.size() == b.size());
-
-	std::array<T, 21> result;
-
-	for (int i = 0; i < a.size(); i++)
-		result.at(i) = a.at(i) + b.at(i);
-
-	return result;
-}
-
-template <typename T> // element-wise plus for std::array
-std::array<std::array<T, 21>, 2> operator+(const std::array<std::array<T, 21>, 2>& a, const std::array<std::array<T, 21>, 2> &b)
-{
-	assert(a.size() == b.size());
-
-	std::array<std::array<T, 21>, 2> result;
-
-	for (int i = 0; i < a.size(); i++)
-		result.at(i) = a.at(i) + b.at(i);
-
-	return result;
-}
-
+//template <typename T> // element-wise plus for std::vector
+//std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
+//{
+//	std::array<T, 21> result;
+//
+//	for (int i = 0; i < b.size(); i++)
+//		result.at(i) = a * b.at(i);
+//
+//	return result;
+//}
+//
+//template <typename T> // element-wise plus for std::array
+//std::array<std::array<T, 21>, 2> operator*(const T a, const std::array<std::array<T, 21>, 2> &b)
+//{
+//	std::array<std::array<T, 21>, 2> result;
+//
+//	for (int i = 0; i < b.size(); i++)
+//		result.at(i) = a * b.at(i);
+//
+//	return result;
+//}
+//
+//template <typename T> // element-wise plus for std::vector
+//std::array<T, 21> operator+(const std::array<T, 21>& a, const std::array<T, 21>& b)
+//{
+//	assert(a.size() == b.size());
+//
+//	std::array<T, 21> result;
+//
+//	for (int i = 0; i < a.size(); i++)
+//		result.at(i) = a.at(i) + b.at(i);
+//
+//	return result;
+//}
+//
+//template <typename T> // element-wise plus for std::array
+//std::array<std::array<T, 21>, 2> operator+(const std::array<std::array<T, 21>, 2>& a, const std::array<std::array<T, 21>, 2> &b)
+//{
+//	assert(a.size() == b.size());
+//
+//	std::array<std::array<T, 21>, 2> result;
+//
+//	for (int i = 0; i < a.size(); i++)
+//		result.at(i) = a.at(i) + b.at(i);
+//
+//	return result;
+//}
+//
 template <typename T> // element-wise plus for std::vector
 std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 {
@@ -969,19 +974,18 @@ int main(int argc, char* argv[])
 	cout << "before matrix read" << endl;
 	workDir = GetCurrentWorkingDir();
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
-	const int dim = rows / 2 * cols / 2; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
+	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 	lightSrcPos = { height / 2, width / 2 }; // initialize light src position option w. center point
 
 	// create vector for light src's symbolic user-input functions in convenient string format
 	std::vector<std::string> userFunctions;
-	std::vector<myPair> userPositions;
+	std::vector<Pair> userPositions;
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
 
-	double radres = (2 * pi) / 360;
-	int steps = 2 * pi / radres;
+	double radres = (2 * pi) / steps; // use n steps/deg
 
 	// define dual buffers for propagation
 	std::vector<double> initArray(steps, 0.0);
@@ -996,21 +1000,21 @@ int main(int argc, char* argv[])
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer);
 	
-	// define excitation (stimulus) polar functions(4 neighbors/directions) normalized to area 1
-	if(userFunctions.size())
+	// get defined light srcs positions and intensities...
+	if(userFunctions.size()) // if entered by user, use cmd AND config
 		for (int i = 0; i < userFunctions.size(); i++)
 		{
 			functionString = userFunctions.at(i);
 			lightSrcPos = userPositions.at(i);
 			lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
 		}
-	else
+	else // if entered by default value, use default value in center position
 	{
 		functionString = std::to_string(intensity);
 		lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-		userPositions.push_back(myPair(lightSrcPos.jIndex, lightSrcPos.iIndex));
+		userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
 	}
-	for (int i = 0; i < lightSrcs.size(); i++)
+	for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
 		sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
 
 	cout << "before propagation.." << endl;
@@ -1028,20 +1032,19 @@ int main(int argc, char* argv[])
 	int iIndex = lightSrcPos.iIndex;
 	std::vector<double> sample = sampleBufferA.at(jIndex*width + iIndex);
 	std::ofstream file("cout.txt");
-	Tee tee(cout, file);
+	//Tee tee(cout, file);
+	//TeeStream both(tee);
+	//both.precision(dbl::max_digits10);
+	//double src_sum = 0.0;
+	//for (int k = 0; k < steps; k++)
+	//	src_sum += sample.at(k)*radres;
+	//
 
-	TeeStream both(tee);
-	both.precision(dbl::max_digits10);
-
-	double src_sum = 0.0;
-	for (int k = 0; k < steps; k++)
-		src_sum += sample.at(k)*radres;
-	
 	while (!finished)
 	{
 		meanA = 0.0;
 		prop.propagate(); // propagate until finished..
-		meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
+		//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 		sampleBufferA = sampleBufferB;
 		for (int i = 0; i < lightSrcs.size(); i++)
 			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);
