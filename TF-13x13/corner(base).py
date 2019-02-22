@@ -54,7 +54,7 @@ with open('temp.txt', 'wb') as f:
     for j in range(length): # rows
         for i in range(length): # cols
             matrixArray[j][i] = normalize(identity) # initialization w. normed identity
-            rad = m.atan2(j,i) # use vector atan2 to determine angle and quadrant of vector [x|y]
+            rad = m.atan2(j+1,i+1) # use vector atan2 to determine angle and quadrant of vector [x|y]
             if i==0 and j==0:
                 scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
                 rotated = rotate(scaled, m.pi/4)
