@@ -47,14 +47,14 @@ def file_len(fname):
 
 # create identity
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 13
+length = 17
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
 
 # generate normalized tensors from linear transformations (polar form)
-radrange = 12.3*m.pi # .. rad range WARNING: DO NOT TOUCH - experimentally derived parameter!
+radrange = 27*m.pi # .. rad range WARNING: DO NOT TOUCH - experimentally derived parameter!
 radres = m.pi/180 # 1deg/step
 steps = radrange/radres # of steps :)
-radarr = [float(i)*radrange/(steps-1) for i in range(round(steps))] # create array w. steps in rad
+radarr = [float(i)*radres for i in range(round(steps))] # create array w. steps in rad
 curDelta = np.ones((length,length)) # create current delta (error) array initialized w. delta=1
 
 for j in range(length): # rows
@@ -66,7 +66,7 @@ for rad in radarr:
     r = 0.1*rad # equation for archimedian spiral 0.2
     x = round(r * m.cos(rad)) # get relative (+/- origin) cartesian x-coordinate
     y = round(r * m.sin(rad)) # get relative (+/- origin) cartesian y-coordinate
-    rot = rad + m.pi/2 - 0.35 # use angle w. offset (heuristic)
+    rot = rad + m.pi/2 - 0.5 # use angle w. offset (heuristic)
     deltaX = abs(x - (r * m.cos(rad))) # calc errorX
     deltaY = abs(y - (r * m.sin(rad))) # calc errorX
     delta = m.sqrt(deltaX**2 + deltaY**2) # calc euclidean distance as absolute error --> minimize
@@ -115,17 +115,17 @@ normalized = normalize(rotated)  # ..->transforms
 matrixArray[yIndex][xIndex] = normalized  # update matrixArray entry rot = -m.pi / 4  # use angle w. offset
 
 with open('temp.txt', 'wb') as f:
-    for j in range(length): # rows
-        for i in range(length): # cols
+    for j in range(2, (length-2)): # rows
+        for i in range(2,(length-2)): # cols
             np.savetxt(f,  matrixArray[j][i], fmt='%s', delimiter=' ', newline='\r\n')
 
 print("filelen: " + str(file_len('temp.txt'))) # print filelen of temp: should equal length*length*matrixHeight
 print("matrixarray: " + str(len(matrixArray))) # print len of matrixArray: should equal length
 
 # reorder the output tensor field into a regular grid
-i = 1 # create line index starting from 1
-str1 = "" # create empty string for row 1 (in 2D)
-str2 = "" # create empty string for row 2 (in 2D)
+i = 1
+str1 = ""
+str2 = ""
 with open('temp.txt', 'r+') as txtfile:
     for line in txtfile:
         line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
@@ -134,7 +134,7 @@ with open('temp.txt', 'r+') as txtfile:
         else:
             str1 += " " + line # concatenate row1 (upper line)
 
-        if i%(2*length) == 0: # if one row (in matrixArray) passed.., write results
+        if i%(2*(length-4)) == 0: # if one row (in matrixArray) passed.., write results
             txtfile.write('\n' + str1) # write row 1 (upper line)
             txtfile.write('\n' + str2) # write row 2 (lower line)
             str1 = str2 = "" # ..reset line strings
@@ -142,8 +142,8 @@ with open('temp.txt', 'r+') as txtfile:
         i += 1 #increment line index
 
 with open('temp.txt', 'r') as fin:
-    data = fin.read().splitlines(True) # ..read temp.txt as line array in data
+    data = fin.read().splitlines(True)
 with open('tensor_field.txt', 'w+') as fout:
-    fout.writelines(data[length**2*2+1:]) # in 2D.., use generated txt from line: length**2*2+1
+    fout.writelines(data[(length-4)*(length-4)*2+1:]) # in 2D...
 
 os.remove('temp.txt') # remove tmp file
