@@ -46,7 +46,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 13
+length = 17 # use 13+4 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
 
 deg = -45
 rad = deg*(np.pi/180.0)
@@ -57,7 +57,7 @@ matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize n
 radrange = 2*m.pi
 radres = m.pi/180 # 1deg/step
 steps = radrange/radres
-radarr = [float(i)*radrange/(steps-1) for i in range(round(steps))]
+radarr = [float(i)*radres for i in range(round(steps))]
 curDelta = np.ones((length,length))
 
 for j in range(length): # rows
@@ -65,7 +65,7 @@ for j in range(length): # rows
         matrixArray[j][i] = identity  # initialization w. normed identity
 
 # create range for radius (radii)
-radirange=range(m.ceil(length/2)+1)
+radirange=range(m.ceil(length/2))
 # walk through the radrange in radian steps
 for i in radirange:
     for rad in radarr:
@@ -79,36 +79,7 @@ for i in radirange:
             scaled = np.matmul(scale(1, 1), identity)  # chronological transformation order: right->left
             rotated = rotate(scaled, rot)
             normalized = normalize(rotated) # ..->transforms
-            continue
-        elif i == m.ceil(length/2):
-            rot = m.pi / 4  # use angle w. offset
-            xIndex = 0  # use shifted x index to obtain origin in center
-            yIndex = 0
-            scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
-            rotated = rotate(scaled, rot)
-            normalized = normalize(rotated)  # ..->transforms
-            matrixArray[yIndex][xIndex] = normalized  # update matrixArray entryrot = m.pi / 4  # use angle w. offset
-            rot = -m.pi / 4  # use angle w. offset
-            xIndex = (length - 1)  # use shifted x index to obtain origin in center
-            yIndex = 0
-            scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
-            rotated = rotate(scaled, rot)
-            normalized = normalize(rotated)  # ..->transforms
-            matrixArray[yIndex][xIndex] = normalized  # update matrixArray entry rot = -m.pi / 4  # use angle w. offset
-            rot = m.pi / 4  # use angle w. offset
-            xIndex = (length - 1)  # use shifted x index to obtain origin in center
-            yIndex = (length - 1)
-            scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
-            rotated = rotate(scaled, rot)
-            normalized = normalize(rotated)  # ..->transforms
-            matrixArray[yIndex][xIndex] = normalized  # update matrixArray entryot = m.pi / 4  # use angle w. offset
-            rot = -m.pi / 4  # use angle w. offset
-            xIndex = 0  # use shifted x index to obtain origin in center
-            yIndex = (length - 1)
-            scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
-            rotated = rotate(scaled, rot)
-            normalized = normalize(rotated)  # ..->transforms
-            matrixArray[yIndex][xIndex] = normalized  # update matrixArray entry
+            matrixArray[yIndex][xIndex] = normalized  # update matrixArray entryot = m.pi / 4  # use angle w. offse
             continue
 
         r = i # set current radius
@@ -132,8 +103,8 @@ for i in radirange:
 
 #iterate through matrixArray to add matrices in order
 with open('temp.txt', 'wb') as f:
-    for j in range(length): # rows
-        for i in range(length): # cols
+    for j in range(2, (length-2)): # rows
+        for i in range(2,(length-2)): # cols
             np.savetxt(f,  matrixArray[j][i], fmt='%s', delimiter=' ', newline='\r\n')
 
 print("filelen: " + str(file_len('temp.txt'))) # print filelen of temp: should equal length*length*matrixHeight
@@ -151,7 +122,7 @@ with open('temp.txt', 'r+') as txtfile:
         else:
             str1 += " " + line # concatenate row1 (upper line)
 
-        if i%(2*length) == 0: # if one row (in matrixArray) passed.., write results
+        if i%(2*(length-4)) == 0: # if one row (in matrixArray) passed.., write results
             txtfile.write('\n' + str1) # write row 1 (upper line)
             txtfile.write('\n' + str2) # write row 2 (lower line)
             str1 = str2 = "" # ..reset line strings
@@ -161,6 +132,6 @@ with open('temp.txt', 'r+') as txtfile:
 with open('temp.txt', 'r') as fin:
     data = fin.read().splitlines(True)
 with open('tensor_field.txt', 'w+') as fout:
-    fout.writelines(data[length*length*2+1:]) # in 2D...
+    fout.writelines(data[(length-4)*(length-4)*2+1:]) # in 2D...
 
 os.remove('temp.txt')
