@@ -31,7 +31,10 @@ def scale(xx,yy):
 
 def normalize(matrix): ## normalize uniformly to max(det(tensor_field))*Pi for real data to capture relative change (instead of directional)
     det = np.linalg.det(matrix)
-    c = 1/np.sqrt(det)#*np.pi)
+    if det == 0:
+        c = 1.0
+    else:
+        c = 1/np.sqrt(det)#*np.pi)
 
     scale = np.array([[c, 0], [0, c]])
     return np.matmul(scale, matrix)
@@ -94,7 +97,7 @@ for i in radirange:
         yIndex = length-1-round(y+(length-1)/2) # use inverted y coordinates (mirroring at x-axis in array reference frame)
         if xIndex < length and yIndex < length:
             if delta<curDelta[yIndex][xIndex]: # if absolute error < current error.. update
-                scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
+                scaled = np.matmul(scale(1, 0), identity)  # chronological transformation order: right->left
                 rotated = rotate(scaled, rot)
                 normalized = normalize(rotated) # ..->transforms
                 matrixArray[yIndex][xIndex] = normalized  # update matrixArray entry

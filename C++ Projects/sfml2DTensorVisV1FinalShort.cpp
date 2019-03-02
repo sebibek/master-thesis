@@ -747,11 +747,9 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 	}
 
 	// define parameters
-	double radres = 0.01745;
-	int steps = (2 * pi) / radres; // set # of steps
-
+	double radres = (2 * pi)/steps;
 	
-	// iterate through the matrixList/svdList and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
+	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
 		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
@@ -774,17 +772,23 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 		double sv2 = svdList.at(i).singularValues()[1];
 		double dot = sv2 * sv1;
 
-		double deg = 0;
-		deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-
 		double sum = 0.0;
-		for (int j = 0; j < steps; j++)
+		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0)
 		{
-			double val = dot / sqrt(sv2*sv2*cos(j*radres - deg * (M_PI / 180.0))*cos(j*radres - deg * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg * (M_PI / 180.0))*sin(j*radres - deg * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
-			sum += val;
-			glyphBuffer.at(i).at(j) = val;
+			glyphBuffer.at(i).at(round(deg1*steps / 360)) = sv1;
+			glyphBuffer.at(i).at(static_cast<int>(round(deg1*steps / 360 + steps/2))%steps) = sv1;
+			sum += 2 * sv1;
 		}
-
+		else
+		{
+			
+			for (int j = 0; j < steps; j++) // sample ellipse equation for all steps
+			{
+				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
+				sum += val;
+				glyphBuffer.at(i).at(j) = val;
+			}
+		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 
 		glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
@@ -809,8 +813,7 @@ class propagator
 	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 
 	// define function parser (muparser)
-	double radres = (2 * pi)/360; // set radres for discretized theta (phi) directions for sampling
-	int steps = (2 * pi) / radres;
+	double radres = (2 * pi)/steps; // set radres for discretized theta (phi) directions for sampling
 	int shiftIndex = steps / 4;
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
@@ -890,6 +893,11 @@ public:
 				sum1 += read.at(j); // evaluate for iMean (sum1)
 				sum2 += glyphBuffer->at(i).at(j);
 				sum3 += read.at(j)*glyphBuffer->at(i).at(j);
+
+				if (read.at(j) < 0)
+					cout << "WARNING: Negative values in SAMPLE in grid encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
+				if (glyphBuffer->at(i).at(j) < 0)
+					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
 			}
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -899,7 +907,10 @@ public:
 			// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-			double cFactor = tMean * iMean / tiMean;
+			double cFactor = 1.0;
+			if(tiMean > 0.0)
+				cFactor = tMean * iMean / tiMean;
+
 		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
@@ -930,6 +941,8 @@ public:
 				if (k % 2 == 0)
 					index =shiftIndex/2;
 
+				if (k == 6)
+					int a = 1;
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
@@ -941,6 +954,9 @@ public:
 					if (j < 0)
 						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = cFactor * read.at(j_index)*glyph.at(j_index);
+
+					if (val > 0.1)
+						int a = 1;
 					
 					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
 						if (abs(deltaJ) == shiftIndex/2)
@@ -1058,9 +1074,9 @@ int main(int argc, char* argv[])
 	Tee tee(cout, file);
 	TeeStream both(tee);
 	both.precision(dbl::max_digits10);
-	double src_sum = 0.0;
+	/*double src_sum = 0.0;
 	for (int k = 0; k < steps; k++)
-		src_sum += sample.at(k)*radres;
+		src_sum += sample.at(k)*radres;*/
 
 	while (!finished)
 	{
@@ -1076,8 +1092,8 @@ int main(int argc, char* argv[])
 		meanMem = meanA;
 
 		ctr++;
-		//if (ctr == 77)//6
-		//	break;
+		if (ctr == 10)//6
+			break;
 		
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
