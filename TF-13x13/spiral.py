@@ -127,23 +127,19 @@ i = 1
 str1 = ""
 str2 = ""
 with open('temp.txt', 'r+') as txtfile:
-    for line in txtfile:
-        line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
-        if i % 2 == 0: # if even line
-            str2 += " " + line # concatenate row2 (lower line)
-        else:
-            str1 += " " + line # concatenate row1 (upper line)
+    with open('tensor_field.txt', 'w+') as tensor_field:
+        for line in txtfile:
+            line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
+            if i % 2 == 0: # if even line
+                str2 += " " + line # concatenate row2 (lower line)
+            else:
+                str1 += " " + line # concatenate row1 (upper line)
 
-        if i%(2*(length-4)) == 0: # if one row (in matrixArray) passed.., write results
-            txtfile.write('\n' + str1) # write row 1 (upper line)
-            txtfile.write('\n' + str2) # write row 2 (lower line)
-            str1 = str2 = "" # ..reset line strings
+            if i % (2*length) == 0: # if one row (in matrixArray) passed.., write results
+                tensor_field.write(str1) # write row 1 (upper line)
+                tensor_field.write('\n' + str2 + '\n') # write row 2 (lower line)
+                str1 = str2 = "" # ..reset line strings
 
-        i += 1 #increment line index
+            i += 1 #increment line index
 
-with open('temp.txt', 'r') as fin:
-    data = fin.read().splitlines(True)
-with open('tensor_field.txt', 'w+') as fout:
-    fout.writelines(data[(length-4)*(length-4)*2+1:]) # in 2D...
-
-os.remove('temp.txt') # remove tmp file
+os.remove('temp.txt')
