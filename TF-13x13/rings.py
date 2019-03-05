@@ -49,7 +49,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 17 # use 13+4 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
+length = 33# use 13+4 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
 
 deg = -45
 rad = deg*(np.pi/180.0)
@@ -113,28 +113,25 @@ with open('temp.txt', 'wb') as f:
 print("filelen: " + str(file_len('temp.txt'))) # print filelen of temp: should equal length*length*matrixHeight
 print("matrixarray: " + str(len(matrixArray))) # print len of matrixArray: should equal length
 
+length = length - 4
 # reorder the output tensor field into a regular grid
 i = 1
 str1 = ""
 str2 = ""
 with open('temp.txt', 'r+') as txtfile:
-    for line in txtfile:
-        line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
-        if i % 2 == 0: # if even line
-            str2 += " " + line # concatenate row2 (lower line)
-        else:
-            str1 += " " + line # concatenate row1 (upper line)
+    with open('tensor_field.txt', 'w+') as tensor_field:
+        for line in txtfile:
+            line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
+            if i % 2 == 0: # if even line
+                str2 += " " + line # concatenate row2 (lower line)
+            else:
+                str1 += " " + line # concatenate row1 (upper line)
 
-        if i%(2*(length-4)) == 0: # if one row (in matrixArray) passed.., write results
-            txtfile.write('\n' + str1) # write row 1 (upper line)
-            txtfile.write('\n' + str2) # write row 2 (lower line)
-            str1 = str2 = "" # ..reset line strings
+            if i % (2*length) == 0: # if one row (in matrixArray) passed.., write results
+                tensor_field.write(str1) # write row 1 (upper line)
+                tensor_field.write('\n' + str2 + '\n') # write row 2 (lower line)
+                str1 = str2 = "" # ..reset line strings
 
-        i += 1 #increment line index
-
-with open('temp.txt', 'r') as fin:
-    data = fin.read().splitlines(True)
-with open('tensor_field.txt', 'w+') as fout:
-    fout.writelines(data[(length-4)*(length-4)*2+1:]) # in 2D...
+            i += 1 #increment line index
 
 os.remove('temp.txt')
