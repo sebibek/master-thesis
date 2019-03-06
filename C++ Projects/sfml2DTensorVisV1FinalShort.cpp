@@ -404,6 +404,7 @@ double intensity = 2.1; // --> initial intensity val
 std::string workDir;
 double thresh = 0.001;
 bool total_anisotropy = false;
+int ctrLimit = 0;
 
 // parse files
 void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions) {
@@ -480,6 +481,12 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					s >> steps;
+				}
+				// steps
+				else if (tag == "ctrLimit") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> ctrLimit;
 				}
 				//window/graph size
 				else if (tag == "window_size") {
@@ -1130,7 +1137,7 @@ int main(int argc, char* argv[])
 			finished = true;
 		meanMem = meanA;
 
-		//if (ctr == 9)//6
+		//if (ctr == ctrLimit)//6
 		//	break;
 
 		ctr++;

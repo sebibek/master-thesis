@@ -51,7 +51,7 @@ def file_len(fname):
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
 zero = np.array([[0, 0],[0, 0]]) ## row-major ordering: row-by-row
-length = 13
+length = 29
 
 deg = 0
 rad = deg*(np.pi/180.0)
