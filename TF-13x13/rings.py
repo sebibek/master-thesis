@@ -49,7 +49,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 33# use 13+4 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
+length = 17# use 13+4 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
 
 deg = -45
 rad = deg*(np.pi/180.0)
@@ -97,7 +97,7 @@ for i in radirange:
         yIndex = length-1-round(y+(length-1)/2) # use inverted y coordinates (mirroring at x-axis in array reference frame)
         if xIndex < length and yIndex < length:
             if delta<curDelta[yIndex][xIndex]: # if absolute error < current error.. update
-                scaled = np.matmul(scale(1, 0), identity)  # chronological transformation order: right->left
+                scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
                 rotated = rotate(scaled, rot)
                 normalized = normalize(rotated) # ..->transforms
                 matrixArray[yIndex][xIndex] = normalized  # update matrixArray entry

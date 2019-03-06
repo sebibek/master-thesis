@@ -33,6 +33,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>
 #include <limits>
+#include <ctime>
 
 // NAMESPACE IMPORTS
 using namespace std;
@@ -47,6 +48,8 @@ typedef std::numeric_limits< double > dbl;
 std::string functionString = "2.1"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
+int steps = 360; // use n steps for angular resolution - radres
+
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper); // template clip function
 
@@ -61,7 +64,14 @@ const double pi = M_PI;
 
 // -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
 static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
-
+static value_type deltaFunction(value_type v)
+{
+	double radres = 2 * pi / steps;
+	if (abs(v) < radres/2.0 || v == radres/2.0)
+		return 1.0;
+	else
+		return 0.0;
+}
 //writes frames to file 
 //directory must already exist -- parse file methods
 void record(sf::RenderTexture& in, int frameskip, std::string directory)
@@ -248,11 +258,15 @@ public:
 	}
 	//plots point to pixel(s)
 	void plot(int index = 0, int mode = 0) {
-
+		// line width
+		if (r >= 1.0)
+			line_width = line_width + 2;
+		else if (r >= 0.5)
+			line_width = line_width + 1;
 		//scale
 		double scale;
 		if (mode == 1)
-			scale = 10;
+			scale = 10;// / 360.0;
 		else
 			scale = 50;
 		//convert polar to cartesian
@@ -295,6 +309,11 @@ public:
 			graph.setPixel((xIndex - 1), (yIndex - 1), color);
 			graph.setPixel((xIndex - 1), (yIndex + 1), color);
 		}
+
+		if (r >= 1.0)
+			line_width = line_width - 2;
+		if (r >= 1.0)
+			line_width = line_width - 1;
 	}
 
 	// STRING PARSER OVERLOAD of animation - use w. string/mixed resolution constructor overload
@@ -381,10 +400,10 @@ Pair lightSrcPos{ height / 2, width / 2 };
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
 int record_frameskip = 0; // --> disables recording //recording frameskip
-int steps = 360; // use n steps for angular resolution - radres
 double intensity = 2.1; // --> initial intensity val
 std::string workDir;
 double thresh = 0.001;
+bool total_anisotropy = false;
 
 // parse files
 void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions) {
@@ -449,6 +468,12 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					s >> thresh;
+				}
+				// total anisotropy permission
+				else if (tag == "total_anisotropy") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> total_anisotropy;
 				}
 				// steps
 				else if (tag == "steps") {
@@ -657,7 +682,7 @@ T strFunction(T theta)
 	parser.DefineVar("theta", &t);
 	parser.SetExpr(functionString);
 	parser.DefineFun(_T("clip"), clipNeg, false);
-
+	parser.DefineFun(_T("delta"), deltaFunction, false);
 
 	T y = parser.Eval(); // evaluate parser expression
 
@@ -809,8 +834,8 @@ class propagator
 	double alpha = 36.8699 * M_PI / 180;
 	double beta = 26.5651 * M_PI / 180;
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
-	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
-	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
+	//std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
+	//std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 
 	// define function parser (muparser)
 	double radres = (2 * pi)/steps; // set radres for discretized theta (phi) directions for sampling
@@ -939,7 +964,12 @@ public:
 				int midIndex = (k * pi / 4) / radres;
 				int index = betaIndex;
 				if (k % 2 == 0)
-					index =shiftIndex/2;
+				{
+					if (total_anisotropy)
+						index = centralIndex;
+					else
+						index = shiftIndex / 2;
+				}
 
 				if (k == 6)
 					int a = 1;
@@ -958,13 +988,18 @@ public:
 					if (val > 0.1)
 						int a = 1;
 					
-					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
-						if (abs(deltaJ) == shiftIndex/2)
-							val = 0.5*0.3622909908722584*val;
-						else
-							val = 0.3622909908722584*val;
-					else if (k%2 != 0) // for betas (diagonals), use static edge overlap-
-						val = 0.6377090091277417*val;
+					if (!total_anisotropy)
+					{
+						// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+						if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
+							if (abs(deltaJ) == shiftIndex / 2)
+								val = 0.5*0.3622909908722584*val;
+							else
+								val = 0.3622909908722584*val;
+						else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
+							val = 0.6377090091277417*val;
+					}
+					
 					
 					val_sum += val * radres;
 					//for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
@@ -1055,7 +1090,6 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
 		sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
 
-	cout << "before propagation.." << endl;
 	// DUAL BUFFER PROPAGATION //
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 	double meanMem = 0.0;
@@ -1078,11 +1112,16 @@ int main(int argc, char* argv[])
 	for (int k = 0; k < steps; k++)
 		src_sum += sample.at(k)*radres;*/
 
+	cout << "before propagation.." << endl;
+	std::clock_t start;
+	double duration;
+
+	start = std::clock();
 	while (!finished)
 	{
 		meanA = 0.0;
 		prop.propagate(); // propagate until finished..
-		//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
+		meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 		sampleBufferA = sampleBufferB;
 		for (int i = 0; i < lightSrcs.size(); i++)
 			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);
@@ -1091,12 +1130,16 @@ int main(int argc, char* argv[])
 			finished = true;
 		meanMem = meanA;
 
+		//if (ctr == 9)//6
+		//	break;
+
 		ctr++;
-		if (ctr == 10)//6
-			break;
-		
+
 		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
+	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+
+	cout << "timer: " << duration << " ms" << endl;
 	cout << "..after propagation, ctr:" << ctr << endl;
 	
 	// PROPAGATION SCHEME END //
