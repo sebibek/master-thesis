@@ -1,0 +1,2 @@
+Full Python Support enabled for PV>5.0: import python scripts as module classes - in/out config by ServerManager SM (generating XMLs)
+PV<5.0: use Programmable Filter/Source: Fill in Script/Request Information Fields and apply - can be saved as XML by export cmd
