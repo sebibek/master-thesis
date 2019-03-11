@@ -67,8 +67,8 @@ sf::Vector2i windowsize;
 static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
 static value_type deltaFunction(value_type v)
 {
-	if (abs(v) < radres/2.0 || v == radres/2.0)
-		return 1.0;
+	if (abs(v) < radres/2.0 || v == radres/2.0) // use margin related to angular resolution radres..
+		return steps; // normalization: should integrate total energy of unit circle into one single direction
 	else
 		return 0.0;
 }
@@ -771,11 +771,14 @@ int main(int argc, char* argv[])
 	parse_options(argc, argv, userFunctions, userPositions);
 
 	// define dual buffers for propagation
-	std::vector<std::vector<double>> sampleBufferA((width)*(height), initArray);
-	std::vector<std::vector<double>> sampleBufferB((width)*(height), initArray);
-	std::vector<std::vector<double>> sampleBufferMem((width)*(height), initArray);
-	std::vector<std::vector<double>> sampleBufferInit((width)*(height), initArray);
-	std::vector<std::vector<double>> glyphBuffer((width)*(height), initArray);
+	std::vector<std::vector<double>> sampleBufferA((width*height), initArray);
+	std::vector<std::vector<double>> sampleBufferB((width*height), initArray);
+	std::vector<std::vector<double>> sampleBufferMem((width*height), initArray);
+	std::vector<std::vector<double>> sampleBufferInit((width*height), initArray);
+	std::vector<std::vector<double>> glyphBuffer((width*height), initArray);
+
+	// create distribution buffer to gather light distributions for all positions y,x and directions t
+	std::vector<std::vector<std::vector<double>>> distBuffer(width*height*steps, glyphBuffer); // initialize #steps 2D-planes w. empty glyphBuffer
 
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
@@ -784,71 +787,87 @@ int main(int argc, char* argv[])
 	computeGlyphs(glyphBuffer);
 	
 	// get defined light srcs positions and intensities...
-	if(userFunctions.size()) // if entered by user, use cmd AND config
-		for (int i = 0; i < userFunctions.size(); i++)
-		{
-			functionString = userFunctions.at(i);
-			lightSrcPos = userPositions.at(i);
-			lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-		}
-	else // if entered by default value, use default value in center position
-	{
-		functionString = std::to_string(intensity);
-		lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-		userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
-	}
-	for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
-		sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
+	//if(userFunctions.size()) // if entered by user, use cmd AND config
+	//	for (int i = 0; i < userFunctions.size(); i++)
+	//	{
+	//		functionString = userFunctions.at(i);
+	//		lightSrcPos = userPositions.at(i);
+	//		lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
+	//	}
+	//else // if entered by default value, use default value in center position
+	//{
+	//	functionString = std::to_string(intensity);
+	//	lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
+	//	userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
+	//}
+	//for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
+	//	sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
 
-	// DUAL BUFFER PROPAGATION //
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 	double meanMem = 0.0;
-
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &meanA, &sampleBufferA, &sampleBufferB, &glyphBuffer);
 
-	int jIndex = lightSrcPos.jIndex;
-	int iIndex = lightSrcPos.iIndex;
-	bool finished = false;
-	// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
-	int ctr = 0;
-
-	std::vector<double> sample = lightSrcs.back();
-	std::ofstream file("cout.txt");
+	std::vector<double> sample = initArray;
+	/*std::ofstream file("cout.txt");
 	Tee tee(cout, file);
 	TeeStream both(tee);
-	both.precision(dbl::max_digits10);
+	both.precision(dbl::max_digits10);*/
 
-	cout << "before propagation.." << endl;
-	std::clock_t start;
-	double duration;
-
-	start = std::clock();
-	while (!finished)
+	// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
+	for (int j = 0; j < steps; j++)
 	{
-		meanA = 0.0;
-		prop.propagate(); // propagate until finished..
-		//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
-		sampleBufferA = sampleBufferB;
-		for (int i = 0; i < lightSrcs.size(); i++)
-			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);
-		
-		if (abs(meanA - meanMem) < thresh)
-			finished = true;
-		meanMem = meanA;
-
-		//if (ctr == ctrLimit)//6
-		//	break;
-
-		//ctr++;
-		sampleBufferB = sampleBufferInit;
-		//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
+		sample.at(j) = steps;
+		lightSrcs.push_back(sample);
+		std::fill(sample.begin(), sample.end(), 0.0);
 	}
-	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 
-	cout << "timer: " << duration << " ms" << endl;
-	cout << "..after propagation, ctr:" << ctr << endl;
-	
+	for(int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
+		{
+			int ctr = 0;
+			lightSrcPos = Pair(j, i);
+			cout << "before propagating x|y: " << i << "|" << j << endl;
+			std::clock_t start;
+			double duration;
+			start = std::clock();
+			for (int t = 0; t < steps; t++)
+			{
+				// DUAL BUFFER PROPAGATION //
+				bool finished = false;
+				sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = lightSrcs.at(t); // get pre-computed light src for current direction t
+				meanA = 0.0;
+				meanMem = 0.0;
+				//ctr = 0;
+				
+				// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
+				while (!finished) // perform one single light propagation pass (iteration)
+				{
+					meanA = 0.0;
+					prop.propagate(); // propagate until finished..
+					//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
+					sampleBufferA = sampleBufferB;
+					sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = sample;
+
+					if (abs(meanA - meanMem) < thresh)
+						finished = true;
+					meanMem = meanA;
+
+					//if (ctr == ctrLimit)//6
+					//	break;
+
+					//ctr++;
+					sampleBufferB = sampleBufferInit;
+					//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
+				}
+				
+				distBuffer.at(j*width + i + t * dim) = sampleBufferA;
+				sampleBufferA = sampleBufferInit;
+			}
+			duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+			cout << "timer: " << duration << " ms" << endl;
+			cout << "..after propagation, (last) ctr:" << ctr << endl;
+		}
 	// PROPAGATION SCHEME END //
 
 	system("PaUsE");
