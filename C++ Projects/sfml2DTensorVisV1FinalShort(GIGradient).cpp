@@ -908,7 +908,7 @@ int main(int argc, char* argv[])
 	{
 		meanA = 0.0;
 		prop.propagate(); // propagate until finished..
-		meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
+		//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 		sampleBufferA = sampleBufferB;
 		for (int i = 0; i < lightSrcs.size(); i++)
 			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);

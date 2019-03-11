@@ -7,7 +7,7 @@ import vtk
 import vtk.util.numpy_support as ns
 
 # set user parameters
-Dimensions = [11,11,11]
+Dimensions = [101,101,101]
 T = 10.0
 A = 0.1
 eps = 0.1
