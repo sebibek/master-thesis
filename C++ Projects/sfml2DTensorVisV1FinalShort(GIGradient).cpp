@@ -44,11 +44,15 @@ typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
 typedef std::numeric_limits< double > dbl;
 
+//definition of pi
+const double pi = M_PI;
+
 // PROTOTYPES
-std::string functionString = "2.1"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
 int steps = 360; // use n steps for angular resolution - radres
+double radres = 2 * pi / steps;
+const std::vector<double> initArray(steps, 0.0);
 
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper); // template clip function
@@ -57,16 +61,12 @@ T clip(const T& n, const T& lower, const T& upper); // template clip function
 int wSize = 701;
 sf::Vector2i windowsize;
 
-//definition of pi
-const double pi = M_PI;
-
 // GENERIC FUNCTION DEFINITIONS
 
 // -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
 static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
 static value_type deltaFunction(value_type v)
 {
-	double radres = 2 * pi / steps;
 	if (abs(v) < radres/2.0 || v == radres/2.0)
 		return 1.0;
 	else
@@ -96,18 +96,6 @@ std::string GetCurrentWorkingDir(void) {
 	GetCurrentDir(buff, FILENAME_MAX);
 	std::string current_working_dir(buff);
 	return current_working_dir;
-}
-
-void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality)
-{
-	for (int i = 0; i < quality; ++i)
-	{
-		double rad = (360 / quality * i) / (360 / M_PI / 2);
-		double x = cos(rad)*radius_x;
-		double y = sin(rad)*radius_y;
-
-		ellipse[0].setPoint(i, sf::Vector2f(x, y));
-	}
 }
 
 // CLASS DEFINITIONS //
@@ -176,21 +164,21 @@ public:
 // OPTION (cmd args) DEFINITIONS - getopt
 
 // create options for getopt(.c)
-Pair lightSrcPos{ height / 2, width / 2 };
-bool fullscreen = false; //fullscreen flag
-std::string record_folder = "frames";//directory to write images to, must exist
-int record_frameskip = 0; // --> disables recording //recording frameskip
-double intensity = 2.1; // --> initial intensity val
+std::string functionString = "2.1"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 std::string workDir;
-double thresh = 0.001;
+std::string record_folder = "frames";//directory to write images to, must exist
+bool fullscreen = false; //fullscreen flag
 bool total_anisotropy = false;
+int record_frameskip = 0; // --> disables recording //recording frameskip
 int ctrLimit = 0;
+Pair lightSrcPos{ height / 2, width / 2 };
+double intensity = 2.1; // --> initial intensity val
+double thresh = 0.001;
 
 // parse files
-void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions) {
-
+void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions)
+{
 	std::ifstream f(filename);
-
 	std::string line;
 
 	//default function attributes
@@ -261,6 +249,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					s >> steps;
+					radres = 2 * pi / steps;
 				}
 				// steps
 				else if (tag == "ctrLimit") {
@@ -386,54 +375,6 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 }
 
 // OPERATOR DEFINITIONS //
-//template <typename T> // element-wise plus for std::vector
-//std::array<T, 21> operator*(const T a, const std::array<T, 21>& b)
-//{
-//	std::array<T, 21> result;
-//
-//	for (int i = 0; i < b.size(); i++)
-//		result.at(i) = a * b.at(i);
-//
-//	return result;
-//}
-//
-//template <typename T> // element-wise plus for std::array
-//std::array<std::array<T, 21>, 2> operator*(const T a, const std::array<std::array<T, 21>, 2> &b)
-//{
-//	std::array<std::array<T, 21>, 2> result;
-//
-//	for (int i = 0; i < b.size(); i++)
-//		result.at(i) = a * b.at(i);
-//
-//	return result;
-//}
-//
-//template <typename T> // element-wise plus for std::vector
-//std::array<T, 21> operator+(const std::array<T, 21>& a, const std::array<T, 21>& b)
-//{
-//	assert(a.size() == b.size());
-//
-//	std::array<T, 21> result;
-//
-//	for (int i = 0; i < a.size(); i++)
-//		result.at(i) = a.at(i) + b.at(i);
-//
-//	return result;
-//}
-//
-//template <typename T> // element-wise plus for std::array
-//std::array<std::array<T, 21>, 2> operator+(const std::array<std::array<T, 21>, 2>& a, const std::array<std::array<T, 21>, 2> &b)
-//{
-//	assert(a.size() == b.size());
-//
-//	std::array<std::array<T, 21>, 2> result;
-//
-//	for (int i = 0; i < a.size(); i++)
-//		result.at(i) = a.at(i) + b.at(i);
-//
-//	return result;
-//}
-//
 template <typename T> // element-wise plus for std::vector
 std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 {
@@ -546,7 +487,6 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 		{
 			MatrixXd a = m.block<2, 2>(2 * i, 2 * j);
 			matrixList.at(j + i * (cols / 2)) = a;
-			//cout << "Matrix a: " << a << std::endl;
 		}
 
 	// compute the SVD (singular value decomposition)of all matrices in matrixList into svdList
@@ -558,9 +498,6 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 		svdList.at(i) = svd;
 	}
 
-	// define parameters
-	double radres = (2 * pi)/steps;
-	
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
@@ -574,10 +511,8 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
-		if (deg1 < 0)
-			deg1 = 360 + deg1;
-		if (deg2 < 0)
-			deg2 = 360 + deg2;
+		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
+		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
 		// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
 		double sv1 = svdList.at(i).singularValues()[0];
@@ -593,7 +528,6 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 		}
 		else
 		{
-			
 			for (int j = 0; j < steps; j++) // sample ellipse equation for all steps
 			{
 				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
@@ -607,7 +541,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 	}
 }
 
-std::vector<double> sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, double radres, int steps, int jIndex, int iIndex)
+std::vector<double> sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, int jIndex, int iIndex)
 {
 	std::vector<double> sample(steps, 0.0);
 	for (int i = 0; i < steps; i++)
@@ -625,10 +559,10 @@ class propagator
 	//std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 
 	// define function parser (muparser)
-	double radres = (2 * pi)/steps; // set radres for discretized theta (phi) directions for sampling
 	int shiftIndex = steps / 4;
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
+	int dim = width * height;
 	
 	double* meanA;
 	double cosine_sum = 0.0;
@@ -643,7 +577,6 @@ class propagator
 	std::vector<double> read;
 	std::vector<double> glyph;
 	std::vector<double> out;
-	std::vector<double> initArray;
 
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
@@ -658,7 +591,6 @@ public:
 		read = std::vector<double>(steps, 0.0);
 		glyph = std::vector<double>(steps, 0.0);
 		out = std::vector<double>(steps, 0.0);
-		initArray = std::vector<double>(steps, 0.0);
 
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
@@ -758,23 +690,16 @@ public:
 						index = shiftIndex / 2;
 				}
 
-				if (k == 6)
-					int a = 1;
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
 				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
-					int j_index = j%steps;
+					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					if (j < 0)
-						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = cFactor * read.at(j_index)*glyph.at(j_index);
 
-					if (val > 0.1)
-						int a = 1;
-					
 					if (!total_anisotropy)
 					{
 						// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
@@ -845,13 +770,11 @@ int main(int argc, char* argv[])
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
 
-	double radres = (2 * pi) / steps; // use n steps/deg
-
 	// define dual buffers for propagation
-	std::vector<double> initArray(steps, 0.0);
 	std::vector<std::vector<double>> sampleBufferA((width)*(height), initArray);
 	std::vector<std::vector<double>> sampleBufferB((width)*(height), initArray);
 	std::vector<std::vector<double>> sampleBufferMem((width)*(height), initArray);
+	std::vector<std::vector<double>> sampleBufferInit((width)*(height), initArray);
 	std::vector<std::vector<double>> glyphBuffer((width)*(height), initArray);
 
 	std::vector<std::vector<double>> lightSrcs;
@@ -866,12 +789,12 @@ int main(int argc, char* argv[])
 		{
 			functionString = userFunctions.at(i);
 			lightSrcPos = userPositions.at(i);
-			lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
+			lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
 		}
 	else // if entered by default value, use default value in center position
 	{
 		functionString = std::to_string(intensity);
-		lightSrcs.push_back(sample(strFunction, sampleBufferA, radres, steps, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
+		lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
 		userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
 	}
 	for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
@@ -895,9 +818,6 @@ int main(int argc, char* argv[])
 	Tee tee(cout, file);
 	TeeStream both(tee);
 	both.precision(dbl::max_digits10);
-	/*double src_sum = 0.0;
-	for (int k = 0; k < steps; k++)
-		src_sum += sample.at(k)*radres;*/
 
 	cout << "before propagation.." << endl;
 	std::clock_t start;
@@ -920,9 +840,9 @@ int main(int argc, char* argv[])
 		//if (ctr == ctrLimit)//6
 		//	break;
 
-		ctr++;
-
-		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
+		//ctr++;
+		sampleBufferB = sampleBufferInit;
+		//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
 	}
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 
@@ -930,20 +850,6 @@ int main(int argc, char* argv[])
 	cout << "..after propagation, ctr:" << ctr << endl;
 	
 	// PROPAGATION SCHEME END //
-
-	// TESTS START //
-	/*ctr = 0;
-	double energy_sum = 0.0;
-
-	for (int i = 0; i < sampleBufferA.size(); i++)
-		if (sampleBufferA.at(i) != initArray)
-			for (int k = 0; k < steps; k++)
-				energy_sum += sampleBufferA.at(i).at(k)*radres;
-
-	both << "energy sum:" << energy_sum << endl;
-	both << "src_sum:" << src_sum << endl;
-	both << "difference:" << src_sum - energy_sum << endl;
-	both << "ctr:" << ctr << endl;*/
 
 	system("PaUsE");
 
