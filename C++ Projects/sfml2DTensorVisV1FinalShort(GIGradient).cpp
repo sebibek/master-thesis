@@ -110,7 +110,7 @@ class neighborhood
 public:
 
 	//constructor
-	neighborhood(int j, int i, const int length) // check the neighbourhood of (j,i) for missing neighbors..
+	neighborhood(int j, int i) // check the neighbourhood of (j,i) for missing neighbors..
 	{
 		// check if frame exceeded, outside FOV, offscreen..
 		if (i == 0)
@@ -397,6 +397,28 @@ std::vector<T> operator*(const T a, const std::vector<T>& b)
 	return result;
 }
 
+template <typename T> // element-wise plus for std::vector
+std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, const std::vector<std::vector<T>>& b)
+{
+	std::vector<std::vector<T>> result(b.size());
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = 1.0 / 2 * (a.at(i) + (-1.0)*b.at(i));
+
+	return result;
+}
+
+template <typename T> // element-wise plus for std::vector
+std::vector<std::vector<T>> operator*(const T a, const std::vector<std::vector<T>>& b)
+{
+	std::vector<std::vector<T>> result(b.size());
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a * b.at(i);
+
+	return result;
+}
+
 // SPECIFIC (MATHEMATICAL-PROGRAM USE) FUNCTIONS
 
 // template function for evaluating string functions via ptr 
@@ -601,10 +623,8 @@ public:
 			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
 			{
 				int deltaJ = j - midIndex;
-				int j_index = j % steps;
+				int j_index = j < 0 ? j+steps : j % steps;
 
-				if (j < 0)
-					j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
 				cosine_sum += res * radres;
 				cosK.at(j_index) = res;
@@ -625,7 +645,7 @@ public:
 			if (read == initArray)
 				continue;
 			glyph = glyphBuffer->at(i);
-			neighborhood hood(i / width, i%width, width);
+			neighborhood hood(i / width, i%width);
 			
 			// calculate mean and variance.. of I(phi)
 			double sum1 = 0.0;
@@ -652,10 +672,9 @@ public:
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 			double cFactor = 1.0;
-			if(tiMean > 0.0)
+			if(tiMean)
 				cFactor = tMean * iMean / tiMean;
 
-		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
@@ -751,6 +770,22 @@ public:
 	}
 };
 
+template <typename T>
+double acc(T m)
+{
+	double sum = std::accumulate(m.cbegin(), m.cend(), 0, [](auto lhs, const auto& rhs)
+	{
+		return std::accumulate(rhs.cbegin(), rhs.cend(), lhs);
+	});
+	return sum;
+}
+
+template<typename Iter_T>
+double vectorNorm(Iter_T first, Iter_T last)
+{
+	return sqrt(inner_product(first, last, first, 0.0));
+}
+
 int main(int argc, char* argv[])
 {
 	// 2D Grid START //
@@ -779,6 +814,11 @@ int main(int argc, char* argv[])
 
 	// create distribution buffer to gather light distributions for all positions y,x and directions t
 	std::vector<std::vector<std::vector<double>>> distBuffer(width*height*steps, glyphBuffer); // initialize #steps 2D-planes w. empty glyphBuffer
+	
+	// std::vector<std::vector<double>> dist = distBuffer.at(0) - distBuffer.at(0); // Exemplary OPERATOR USE TODO!
+
+	std::vector<double> initGradient(3, 0.0); // construct 3D Gradient
+	std::vector<std::vector<double>> deltaBuffer(width*height*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
@@ -869,6 +909,61 @@ int main(int argc, char* argv[])
 			cout << "..after propagation, (last) ctr:" << ctr << endl;
 		}
 	// PROPAGATION SCHEME END //
+	sampleBufferB.clear();
+	sampleBufferMem.clear();
+	sampleBufferInit.clear();
+	glyphBuffer.clear();
+	// DELTA (Gradient) COMPUTATION START //
+	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
+
+	cout << "before constructing gradient vector.." << endl;
+	std::clock_t start;
+	double duration;
+	start = std::clock();
+	for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
+		{
+			if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
+				continue;
+			for (int t = 0; t < steps; t++)
+			{
+				// X-1D central differences..
+				sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
+				meanA = acc(sampleBufferA);
+				gradient.at(0) = meanA /2.0;
+				// Y-1D central differences..
+				sampleBufferA = distBuffer.at((j+1)*width + i + t * dim) - distBuffer.at((j-1)*width + i + t * dim);
+				meanA = acc(sampleBufferA);
+				gradient.at(1) = meanA / 2.0;
+				// t-1D central differences..
+				sampleBufferA = distBuffer.at(j*width + i + (t+1)%steps * dim) - distBuffer.at(j *width + i + (t == 0 ? (steps-1) : (t-1)) * dim);
+				meanA = acc(sampleBufferA);
+				gradient.at(2) = meanA / 2.0;
+
+				deltaBuffer.at(j*width + i + t * dim) = gradient;
+			}
+		}
+	// DELTA (Gradient) COMPUTATION END //
+	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+	cout << "timer: " << duration << " ms" << endl;
+	
+	
+	// vector norm (Gradient) COMPUTATION START //
+	std::vector<double> scalarNorm(width*height*steps, 0.0); // construct 3D Gradient
+
+	cout << "before computing gradient (vector) norm.." << endl;
+	std::clock_t start;
+	double duration;
+	start = std::clock();
+	for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
+			for (int t = 0; t < steps; t++)
+				scalarNorm.at(j*width + i + t * dim) = vectorNorm(deltaBuffer.at(j*width + i + t * dim).begin(), deltaBuffer.at(j*width + i + t * dim).end());
+	
+	// vector norm (Gradient) COMPUTATION END //
+	
+	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+	cout << "timer: " << duration << " ms" << endl;
 
 	system("PaUsE");
 
