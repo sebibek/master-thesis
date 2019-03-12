@@ -109,8 +109,24 @@ class neighborhood
 
 public:
 
+	neighborhood() // standard constructor
+	{}
 	//constructor
 	neighborhood(int j, int i) // check the neighbourhood of (j,i) for missing neighbors..
+	{
+		// check if frame exceeded, outside FOV, offscreen..
+		if (i == 0)
+			neighborL = false; // left
+		else if (i == width - 1)
+			neighborR = false; // right
+		if (j == 0)
+			neighborT = false; // top
+		else if (j == height - 1)
+			neighborB = false; // bottom
+		// leave order.. functional!
+	}
+
+	void change(int j, int i)
 	{
 		// check if frame exceeded, outside FOV, offscreen..
 		if (i == 0)
@@ -600,6 +616,10 @@ class propagator
 	std::vector<double> glyph;
 	std::vector<double> out;
 
+	neighborhood hood; 
+	bool flag = false;
+
+
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
@@ -634,6 +654,7 @@ public:
 		cosine_sum = cosine_sum / 8.0;
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
+		hood.change(height / 2, width / 2);
 	}
 
 	void propagate()
@@ -645,7 +666,10 @@ public:
 			if (read == initArray)
 				continue;
 			glyph = glyphBuffer->at(i);
-			neighborhood hood(i / width, i%width);
+			
+			flag = false;
+			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
+				{hood.change(i / width, i%width);flag = true;}
 			
 			// calculate mean and variance.. of I(phi)
 			double sum1 = 0.0;
@@ -681,23 +705,26 @@ public:
 				// empty (reset) sample, upper and lower for each edge
 				std::fill(out.begin(), out.end(), 0);
 
+				if (flag) // if position on grid borders..
+				{
 					// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-				if (!hood.getR() && k == 0)
-					continue;
-				if ((!hood.getT() || !hood.getR()) && k == 1)
-					continue;
-				if (!hood.getT() && k == 2)
-					continue;
-				if ((!hood.getT() || !hood.getL()) && k == 3)
-					continue;
-				if (!hood.getL() && k == 4)
-					continue;
-				if ((!hood.getB() || !hood.getL()) && k == 5)
-					continue;
-				if (!hood.getB() && k == 6)
-					continue;
-				if ((!hood.getB() || !hood.getR()) && k == 7)
-					continue;
+					if (k == 0 && !hood.getR())
+						continue;
+					if (k == 1 && (!hood.getT() || !hood.getR()))
+						continue;
+					if (k == 2 && !hood.getT())
+						continue;
+					if (k == 3 && (!hood.getT() || !hood.getL()))
+						continue;
+					if (k == 4 && !hood.getL())
+						continue;
+					if (k == 5 && (!hood.getB() || !hood.getL()))
+						continue;
+					if (k == 6 && !hood.getB())
+						continue;
+					if (k == 7 && (!hood.getB() || !hood.getR()))
+						continue;
+				}
 
 				int midIndex = (k * pi / 4) / radres;
 				int index = betaIndex;
@@ -945,15 +972,15 @@ int main(int argc, char* argv[])
 		}
 	// DELTA (Gradient) COMPUTATION END //
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
-	cout << "timer: " << duration << " ms" << endl;
+	cout << "..after, timer: " << duration << " ms" << endl;
 	
+	sampleBufferA.clear();
+	distBuffer.clear();
 	
 	// vector norm (Gradient) COMPUTATION START //
 	std::vector<double> scalarNorm(width*height*steps, 0.0); // construct 3D Gradient
 
 	cout << "before computing gradient (vector) norm.." << endl;
-	std::clock_t start;
-	double duration;
 	start = std::clock();
 	for (int j = 0; j < height; j++)
 		for (int i = 0; i < width; i++)
@@ -963,7 +990,7 @@ int main(int argc, char* argv[])
 	// vector norm (Gradient) COMPUTATION END //
 	
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
-	cout << "timer: " << duration << " ms" << endl;
+	cout << "..after, timer: " << duration << " ms" << endl;
 
 	system("PaUsE");
 
