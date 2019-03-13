@@ -257,12 +257,12 @@ public:
 		return graphSpr;
 	}
 	//plots point to pixel(s)
-	void plot(int index = 0, int mode = 0) {
+	void plot(int index = 0, int mode = 0)
+	{
 		// line width
 		if (r >= 1.0)
-			line_width = line_width + 2;
-		else if (r >= 0.5)
 			line_width = line_width + 1;
+
 		//scale
 		double scale;
 		if (mode == 1)
@@ -311,9 +311,8 @@ public:
 		}
 
 		if (r >= 1.0)
-			line_width = line_width - 2;
-		if (r >= 1.0)
 			line_width = line_width - 1;
+
 	}
 
 	// STRING PARSER OVERLOAD of animation - use w. string/mixed resolution constructor overload
@@ -1071,6 +1070,7 @@ int main(int argc, char* argv[])
 	std::vector<double> initArray(steps, 0.0);
 	std::vector<std::vector<double>> sampleBufferA((width)*(height), initArray);
 	std::vector<std::vector<double>> sampleBufferB((width)*(height), initArray);
+	std::vector<std::vector<double>> sampleBufferInit((width*height), initArray);
 	std::vector<std::vector<double>> sampleBufferMem((width)*(height), initArray);
 	std::vector<std::vector<double>> glyphBuffer((width)*(height), initArray);
 
@@ -1140,9 +1140,10 @@ int main(int argc, char* argv[])
 		//if (ctr == ctrLimit)//6
 		//	break;
 
-		ctr++;
+		//ctr++;
 
-		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
+		sampleBufferB = sampleBufferInit;
+		//std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 
