@@ -135,6 +135,11 @@ public:
 
 	void change(int j, int i)
 	{
+		// RE-INITIALIZE
+		neighborR = true;
+		neighborT = true;
+		neighborL = true;
+		neighborB = true;
 		// check if frame exceeded, outside FOV, offscreen..
 		if (i == 0)
 			neighborL = false; // left
@@ -661,7 +666,6 @@ public:
 		cosine_sum = cosine_sum / 8.0;
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
-		hood.change(height / 2, width / 2);
 	}
 
 	void propagate()
@@ -673,10 +677,10 @@ public:
 			if (read == initArray)
 				continue;
 			glyph = glyphBuffer->at(i);
-			
+
 			flag = false;
 			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
-				{hood.change(i / width, i%width);flag = true;}
+				{hood.change(i / width, i%width); flag = true;}
 			
 			// calculate mean and variance.. of I(phi)
 			double sum1 = 0.0;
@@ -897,12 +901,13 @@ int main(int argc, char* argv[])
 	}
 
 	int ctr = 0;
+	int tCtr = 0;
 	double duration;
 	bool finished = false;
 	for(int j = 0; j < height; j++)
 		for (int i = 0; i < width; i++)
 		{
-			ctr = 0;
+			tCtr = 0;
 			lightSrcPos = Pair(j, i);
 			cout << "before propagating x|y: " << i << "|" << j << endl;
 			std::clock_t start;
@@ -910,9 +915,7 @@ int main(int argc, char* argv[])
 			for (int t = 0; t < steps; t++)
 			{
 				// DUAL BUFFER PROPAGATION //
-				sample = lightSrcs.at(t);
-				sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = sample; // get pre-computed light src for current direction t
-				meanA = 0.0;
+				sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = lightSrcs.at(t); // get pre-computed light src for current direction t
 				meanMem = 0.0;
 				ctr = 0;
 				finished = false;
@@ -924,7 +927,7 @@ int main(int argc, char* argv[])
 					prop.propagate(); // propagate until finished..
 					//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 					sampleBufferA = sampleBufferB;
-					sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = sample;
+					sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = lightSrcs.at(t);
 
 					if (abs(meanA - meanMem) < thresh)
 						finished = true;
@@ -938,6 +941,8 @@ int main(int argc, char* argv[])
 					//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
 				}
 				
+				if (ctr <= 3)
+					tCtr++;
 				distBuffer.at(j*width + i + t * dim) = sampleBufferA;
 				//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
 				sampleBufferA = sampleBufferInit;
@@ -945,6 +950,7 @@ int main(int argc, char* argv[])
 			duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 			cout << "timer: " << duration << " ms" << endl;
 			cout << "..after propagation, (last) ctr:" << ctr << endl;
+			cout << "..trivial ctr:" << tCtr << endl;
 		}
 	// PROPAGATION SCHEME END //
 	sampleBufferB.clear();
@@ -1014,7 +1020,7 @@ int main(int argc, char* argv[])
 				double res = vectorNorm(deltaBuffer.at(j*width + i + t * dim).begin(), deltaBuffer.at(j*width + i + t * dim).end());
 				scalarNorm.at(j*width + i + t * dim) = res;
 				energy->SetValue(ctr, res);
-
+				ctr++;
 			}
 	
 	// vector norm (Gradient) COMPUTATION END //
