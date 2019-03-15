@@ -988,59 +988,46 @@ int main(int argc, char* argv[])
 	distBuffer.clear();
 	
 	// vector norm (Gradient) COMPUTATION START //
-	std::vector<double> scalarNorm(width*height*steps, 0.0); // construct 3D Gradient
+	std::vector<double> scalarNorm(width*height*steps, 0.0); // construct 3D Gradient Norm Vector
+
+	vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
+
+	imageData->SetDimensions(width, height, steps);
+
+	//vtkSmartPointer<vtkDoubleArray> director =	vtkSmartPointer<vtkDoubleArray>::New();
+
+	//director->SetNumberOfComponents(3);
+	//director->SetNumberOfTuples(width * height * steps);
+
+	vtkSmartPointer<vtkDoubleArray> energy = vtkSmartPointer<vtkDoubleArray>::New();
+
+	energy->SetNumberOfComponents(1);
+	energy->SetNumberOfTuples(width * height * steps);
 
 	cout << "before computing gradient (vector) norm.." << endl;
 	start = std::clock();
-	for (int j = 0; j < height; j++)
-		for (int i = 0; i < width; i++)
-			for (int t = 0; t < steps; t++)
-				scalarNorm.at(j*width + i + t * dim) = vectorNorm(deltaBuffer.at(j*width + i + t * dim).begin(), deltaBuffer.at(j*width + i + t * dim).end());
+	ctr = 0;
+	for (int t = 0; t < steps; t++)
+		for (int j = 0; j < height; j++)
+			for (int i = 0; i < width; i++)
+			{
+				double res = vectorNorm(deltaBuffer.at(j*width + i + t * dim).begin(), deltaBuffer.at(j*width + i + t * dim).end());
+				scalarNorm.at(j*width + i + t * dim) = res;
+				energy->SetValue(ctr, res);
+
+			}
 	
 	// vector norm (Gradient) COMPUTATION END //
 	
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 	cout << "..after, timer: " << duration << " ms" << endl;
 
-	int nx = 10, ny = 10, nz = 10;
-
-	vtkSmartPointer<vtkImageData> imageData =
-		vtkSmartPointer<vtkImageData>::New();
-
-	imageData->SetDimensions(nx, ny, nz);
-
-	vtkSmartPointer<vtkDoubleArray> director =
-		vtkSmartPointer<vtkDoubleArray>::New();
-
-	director->SetNumberOfComponents(3);
-	director->SetNumberOfTuples(nx * ny * nz);
-
-	vtkSmartPointer<vtkDoubleArray> energy =
-		vtkSmartPointer<vtkDoubleArray>::New();
-
-	energy->SetNumberOfComponents(1);
-	energy->SetNumberOfTuples(nx * ny * nz);
-
-	for (int i = 0; i < director->GetNumberOfTuples(); ++i) {
-		double t = 1.0;
-		double p = 0.0;
-		double e = 5.0;
-		double x = sin(t) * cos(p),
-			y = sin(t) * sin(p),
-			z = cos(t);
-
-		director->SetTuple3(i, x, y, z);
-		energy->SetValue(i, e);
-	}
-
-	imageData->GetPointData()->AddArray(director);
-	director->SetName("Director");
+	// VTK OUTPUT START //
 
 	imageData->GetPointData()->AddArray(energy);
 	energy->SetName("Energy");
 
-	vtkSmartPointer<vtkXMLImageDataWriter> writer =
-		vtkSmartPointer<vtkXMLImageDataWriter>::New();
+	vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
 
 	writer->SetFileName("test.vti");
 #if VTK_MAJOR_VERSION <= 5
