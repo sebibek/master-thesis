@@ -431,21 +431,21 @@ std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, cons
 	std::vector<std::vector<T>> result(b.size());
 
 	for (int i = 0; i < b.size(); i++)
-		result.at(i) = 1.0 / 2 * (a.at(i) + (-1.0)*b.at(i));
+		result.at(i) = a.at(i) + (-1.0)*b.at(i);
 
 	return result;
 }
 
-template <typename T> // element-wise plus for std::vector
-std::vector<std::vector<T>> operator*(const T a, const std::vector<std::vector<T>>& b)
-{
-	std::vector<std::vector<T>> result(b.size());
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
+//template <typename T> // element-wise plus for std::vector
+//std::vector<std::vector<T>> operator*(const T a, const std::vector<std::vector<T>>& b)
+//{
+//	std::vector<std::vector<T>> result(b.size());
+//
+//	for (int i = 0; i < b.size(); i++)
+//		result.at(i) = a * b.at(i);
+//
+//	return result;
+//}
 
 // SPECIFIC (MATHEMATICAL-PROGRAM USE) FUNCTIONS
 
@@ -808,13 +808,27 @@ public:
 	}
 };
 
-template <typename T>
-double acc(T m)
+//template <typename T>
+double acc(std::vector<double>& vec)
 {
-	double sum = std::accumulate(m.cbegin(), m.cend(), 0, [](auto lhs, const auto& rhs)
+	double sum = 0.0;
+	for (int i = 0; i < vec.size(); i++)
+		sum += abs(vec.at(i));
+	return sum;
+	/*double sum = std::accumulate(m.begin(), m.end(), 0, [](auto lhs, const auto& rhs)
 	{
-		return std::accumulate(rhs.cbegin(), rhs.cend(), lhs);
+		return std::accumulate(rhs.begin(), rhs.end(), lhs);
 	});
+	return sum;*/
+}
+
+//template <typename T>
+double acc2(std::vector<std::vector<double>>& vec)
+{
+	double sum = 0.0;
+	for (int i = 0; i < vec.size(); i++)
+		sum += acc(vec.at(i));
+	
 	return sum;
 }
 
@@ -860,6 +874,11 @@ int main(int argc, char* argv[])
 
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
+
+	std::vector<std::vector<double>> numberOne(3, std::vector<double>(3,1.0));
+	std::vector<std::vector<double>> numberTwo(3, std::vector<double>(3, 0.5));
+
+	cout << "diff: " << (numberOne - numberTwo).at(0).at(0) << endl;
 	
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer);
@@ -963,29 +982,38 @@ int main(int argc, char* argv[])
 	cout << "before constructing gradient vector.." << endl;
 	std::clock_t start;
 	start = std::clock();
-	for (int j = 0; j < height; j++)
-		for (int i = 0; i < width; i++)
-		{
-			if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
-				continue;
-			for (int t = 0; t < steps; t++)
+	for (int t = 0; t < steps; t++)
+		for (int j = 0; j < height; j++)
+			for (int i = 0; i < width; i++)
 			{
+				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
+					continue;
 				// X-1D central differences..
 				sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
-				meanA = acc(sampleBufferA);
+				meanA = acc2(sampleBufferA);
 				gradient.at(0) = meanA /2.0;
 				// Y-1D central differences..
 				sampleBufferA = distBuffer.at((j+1)*width + i + t * dim) - distBuffer.at((j-1)*width + i + t * dim);
-				meanA = acc(sampleBufferA);
+				meanA = acc2(sampleBufferA);
 				gradient.at(1) = meanA / 2.0;
 				// t-1D central differences..
 				sampleBufferA = distBuffer.at(j*width + i + (t+1)%steps * dim) - distBuffer.at(j *width + i + (t == 0 ? (steps-1) : (t-1)) * dim);
-				meanA = acc(sampleBufferA);
+				meanA = acc2(sampleBufferA);
 				gradient.at(2) = meanA / 2.0;
+				
+				// X-1D central differences..
+				//meanA = acc2(distBuffer.at(j*width + i + 1 + t * dim)) - acc2(distBuffer.at(j*width + i - 1 + t * dim));
+				//gradient.at(0) = meanA / 2.0;
+				//// Y-1D central differences..
+				//meanA = acc2(distBuffer.at((j + 1)*width + i + t * dim)) - acc2(distBuffer.at((j - 1)*width + i + t * dim));
+				//gradient.at(1) = meanA / 2.0;
+				//// t-1D central differences..
+				//meanA = acc2(distBuffer.at(j*width + i + (t + 1) % steps * dim)) - acc2(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim));
+				//gradient.at(2) = meanA / 2.0;
 
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
-		}
+
 	// DELTA (Gradient) COMPUTATION END //
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 	cout << "..after, timer: " << duration << " ms" << endl;
@@ -1036,6 +1064,7 @@ int main(int argc, char* argv[])
 	vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
 
 	writer->SetFileName("test.vti");
+	//writer->SetDataModeToAscii();
 #if VTK_MAJOR_VERSION <= 5
 	writer->SetInputConnection(imageData->GetProducerPort());
 #else
