@@ -936,7 +936,7 @@ int main(int argc, char* argv[])
 				// DUAL BUFFER PROPAGATION //
 				sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = lightSrcs.at(t); // get pre-computed light src for current direction t
 				meanMem = 0.0;
-				ctr = 0;
+				//ctr = 0;
 				finished = false;
 
 				// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
@@ -955,13 +955,14 @@ int main(int argc, char* argv[])
 					//if (ctr == ctrLimit)//6
 					//	break;
 
-					ctr++;
+					//ctr++;
 					sampleBufferB = sampleBufferInit;
 					//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
 				}
 				
-				if (ctr <= 3)
-					tCtr++;
+				/*if (ctr <= 3)
+					tCtr++;*/
+				sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = initArray;
 				distBuffer.at(j*width + i + t * dim) = sampleBufferA;
 				//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
 				sampleBufferA = sampleBufferInit;
@@ -989,27 +990,39 @@ int main(int argc, char* argv[])
 				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
 					continue;
 				// X-1D central differences..
-				sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
-				meanA = acc2(sampleBufferA);
-				gradient.at(0) = meanA /2.0;
-				// Y-1D central differences..
-				sampleBufferA = distBuffer.at((j+1)*width + i + t * dim) - distBuffer.at((j-1)*width + i + t * dim);
-				meanA = acc2(sampleBufferA);
-				gradient.at(1) = meanA / 2.0;
-				// t-1D central differences..
-				sampleBufferA = distBuffer.at(j*width + i + (t+1)%steps * dim) - distBuffer.at(j *width + i + (t == 0 ? (steps-1) : (t-1)) * dim);
-				meanA = acc2(sampleBufferA);
-				gradient.at(2) = meanA / 2.0;
-				
-				// X-1D central differences..
-				//meanA = acc2(distBuffer.at(j*width + i + 1 + t * dim)) - acc2(distBuffer.at(j*width + i - 1 + t * dim));
-				//gradient.at(0) = meanA / 2.0;
+				//sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
+				//meanA = acc2(sampleBufferA);
+				//gradient.at(0) = meanA /2.0;
 				//// Y-1D central differences..
-				//meanA = acc2(distBuffer.at((j + 1)*width + i + t * dim)) - acc2(distBuffer.at((j - 1)*width + i + t * dim));
+				//sampleBufferA = distBuffer.at((j+1)*width + i + t * dim) - distBuffer.at((j-1)*width + i + t * dim);
+				//meanA = acc2(sampleBufferA);
 				//gradient.at(1) = meanA / 2.0;
 				//// t-1D central differences..
-				//meanA = acc2(distBuffer.at(j*width + i + (t + 1) % steps * dim)) - acc2(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim));
+				//sampleBufferA = distBuffer.at(j*width + i + (t+1)%steps * dim) - distBuffer.at(j *width + i + (t == 0 ? (steps-1) : (t-1)) * dim);
+				//meanA = acc2(sampleBufferA);
 				//gradient.at(2) = meanA / 2.0;
+				
+				// X-1D central differences..
+				meanA = 0.0;
+				for(int k = 0; k < dim; k++)
+				{
+					meanA += /*abs*/(std::accumulate(distBuffer.at(j*width + i + 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i + 1 + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j*width + i - 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i - 1 + t * dim).at(k).end(),0.0));
+					gradient.at(0) = meanA / 2.0;
+				}
+				// Y-1D central differences..
+				meanA = 0.0;
+				for (int k = 0; k < dim; k++)
+				{
+					meanA += /*abs*/(std::accumulate(distBuffer.at((j + 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j + 1)*width + i + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at((j - 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j - 1)*width + i + t * dim).at(k).end(),0.0));
+					gradient.at(1) = meanA / 2.0;
+				}
+				// t-1D central differences..
+				meanA = 0.0;
+				for (int k = 0; k < dim; k++)
+				{
+					meanA += /*abs*/(std::accumulate(distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).begin(), distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).begin(), distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).end(),0.0));
+					gradient.at(2) = meanA / 2.0;
+				}
 
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
