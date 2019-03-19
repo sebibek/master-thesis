@@ -303,12 +303,12 @@ public:
 		}
 
 		// set diagonal neighborhood
-		if (line_width == 2) {
+		/*if (line_width == 2) {
 			graph.setPixel((xIndex + 1), (yIndex + 1), color);
 			graph.setPixel((xIndex + 1), (yIndex - 1), color);
 			graph.setPixel((xIndex - 1), (yIndex - 1), color);
 			graph.setPixel((xIndex - 1), (yIndex + 1), color);
-		}
+		}*/
 
 		if (r >= 1.0)
 			line_width = line_width - 1;
@@ -851,6 +851,7 @@ class propagator
 	
 	double* meanA;
 	double cosine_sum = 0.0;
+	int dim;
 	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
@@ -865,14 +866,14 @@ class propagator
 	std::vector<double> initArray;
 
 public:
-	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
+	propagator(const int Dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
 		// assign ptrs to member vectors
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
 		glyphBuffer = ellipseArray;
 		meanA = mean;
-
+		dim = Dim;
 		// initialize member samples w. 0
 		read = std::vector<double>(steps, 0.0);
 		glyph = std::vector<double>(steps, 0.0);
@@ -908,12 +909,12 @@ public:
 		*meanA = 0.0;
 
 		// 1 propagation cycle
-		for (int i = 0; i < width*height; i++) // for each node..
+		for (int i = 0; i < dim; i++) // for each node..
 		{
-			read = sampleBufferA->at(i);
+			read = sampleBufferA[0][i];
 			if (read == initArray)
 				continue;
-			glyph = glyphBuffer->at(i);
+			glyph = glyphBuffer[0][i];
 			neighborhood hood(i / width, i%width, width);
 			
 			// calculate mean and variance.. of I(phi)
@@ -923,13 +924,13 @@ public:
 
 			for (int j = 0; j < steps; j++)
 			{
-				sum1 += read.at(j); // evaluate for iMean (sum1)
-				sum2 += glyphBuffer->at(i).at(j);
-				sum3 += read.at(j)*glyphBuffer->at(i).at(j);
+				sum1 += read[j]; // evaluate for iMean (sum1)
+				sum2 += glyph[j];
+				sum3 += read[j]*glyph[j];
 
-				if (read.at(j) < 0)
+				if (read[j] < 0)
 					cout << "WARNING: Negative values in SAMPLE in grid encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
-				if (glyphBuffer->at(i).at(j) < 0)
+				if (glyph[j] < 0)
 					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
 			}
 
@@ -940,10 +941,7 @@ public:
 			// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-			double cFactor = 1.0;
-			if(tiMean > 0.0)
-				cFactor = tMean * iMean / tiMean;
-
+			double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
 		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
@@ -972,43 +970,28 @@ public:
 				int midIndex = (k * pi / 4) / radres;
 				int index = betaIndex;
 				if (k % 2 == 0)
-				{
-					if (total_anisotropy)
-						index = centralIndex;
-					else
-						index = shiftIndex / 2;
-				}
+					index = shiftIndex / 2;
 
-				if (k == 6)
-					int a = 1;
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
 				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
-					int j_index = j%steps;
+					int j_index = j < 0 ? j + steps : j % steps;
 
-					if (j < 0)
-						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
-					double val = cFactor * read.at(j_index)*glyph.at(j_index);
+					double val = cFactor * read[j_index] * glyph[j_index];
 
-					if (val > 0.1)
-						int a = 1;
-					
-					if (!total_anisotropy)
-					{
-						// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-						if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
-							if (abs(deltaJ) == shiftIndex / 2)
-								val = 0.5*0.3622909908722584*val;
-							else
-								val = 0.3622909908722584*val;
-						else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
-							val = 0.6377090091277417*val;
-					}
-					
-					
+					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
+						if (abs(deltaJ) == shiftIndex / 2)
+							val = 0.5*0.3622909908722584*val;
+						else
+							val = 0.3622909908722584*val;
+					else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
+						val = 0.6377090091277417*val;
+
+
 					val_sum += val * radres;
 					//for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
 					//{
@@ -1130,9 +1113,10 @@ int main(int argc, char* argv[])
 	{
 		prop.propagate(); // propagate until finished..
 		//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
-		swap(sampleBufferA, sampleBufferB);
+		sampleBufferA.swap(sampleBufferB);
+		//sampleBufferA = sampleBufferB;
 		for (int i = 0; i < lightSrcs.size(); i++)
-			sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i);
+			sampleBufferA[userPositions[i].jIndex*width + userPositions[i].iIndex] = lightSrcs[i];
 		
 		if (abs(meanA - meanMem) < thresh)
 			finished = true;
@@ -1143,8 +1127,8 @@ int main(int argc, char* argv[])
 
 		//ctr++;
 
-		//sampleBufferB = sampleBufferInit;
-		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
+		//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
+		sampleBufferB = sampleBufferInit;
 	}
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 
@@ -1169,6 +1153,8 @@ int main(int argc, char* argv[])
 
 	// POLAR GRAPHER START //
 	//vector to store functions
+	//std::vector<polarPlot> funcs;
+	//std::vector<polarPlot> funcsEllipses;	
 
 	// set options
 	int Alpha = 200; // set opacity ("Deckung")
