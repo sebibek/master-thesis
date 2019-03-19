@@ -191,7 +191,7 @@ public:
 	}
 
 	//constructor #2 array parser w. array-inherited resolution radres
-	polarPlot(std::vector<double> Sample,
+	polarPlot(std::vector<std::vector<double>> SampleBuffer,
 		int speed_in,
 		int line_width_in,
 		int steps_in,
@@ -274,7 +274,7 @@ public:
 		double y = -1 * scale * r * sin(t);
 
 		if (x + 1 + wSize / 2 > wSize || x - 1 + wSize / 2 < 0 || y + 1 + wSize / 2 > wSize || y - 1 + wSize / 2 < 0)
-			return;
+			{line_width -= 1;return;}
 
 		int offsetX = (index % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
 		int offsetY = (index / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
@@ -1183,11 +1183,14 @@ int main(int argc, char* argv[])
 
 
 	// add pre-computed function as string
-	for (int i = 0; i < dim; i++)
+	/*for (int i = 0; i < dim; i++)
 	{
 		funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
 		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));
-	}
+	}*/
+
+	polarPlot samples(sampleBufferA, drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red);
+	polarPlot glyphs(glyphBuffer, drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green);
 
 	//declare renderwindow
 	sf::RenderWindow window;
@@ -1200,8 +1203,8 @@ int main(int argc, char* argv[])
 	windowsize.y = window.getSize().y;
 
 	//initialize function graphics
-	for (int i = 0; i < funcs.size(); i++)
-		{funcs.at(i).init(); funcsEllipses.at(i).init();}
+	//for (int i = 0; i < funcs.size(); i++)
+	{samples.init(); glyphs.init();}
 
 	//initialize rendertexture for output image
 	sf::RenderTexture out;
@@ -1247,26 +1250,26 @@ int main(int argc, char* argv[])
 		defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
 
 		// draw polar function as graph sprite
-		for (int i = 0; i < dim; i++) 
+		for (int i = 0; i < dim; i++)
 		{
 			int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
 			int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
-						
+
 			ellipse.setPosition(offsetX, offsetY); // set ellipse position
 
 			// call animation to continously draw sampled arrays in polar space
-			funcs.at(i).animation(i, 0, sampleBufferA,&both); // mode 0 for logged test outputs
-			funcsEllipses.at(i).animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
-			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+			samples.animation(i, 0, sampleBufferA, &both); // mode 0 for logged test outputs
+			glyphs.animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
+			sf::Sprite spr = samples.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+			sf::Sprite sprE = glyphs.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
 			//spr.setPosition(wSize / 2, wSize / 2);
 			window.draw(ellipse);
 			out.draw(ellipse);
 			outAll.draw(ellipse);
 			if (showBase)
-				{window.draw(spr);}
+				window.draw(spr);
 			if (showOverlay)
-				{window.draw(sprE);}
+				window.draw(sprE);
 			out.draw(spr);
 			outAll.draw(spr);
 			outAll.draw(sprE);
