@@ -68,7 +68,7 @@ static value_type deltaFunction(value_type v)
 {
 	double radres = 2 * pi / steps;
 	if (abs(v) < radres/2.0 || v == radres/2.0)
-		return 1.0;
+		return steps;
 	else
 		return 0.0;
 }
@@ -295,7 +295,7 @@ public:
 		//graph.setPixel((x + wSize / 2), (y + wSize / 2), color);
 
 		// set 4 -neighborhood
-		if (line_width == 1 || line_width == 2) {
+		if ((line_width == 1 || line_width == 2) && xIndex > 0 && xIndex < wSize-1 && yIndex > 0 && yIndex < wSize-1) {
 			graph.setPixel((xIndex), (yIndex + 1), color);
 			graph.setPixel((xIndex), (yIndex - 1), color);
 			graph.setPixel((xIndex + 1), (yIndex), color);
@@ -1140,7 +1140,7 @@ int main(int argc, char* argv[])
 		//if (ctr == ctrLimit)//6
 		//	break;
 
-		//ctr++;
+		ctr++;
 
 		sampleBufferB = sampleBufferInit;
 		//std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
