@@ -59,7 +59,6 @@ int width;
 int height;
 int steps = 360; // use n steps for angular resolution - radres
 double radres = 2 * pi / steps;
-const std::vector<double> initArray(steps, 0.0);
 
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper); // template clip function
@@ -631,7 +630,7 @@ class propagator
 	neighborhood hood; 
 	bool flag = false;
 
-
+	std::vector<double> initArray;
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
@@ -645,6 +644,7 @@ public:
 		read = std::vector<double>(steps, 0.0);
 		glyph = std::vector<double>(steps, 0.0);
 		out = std::vector<double>(steps, 0.0);
+		initArray = std::vector<double>(steps, 0.0);
 
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
@@ -857,6 +857,8 @@ int main(int argc, char* argv[])
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
 
+	const std::vector<double> initArray(steps, 0.0);
+
 	// define dual buffers for propagation
 	std::vector<std::vector<double>> sampleBufferA((width*height), initArray);
 	std::vector<std::vector<double>> sampleBufferB((width*height), initArray);
@@ -916,25 +918,29 @@ int main(int argc, char* argv[])
 	{
 		sample.at(j) = steps;
 		lightSrcs.push_back(sample);
-		std::fill(sample.begin(), sample.end(), 0.0);
+		sample = initArray;
 	}
 
 	int ctr = 0;
 	int tCtr = 0;
 	double duration;
+	double total = 0.0;
 	bool finished = false;
-	for(int j = 0; j < height; j++)
-		for (int i = 0; i < width; i++)
-		{
-			tCtr = 0;
-			lightSrcPos = Pair(j, i);
-			cout << "before propagating x|y: " << i << "|" << j << endl;
-			std::clock_t start;
-			start = std::clock();
-			for (int t = 0; t < steps; t++)
+	std::clock_t startTotal = std::clock();
+	
+	for (int t = 0; t < steps; t++)
+	{
+		std::vector<double> lightSrc = lightSrcs.at(t);
+		for (int j = 0; j < height; j++)
+			for (int i = 0; i < width; i++)
 			{
+				//tCtr = 0;
+				//lightSrcPos = Pair(j, i);
+				//cout << "before propagating x|y: " << i << "|" << j << endl;
+				std::clock_t start = std::clock();
+
 				// DUAL BUFFER PROPAGATION //
-				sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = lightSrcs.at(t); // get pre-computed light src for current direction t
+				sampleBufferA.at(j*width + i) = lightSrcs.at(t); // get pre-computed light src for current direction t
 				meanMem = 0.0;
 				//ctr = 0;
 				finished = false;
@@ -945,8 +951,9 @@ int main(int argc, char* argv[])
 					meanA = 0.0;
 					prop.propagate(); // propagate until finished..
 					//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
-					sampleBufferA = sampleBufferB;
-					sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = lightSrcs.at(t);
+					swap(sampleBufferA, sampleBufferB);
+					//sampleBufferA = sampleBufferB;
+					sampleBufferA.at(j*width + i) = lightSrc;
 
 					if (abs(meanA - meanMem) < thresh)
 						finished = true;
@@ -958,38 +965,45 @@ int main(int argc, char* argv[])
 					//ctr++;
 					sampleBufferB = sampleBufferInit;
 					//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
-				}
-				
+
+
 				/*if (ctr <= 3)
 					tCtr++;*/
-				sampleBufferA.at(lightSrcPos.jIndex*width + lightSrcPos.iIndex) = initArray;
-				distBuffer.at(j*width + i + t * dim) = sampleBufferA;
-				//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
-				sampleBufferA = sampleBufferInit;
+					sampleBufferA.at(j*width + i) = initArray; //remove light src for 
+					distBuffer.at(j*width + i + t * dim) = sampleBufferA;
+					//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
+					sampleBufferA = sampleBufferInit;
+				}
+				duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+				cout << "timer: " << duration << " ms" << endl;
+				cout << "..after propagation, (last) ctr:" << ctr << endl;
+				cout << "..trivial ctr:" << tCtr << endl;
 			}
-			duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
-			cout << "timer: " << duration << " ms" << endl;
-			cout << "..after propagation, (last) ctr:" << ctr << endl;
-			cout << "..trivial ctr:" << tCtr << endl;
-		}
+	}
+	total = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
+	cout << "..after propagation TOTAL, total timer:" << total << " ms" << endl;
 	// PROPAGATION SCHEME END //
 	sampleBufferB.clear();
 	sampleBufferMem.clear();
 	sampleBufferInit.clear();
 	glyphBuffer.clear();
+	
+	sampleBufferB.shrink_to_fit();
+	sampleBufferMem.shrink_to_fit();
+	sampleBufferInit.shrink_to_fit();
+	glyphBuffer.shrink_to_fit();
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 
 	cout << "before constructing gradient vector.." << endl;
-	std::clock_t start;
-	start = std::clock();
+	startTotal = std::clock();
 	for (int t = 0; t < steps; t++)
 		for (int j = 0; j < height; j++)
 			for (int i = 0; i < width; i++)
 			{
 				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
 					continue;
-				// X-1D central differences..
+				// X-1D central differences.. VARIANT 1: bin by bin
 				//sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
 				//meanA = acc2(sampleBufferA);
 				//gradient.at(0) = meanA /2.0;
@@ -1002,33 +1016,32 @@ int main(int argc, char* argv[])
 				//meanA = acc2(sampleBufferA);
 				//gradient.at(2) = meanA / 2.0;
 				
-				// X-1D central differences..
+				// X-1D central differences.. VARIANT 2: cell by cell
 				meanA = 0.0;
 				for(int k = 0; k < dim; k++)
-				{
 					meanA += abs(std::accumulate(distBuffer.at(j*width + i + 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i + 1 + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j*width + i - 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i - 1 + t * dim).at(k).end(),0.0));
-					gradient.at(0) = meanA / 2.0;
-				}
+				
+				gradient.at(0) = meanA / 2.0;
 				// Y-1D central differences..
 				meanA = 0.0;
 				for (int k = 0; k < dim; k++)
-				{
 					meanA += abs(std::accumulate(distBuffer.at((j + 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j + 1)*width + i + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at((j - 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j - 1)*width + i + t * dim).at(k).end(),0.0));
-					gradient.at(1) = meanA / 2.0;
-				}
+				
+				gradient.at(1) = meanA / 2.0;
+
+
 				// t-1D central differences..
 				meanA = 0.0;
 				for (int k = 0; k < dim; k++)
-				{
 					meanA += abs(std::accumulate(distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).begin(), distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).begin(), distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).end(),0.0));
-					gradient.at(2) = meanA / 2.0;
-				}
+
+				gradient.at(2) = meanA / 2.0;
 
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
 
 	// DELTA (Gradient) COMPUTATION END //
-	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+	duration = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
 	cout << "..after, timer: " << duration << " ms" << endl;
 	
 	sampleBufferA.clear();
@@ -1052,7 +1065,7 @@ int main(int argc, char* argv[])
 	energy->SetNumberOfTuples(width * height * steps);
 
 	cout << "before computing gradient (vector) norm.." << endl;
-	start = std::clock();
+	startTotal = std::clock();
 	ctr = 0;
 	for (int t = 0; t < steps; t++)
 		for (int j = 0; j < height; j++)
@@ -1066,7 +1079,7 @@ int main(int argc, char* argv[])
 	
 	// vector norm (Gradient) COMPUTATION END //
 	
-	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+	duration = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
 	cout << "..after, timer: " << duration << " ms" << endl;
 
 	// VTK OUTPUT START //
@@ -1085,7 +1098,7 @@ int main(int argc, char* argv[])
 #endif
 	writer->Write();
 
-	system("PaUsE");
+	std::system("PaUsE");
 
 	return EXIT_SUCCESS;
 }
