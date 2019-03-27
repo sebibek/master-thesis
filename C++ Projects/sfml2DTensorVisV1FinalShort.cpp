@@ -748,7 +748,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
-void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
+void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::vector<bool>>& signMap)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
 	int rows = 0; // create ptr to rows of txt tensor field
@@ -780,6 +780,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 	// define parameters
 	double radres = (2 * pi)/steps;
 	
+	std::vector<bool> signs(2, false);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
@@ -792,11 +793,21 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
+		if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary..
+		{
+			signs.at(0) = yy < 0 ? true : false;
+			signs.at(1) = xx < 0 ? true : false;
+		}
+		else
+		{
+			signs.at(0) = xx < 0 ? true : false;
+			signs.at(1) = yy < 0 ? true : false;
+		}
+			
+		signMap.at(i) = signs;
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
-		if (deg1 < 0)
-			deg1 = 360 + deg1;
-		if (deg2 < 0)
-			deg2 = 360 + deg2;
+		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
+		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
 		// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
 		double sv1 = svdList.at(i).singularValues()[0];
@@ -1079,8 +1090,9 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
 	
+	std::vector<std::vector<bool>> signMap((width)*(height), std::vector<bool>(2,false)); // create a signMap relating normal force signs to singular values
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBuffer);
+	computeGlyphs(glyphBuffer, signMap);
 	
 	// get defined light srcs positions and intensities...
 	if(userFunctions.size()) // if entered by user, use cmd AND config
