@@ -874,6 +874,7 @@ class propagator
 	std::vector<double> glyph;
 	std::vector<double> out;
 	std::vector<double> initArray;
+	std::vector<int> deltaIndex;
 
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
@@ -889,6 +890,8 @@ public:
 		glyph = std::vector<double>(steps, 0.0);
 		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
+		
+		deltaIndex = { 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
@@ -1024,19 +1027,7 @@ public:
 
 				*meanA += val_sum;
 
-				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
-				{
-				case 0:	sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + out; break;
-				case 1:	sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + out; break;
-				case 2:	sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + out; break;
-				case 3: sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + out; break;
-				case 4: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + out; break;
-				case 5: sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + out; break;
-				case 6: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + out; break;
-				case 7: sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + out; break;
-		
-				default: break;
-				}
+				sampleBufferB->at(i + deltaIndex.at(k)) = sampleBufferB->at(i + deltaIndex.at(k)) + out;
 			}
 		
 		}
