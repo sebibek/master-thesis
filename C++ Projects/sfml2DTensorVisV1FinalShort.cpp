@@ -793,7 +793,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
-		if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary..
+		if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
 		{
 			signs.at(0) = yy < 0 ? true : false;
 			signs.at(1) = xx < 0 ? true : false;
@@ -804,7 +804,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 			signs.at(1) = yy < 0 ? true : false;
 		}
 			
-		signMap.at(i) = signs;
+		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
 		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
@@ -983,41 +983,26 @@ public:
 				int midIndex = (k * pi / 4) / radres;
 				int index = betaIndex;
 				if (k % 2 == 0)
-				{
-					if (total_anisotropy)
-						index = centralIndex;
-					else
-						index = shiftIndex / 2;
-				}
-
-				if (k == 6)
-					int a = 1;
+					index = shiftIndex / 2;
+				
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
 				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
-					int j_index = j%steps;
+					int j_index = j < 0? j+steps : j%steps;// cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					if (j < 0)
-						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = cFactor * read.at(j_index)*glyph.at(j_index);
 
-					if (val > 0.1)
-						int a = 1;
-					
-					if (!total_anisotropy)
-					{
-						// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-						if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
-							if (abs(deltaJ) == shiftIndex / 2)
-								val = 0.5*0.3622909908722584*val;
-							else
-								val = 0.3622909908722584*val;
-						else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
-							val = 0.6377090091277417*val;
-					}
+					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
+						if (abs(deltaJ) == shiftIndex / 2)
+							val = 0.5*0.3622909908722584*val;
+						else
+							val = 0.3622909908722584*val;
+					else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
+						val = 0.6377090091277417*val;
 					
 					
 					val_sum += val * radres;
@@ -1155,8 +1140,8 @@ int main(int argc, char* argv[])
 
 		//ctr++;
 
-		//sampleBufferB = sampleBufferInit;
-		std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
+		sampleBufferB = sampleBufferInit;
+		//std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));
 	}
 	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 
