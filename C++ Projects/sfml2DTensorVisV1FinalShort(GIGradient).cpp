@@ -649,6 +649,7 @@ class propagator
 	bool flag = false;
 
 	std::vector<double> initArray;
+	std::vector<int> deltaIndex;
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
@@ -664,6 +665,7 @@ public:
 		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
 
+		deltaIndex = { 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
 		{
@@ -732,7 +734,7 @@ public:
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
 				// empty (reset) sample, upper and lower for each edge
-				std::fill(out.begin(), out.end(), 0);
+				out = initArray;
 
 				if (flag) // if position on grid borders..
 				{
@@ -758,12 +760,7 @@ public:
 				int midIndex = (k * pi / 4) / radres;
 				int index = betaIndex;
 				if (k % 2 == 0)
-				{
-					if (total_anisotropy)
-						index = centralIndex;
-					else
-						index = shiftIndex / 2;
-				}
+					index = shiftIndex / 2;
 
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
@@ -775,19 +772,16 @@ public:
 
 					double val = cFactor * read.at(j_index)*glyph.at(j_index);
 
-					if (!total_anisotropy)
-					{
-						// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-						if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
-							if (abs(deltaJ) == shiftIndex / 2)
-								val = 0.5*0.3622909908722584*val;
-							else
-								val = 0.3622909908722584*val;
-						else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
-							val = 0.6377090091277417*val;
-					}
-					
-					
+					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
+						if (abs(deltaJ) == shiftIndex / 2)
+							val = 0.5*0.3622909908722584*val;
+						else
+							val = 0.3622909908722584*val;
+					else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
+						val = 0.6377090091277417*val;
+
+
 					val_sum += val * radres;
 					//for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
 					//{
@@ -807,19 +801,7 @@ public:
 
 				*meanA += val_sum;
 
-				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
-				{
-				case 0:	sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + out; break;
-				case 1:	sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + out; break;
-				case 2:	sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + out; break;
-				case 3: sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + out; break;
-				case 4: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + out; break;
-				case 5: sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + out; break;
-				case 6: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + out; break;
-				case 7: sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + out; break;
-		
-				default: break;
-				}
+				sampleBufferB->at(i + deltaIndex.at(k)) = sampleBufferB->at(i + deltaIndex.at(k)) + out;
 			}
 		
 		}
