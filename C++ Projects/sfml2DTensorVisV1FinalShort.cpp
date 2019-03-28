@@ -748,7 +748,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
-void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::vector<bool>>& signMap)
+void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
 	int rows = 0; // create ptr to rows of txt tensor field
@@ -780,7 +780,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	// define parameters
 	double radres = (2 * pi)/steps;
 	
-	std::vector<bool> signs(2, false);
+	std::vector<bool> signs(3, false);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
@@ -789,20 +789,39 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
 		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
 		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
+		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
+		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
-		if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
+		glyphParameters.at(i).at(2) = deg1;
+
+		// check for strong shear stresses..
+		if (abs(xy) > 1.5*max(abs(xx), abs(yy)) || abs(yx) > 1.5*max(abs(xx), abs(yy))) // if existent, swap indices and use shear stress signs in signMap
 		{
-			signs.at(0) = yy < 0 ? true : false;
-			signs.at(1) = xx < 0 ? true : false;
+			if (abs(xy) - abs(yx) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
+			{
+				signs.at(0) = yx < 0 ? true : false;
+				signs.at(1) = xy < 0 ? true : false;
+			}
+			else
+			{
+				signs.at(0) = xy < 0 ? true : false;
+				signs.at(1) = yx < 0 ? true : false;
+			}
 		}
 		else
-		{
-			signs.at(0) = xx < 0 ? true : false;
-			signs.at(1) = yy < 0 ? true : false;
-		}
+			if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
+			{
+				signs.at(0) = yy < 0 ? true : false;
+				signs.at(1) = xx < 0 ? true : false;
+			}
+			else
+			{
+				signs.at(0) = xx < 0 ? true : false;
+				signs.at(1) = yy < 0 ? true : false;
+			}
 			
 		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
@@ -832,6 +851,8 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 			}
 		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
+		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
@@ -1066,9 +1087,10 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
 	
-	std::vector<std::vector<bool>> signMap((width)*(height), std::vector<bool>(2,false)); // create a signMap relating normal force signs to singular values
+	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
+	std::vector<std::vector<bool>> signMap(width*height, std::vector<bool>(2,false)); // create a signMap relating normal force signs to singular values (sign_xx, sign_yy, dominant_shear)
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBuffer, signMap);
+	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	
 	// get defined light srcs positions and intensities...
 	if(userFunctions.size()) // if entered by user, use cmd AND config
