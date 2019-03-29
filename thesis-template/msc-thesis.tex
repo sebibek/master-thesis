@@ -20,7 +20,7 @@
 % fix bitmap fonts
 \usepackage{lmodern}
 % Use German :
-\usepackage[ngerman]{babel}
+\usepackage[ngerman,english]{babel}
 % Input and font encoding
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
@@ -127,7 +127,14 @@ Abgabedatum / Due Date: 07.07.2019
 \newpage
 
 \chapter*{Abstract}
-\input{abstract}
+%\input{abstract}
+By means of global illumination techniques we develop a new method to visualize tensor fields, which are most commonly associated with stress distributions (cnf. Cauchy-Stress Tensor) in 2D/3D grids, but also have some other meanings in practice in physics.
+
+As a basis, we derive a simple light propagation scheme for Cartesian grids, which satisfies propagation attenuation and energy-conservation principles and is able to approximate light distributions for given light source position(s) and direction(s) until convergence. The transmission profiles within this grid are considered as crystal fiber structures as an underlying physical model. The consequent task is to model anisotropic fibre structures with the orientation and anisotropy ratios of the underlying tensor field in the grid.
+For this, we create an eigenframe by PCA (principal component analysis) for every cell of the tensor field and form an ellipsoid equation as transmission (transfer) function for the transmitted light profiles. We measure impulse responses of the tensor field with Delta-Pulses as light sources at any (sampled) position and direction to generate a uniform sampled map of the global illumination distributions. This map is considered as a global illumination energy flow field.
+We gain inspiration by vector field particle tracing's FTLE approach for analyzing the gradient of the flow field of the resulting light distributions. Similar to how the FTLE detects ridges/LCS (Lagrangian Coherent Structures) in vector fields (flow fields), our approach detects these structures, attracting/repelling/saddling tensor field lines (TFL) which frequently represent key structures in nature, in tensor fields. Note that the resulting scalar field is $(n+1)$-dimensional ($x,y,z$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization. We denote this entity a global illumination gradient which states an alternative FTLE-related approach for visualizing LCS in tensor fields through analysis of the directed light transport. 
+We also introduce Deformation Ellipsoid Glyphs which are, additionally to visualizing anisotropic topology, pointing inward/outward for compressive/tensile stresses visualizing orientation of mechanical stresses.
+We evaluate our approaches for plausibility and comparability within an extensive test campaign.
 \newpage
 
 % MAIN PART:
