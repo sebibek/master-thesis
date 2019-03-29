@@ -780,7 +780,8 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	// define parameters
 	double radres = (2 * pi)/steps;
 	
-	std::vector<std::complex<double>> result(2, std::complex<double>(0.0));
+	std::complex<double> sigma1(0,0);
+	std::complex<double> sigma2(0,0);
 	std::vector<bool> signs(3, false);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
@@ -799,39 +800,20 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		glyphParameters.at(i).at(2) = deg1;
 		
 		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
-		result.at(0) = 0.5*(xx + yy) + 0.5*sqrt((xx - yy)*(xx - yy) + 4 * xy*yx);
-		result.at(1) = 0.5*(xx + yy) - 0.5*sqrt((xx - yy)*(xx - yy) + 4 * xy*yx);
+		sigma1 = std::complex<double>(0.5*(xx + yy),0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx,0));
+		sigma2 = std::complex<double>(0.5*(xx + yy),0) - 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx,0));
 
-		// crop sign of real part.. https://www.cg.tuwien.ac.at/research/vis/seminar9596/2-topo/evinter.html
-		signs.at(0) = result.at(0).real() < 0 ? true : false;
-		signs.at(1) = result.at(1).real() < 0 ? true : false;
-
-		// check for strong shear stresses..
-		//if (abs(xy) > 1.5*max(abs(xx), abs(yy)) || abs(yx) > 1.5*max(abs(xx), abs(yy))) // if existent, swap indices and use shear stress signs in signMap
-		//{
-		//	if (abs(xy) - abs(yx) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
-		//	{
-		//		signs.at(0) = yx < 0 ? true : false;
-		//		signs.at(1) = xy < 0 ? true : false;
-		//	}
-		//	else
-		//	{
-		//		signs.at(0) = xy < 0 ? true : false;
-		//		signs.at(1) = yx < 0 ? true : false;
-		//	}
-		//}
-		//else
-		//	if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
-		//	{
-		//		signs.at(0) = yy < 0 ? true : false;
-		//		signs.at(1) = xx < 0 ? true : false;
-		//	}
-		//	else
-		//	{
-		//		signs.at(0) = xx < 0 ? true : false;
-		//		signs.at(1) = yy < 0 ? true : false;
-		//	}
-		//	
+		// crop sign of real part.. https://www.cg.tuwien.ac.at/research/vis/seminar9596/2-topo/evinter.html (rotational (complex) part already present in transformation)
+		if (abs(sigma1 - sigma2) < 0) // check order of principal stresses sigma to match corresponding singular values/vectors
+		{
+			signs.at(0) = sigma2.real() < 0 ? true : false;
+			signs.at(1) = sigma1.real() < 0 ? true : false;
+		}
+		else
+		{
+			signs.at(0) = sigma1.real() < 0 ? true : false;
+			signs.at(1) = sigma2.real() < 0 ? true : false;
+		}
 
 		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
