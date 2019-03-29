@@ -780,14 +780,15 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	// define parameters
 	double radres = (2 * pi)/steps;
 	
+	std::vector<std::complex<double>> result(2, std::complex<double>(0.0));
 	std::vector<bool> signs(3, false);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
-		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
-		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes "sigma_xx"
-		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
-		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
+		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-vector
+		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes
+		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes -- Get RIGHT U-vector
+		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes
 		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
 		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
 		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
@@ -796,33 +797,42 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
 		glyphParameters.at(i).at(2) = deg1;
+		
+		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
+		result.at(0) = 0.5*(xx + yy) + 0.5*sqrt((xx - yy)*(xx - yy) + 4 * xy*yx);
+		result.at(1) = 0.5*(xx + yy) - 0.5*sqrt((xx - yy)*(xx - yy) + 4 * xy*yx);
+
+		// crop sign of real part.. https://www.cg.tuwien.ac.at/research/vis/seminar9596/2-topo/evinter.html
+		signs.at(0) = result.at(0).real() < 0 ? true : false;
+		signs.at(1) = result.at(1).real() < 0 ? true : false;
 
 		// check for strong shear stresses..
-		if (abs(xy) > 1.5*max(abs(xx), abs(yy)) || abs(yx) > 1.5*max(abs(xx), abs(yy))) // if existent, swap indices and use shear stress signs in signMap
-		{
-			if (abs(xy) - abs(yx) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
-			{
-				signs.at(0) = yx < 0 ? true : false;
-				signs.at(1) = xy < 0 ? true : false;
-			}
-			else
-			{
-				signs.at(0) = xy < 0 ? true : false;
-				signs.at(1) = yx < 0 ? true : false;
-			}
-		}
-		else
-			if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
-			{
-				signs.at(0) = yy < 0 ? true : false;
-				signs.at(1) = xx < 0 ? true : false;
-			}
-			else
-			{
-				signs.at(0) = xx < 0 ? true : false;
-				signs.at(1) = yy < 0 ? true : false;
-			}
-			
+		//if (abs(xy) > 1.5*max(abs(xx), abs(yy)) || abs(yx) > 1.5*max(abs(xx), abs(yy))) // if existent, swap indices and use shear stress signs in signMap
+		//{
+		//	if (abs(xy) - abs(yx) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
+		//	{
+		//		signs.at(0) = yx < 0 ? true : false;
+		//		signs.at(1) = xy < 0 ? true : false;
+		//	}
+		//	else
+		//	{
+		//		signs.at(0) = xy < 0 ? true : false;
+		//		signs.at(1) = yx < 0 ? true : false;
+		//	}
+		//}
+		//else
+		//	if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary.. (slot 0: sv1, slot 1: sv2)
+		//	{
+		//		signs.at(0) = yy < 0 ? true : false;
+		//		signs.at(1) = xx < 0 ? true : false;
+		//	}
+		//	else
+		//	{
+		//		signs.at(0) = xx < 0 ? true : false;
+		//		signs.at(1) = yy < 0 ? true : false;
+		//	}
+		//	
+
 		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
 		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
