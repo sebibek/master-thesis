@@ -1,2 +1,3 @@
 https://en.wikipedia.org/wiki/Cauchy_stress_tensor#/media/File:Components_stress_tensor_cartesian.svg
 Skript: J. Tierny - Tensor Field Visualization
+https://de.wikipedia.org/wiki/Datei:HAT-ellipse0.svg
