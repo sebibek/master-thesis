@@ -156,7 +156,7 @@ We evaluate our approaches for plausibility and comparability within an extensiv
 
 \chapter{Introduction}\label{intro}
 
-In this work, we wil discuss the advantages of tensor field analysis and develop a new method for tensor field visualization. At firs we will shortly state the problem setting objectives and then give a quick overview about the structure of this work.
+In this work, we wil discuss the advantages of tensor field analysis and develop a new method for tensor field visualization. At first, we will shortly state the problem setting objectives and then give a quick overview about the structure of this work.
 
 Dieses Kapitel gibt einen Überblick über die Arbeit. Gerade der
 Abschnitt zur Motivation soll allgemein verständlich geschrieben
@@ -190,15 +190,16 @@ Worum geht es? Beispiel(e)! Illustrationen sind hier meist sinnvoll
 zum Verständnis. Warum ist das Thema wichtig? In welchem Kontext?
 
 \section{Objectives}
-The problem setting encomprises the visualization of tensor fields, i.e. mostly 2D/3D-grids consisting of mainly second-order tensors (cnf. Cauchy-Stress Tensor). The main purpose of visualization in general is to reduce or encode some set of numbers in some readable, explorable and more intuitive representation. This implies e.g. clustering, structuring or projection techniques. The objective of this work is to implement a FTLE-related approach in tensor field visualization (both symmetric and asymmetric) for detecting ridges/LCS (Lagrangian Coherent Structures). These structures can be identified as repelling, attracting and saddling (forming a saddle) local features, which frequently represent key structures in nature. The real part of the eigenvalues is exploited for sign change (contractions/tensions) which leads to the concept of deformation glyphs w. attached arrows pointing inward/outward for the two types of normal stresses. Practically, in its eigenbasis there are no shear stresses existent for the stress tensor just the principal normal stresses.
+The problem setting encomprises the visualization of tensor fields, i.e. mostly 2D/3D-grids consisting of mainly second-order tensors (cnf. Cauchy-Stress Tensor). The main purpose of visualization in general is to reduce or encode some set of numbers in some readable, explorable and more intuitive representation. This implies e.g. clustering, structuring or projection techniques. The objective of this work is to develop a simple light propagation scheme to generate a tensor-induced flow map. The tensors are decomposed via singular value decomposition to obtain a real eigenbasis as transmission profile. Another aim is to implement a vector-field visualization borrowed FTLE-related approach in tensor field visualization (both symmetric and asymmetric) for detecting ridges/LCS (Lagrangian Coherent Structures). These structures can be identified as repelling, attracting and saddling (forming a saddle) local features, which frequently represent key structures in nature. LCS usually separate regions of different flow behavior, but in our case they separate regions/domains of differing stress distributions. The map responds most where tensor field lines / hyperstreamlines converge or diverge, whereas one is the same as the other because of bidirectional stress directions. The real part of the eigenvalues can be exploited for sign change (contractions/tensions) which leads to the concept of deformation glyphs w. attached arrows pointing inward/outward for the two types of normal stresses. Practically, in its eigenbasis there are no shear stresses existent for the stress tensor just the principal normal stresses. Thus, we can even define the full set of stresses with the deformation glyphs which are derived from the singular value decomposition and signed with the real part of the eigenvalues (in corresponding absolute order). In fact, for normal (symmetric and antisymmetric matrices) the singular values are related to the eigenvalues by square root ($s_i = \sqrt{|\lambda_i|}$)
 
 
 In diesem Abschnitt sollen neben den Herausforderungen und der
 Problemstellung insbesondere die Ziele der Arbeit beschrieben werden. 
 
-\section{Aufbau der Arbeit}
+\section{Structure of this work}
  
-Next we will capture important fundamentals in chap. \ref{chap:grundlagen} like Tensors and PCA in the context of singular value decomposition. Also we will discuss the most relevant work in the domain of tensor field visualization. 
+ Now for the rest of this work, we will give a quick overview about the structure and outline. Next, in chap. \ref{chap:grundlagen}, we will capture important fundamentals like Tensors and PCA in the context of singular value decomposition. Also we will discuss the most relevant work in the domain of tensor field visualization. In chap. \ref{chap:main} we will propose the main contribution of this work and document the experimental evaluation in chap. \ref{chap:eval}. The Summary, Conclusion and Outlook will be given in chap. \ref{chap:concl}.\\
+
 Dieser Abschnitt wird meist recht kurz gehalten und beschreibt im
 Prinzip nur den Aufbau des Rests der Arbeit. Zum Beispiel: In Kapitel
 \ref{chap:grundlagen} geben wir einen Überblick über die  Grundlagen
@@ -211,12 +212,25 @@ zu der Arbeit sowie über verwandte Arbeiten. In Kapitel
 \chapter{Fundamentals and Recent Work}
 \label{chap:grundlagen}
 
+In this chapter, we will give the prerequisites to understand the contributions of this work and we will start right away with tensors in general.\\
+
 Die ersten paar Abschnitte in diesem Kapitel führen in die Grundlagen
 zur Arbeit ein. Das können beispielsweise Grundlagen zu Netzwerken
 oder zur Informationsextraktion sein. 
 
 \section{Tensors}
-\label{sec:networks}
+\label{sec:tensors}
+Now what is a Tensor? A tensor is a generalization of a matrix as follows:
+\begin{center}
+ \begin{tabular}{c|c|c|c|c|c|c}
+\textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
+\hline 
+\textbf{shape} & scalar & vector & matrix & 3D-matrix & ... & oD-matrix\\ 
+\end{tabular}\vskip 5pt
+Table 1: Tensor Shapes
+ \end{center} 
+In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$, which is equal to the rank of the tensor for full rank. Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained from physical differential equations. Principally any $o$D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$D number arrays (in a sense of physical interpretation), which is mostly true for differential equations. In fact, the tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring e.g. the stress in that direction) to an outgoing stress vector.
+
 
 \section{Principal Component Analysis}
 \label{sec:ie}
@@ -224,7 +238,7 @@ oder zur Informationsextraktion sein.
 \section{Related Work}
 \label{sec:related}
 
-There has been extensive recent work on symmetric tensors but not on asymmetric ones.  Since we aren't able to cover the whole scope in this work, we will focus on the most relevant works about tensor field visualization. 
+There has been extensive recent work on symmetric tensors but in comparison little on asymmetric ones.  Since we aren't able to cover the whole scope in this work, we will focus on the most relevant works about tensor field visualization. 
 
 \textbf{Symmetric Tensor Field Visualization}\\
 \cite{pang&zheng} et.al. proposed a texture-based visualization approach called HyperLIC, which extends the concept of LIC to symmetric tensor fields by using an anisotropic 2D-filter kernel oriented along the major/minor eigenvectors. The notion of tensor field topology and the concept of Hyperstreamlines was first introduced by \cite{delmarcelle&hesselink}. The placement of tensor field lines as hyperstreamlines was recently improved by \cite{spencer} et.al. for glyph packing. A good overview of seeding strategies is given by \cite{mcloughlin}. \cite{feng} et. al. used Voronoi Tesselation for placing the glyphs. Superquadric glyphs have been proposed by \cite{schultz&kindlmann} for general (non-positive definite) tensors. \cite{deleeuw&vanwijk} visualize the partial derivative gradient, the Jacobian of the tensor field to sense the local properties of the field. 
@@ -252,7 +266,7 @@ dem Buch von Newman zu Netzwerken \cite{Newman2010} erläutert \ldots.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 
-\chapter{Mein Beitrag}
+\chapter{Main Part}
 \label{chap:main}
 
 Dieses Kapitel stellt meist den Hauptteil der Arbeit dar. Vor dem
