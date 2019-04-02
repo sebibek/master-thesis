@@ -156,7 +156,7 @@ We evaluate our approaches for plausibility and comparability within an extensiv
 
 \chapter{Introduction}\label{intro}
 
-
+In this work, we wil discuss the advantages of tensor field analysis and develop a new method for tensor field visualization. At firs we will shortly state the problem setting objectives and then give a quick overview about the structure of this work.
 
 Dieses Kapitel gibt einen Überblick über die Arbeit. Gerade der
 Abschnitt zur Motivation soll allgemein verständlich geschrieben
@@ -174,7 +174,7 @@ werden. Die Einleitung sollte auch wichtige Referenzen enthalten.
   \label{Skalierung}
 \end{figure}
 
-Tensor Field Visualization is gaining importance as a relevant tool for the analysis of fluid and solid mechanics. Tensors are found most commonly in medical, scientific and engineering applications. A tensor is a $n$-D generalization of a matrix and appears e.g. as Jacobi-Matrix in Flow Fields or as stress tensor in solid continuum mechanics. Basically, tensors describe stretchings, rotations and volume changes in both solid and fluid material. While most techniques focus on symmetric tensor field visualization (like Glyphs and Tensor Field Lines), some other recent works adress the problem of asymmetric tensor field visualization. The issue with asymmetric or antisymmetric tensors is that they do not always yield real eigenvalues, which is needed to determine an eigenbasis to set up glyphs, hyperstreamlines or tensor field lines. \cite{pang&zheng} et.al. proposed the concept of dual eigenvectors and \cite{zhang} extended it to pseudo-eigenvectors and introduced eigenvector and eigenvalue manifold to visualize eigenvectors in the complex domain. The concept of Tensor Magnitude has been introduced by \cite{laramee2} for means of physical interpretation. They also proposed an efficient glyph and hyperstreamline hybrid approach, which made dynamic interaction in real-time in 2D tensor fields feasible.\\
+Tensor Field Visualization is gaining importance as a relevant tool for the analysis of fluid and solid mechanics. Tensors are found most commonly in medical, scientific and engineering applications. A tensor is a $n$-D generalization of a matrix and appears e.g. as Jacobi-Matrix in Flow Fields or as stress tensor in solid continuum mechanics. Basically, tensors describe stretchings, rotations and volume changes in both solid and fluid material. While most techniques focus on symmetric tensor field visualization (like Glyphs and Tensor Field Lines), some other recent works adress the problem of asymmetric tensor field visualization. The issue with asymmetric or antisymmetric tensors is that they do not always yield real eigenvalues, which is needed to determine an eigenbasis to set up glyphs, hyperstreamlines or tensor field lines. \cite{pang&zheng} et.al. proposed the concept of dual eigenvectors and \cite{zhang} extended it to pseudo-eigenvectors and introduced eigenvector and eigenvalue manifold to visualize eigenvectors in the complex domain. \\
 
 
 \begin{figure}[h]
@@ -197,7 +197,8 @@ In diesem Abschnitt sollen neben den Herausforderungen und der
 Problemstellung insbesondere die Ziele der Arbeit beschrieben werden. 
 
 \section{Aufbau der Arbeit}
-
+ 
+Next we will capture important fundamentals in chap. \ref{chap:grundlagen} like Tensors and PCA in the context of singular value decomposition. Also we will discuss the most relevant work in the domain of tensor field visualization. 
 Dieser Abschnitt wird meist recht kurz gehalten und beschreibt im
 Prinzip nur den Aufbau des Rests der Arbeit. Zum Beispiel: In Kapitel
 \ref{chap:grundlagen} geben wir einen Überblick über die  Grundlagen
@@ -207,17 +208,17 @@ zu der Arbeit sowie über verwandte Arbeiten. In Kapitel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 
-\chapter{Grundlagen und verwandte Arbeiten}
+\chapter{Fundamentals and Recent Work}
 \label{chap:grundlagen}
 
 Die ersten paar Abschnitte in diesem Kapitel führen in die Grundlagen
 zur Arbeit ein. Das können beispielsweise Grundlagen zu Netzwerken
 oder zur Informationsextraktion sein. 
 
-\section{(Beispiel) Tensoren}
+\section{Tensors}
 \label{sec:networks}
 
-\section{(Beispiel) HAT}
+\section{Principal Component Analysis}
 \label{sec:ie}
 
 \section{Related Work}
@@ -226,11 +227,10 @@ oder zur Informationsextraktion sein.
 There has been extensive recent work on symmetric tensors but not on asymmetric ones.  Since we aren't able to cover the whole scope in this work, we will focus on the most relevant works about tensor field visualization. 
 
 \textbf{Symmetric Tensor Field Visualization}\\
-\cite{pang&zheng} et.al. proposed a texture-based visualization approach called HyperLIC, which extends the concept of LIC to symmetric tensor fields by using an anisotropic 2D-filter kernel oriented along the major/minor eigenvectors. The notion of tensor field topology and the concept of Hyperstreamlines was first introduced by \cite{delmarcelle&hesselink}. The placement of tensor field lines as hyperstreamlines was recently improved by \cite{spencer} et.al. for glyph packing. A good overview of seeding strategies is given by \cite{mcloughlin}. \cite{feng} et. al. used Voronoi Tesselation for placing the glyphs. Superquadric glyphs have been proposed by \cite{Schultz&Kindlmann} for general (non-positive definite) tensors. \cite{deleeuw&vanwijk} visualize the partial derivative gradient, the Jacobian of the tensor field to sense the local properties of the field. 
+\cite{pang&zheng} et.al. proposed a texture-based visualization approach called HyperLIC, which extends the concept of LIC to symmetric tensor fields by using an anisotropic 2D-filter kernel oriented along the major/minor eigenvectors. The notion of tensor field topology and the concept of Hyperstreamlines was first introduced by \cite{delmarcelle&hesselink}. The placement of tensor field lines as hyperstreamlines was recently improved by \cite{spencer} et.al. for glyph packing. A good overview of seeding strategies is given by \cite{mcloughlin}. \cite{feng} et. al. used Voronoi Tesselation for placing the glyphs. Superquadric glyphs have been proposed by \cite{schultz&kindlmann} for general (non-positive definite) tensors. \cite{deleeuw&vanwijk} visualize the partial derivative gradient, the Jacobian of the tensor field to sense the local properties of the field. 
 \\
 \textbf{Asymmetric Tensor Field Visualization}\\
-\cite{pang&zheng} et.al. proposed the concept of dual eigenvectors and \cite{zhang} extended it to pseudo-eigenvectors and introduced the eigenvector/eigenvalue manifolds to visualize eigenvectors in the complex domain. \cite{laramee} et.al. focused on the efficient implementation and visualization of these structures and provided an interactive visualization system for asymmetric tensors applicable in fluid and solid dynamics. In this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques to take it one step further and to generate a flow map, permitting us to compute an FTLE-like field on the tensor fields. 
-\\
+\cite{pang&zheng} et.al. proposed the concept of dual eigenvectors and \cite{zhang} extended it to pseudo-eigenvectors and introduced the eigenvector/eigenvalue manifolds to visualize eigenvectors in the complex domain. \cite{laramee} et.al. focused on the efficient implementation and visualization of these structures and provided an interactive visualization system for asymmetric tensors applicable in fluid and solid dynamics. In this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques to take it one step further and to generate a flow map, permitting us to compute an FTLE-like field on the tensor fields. The concept of Tensor Magnitude has been introduced by \cite{laramee2} for means of physical interpretation. They also proposed an efficient glyph and hyperstreamline hybrid approach, which made dynamic interaction in real-time in 2D tensor fields feasible. \cite{palacios} extracted isosurfaces of tensor magnitude, mode and isotropy index.
 
 Typischerweise im letzten Abschnitt dieses Kapitels wird dann auf
 verwandte Arbeiten eingegangen. Entsprechende Arbeiten sind geeignet

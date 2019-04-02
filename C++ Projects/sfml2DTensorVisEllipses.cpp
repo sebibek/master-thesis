@@ -15,6 +15,14 @@
 #include <functional>
 
 #define MAXBUFSIZE  ((int) 1e3)
+#ifdef WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
+std::string workDir;
 
 using namespace std;
 using namespace Eigen;
@@ -22,6 +30,9 @@ using namespace Eigen;
 //length and width of window
 int wSize = 700;
 sf::Vector2i windowsize;
+int width;
+int height;
+int steps;
 
 //recording frameskip 
 int record_frameskip = -1;
@@ -58,7 +69,13 @@ std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 	return result;
 }
 
-
+// get current working directory to assign matrix.txt path
+std::string GetCurrentWorkingDir(void) {
+	char buff[FILENAME_MAX];
+	GetCurrentDir(buff, FILENAME_MAX);
+	std::string current_working_dir(buff);
+	return current_working_dir;
+}
 // CLASS DEFINITIONS //
 class neighborhood
 {
@@ -117,6 +134,8 @@ class polarPlot
 	// draw speed
 	int speed;
 	int line_width;
+	int steps;
+	int ctr = 0;
 	// theta
 	double t;
 	// radius
@@ -124,11 +143,14 @@ class polarPlot
 	double tmax;
 	double tinc;
 	double rotation;
+	double radres;
 	sf::Color color;
+	std::vector<double> sample;
+	bool discretePlot = false;
 
 public:
 
-	//constructor
+	//constructor #1 string parser - muParser: tinc_in passed as tinc used for parsing
 	polarPlot(std::string tag,
 		int speed_in,
 		int line_width_in,
@@ -149,6 +171,53 @@ public:
 		p.SetExpr(tag);
 	}
 
+	//constructor #2 array parser w. array-inherited resolution radres
+	polarPlot(std::vector<std::vector<double>> SampleBuffer,
+		int speed_in,
+		int line_width_in,
+		int steps_in,
+		double tmax_in,
+		double res,
+		double rotation_in,
+		sf::Color color_in)
+
+		: speed(speed_in),
+		line_width(line_width_in),
+		steps(steps_in),
+		t(0),
+		tmax(tmax_in),
+		radres(res),
+		rotation(rotation_in),
+		color(color_in)
+	{
+		discretePlot = true;
+	}
+
+	////constructor #3 array parser w. 2 different resolutions, array-inherited resolution radres and plot resolution tinc_in, usually coarser resolutions for performance reasons
+	//polarPlot(std::vector<double> Sample,
+	//	int speed_in,
+	//	int line_width_in,
+	//	int steps_in,
+	//	double tmax_in,
+	//	double tinc_in,
+	//	double res,
+	//	double rotation_in,
+	//	sf::Color color_in)
+
+	//	: speed(speed_in),
+	//	line_width(line_width_in),
+	//	steps(steps_in),
+	//	t(0),
+	//	tmax(tmax_in),
+	//	tinc(tinc_in),
+	//	sample(Sample),
+	//	rotation(rotation_in),
+	//	radres(res),
+	//	color(color_in)
+	//{
+	//	discretePlot = true;
+	//}
+
 	//initialize muparser and graphics 
 	void init() {
 		p.DefineVar("theta", &t);
@@ -162,30 +231,39 @@ public:
 		graphSpr.setPosition(windowsize.x / 2, windowsize.y / 2);
 	}
 
-	//iterate function draw
+	//iterate function draw : TODO
 	sf::Sprite& update() {
 		graphTx.update(graph);
-		graphSpr.rotate(rotation * 180.0/ pi);
+		graphSpr.rotate(rotation * 180.0 / pi);
 		return graphSpr;
 	}
 	//plots point to pixel(s)
-	void plot(int index = 0, int length = 0) {
+	void plot(int index = 0, int mode = 0)
+	{
+		// line width
+		if (r >= 1.0)
+			line_width = line_width + 1;
 
 		//scale
-		double scale = 40;
+		double scale;
+		if (mode == 1)
+			scale = 20;// / 360.0;
+		else
+			scale = 20;
 		//convert polar to cartesian
-		double x = scale*r * cos(t);
-		double y = -1*scale*r * sin(t); // CAVEAT: y-coordinates mirrored at x-axis because of inverse array order
+		double x = scale * r * cos(t);
+		double y = -1 * scale * r * sin(t);
 
-		
 		if (x + 1 + wSize / 2 > wSize || x - 1 + wSize / 2 < 0 || y + 1 + wSize / 2 > wSize || y - 1 + wSize / 2 < 0)
-			return;
+		{
+			line_width -= 1; return;
+		}
 
-		int offsetX = (index % length)*(wSize/length) + (wSize/(2*length)); // check rest (modulo) for x-offset
-		int offsetY = (index / length)*(wSize / length) + (wSize / (2 * length)); // check division for y offset
-		
-		int xIndex = round(x + offsetX);
-		int yIndex = round(y + offsetY);
+		int offsetX = (index % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+		int offsetY = (index / height)*(wSize / height) + (wSize / (2 * height)); // check division for y offset
+
+		int xIndex = static_cast<int>(std::round(x + offsetX));
+		int yIndex = static_cast<int>(std::round(y + offsetY));
 
 		if (xIndex < 0)
 			xIndex = 0;
@@ -200,7 +278,7 @@ public:
 		//graph.setPixel((x + wSize / 2), (y + wSize / 2), color);
 
 		// set 4 -neighborhood
-		if (line_width == 1 || line_width == 2) {
+		if ((line_width == 1 || line_width == 2) && xIndex > 0 && xIndex < wSize - 1 && yIndex > 0 && yIndex < wSize - 1) {
 			graph.setPixel((xIndex), (yIndex + 1), color);
 			graph.setPixel((xIndex), (yIndex - 1), color);
 			graph.setPixel((xIndex + 1), (yIndex), color);
@@ -208,37 +286,62 @@ public:
 		}
 
 		// set diagonal neighborhood
-		if (line_width == 2) {
-			graph.setPixel((xIndex + 1), (yIndex + 1 ), color);
+		/*if (line_width == 2) {
+			graph.setPixel((xIndex + 1), (yIndex + 1), color);
 			graph.setPixel((xIndex + 1), (yIndex - 1), color);
 			graph.setPixel((xIndex - 1), (yIndex - 1), color);
 			graph.setPixel((xIndex - 1), (yIndex + 1), color);
-		}
-
-		/*if (line_width == 1 || line_width == 2) {
-			graph.setPixel((x + wSize / 2), (y + 1 + wSize / 2), color);
-			graph.setPixel((x + wSize / 2), (y - 1 + wSize / 2), color);
-			graph.setPixel((x + 1 + wSize / 2), (y + wSize / 2), color);
-			graph.setPixel((x - 1 + wSize / 2), (y + wSize / 2), color);
-		}
-
-		if (line_width == 2) {
-			graph.setPixel((x + 1 + wSize / 2), (y + 1 + wSize / 2), color);
-			graph.setPixel((x + 1 + wSize / 2), (y - 1 + wSize / 2), color);
-			graph.setPixel((x - 1 + wSize / 2), (y - 1 + wSize / 2), color);
-			graph.setPixel((x - 1 + wSize / 2), (y + 1 + wSize / 2), color);
 		}*/
+
+		if (r >= 1.0)
+			line_width = line_width - 1;
+
 	}
 
-	//plots draw_speed points per frame
-	void animation(int index = 0, int length = 0) {
-		// p.DefineVar("theta", &t);
-		for (int i = 0; (i < speed || speed == 0) && t <= tmax; i++) {
+	// STRING PARSER OVERLOAD of animation - use w. string/mixed resolution constructor overload
+	void animation(int index = 0, int mode = 0)
+	{
+
+		for (int i = 0; (i < speed || speed == 0) && t < tmax; i++)
+		{
+			if (!discretePlot) // use muParser for evaluation 
+				r = p.Eval();
+			else // nearest neighbor interpolation w. samples in sampleVector - ONLY FOR DUAL GRID PLOT! - use animation overload for cell-based plot
+				r = sample.at(static_cast<int>(std::round(t / radres)) % sample.size()); // cyclic value permutation
+
+			plot(index, mode);
 			t += tinc;
-			r = p.Eval();
-			plot(index, length);
 		}
 	}
+	// DISCRETE SAMPING OVERLOAD for animation... faster and no string parsing necessary - use for inherited resolution constructor overload
+	//void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray, TeeStream* both = NULL)
+	//{
+	//	t = 0.0; // reset theta variable for each cell to prevent from long-term shifting
+
+	//	for (int i = 0; (i < speed || speed == 0) && i < steps; i++)
+	//	{
+	//		r = sampleArray.at(index).at(i);
+
+	//		// PROPAGATION ATTENUATION TEST //
+	//		if (i == 0 && index / width == height / 2 && mode == 0 && ctr == 0)
+	//		{
+
+	//			/**both << "r: " << r << endl;
+	//			*both << "attenuation: " << r / 1.0 << endl;
+	//			ctr++;*/
+	//		}
+
+	//		/*if(t > 45*tinc && t < 47*tinc && index/width == width/2 - 1 && index%width == width/2 + 1 )
+	//		{
+	//			cout << "r(diag): " << r << endl;
+	//			cout << "attenuation: " << r / 1.0 << endl;
+	//		}*/
+
+	//		plot(index, mode);
+	//		t += radres;
+	//	}
+	//}
+
 };
 
 //writes frames to file 
@@ -526,6 +629,17 @@ std::vector<std::vector<double>> calcCoeff(double(*f)(double x)) // for 2Pi peri
 	return coeff;
 }
 
+string trim(const string& str)
+{
+	// strip left (begin)
+	size_t first = str.find_first_not_of(' ');
+	if (string::npos == first) // if empty.., return empty str
+		return str;
+	// strip right (end)
+	size_t last = str.find_last_not_of(' ');
+	return str.substr(first, (last - first + 1)); // return cropped substring
+}
+
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
@@ -538,14 +652,14 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 		getline(infile, line);
 
 		int temp_cols = 0;
-		stringstream stream(line);
+		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
 		while (!stream.eof())
 			stream >> buff[cols*rows + temp_cols++];
 
-		if (temp_cols == 0)
+		if (temp_cols == 0) // if empty line
 			continue;
 
-		if (cols == 0)
+		if (cols == 0) // set col count from first line
 			cols = temp_cols;
 
 		rows++;
@@ -555,9 +669,9 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	*colsCount = cols;
 	*rowsCount = rows;
 	MatrixXd result(rows, cols);
-	for (int i = 0; i < rows; i++)
-		for (int j = 0; j < cols; j++)
-			result(i, j) = buff[cols*i + j];
+	for (int j = 0; j < rows; j++) // use (j, i)-index for data matrices, use (i, j) for mathematical matrices (w. apt Transpose/Transformations etc.)
+		for (int i = 0; i < cols; i++)
+			result(j, i) = buff[cols*j + i];
 
 	return result;
 };
@@ -567,10 +681,14 @@ int main(int argc, char* argv[])
 	// SVD/EIGENVALUE DECOMPOSITION START //
 
 	// 2D Grid START //
-	int* cols = new int(0); // create ptr to cols
-	int* rows = new int(0); // create ptr to rows
-	MatrixXd m = readMatrix("../matrix.txt", cols, rows);
-	const int length = *cols/2;
+	int cols = 0; // create cols of txt tensor field
+	int rows = 0; // create rows of txt tensor field
+	cout << "before matrix read" << endl;
+	workDir = GetCurrentWorkingDir();
+	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
+	width = cols / 2; // determine width of grid for correct indexing
+	height = rows / 2;
+	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 
 	std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
 	JacobiSVD<MatrixXd> svd(m, ComputeThinU | ComputeThinV);
@@ -579,18 +697,17 @@ int main(int argc, char* argv[])
 	std::cout << "Its right singular vectors are the columns of the thin V matrix:" << std::endl << svd.matrixV() << std::endl;
 
 	std::cout << "Blocks from left to the right" << endl;
-	for (int i = 0; i < *rows / 2; i++) // use rows/2 and cols/2 because of 2D matrices!!!
-		for (int j = 0; j < *cols / 2; j++)
+	for (int i = 0; i < rows / 2; i++) // use rows/2 and cols/2 because of 2D matrices!!!
+		for (int j = 0; j < cols / 2; j++)
 			std::cout << m.block<2, 2>(2 * i, 2 * j) << endl << endl;
 
 	// block the read-out matrices into a list of MatrixXd types (hardcoded 2x2 read-out)
-	int dim = *rows / 2 * *cols / 2;
 	std::vector<MatrixXd> matrixList(dim, MatrixXd::Ones(2, 2));
-	for (int i = 0; i < *rows / 2; i++)
-		for (int j = 0; j < *cols / 2; j++)
+	for (int i = 0; i < rows / 2; i++)
+		for (int j = 0; j < cols / 2; j++)
 		{
 			MatrixXd a = m.block<2, 2>(2 * i, 2 * j);
-			matrixList.at(j + i * (*cols / 2)) = (a);
+			matrixList.at(j + i * (cols / 2)) = (a);
 		}
 
 	// compute the SVD of all matrices in matrixList into svdList
@@ -616,82 +733,68 @@ int main(int argc, char* argv[])
 		std::cout << "Its second eigenvector is:" << std::endl << es.eigenvectors().col(1).real() << std::endl;*/
 	}
 
-	std::string* functionStr = new std::string[length*length];
+	std::string* functionStr = new std::string[width*height];
 
-	for (int j = 0; j < *rows / 2; j++)
+	for (int j = 0; j < rows / 2; j++)
 	{
-		for (int i = 0; i < *cols / 2; i++)
+		for (int i = 0; i < cols / 2; i++)
 		{
-			double y1 = svdList.at(i + j * (*cols / 2)).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
-			double x1 = svdList.at(i + j * (*cols / 2)).matrixU().col(0)[0]; // use x - coordinate of both semi-axes "sigma_xx"
-			double y2 = svdList.at(i + j * (*cols / 2)).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
-			double x2 = svdList.at(i + j * (*cols / 2)).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
-			double xx = matrixList.at(i + j * (*cols / 2)).row(0)[0]; // "sigma_xx"
-			double yy = matrixList.at(i + j * (*cols / 2)).row(1)[1]; // "sigma_yy"
+			double y1 = svdList.at(i + j * (cols / 2)).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
+			double x1 = svdList.at(i + j * (cols / 2)).matrixU().col(0)[0]; // use x - coordinate of both semi-axes "sigma_xx"
+			double y2 = svdList.at(i + j * (cols / 2)).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
+			double x2 = svdList.at(i + j * (cols / 2)).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
+			double xx = matrixList.at(i + j * (cols / 2)).row(0)[0]; // "sigma_xx"
+			double yy = matrixList.at(i + j * (cols / 2)).row(1)[1]; // "sigma_yy"
 			double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 			double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
 			// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
-			if (deg1 < 0)
-				deg1 = 360 + deg1;
-			if (deg2 < 0)
-				deg2 = 360 + deg2; // deg1 = 270, deg2 = 0
+			deg1 = deg1 < 0 ? 360 + deg1 : deg1;
+			deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
-			double deg = 0;
-			if (deg1 >= 270 && deg2 <= 90) // caveat: if basis vector u1 in 4th quadrant and u2 in 1st - continuity/consistency constraint
-				deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-			else if (deg2 >= 270 && deg1 <= 90) // caveat: if basis vector u2 in 4th quadrant and u2 in 1st - continuity/consistency constraint
-				deg = atan(y2 / x2) * 180.0 / M_PI;
-			else if (deg2 > deg1) // if u2 is leading vector 
-				deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-			else // if u1 is leading vector
-				deg = atan(y2 / x2) * 180.0 / M_PI; // use u2 as lagging vector
-			// --> u1 and u2 form basis vectors obtained from SVD, whereas the phase(leading vector) - phase(lagging vector) = 90 --> determine u1,u2
+			std::cout << "deg: " << deg1 << std::endl;
 
-			std::cout << "deg: " << deg << std::endl;
-
-			double sv1 = svdList.at(i + j * (*cols / 2)).singularValues()[0];
-			double sv2 = svdList.at(i + j * (*cols / 2)).singularValues()[1];
+			// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
+			double sv1 = svdList.at(i).singularValues()[0];
+			double sv2 = svdList.at(i).singularValues()[1];
 			double dot = sv2 * sv1;
-			double a = 0; // x-scale
-			double b = 0; // y-scale
-			
-			// --> eventually, use std::swap to swap ptrs to sv1,sv2 dynamically
-			if (((yy < 0 && xx < 0) || (yy >= 0 && xx >= 0))) // if not mirroring at one single axis..
-			{
-				if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
-				{
-					a = sv1;
-					b = sv2;
-				}
-				else // if anisotropic y-scaling, scale y
-				{
-					a = sv2;
-					b = sv1;
-				}
-			}
-			else // if mirroring at one single axis.. swap!
-			{
-				if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
-				{
-					a = sv2;
-					b = sv1;
-				}
-				else // if anisotropic y-scaling, scale y
-				{
-					a = sv1;
-					b = sv2;
-				}
-			}
 
-			std::string aSquaredString = std::to_string(a*a);
-			std::string bSquaredString = std::to_string(b*b);
+			//// --> eventually, use std::swap to swap ptrs to sv1,sv2 dynamically
+			//if (((yy < 0 && xx < 0) || (yy >= 0 && xx >= 0))) // if not mirroring at one single axis..
+			//{
+			//	if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
+			//	{
+			//		a = sv1;
+			//		b = sv2;
+			//	}
+			//	else // if anisotropic y-scaling, scale y
+			//	{
+			//		a = sv2;
+			//		b = sv1;
+			//	}
+			//}
+			//else // if mirroring at one single axis.. swap!
+			//{
+			//	if (abs(yy) < abs(xx)) // if anisotropic x-scaling, scale x
+			//	{
+			//		a = sv2;
+			//		b = sv1;
+			//	}
+			//	else // if anisotropic y-scaling, scale y
+			//	{
+			//		a = sv1;
+			//		b = sv2;
+			//	}
+			//}
+
+			std::string aSquaredString = std::to_string(sv1*sv1);
+			std::string bSquaredString = std::to_string(sv2*sv1);
 			std::string dotString = std::to_string(dot);
-			std::string radString = std::to_string(deg*(M_PI/180.0));
+			std::string radString = std::to_string(deg1*(M_PI/180.0));
 
 			std::string ellipse = dotString + "/sqrt(" + bSquaredString + "*cos(theta-" + radString + ")*cos(theta-" + radString + ")+" + aSquaredString + "*sin(theta-" + radString + ")*sin(theta-" + radString + "))";
 			
-			functionStr[i + j * (*cols / 2)] = ellipse;
+			functionStr[i + j * (cols / 2)] = ellipse;
 		}
 	}
 
@@ -702,14 +805,14 @@ int main(int argc, char* argv[])
 	// set options
 	//std::string functionStr = "200 * sin(4 * theta / 9)";
 	int drawSpeed = 0; // set instant drawing
-	int lineWidth = 1;
+	int lineWidth = 0;
 	double thetaMax = 2 * pi;
 	double thetaInc = pi / 300; // set theta increment
 	double rotSpeed = 0; // set rotation speed
-	sf::Color red = sf::Color(255, 0, 0);
+	sf::Color red = sf::Color(0, 255, 0);
 	
 	// add pre-computed function as string
-	for (int i = 0; i < length*length; i++)
+	for (int i = 0; i < dim; i++)
 		funcs.push_back(polarPlot(functionStr[i], drawSpeed, lineWidth, thetaMax, thetaInc, rotSpeed, red));
 
 	//parse input file
@@ -748,7 +851,7 @@ int main(int argc, char* argv[])
 		window.clear(sf::Color::Black);
 		out.clear(sf::Color::Black);
 		for (unsigned i = 0; i < funcs.size(); i++) {
-			funcs[i].animation(i, length);
+			funcs[i].animation(i, width);
 			sf::Sprite spr = funcs[i].update();
 			window.draw(spr);
 			spr.setPosition(wSize / 2, wSize / 2);
