@@ -21,6 +21,7 @@
 \usepackage{lmodern}
 % Use German :
 \usepackage[ngerman,english]{babel}
+\usepackage{amsmath}
 % Input and font encoding
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
@@ -126,15 +127,15 @@ Abgabedatum / Due Date: 07.07.2019
 %\input{zusammenfassung}
 
 Tensorfelder werden meistens in Verbindung mit mechanischen Spanunngsverteilungen in 2D/3D-Gittern gebracht (vgl. Cauchy-Stress Tensor), haben aber auch andere praktische Bedeutungen in der Physik.
-Mithilfe von globalen Beleuchtungsmodellen/-techniken wird eine neue Methode entwickelt, um Tensorfelder zu visualisieren. Als Grundlage leiten wir ein einfaches Lichtausbreitungsschema für kartesische Gitter ab, dass die Prinzipien der Ausbreitungsdämpfung und Energieerhaltung beachtet und Licht-verteilung/en für gegebene Lichtquellenrichtung/en und -positionen bis zur Konvergenz approximieren kann. Als unterliegendes Modell werden die Transmissionsprofile innerhalb diesem Gitter als Kristallfiberstruktur angenommen (vgl. Edelsteine: Katzenaugeneffekt beim Tigerauge). Die folgende Aufgabe ist es, anisotrope Fiberstrukturen mit der Orientierung und den Anisotropiemaßen des unterliegenden Tensorfelds zu modellieren. Dafür erstellen wir per Hauptachsentransformation (PCA) ein Eigensystem für jede Zelle des Tensorfelds und modellieren eine zugehörige Ellipsengleichung als (Transfer-/Wichtungs-) Transmissionsprofil. Wir messen Impulsantworten des Tensorfelds mit Delta-Pulsen an jeder Position und in jede Richtung um eine uniform gesamplete Map der globalen Lichtverteilungen zu erhalten. Diese Map wird als ein globales Energieflussfeld betrachtet. Wir lassen uns von der Technik FTLE aus dem Bereich Particle Tracing der Vector Field Visualization inspirieren, indem wir den Gradient des Flussfelds der resultierenden Lichtverteilungen analysieren und visualisieren. Ähnlich wie FTLE in Vektorfeldern Gräte/Kämme/LCS detektiert, erfasst unsere Methode dieselben Strukturen, anziehende/abstoßende/sattelnde Tensorfeldlinien die häufig Schlüsselstrukturen in der Natur repräsentieren, in Tensorfeldern.Man beachte, dass das resultierende berechnete Skalarfeld (Betrag des Gradienten) $(n+1)$-dimensional ($x,y,z$ und Richtung $\theta$) ist und in 3D für sinnvolle Visualisierung durch Mittelung/Projektion eine Dimension abgeflacht werden muss. Wir führen diese Größe als Global Illumination Gradient ein, der einen FTLE-verwandten Ansatz darstellt, um LCS in Tensorfeldern durch die Analyse des globalen, durch einen Imprint (Gravur in kristallinen Fiberstrukturen) gerichteten Lichtflusses, zu visualisieren. Außerdem führen wir Deformation Ellpsoid Glyphen ein, die zusätzlich zur Darstellung der anisotropen Topologie die Richtung(Zug-/Druck) der Spannung durch Pfeile nach innen/außen darstellen.
+Mithilfe von globalen Beleuchtungsmodellen/-techniken wird eine neue Methode entwickelt, um Tensorfelder zu visualisieren. Als Grundlage leiten wir ein einfaches Lichtausbreitungsschema für kartesische Gitter ab, dass die Prinzipien der Ausbreitungsdämpfung und Energieerhaltung beachtet und Licht-verteilung/en für gegebene Lichtquellenrichtung/en und -positionen bis zur Konvergenz approximieren kann. Als unterliegendes Modell werden die Transmissionsprofile innerhalb diesem Gitter als Kristallfiberstruktur angenommen (vgl. Edelsteine: Katzenaugeneffekt beim Tigerauge). Die folgende Aufgabe ist es, anisotrope Fiberstrukturen mit der Orientierung und den Anisotropiemaßen des unterliegenden Tensorfelds zu modellieren. Dafür erstellen wir per Hauptachsentransformation (PCA) ein Eigensystem für jede Zelle des Tensorfelds und modellieren eine zugehörige Ellipsengleichung als (Transfer-/Wichtungs-) Transmissionsprofil. Wir messen Impulsantworten des Tensorfelds mit Delta-Pulsen an jeder Position und in jede Richtung um eine uniform gesamplete Map der globalen Lichtverteilungen zu erhalten. Diese Map wird als ein globales Energieflussfeld betrachtet. Wir lassen uns von der Technik FTLE aus dem Bereich Particle Tracing der Vector Field Visualization inspirieren, indem wir den Gradient des Flussfelds der resultierenden Lichtverteilungen analysieren und visualisieren. Ähnlich wie FTLE in Vektorfeldern Gräte/Kämme/LCS detektiert, erfasst unsere Methode dieselben Strukturen, anziehende/abstoßende/sattelnde Tensorfeldlinien die häufig Schlüsselstrukturen in der Natur repräsentieren, in Tensorfeldern. Wir führen diese Größe als Global Illumination Gradient ein, der einen FTLE-verwandten Ansatz darstellt, um LCS in Tensorfeldern durch die Analyse des globalen, durch einen Imprint (Gravur in kristallinen Fiberstrukturen) gerichteten Lichtflusses, zu visualisieren. Außerdem führen wir Deformation Ellpsoid Glyphen ein, die zusätzlich zur Darstellung der anisotropen Topologie die Richtung(Zug-/Druck) der Spannung durch Pfeile nach innen/außen darstellen. Das Verfahren wird in einer extensiven Evaluationsphase auf Plausibilität und Vergleichbarkeit geprüft.
 \newpage
 
 \chapter*{Abstract}
 %\input{abstract}
 Tensor Fields, are most commonly associated with stress distributions (cnf. Cauchy-Stress Tensor) in 2D/3D grids, but also have some other meanings in practice in physics. By means of global illumination techniques we develop a new method to visualize tensor fields. As a basis, we derive a simple light propagation scheme for Cartesian grids, which satisfies propagation attenuation and energy-conservation principles and is able to approximate light distributions for given light source position(s) and direction(s) until convergence. The transmission profiles within this grid are considered as crystal fiber structures as an underlying physical model (eg. gemstones: tiger's eye's cat's eye effect). The consequent task is to model anisotropic fibre structures with the orientation and anisotropy measures of the underlying tensor field in the grid.
 For this, we derive an eigenbasis by PCA (principal component analysis) for every cell of the tensor field and form an ellipsoid equation as transmission (transfer/weighting) function for the transmitted light profiles. We measure impulse responses of the tensor field with Delta-Pulses as light sources at any (sampled) position and in any direction to generate a uniform sampled map of the global illumination distributions. This map is considered as a global illumination energy flow field.
-We gain inspiration by vector field particle tracing's FTLE approach for analyzing the gradient of the flow field of the resulting light distributions. Similar to how the FTLE detects ridges/LCS (Lagrangian Coherent Structures) in vector fields (flow fields), our approach captures these structures likewise, attracting/repelling/saddling tensor field lines (TFL) which frequently represent key structures in nature, in tensor fields. Note that the resulting scalar field is $(n+1)$-dimensional ($x,y,z$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization. We denote this entity a global illumination gradient which states an FTLE-related approach for visualizing LCS in tensor fields through analysis of the global and light transport  directed by imprint/engraving in crystelline fiber structures. 
-We also introduce Deformation Ellipsoid Glyphs which are, additionally to visualizing anisotropic topology, pointing inward/outward for compressive/tensile stresses visualizing orientation of mechanical stresses.
+We gain inspiration by vector field particle tracing's FTLE approach for analyzing the gradient of the flow field of the resulting light distributions. Similar to how the FTLE detects ridges/LCS (Lagrangian Coherent Structures) in vector fields (flow fields), our approach captures these structures likewise, attracting/repelling/saddling tensor field lines (TFL) which frequently represent key structures in nature, in tensor fields. We denote this entity a global illumination gradient which states an FTLE-related approach for visualizing LCS in tensor fields through analysis of the global and light transport  directed by imprint/engraving in crystelline fiber structures. 
+We also introduce Deformation Ellipsoid Glyphs which are, additionally to visualizing anisotropic topology, pointing inward/outward for compressive/tensile stresses visualizing orientation of principal mechanical stresses.
 We evaluate our approaches for plausibility and comparability within an extensive test campaign.
 \newpage
 
@@ -163,16 +164,6 @@ Abschnitt zur Motivation soll allgemein verständlich geschrieben
 werden. Die Einleitung sollte auch wichtige Referenzen enthalten. 
 
 \section{Motivation}
-
-\begin{figure}[h]
-  \centering
- {
-    \includegraphics[width=0.6\textwidth]
-    {img/stress_tensor.png}
-  }
-  \caption{Cauchy-Spannungstensor}
-  \label{Skalierung}
-\end{figure}
 
 Tensor Field Visualization is gaining importance as a relevant tool for the analysis of fluid and solid mechanics. Tensors are found most commonly in medical, scientific and engineering applications. A tensor is a $n$-D generalization of a matrix and appears e.g. as Jacobi-Matrix in Flow Fields or as stress tensor in solid continuum mechanics. Basically, tensors describe stretchings, rotations and volume changes in both solid and fluid material. While most techniques focus on symmetric tensor field visualization (like Glyphs and Tensor Field Lines), some other recent works adress the problem of asymmetric tensor field visualization. The issue with asymmetric or antisymmetric tensors is that they do not always yield real eigenvalues, which is needed to determine an eigenbasis to set up glyphs, hyperstreamlines or tensor field lines. \cite{pang&zheng} et.al. proposed the concept of dual eigenvectors and \cite{zhang} extended it to pseudo-eigenvectors and introduced eigenvector and eigenvalue manifold to visualize eigenvectors in the complex domain. \\
 
@@ -220,7 +211,7 @@ oder zur Informationsextraktion sein.
 
 \section{Tensors}
 \label{sec:tensors}
-Now what is a Tensor? A tensor is a generalization of a matrix as follows:
+Now what is a Tensor? A tensor is a $o$-dimensional generalization of a matrix as follows:
 \begin{center}
  \begin{tabular}{c|c|c|c|c|c|c}
 \textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
@@ -230,9 +221,30 @@ Now what is a Tensor? A tensor is a generalization of a matrix as follows:
 Table 1: Tensor Shapes
  \end{center} 
  
-In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$, which is equal to the rank of the tensor for full rank. Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained from physical differential equations. Principally any $o$D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$D number arrays (in a sense of physical interpretation), which is mostly true for differential equations. In fact, the tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring e.g. the stress in that direction) to an outgoing stress vector.
- To be a bit more concrete, tensors represent stress distributions in solids and fluids describing strain and flow features as these entities aren't simple numbers or vectors. At each point in space (the grid) there is a whole distribution of stresses (elastic and viscous) which needs to be characterized and represented.
+In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$, which is equal to the rank of the tensor for full rank. Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained and defined from physical transformation equations. Hence, any $o$D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$D number arrays (in a sense of physical interpretation), which is mostly true for component-indexed $o$D number entities following matrix multiplication and transformation rules found in physics and math. In fact, tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring e.g. the stress in that direction) to an outgoing stress vector.
+ To be a bit more concrete, tensors represent stress distributions in solids and fluids describing strain and flow features as these entities aren't simple numbers or vectors. These numbers just come up as entities or quantities in physics. That is, at each point in space (the grid) there is a whole distribution of e.g. stresses (elastic and viscous) which needs to be characterized and represented.
+ \\
+ \emph{Cauchy stress tensor}
+ \begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.6\textwidth]
+    {img/stress_tensor.png}
+  }
+  \caption{Cauchy-Stress Tensor}
+  \label{cauchy}
+\end{figure}
 
+The Cauchy stress tensor, which is propably the classical example of a tensor, is depicted in Fig. \ref{cauchy} and consists of 3 stress vectors $\mathbf{T(e_i)}$ arranged in row-major order. It appears in similar form as viscous stress tensor in fluid mechanics:
+\begin{align*}
+\boldsymbol{\sigma}=
+\begin{bmatrix}
+\sigma _{11} & \sigma _{12} & \sigma _{13} \\
+\sigma _{21} & \sigma _{22} & \sigma _{23} \\
+\sigma _{31} & \sigma _{32} & \sigma _{33} 
+\end{bmatrix}
+\end{align*}
+These 3 stress vectors represent the orientation and magnitude of total resulting stress at plane ${x,y,z}$ in direction ${x,y,z}$ (9 individual numbers). Thus, the stress tensor poses a full valid represenation of the stress distribution at any point in space. The stress tensor itself can be interpreted as a transformation which maps an incoming normal direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T(n)} = \mathbf{n}\cdot\boldsymbol{\sigma}$. The stresses in normal directions (diagonal elements) are directly related to the pressure, which is always isotropic and hence non-directionally dependent. It is possible to find 3 principal stress directions in 3D, for which there are no shear stresses existent in equilibrium, by PCA (see sect. \ref{sec:pca} below). These form the principal directions of deformation at a certain location and are sufficient to describe the resulting transformation/deformation behaviour. The resulting system of principal directions and absolute stresses is often called an eigensystem or eigenframe. So to say, an eigensystem consjstent of the principal directions/axes spans a principal ellipsoid depicted in Fig. \ref{HAT} in sect. \ref{sec:pca}.
 
 \section{Principal Component Analysis}
 \label{sec:pca}
@@ -247,7 +259,7 @@ Note that we denote a matrix as a second order tensor interchangeably for the sa
   \label{HAT}
 \end{figure}
 
-Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for non-(anti-)symmetric matrices. For (anti-)symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$. Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling ($\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig. \ref{HAT} for any kind of tensor as suggested by \cite{moler}. In addition, we also calculate the eigenvalues to exploit the sign of the eigenvalues ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which allows us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step.
+Principal Component Analysis is an algorithm to find the principal components (directions) in stochastic data. But it works similarly on transformations to find the principal directions on rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (anti-)symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$. Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling ($\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig. \ref{HAT} for any kind of matrix as suggested by \cite{moler}. In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which allows us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step.
 \vskip 5pt
 \section{Related Work}
 \label{sec:related}
@@ -283,13 +295,17 @@ dem Buch von Newman zu Netzwerken \cite{Newman2010} erläutert \ldots.
 \chapter{Main Part}
 \label{chap:main}
 
+
+Note that the resulting scalar field is $(n+1)$-dimensional ($x,y,z$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization. 
+
+
 Dieses Kapitel stellt meist den Hauptteil der Arbeit dar. Vor dem
 ersten Abschnitt sollte ein kurzer Überblick (ein paar wenige Sätze
 mit Verweise auf nachfolgende Abschnitte) gegeben werden. Beispiel: Im
 nachfolgenden Abschnitt \ref{sec:overview} wir ein Überblick über die Anforderungen an
 das Modell gegeben. 
 
-\section{Überblick und Zielsetzung}
+\section{Outline and Ambitions}
 \label{sec:overview} 
 
 Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
@@ -298,8 +314,8 @@ Beschreibung ``technischer'' bzw.~``formaler'' sein als in der
 Einleitung, da der Leser nun mit den Grundlagen und verwandten
 Arbeiten vertraut ist.
 
-\section{Erster Teil}
-\label{sec:teil1}
+\section{Global Illumination Scheme}
+\label{sec:scheme}
 
 In diesem und den nachfolgenden Abschnitten werden die Beiträge der
 Arbeit motiviert, formal sauber (oft mathematisch, sprich mit
@@ -308,8 +324,8 @@ verdeutlicht. Die Beschreibungen in diesem Kapitel sind meist
 unabhängig von einer konkreten Realisierung und Daten; diese werden im
 nachfolgenden Kapitel detailliert.
 
-\section{Zweiter Teil}
-\label{sec:teil2}
+\section{Global Illumination Gradient}
+\label{sec:ftle}
 
 Usw.
 
