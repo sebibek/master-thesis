@@ -22,13 +22,13 @@
 #include <math.h>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-#include <array>
+//#include <array>
 #include <filesystem>
 #include <string>
 #include <algorithm> 
-#include <cctype>
-#include <locale>
-#include <functional>
+//#include <cctype>
+//#include <locale>
+//#include <functional>
 #include <numeric>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>

@@ -12,9 +12,9 @@
 #define _USE_MATH_DEFINES
 
 // INCLUDES (IMPORTS)
-#include <SFML/Graphics.hpp>
+//#include <SFML/Graphics.hpp>
 #include <iostream>
-#include "muParser.h"
+//#include "muParser.h"
 #include <sstream>
 #include <fstream>
 #include <vector>
@@ -22,13 +22,13 @@
 #include <math.h>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-#include <array>
+//#include <array>
 #include <filesystem>
 #include <string>
-#include <algorithm> 
-#include <cctype>
-#include <locale>
-#include <functional>
+//#include <algorithm> 
+//#include <cctype>
+//#include <locale>
+//#include <functional>
 #include <numeric>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>
@@ -45,7 +45,7 @@
 // NAMESPACE IMPORTS
 using namespace std;
 using namespace Eigen;
-using namespace mu;
+//using namespace mu;
 
 typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
@@ -65,36 +65,36 @@ T clip(const T& n, const T& lower, const T& upper); // template clip function
 
 //length and width of window
 int wSize = 701;
-sf::Vector2i windowsize;
+//sf::Vector2i windowsize;
 
 // GENERIC FUNCTION DEFINITIONS
 
 // -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
-static mu::value_type clipNeg(mu::value_type v) { return clip(v, 0.0, 1.0); }
-static mu::value_type deltaFunction(mu::value_type v)
-{
-	if (abs(v) < radres/2.0 || v == radres/2.0) // use margin related to angular resolution radres..
-		return steps; // normalization: should integrate total energy of unit circle into one single direction
-	else
-		return 0.0;
-}
+//static mu::value_type clipNeg(mu::value_type v) { return clip(v, 0.0, 1.0); }
+//static mu::value_type deltaFunction(mu::value_type v)
+//{
+//	if (abs(v) < radres/2.0 || v == radres/2.0) // use margin related to angular resolution radres..
+//		return steps; // normalization: should integrate total energy of unit circle into one single direction
+//	else
+//		return 0.0;
+//}
 //writes frames to file 
 //directory must already exist -- parse file methods
-void record(sf::RenderTexture& in, int frameskip, std::string directory)
-{
-	// create frame index
-	static int frame = 0;
-
-	if (frameskip > 0 && frame % frameskip == 0) {
-		in.display();
-		sf::Texture outTx = in.getTexture();
-		sf::Image outImg = outTx.copyToImage();
-		std::stringstream ugh;
-		ugh << directory << "/" << frame << ".png";
-		outImg.saveToFile(ugh.str());
-	}
-	frame++;
-}
+//void record(sf::RenderTexture& in, int frameskip, std::string directory)
+//{
+//	// create frame index
+//	static int frame = 0;
+//
+//	if (frameskip > 0 && frame % frameskip == 0) {
+//		in.display();
+//		sf::Texture outTx = in.getTexture();
+//		sf::Image outImg = outTx.copyToImage();
+//		std::stringstream ugh;
+//		ugh << directory << "/" << frame << ".png";
+//		outImg.saveToFile(ugh.str());
+//	}
+//	frame++;
+//}
 
 // get current working directory to assign matrix.txt path
 std::string GetCurrentWorkingDir(void) {
@@ -209,7 +209,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 	std::string line;
 
 	//default function attributes
-	sf::Color color = sf::Color::Cyan;
+	//sf::Color color = sf::Color::Cyan;
 	std::string func_literal = "100*cos(theta)";
 	Pair position{ height / 2, width / 2 };
 
@@ -243,13 +243,13 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					fullscreen = true;
 				}
 				//line color
-				else if (tag == "color") {
+				/*else if (tag == "color") {
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					int r = 0, g = 0, b = 0;
 					s >> r >> g >> b;
 					color = sf::Color(r, g, b);
-				}
+				}*/
 				// enter light src position
 				else if (tag == "pos") 
 				{
@@ -449,22 +449,22 @@ std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, cons
 // SPECIFIC (MATHEMATICAL-PROGRAM USE) FUNCTIONS
 
 // template function for evaluating string functions via ptr 
-template <typename T>
-T strFunction(T theta)
-{
-	// define function parser (muparser)
-	T t = theta; // ->theta: set initial theta
-	mu::Parser parser;
-	parser.DefineConst("pi", pi);
-	parser.DefineVar("theta", &t);
-	parser.SetExpr(functionString);
-	parser.DefineFun(_T("clip"), clipNeg, false);
-	parser.DefineFun(_T("delta"), deltaFunction, false);
-
-	T y = parser.Eval(); // evaluate parser expression
-
-	return y;
-}
+//template <typename T>
+//T strFunction(T theta)
+//{
+//	// define function parser (muparser)
+//	T t = theta; // ->theta: set initial theta
+//	mu::Parser parser;
+//	parser.DefineConst("pi", pi);
+//	parser.DefineVar("theta", &t);
+//	parser.SetExpr(functionString);
+//	parser.DefineFun(_T("clip"), clipNeg, false);
+//	parser.DefineFun(_T("delta"), deltaFunction, false);
+//
+//	T y = parser.Eval(); // evaluate parser expression
+//
+//	return y;
+//}
 
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper) // template clip function
