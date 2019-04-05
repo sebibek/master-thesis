@@ -47,11 +47,11 @@ def file_len(fname):
 
 # create identity
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 17
+length = 29+50
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
 
 # generate normalized tensors from linear transformations (polar form)
-radrange = 27*m.pi # .. rad range WARNING: DO NOT TOUCH - experimentally derived parameter!
+radrange = 200*m.pi # .. rad range WARNING: DO NOT TOUCH - experimentally derived parameter!
 radres = m.pi/180 # 1deg/step
 steps = radrange/radres # of steps :)
 radarr = [float(i)*radres for i in range(round(steps))] # create array w. steps in rad
@@ -114,14 +114,16 @@ rotated = rotate(scaled, rot)
 normalized = normalize(rotated)  # ..->transforms
 matrixArray[yIndex][xIndex] = normalized  # update matrixArray entry rot = -m.pi / 4  # use angle w. offset
 
+#iterate through matrixArray to add matrices in order
 with open('temp.txt', 'wb') as f:
-    for j in range(2, (length-2)): # rows
-        for i in range(2,(length-2)): # cols
+    for j in range(25, (length-25)): # rows
+        for i in range(25,(length-25)): # cols
             np.savetxt(f,  matrixArray[j][i], fmt='%s', delimiter=' ', newline='\r\n')
 
 print("filelen: " + str(file_len('temp.txt'))) # print filelen of temp: should equal length*length*matrixHeight
 print("matrixarray: " + str(len(matrixArray))) # print len of matrixArray: should equal length
 
+length = length - 50
 # reorder the output tensor field into a regular grid
 i = 1
 str1 = ""

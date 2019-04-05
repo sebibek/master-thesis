@@ -48,7 +48,8 @@ typedef std::numeric_limits< double > dbl;
 std::string functionString = "2.1"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
-int steps = 360; // use n steps for angular resolution - radres
+int steps; // use n steps for angular resolution - radres
+double radres;
 
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper); // template clip function
@@ -121,9 +122,30 @@ class neighborhood
 
 public:
 
+	neighborhood() // standard constructor
+	{}
 	//constructor
-	neighborhood(int j, int i, const int length) // check the neighbourhood of (j,i) for missing neighbors..
+	neighborhood(int j, int i) // check the neighbourhood of (j,i) for missing neighbors..
 	{
+		// check if frame exceeded, outside FOV, offscreen..
+		if (i == 0)
+			neighborL = false; // left
+		else if (i == width - 1)
+			neighborR = false; // right
+		if (j == 0)
+			neighborT = false; // top
+		else if (j == height - 1)
+			neighborB = false; // bottom
+		// leave order.. functional!
+	}
+
+	void change(int j, int i)
+	{
+		// RE-INITIALIZE
+		neighborR = true;
+		neighborT = true;
+		neighborL = true;
+		neighborB = true;
 		// check if frame exceeded, outside FOV, offscreen..
 		if (i == 0)
 			neighborL = false; // left
@@ -480,6 +502,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					s >> steps;
+					radres = 2 * pi / steps;
 				}
 				// steps
 				else if (tag == "ctrLimit") {
@@ -858,6 +881,13 @@ std::vector<double> sample(double(*f)(double x), std::vector<std::vector<double>
 	return sample;
 }
 
+int fast_mod(const int input, const int ceil) {
+	// apply the modulo operator only when needed
+	// (i.e. when the input is greater than the ceiling)
+	return input >= ceil ? input % ceil : input;
+	// NB: the assumption here is that the numbers are positive
+}
+
 class propagator
 {
 	// set principal arture angles in rads
@@ -868,27 +898,30 @@ class propagator
 	//std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 
 	// define function parser (muparser)
-	double radres = (2 * pi)/steps; // set radres for discretized theta (phi) directions for sampling
 	int shiftIndex = steps / 4;
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
-	
+	int dim = width * height;
+
 	double* meanA;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
 	std::vector<std::vector<double>>* glyphBuffer;
-	
+
 	std::vector<std::vector<double>> cosines;
-	
+
 	// create sample vector (dynamic)
 	std::vector<double> read;
 	std::vector<double> glyph;
 	std::vector<double> out;
-	std::vector<double> initArray;
-	std::vector<int> deltaIndex;
 
+	neighborhood hood;
+	bool flag = false;
+
+	std::vector<double> initArray;
+	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
@@ -903,8 +936,6 @@ public:
 		glyph = std::vector<double>(steps, 0.0);
 		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
-		
-		deltaIndex = { 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
@@ -915,10 +946,8 @@ public:
 			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
 			{
 				int deltaJ = j - midIndex;
-				int j_index = j % steps;
+				int j_index = j < 0 ? j + steps : j % steps;
 
-				if (j < 0)
-					j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
 				cosine_sum += res * radres;
 				cosK.at(j_index) = res;
@@ -926,14 +955,15 @@ public:
 			cosines.push_back(cosK);
 		}
 		cosine_sum = cosine_sum / 8.0;
+		for (int k = 0; k < 8; k++) // for each node..
+			cosines.at(k) = 1.0 / cosine_sum * cosines.at(k);
+
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
 	}
 
 	void propagate()
 	{
-		*meanA = 0.0;
-
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
@@ -941,8 +971,13 @@ public:
 			if (read == initArray)
 				continue;
 			glyph = glyphBuffer->at(i);
-			neighborhood hood(i / width, i%width, width);
-			
+
+			flag = false;
+			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width - 1)
+			{
+				hood.change(i / width, i%width); flag = true;
+			}
+
 			// calculate mean and variance.. of I(phi)
 			double sum1 = 0.0;
 			double sum2 = 0.0;
@@ -951,13 +986,13 @@ public:
 			for (int j = 0; j < steps; j++)
 			{
 				sum1 += read.at(j); // evaluate for iMean (sum1)
-				sum2 += glyphBuffer->at(i).at(j);
-				sum3 += read.at(j)*glyphBuffer->at(i).at(j);
+				sum2 += glyph.at(j);
+				sum3 += read.at(j)*glyph.at(j);
 
-				if (read.at(j) < 0)
+				/*if (read.at(j) < 0)
 					cout << "WARNING: Negative values in SAMPLE in grid encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
 				if (glyphBuffer->at(i).at(j) < 0)
-					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
+					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;*/
 			}
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -968,60 +1003,61 @@ public:
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 			double cFactor = 1.0;
-			if(tiMean > 0.0)
+			if (tiMean)
 				cFactor = tMean * iMean / tiMean;
 
-		
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
-				// empty (reset) sample, upper and lower for each edge
-				std::fill(out.begin(), out.end(), 0);
+				// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
+				//out = initArray;
 
+				if (flag) // if position on grid borders..
+				{
 					// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-				if (!hood.getR() && k == 0)
-					continue;
-				if ((!hood.getT() || !hood.getR()) && k == 1)
-					continue;
-				if (!hood.getT() && k == 2)
-					continue;
-				if ((!hood.getT() || !hood.getL()) && k == 3)
-					continue;
-				if (!hood.getL() && k == 4)
-					continue;
-				if ((!hood.getB() || !hood.getL()) && k == 5)
-					continue;
-				if (!hood.getB() && k == 6)
-					continue;
-				if ((!hood.getB() || !hood.getR()) && k == 7)
-					continue;
+					if (k == 0 && !hood.getR())
+						continue;
+					if (k == 1 && (!hood.getT() || !hood.getR()))
+						continue;
+					if (k == 2 && !hood.getT())
+						continue;
+					if (k == 3 && (!hood.getT() || !hood.getL()))
+						continue;
+					if (k == 4 && !hood.getL())
+						continue;
+					if (k == 5 && (!hood.getB() || !hood.getL()))
+						continue;
+					if (k == 6 && !hood.getB())
+						continue;
+					if (k == 7 && (!hood.getB() || !hood.getR()))
+						continue;
+				}
 
-				int midIndex = (k * pi / 4) / radres;
+				int midIndex = k * shiftIndex / 2;
 				int index = betaIndex;
-				if (k % 2 == 0)
+				if (fast_mod(k, 2) == 0)
 					index = shiftIndex / 2;
-				
+
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
 				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
-					int j_index = j < 0? j+steps : j%steps;// cyclic value permutation in case i exceeds the full circle degree 2pi
+					int j_index = j < 0 ? j + steps : j % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
 					double val = cFactor * read.at(j_index)*glyph.at(j_index);
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
+					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
 						if (abs(deltaJ) == shiftIndex / 2)
 							val = 0.5*0.3622909908722584*val;
 						else
 							val = 0.3622909908722584*val;
-					else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
+					else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
 						val = 0.6377090091277417*val;
-					
-					
-					val_sum += val * radres;
+
+					val_sum += val; // val*radres
 					//for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
 					//{
 					//	int deltaL = l - midIndex;
@@ -1036,13 +1072,18 @@ public:
 					//}
 				}
 
-				out = (val_sum / cosine_sum) * cosines.at(k);
+				out = cosines.at(k); // assign cosine cone w.r.t cone direction (index) k
+
+				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
+				std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
 				*meanA += val_sum;
 
-				sampleBufferB->at(i + deltaIndex.at(k)) = sampleBufferB->at(i + deltaIndex.at(k)) + out;
+				index = i + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				// add up contribution of scaled (normalized) cosine cone in sample out at position index
+				std::transform(sampleBufferB->at(index).begin(), sampleBufferB->at(index).end(), out.begin(), sampleBufferB->at(index).begin(), std::plus<double>());
 			}
-		
+
 		}
 	}
 };
@@ -1143,7 +1184,7 @@ int main(int argc, char* argv[])
 		//if (ctr == ctrLimit)//6
 		//	break;
 
-		//ctr++;
+		ctr++;
 
 		sampleBufferB = sampleBufferInit;
 		//std::fill(sampleBufferB.begin(), sampleBufferB.end(), std::vector<double>(steps, 0.0));

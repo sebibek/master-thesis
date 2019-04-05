@@ -49,7 +49,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 33# use 13+4 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
+length = 79# use width+50 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
 
 deg = -45
 rad = deg*(np.pi/180.0)
@@ -106,14 +106,14 @@ for i in radirange:
 
 #iterate through matrixArray to add matrices in order
 with open('temp.txt', 'wb') as f:
-    for j in range(2, (length-2)): # rows
-        for i in range(2,(length-2)): # cols
+    for j in range(25, (length-25)): # rows
+        for i in range(25,(length-25)): # cols
             np.savetxt(f,  matrixArray[j][i], fmt='%s', delimiter=' ', newline='\r\n')
 
 print("filelen: " + str(file_len('temp.txt'))) # print filelen of temp: should equal length*length*matrixHeight
 print("matrixarray: " + str(len(matrixArray))) # print len of matrixArray: should equal length
 
-length = length - 4
+length = length - 50
 # reorder the output tensor field into a regular grid
 i = 1
 str1 = ""

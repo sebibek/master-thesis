@@ -808,7 +808,7 @@ public:
 					int deltaJ = j - midIndex;
 					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = cFactor * read.at(j_index)*glyph.at(j_index);
+					double val = cFactor*read.at(j_index)*glyph.at(j_index);
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
 					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
@@ -816,7 +816,7 @@ public:
 							val = 0.5*0.3622909908722584*val;
 						else
 							val = 0.3622909908722584*val;
-					else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
+					else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
 						val = 0.6377090091277417*val;
 
 					val_sum += val; // val*radres
@@ -834,16 +834,15 @@ public:
 					//}
 				}
 
-				//val_sum *= radres;
-				
-				out = cosines.at(k);
+				out = cosines.at(k); // assign cosine cone w.r.t cone direction (index) k
 
 				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-				std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum*=radres));
+				std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
 				*meanA += val_sum;
 
-				index = i + deltaIndex.at(k); // compute index from 
+				index = i + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				// add up contribution of scaled (normalized) cosine cone in sample out at position index
 				std::transform(sampleBufferB->at(index).begin(), sampleBufferB->at(index).end(), out.begin(), sampleBufferB->at(index).begin(), std::plus<double>());
 			}
 		
@@ -982,7 +981,7 @@ int main(int argc, char* argv[])
 				// DUAL BUFFER PROPAGATION //
 				sampleBufferA.at(j*width + i) = lightSrc; // get pre-computed light src for current direction t
 				meanMem = 0.0;
-				ctr = 0;
+				//ctr = 0;
 				finished = false;
 
 				// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
@@ -1002,7 +1001,7 @@ int main(int argc, char* argv[])
 					//if (ctr == ctrLimit)//6
 					//	break;
 
-					ctr++;
+					//ctr++;
 					sampleBufferB = sampleBufferInit;
 					//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
 
