@@ -295,19 +295,21 @@ dem Buch von Newman zu Netzwerken \cite{Newman2010} erläutert \ldots.
 \chapter{Main Part}
 \label{chap:main}
 
+This chapter will summarize the main contributions of this work studied and state targeted aims and goals as a first step in sect. \ref{sec:overview}. Then we will have a short introduction to the implemented global illumination scheme derived and simplified from an nVidia GI approach in sect. \ref{sec:scheme}. Last, we will state the effectively developed Visualization methods GIGradient and Deformation Glyphs.
 
-Note that the resulting scalar field is $(n+1)$-dimensional ($x,y,z$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization. 
 
 
-Dieses Kapitel stellt meist den Hauptteil der Arbeit dar. Vor dem
-ersten Abschnitt sollte ein kurzer Überblick (ein paar wenige Sätze
-mit Verweise auf nachfolgende Abschnitte) gegeben werden. Beispiel: Im
-nachfolgenden Abschnitt \ref{sec:overview} wir ein Überblick über die Anforderungen an
-das Modell gegeben. 
+%Dieses Kapitel stellt meist den Hauptteil der Arbeit dar. Vor dem
+%ersten Abschnitt sollte ein kurzer Überblick (ein paar wenige Sätze
+%mit Verweise auf nachfolgende Abschnitte) gegeben werden. Beispiel: Im
+%nachfolgenden Abschnitt \ref{sec:overview} wir ein Überblick über die Anforderungen an
+%das Modell gegeben. 
 
-\section{Outline and Ambitions}
-\label{sec:overview} 
+\section{Requirements and Ambitions}
+\label{sec:spec} 
 
+develop a simple and efficient Global Illumination Scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles;
+able to handle any kind of matrix (symm./anti-symm.); generate transmission profiles; generate a new FTLE-related method for tensor field vis. by applying GIGradient;  be able to efficiently handle (relatively) large datasets; 
 Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
 Methoden überblicksartig beschrieben werden. Hier sollte die
 Beschreibung ``technischer'' bzw.~``formaler'' sein als in der
@@ -326,7 +328,7 @@ nachfolgenden Kapitel detailliert.
 
 \section{Global Illumination Gradient}
 \label{sec:ftle}
-
+Note that the resulting scalar field is $(n+1)$-dimensional ($x,y,z$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization. 
 Usw.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
