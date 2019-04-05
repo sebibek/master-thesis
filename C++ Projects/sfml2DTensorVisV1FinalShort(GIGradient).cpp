@@ -441,7 +441,7 @@ std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
 }
 
 template <typename T> // element-wise multiplication for number, std::vector
-std::vector<T> operator*(const T a, const std::vector<T>& b)
+std::vector<T> operator*(const T& a, const std::vector<T>& b)
 {
 	std::vector<T> result(b.size());
 
@@ -645,6 +645,13 @@ std::vector<double> sample(double(*f)(double x), std::vector<std::vector<double>
 	return sample;
 }
 
+int fast_mod(const int input, const int ceil) {
+	// apply the modulo operator only when needed
+	// (i.e. when the input is greater than the ceiling)
+	return input >= ceil ? input % ceil : input;
+	// NB: the assumption here is that the numbers are positive
+}
+
 class propagator
 {
 	// set principal arture angles in rads
@@ -678,7 +685,7 @@ class propagator
 	bool flag = false;
 
 	std::vector<double> initArray;
-	std::vector<int> deltaIndex;
+	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
@@ -694,7 +701,6 @@ public:
 		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
 
-		deltaIndex = { 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
 		{
@@ -742,13 +748,13 @@ public:
 			for (int j = 0; j < steps; j++)
 			{
 				sum1 += read.at(j); // evaluate for iMean (sum1)
-				sum2 += glyphBuffer->at(i).at(j);
-				sum3 += read.at(j)*glyphBuffer->at(i).at(j);
+				sum2 += glyph.at(j);
+				sum3 += read.at(j)*glyph.at(j);
 
-				if (read.at(j) < 0)
+				/*if (read.at(j) < 0)
 					cout << "WARNING: Negative values in SAMPLE in grid encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
 				if (glyphBuffer->at(i).at(j) < 0)
-					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
+					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;*/
 			}
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -765,7 +771,7 @@ public:
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
-				// empty (reset) sample, upper and lower for each edge
+				// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
 				//out = initArray;
 
 				if (flag) // if position on grid borders..
@@ -789,9 +795,9 @@ public:
 						continue;
 				}
 
-				int midIndex = (k * pi / 4) / radres;
+				int midIndex = k * shiftIndex/2;
 				int index = betaIndex;
-				if (k % 2 == 0)
+				if (fast_mod(k,2) == 0)
 					index = shiftIndex / 2;
 
 				//double energy_sum = 0.0;
@@ -805,7 +811,7 @@ public:
 					double val = cFactor * read.at(j_index)*glyph.at(j_index);
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
+					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
 						if (abs(deltaJ) == shiftIndex / 2)
 							val = 0.5*0.3622909908722584*val;
 						else
@@ -813,8 +819,7 @@ public:
 					else if (k % 2 != 0) // for betas (diagonals), use static edge overlap-
 						val = 0.6377090091277417*val;
 
-
-					val_sum += val * radres;
+					val_sum += val; // val*radres
 					//for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
 					//{
 					//	int deltaL = l - midIndex;
@@ -829,11 +834,17 @@ public:
 					//}
 				}
 
-				out = val_sum * cosines.at(k);
+				//val_sum *= radres;
+				
+				out = cosines.at(k);
+
+				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
+				std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum*=radres));
 
 				*meanA += val_sum;
 
-				sampleBufferB->at(i + deltaIndex.at(k)) = sampleBufferB->at(i + deltaIndex.at(k)) + out;
+				index = i + deltaIndex.at(k); // compute index from 
+				std::transform(sampleBufferB->at(index).begin(), sampleBufferB->at(index).end(), out.begin(), sampleBufferB->at(index).begin(), std::plus<double>());
 			}
 		
 		}
@@ -971,7 +982,7 @@ int main(int argc, char* argv[])
 				// DUAL BUFFER PROPAGATION //
 				sampleBufferA.at(j*width + i) = lightSrc; // get pre-computed light src for current direction t
 				meanMem = 0.0;
-				//ctr = 0;
+				ctr = 0;
 				finished = false;
 
 				// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
@@ -991,7 +1002,7 @@ int main(int argc, char* argv[])
 					//if (ctr == ctrLimit)//6
 					//	break;
 
-					//ctr++;
+					ctr++;
 					sampleBufferB = sampleBufferInit;
 					//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
 
@@ -1000,9 +1011,10 @@ int main(int argc, char* argv[])
 				/*if (ctr <= 3)
 				tCtr++;*/
 				sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions 
-				distBuffer.at(j*width + i + t * dim) = sampleBufferA;
+				swap(distBuffer.at(j*width + i + t * dim), sampleBufferA);
+				//distBuffer.at(j*width + i + t * dim) = sampleBufferA;
 				//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
-				sampleBufferA = sampleBufferInit;
+				//sampleBufferA = sampleBufferInit;
 			}
 		duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
 		cout << "timer: " << duration << " ms" << endl;
@@ -1033,37 +1045,37 @@ int main(int argc, char* argv[])
 				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
 					continue;
 				// X-1D central differences.. VARIANT 1: bin by bin
-				sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
-				meanA = acc2(sampleBufferA);
-				gradient.at(0) = meanA /2.0;
-				// Y-1D central differences..
-				sampleBufferA = distBuffer.at((j+1)*width + i + t * dim) - distBuffer.at((j-1)*width + i + t * dim);
-				meanA = acc2(sampleBufferA);
-				gradient.at(1) = meanA / 2.0;
-				// t-1D central differences..
-				sampleBufferA = distBuffer.at(j*width + i + (t+1)%steps * dim) - distBuffer.at(j *width + i + (t == 0 ? (steps-1) : (t-1)) * dim);
-				meanA = acc2(sampleBufferA);
-				gradient.at(2) = meanA / 2.0;
+				//sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
+				//meanA = acc2(sampleBufferA);
+				//gradient.at(0) = meanA /2.0;
+				//// Y-1D central differences..
+				//sampleBufferA = distBuffer.at((j+1)*width + i + t * dim) - distBuffer.at((j-1)*width + i + t * dim);
+				//meanA = acc2(sampleBufferA);
+				//gradient.at(1) = meanA / 2.0;
+				//// t-1D central differences..
+				//sampleBufferA = distBuffer.at(j*width + i + (t+1)%steps * dim) - distBuffer.at(j *width + i + (t == 0 ? (steps-1) : (t-1)) * dim);
+				//meanA = acc2(sampleBufferA);
+				//gradient.at(2) = meanA / 2.0;
 				
 				// X-1D central differences.. VARIANT 2: cell by cell
-				//meanA = 0.0;
-				//for(int k = 0; k < dim; k++)
-				//	meanA += abs(std::accumulate(distBuffer.at(j*width + i + 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i + 1 + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j*width + i - 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i - 1 + t * dim).at(k).end(),0.0));
-				//
-				//gradient.at(0) = meanA / 2.0;
-				//// Y-1D central differences..
-				//meanA = 0.0;
-				//for (int k = 0; k < dim; k++)
-				//	meanA += abs(std::accumulate(distBuffer.at((j + 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j + 1)*width + i + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at((j - 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j - 1)*width + i + t * dim).at(k).end(),0.0));
-				//
-				//gradient.at(1) = meanA / 2.0;
+				meanA = 0.0;
+				for(int k = 0; k < dim; k++)
+					meanA += abs(std::accumulate(distBuffer.at(j*width + i + 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i + 1 + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j*width + i - 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i - 1 + t * dim).at(k).end(),0.0));
+				
+				gradient.at(0) = meanA / 2.0;
+				// Y-1D central differences..
+				meanA = 0.0;
+				for (int k = 0; k < dim; k++)
+					meanA += abs(std::accumulate(distBuffer.at((j + 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j + 1)*width + i + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at((j - 1)*width + i + t * dim).at(k).begin(), distBuffer.at((j - 1)*width + i + t * dim).at(k).end(),0.0));
+				
+				gradient.at(1) = meanA / 2.0;
 
-				//// t-1D central differences..
-				//meanA = 0.0;
-				//for (int k = 0; k < dim; k++)
-				//	meanA += abs(std::accumulate(distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).begin(), distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).begin(), distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).end(),0.0));
+				// t-1D central differences..
+				meanA = 0.0;
+				for (int k = 0; k < dim; k++)
+					meanA += abs(std::accumulate(distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).begin(), distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).begin(), distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).end(),0.0));
 
-				//gradient.at(2) = meanA / 2.0;
+				gradient.at(2) = meanA / 2.0;
 
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
