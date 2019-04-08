@@ -57,8 +57,8 @@ const double pi = M_PI;
 // PROTOTYPES
 int width;
 int height;
-int steps = 360; // use n steps for angular resolution - radres
-double radres = 2 * pi / steps;
+int steps; // use n steps for angular resolution - radres
+double radres;
 
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper); // template clip function
@@ -548,7 +548,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
-void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::vector<bool>>& signMap)
+void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
 	int rows = 0; // create ptr to rows of txt tensor field
@@ -580,31 +580,42 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	// define parameters
 	double radres = (2 * pi) / steps;
 
-	std::vector<bool> signs(2, false);
+	std::complex<double> sigma1(0, 0);
+	std::complex<double> sigma2(0, 0);
+	std::vector<bool> signs(3, false);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
-		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
-		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes "sigma_xx"
-		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
-		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
+		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-vector
+		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes
+		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes -- Get RIGHT U-vector
+		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes
 		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
+		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
+		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
-		if (abs(xx) - abs(yy) < 0) // check for corresponding order of singular values, correct if necessary..
+		glyphParameters.at(i).at(2) = deg1;
+
+		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
+		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
+		sigma2 = std::complex<double>(0.5*(xx + yy), 0) - 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
+
+		// crop sign of real part.. https://www.cg.tuwien.ac.at/research/vis/seminar9596/2-topo/evinter.html (rotational (complex) part already present in transformation)
+		if (abs(sigma1 - sigma2) < 0) // check order of principal stresses sigma to match corresponding singular values/vectors
 		{
-			signs.at(0) = yy < 0 ? true : false;
-			signs.at(1) = xx < 0 ? true : false;
+			signs.at(0) = sigma2.real() < 0 ? true : false;
+			signs.at(1) = sigma1.real() < 0 ? true : false;
 		}
 		else
 		{
-			signs.at(0) = xx < 0 ? true : false;
-			signs.at(1) = yy < 0 ? true : false;
+			signs.at(0) = sigma1.real() < 0 ? true : false;
+			signs.at(1) = sigma2.real() < 0 ? true : false;
 		}
 
-		signMap.at(i) = signs;
+		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
 		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
@@ -632,8 +643,13 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 			}
 		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		// write glyphParameters
+		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
+		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
-		glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
+		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
+		std::transform(glyphBuffer.at(i).begin(), glyphBuffer.at(i).end(), glyphBuffer.at(i).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
 }
 
@@ -919,9 +935,10 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
 	
+	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
 	std::vector<std::vector<bool>> signMap((width)*(height), std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBuffer, signMap);
+	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	
 	// get defined light srcs positions and intensities...
 	//if(userFunctions.size()) // if entered by user, use cmd AND config
