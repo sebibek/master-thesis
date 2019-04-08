@@ -925,7 +925,7 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> glyphBuffer((width*height), initArray);
 
 	// create distribution buffer to gather light distributions for all positions y,x and directions t
-	std::vector<std::vector<std::vector<double>>> distBuffer(width*height*steps, glyphBuffer); // initialize #steps 2D-planes w. empty glyphBuffer
+	std::vector<std::vector<std::vector<double>>> distBuffer(dim*steps, glyphBuffer); // initialize #steps 2D-planes w. empty glyphBuffer
 	
 	// std::vector<std::vector<double>> dist = distBuffer.at(0) - distBuffer.at(0); // Exemplary OPERATOR USE TODO!
 
@@ -935,8 +935,8 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
 	
-	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
-	std::vector<std::vector<bool>> signMap((width)*(height), std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
+	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
+	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	
