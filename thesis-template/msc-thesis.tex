@@ -319,6 +319,24 @@ Arbeiten vertraut ist.
 \section{Global Illumination Scheme}
 \label{sec:scheme}
 
+Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger $\sqrt{2}$ distance)intensity in form of a shared part to the diagonals. Therefore, the intensity gathered in polar coordinates in areas marked in green, needs to be partitioned between 2 of the 8 cone-index neighbors.
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.8\textwidth]
+    {img/scheme.png}
+  }
+  \caption{Propagation Scheme}
+  \label{HAT}
+\end{figure}\vskip 3pt
+
+The linear combination weights for the overlapping (green) parts ($\beta$) are obtained from the relative overlapping angular area of diagonal cones ($2\beta$) and face cones ($\alpha+2\beta = 90^\circ$)(yellow cone is overlapped by green cones at full angle) subsequently normalized to sum $1.0$ (normalization condition):
+\begin{align}
+	\gamma_1 &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
+	\gamma_2 &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{2\beta} + \frac{\beta}{\alpha+2\beta}} \approx 0.63771
+\end{align}
+
+We place a cosine lobe scaled with the integrated energies in each of the 8 cone directions, whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors). This manner of propagating energies is inspired by the propagation scheme of \cite{dachsbacher} et.al. (see the paper on how to "project the flux into a point light"). The implementation is done in a dual buffer approach which pushes the energies back and forth until it is spreaded throughout the map. Note that even though we propagate the energy directly through the diagonal cones, the 8 degrees of freedom introduce a circular wave 
 In diesem und den nachfolgenden Abschnitten werden die Beiträge der
 Arbeit motiviert, formal sauber (oft mathematisch, sprich mit
 Definitionen etc.) beschrieben, und bei Bedarf mithilfe von Beispielen
