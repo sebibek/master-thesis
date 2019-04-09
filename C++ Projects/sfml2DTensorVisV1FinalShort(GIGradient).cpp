@@ -1060,7 +1060,7 @@ int main(int argc, char* argv[])
 			{
 				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
 					continue;
-				// X-1D central differences.. VARIANT 1: bin by bin
+				// X-1D central differences.. VARIANT 1: bin by bin - spatial+directional distribution of energies
 				//sampleBufferA = distBuffer.at(j*width + i + 1 + t * dim) - distBuffer.at(j*width + i - 1 + t * dim);
 				//meanA = acc2(sampleBufferA);
 				//gradient.at(0) = meanA /2.0;
@@ -1073,7 +1073,7 @@ int main(int argc, char* argv[])
 				//meanA = acc2(sampleBufferA);
 				//gradient.at(2) = meanA / 2.0;
 				
-				// X-1D central differences.. VARIANT 2: cell by cell
+				// X-1D central differences.. VARIANT 2: cell by cell - spatial distribution of energies (chose because of redundancy for same spatial distribution but differing directional distribution)
 				meanA = 0.0;
 				for(int k = 0; k < dim; k++)
 					meanA += abs(std::accumulate(distBuffer.at(j*width + i + 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i + 1 + t * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j*width + i - 1 + t * dim).at(k).begin(), distBuffer.at(j*width + i - 1 + t * dim).at(k).end(),0.0));
