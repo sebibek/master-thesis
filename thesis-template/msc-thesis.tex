@@ -307,9 +307,7 @@ This chapter will summarize the main contributions of this work studied and stat
 
 \section{Requirements and Ambitions}
 \label{sec:spec} 
-
-develop a simple and efficient Global Illumination Scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles;
-able to handle any kind of matrix (symm./anti-symm.); generate transmission profiles; generate a new FTLE-related method for tensor field vis. by applying GIGradient;  be able to efficiently handle (relatively) large datasets; 
+Our ambition is to develop a simple and efficient Global Illumination Propagation Scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We opt to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of th field (full-spectrum). We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field). At last, we aim to generate a new FTLE-related method for tensor field vis. by applying a Global Illumination Gradient to the resulting light distributions.  Our approach should efficiently handle (relatively) large datasets. 
 Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
 Methoden überblicksartig beschrieben werden. Hier sollte die
 Beschreibung ``technischer'' bzw.~``formaler'' sein als in der
@@ -319,7 +317,7 @@ Arbeiten vertraut ist.
 \section{Global Illumination Scheme}
 \label{sec:scheme}
 
-Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger $\sqrt{2}$ distance)intensity in form of a shared part to the diagonals. Therefore, the intensity gathered in polar coordinates in areas marked in green, needs to be partitioned between 2 of the 8 cone-index neighbors.
+Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals. Therefore, the intensity gathered in polar coordinates in areas marked in green, needs to be partitioned between 2 of the 8 cone-index neighbors.
 \begin{figure}[h]
   \centering
  {
