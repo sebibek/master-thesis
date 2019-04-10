@@ -307,7 +307,7 @@ This chapter will summarize the main contributions of this work studied and stat
 
 \section{Requirements and Ambitions}
 \label{sec:spec} 
-Our ambition is to develop a simple and efficient Global Illumination Propagation Scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We opt to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of th field (full-spectrum). We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field). At last, we aim to generate a new FTLE-related method for tensor field vis. by applying a Global Illumination Gradient to the resulting light distributions.  Our approach should efficiently handle (relatively) large datasets. 
+Our ambition is to develop a simple and efficient Global Illumination Propagation Scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We opt to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of the field (full-spectrum) which leads to the conclusion that the approach should be implicitly adaptive. We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field) to provide an orientation for a grid of crystal fibre structures (cnf. optical fibres) to redirect the intensities in correspondence to the anisotropies of the tensor field. At last, we aim to generate a new FTLE-related method for tensor field vis. by applying a Global Illumination Gradient to the resulting light distributions. Our motivation is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional tensor fields). Our approach should efficiently handle (relatively) large datasets. 
 Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
 Methoden überblicksartig beschrieben werden. Hier sollte die
 Beschreibung ``technischer'' bzw.~``formaler'' sein als in der
@@ -316,8 +316,7 @@ Arbeiten vertraut ist.
 
 \section{Global Illumination Scheme}
 \label{sec:scheme}
-
-Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals. Therefore, the intensity gathered in polar coordinates in areas marked in green, needs to be partitioned between 2 of the 8 cone-index neighbors.
+Within the scope of this work, we will develop a Global Illumination Scheme designed to efficiently propagate the intensities stored in discrete polar coordinates given as impulses (stimuli) by the user or the config. Polar profiles for different light sources are shown in Fig. \ref{polar}:
 \begin{figure}[h]
   \centering
  {
@@ -325,22 +324,68 @@ Each cone (yellow and green) is an individual neighbor-dependent angular area. W
     {img/scheme2.png}
   }
   \caption{Propagation Scheme}
-  \label{HAT}
+  \label{polar}
+\end{figure}\vskip 3pt
+Polar profiles map each angle $\varphi$ a magnitude $\hat{r}$ forming a function $\hat{r}(\varphi)$. They are circular axis versions of the domain $[0..2\pi]$, with negative magnitudes mirrored by 180 degrees). In the sense of interpretability, we exclude negative values (energies) from the scope of our calculations. As a start-up for the propagation, we will think of a grid cell in 2D as a center pixel within an 8-neighborhood. It has 8 (4 faces/edges and 4 diagonals) unique neighbors, which are adjacent point lights in the grid (the type of light source with theoretically no finite extend). We consider one face neighbor (top) to shortly explain the steps of the scheme. The diagonals and the others are obtained from derivation and symmetry.
+
+Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals in a single step. Therefore, the intensity gathered in polar coordinates in areas marked in green, need to be partitioned between 2 of the 8 cone-index neighbors as follows:
+
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.8\textwidth]
+    {img/scheme2.png}
+  }
+  \caption{Propagation Scheme}
+  \label{scheme}
 \end{figure}\vskip 3pt
 
-The linear combination weights for the overlapping (green) parts ($\beta$) are obtained from the relative overlapping angular area of $\beta$ w.r.t. diagonal cones ($2\beta$) and face cones ($\alpha+2\beta = 90^\circ$) (yellow cone is overlapped by green cones at full angle) subsequently normalized to sum $1.0$ (normalization condition):
+The face neighbors take in the angular domain of $d_1=\alpha+2\beta$, whereas the diagonal neighbors span a domain of $d_2=2\beta$.
+The linear combination weights for the overlapping (green) parts ($\beta$) are obtained from the relative overlapping angular area of $\beta$ w.r.t. diagonal cones ($2\beta$) and face cones ($\alpha+2\beta = 90^\circ$) (yellow cone is overlapped by green cones at full angle) subsequently normalized to $\sum = 1.0$ (normalization condition):
 \begin{align}
 	\varepsilon_1 &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
 	\varepsilon_2 &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771
 \end{align}
 
-We place a cosine lobe scaled with the integrated energies in each of the 8 cone directions, whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. This manner of propagation is inspired by the propagation scheme of \cite{dachsbacher} et.al. (see the paper on how to "project the flux into a point light"). The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) until convergence, which happens when the energy is spreaded throughout the grid and enters a stationary state, with equal out (at grid borders) to in (at light sources) energy-flow . Note that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions). This occurs, since the diagonals are more strongly attenuated by default and there is a redistribution of intensities in the long term. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). The verification of these principal requirements and specifications can be observed in the Experimental Evaluation in chap. \ref{chap:eval}
+We place a cosine lobe scaled with the integrated energies in each of the 8 cone directions, whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. The contribution areas are depicted in Fig. \ref{scheme}, the cosine lobes can be observed in Fig. \ref{iter} respectively. This manner of propagation is inspired by the propagation scheme of \cite{dachsbacher} et.al. (see the paper on how to "project the flux into a point light"). The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) until convergence, which happens when the energy is spreaded throughout the grid and enters a stationary state, characterized by equal out (at grid borders) to in (at light source positions) energy-flow with no more nettings going on inside the domain. Note that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions). This occurs, since the diagonals are more strongly attenuated by default and there is a redistribution of intensities in the long term resulting in a circular torus-shaped distribution, as depicted in Fig. \ref{iter}. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). The verification of these principal requirements and specifications can be observed in the Experimental Evaluation in chap. \ref{chap:eval}.
+
+We show a few of the first iteration steps for the propagation scheme in Fig. \ref{iter}:
+
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=1.0\textwidth]
+    {img/steps_gallery_format_arrow_neg.png}
+  }
+  \caption{Impulse Response for Isotropic Stimulus (Few Iterations: 0,1,2,3,7,11)}
+  \label{iter}
+\end{figure}\vskip 3pt
+
+It can be proven that the approach follows propagation attenuation principles and follows the inverse (square) law ($\sim\frac{1}{r}$) as observed in the graph in Fig. \ref{att}. 
+
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.8\textwidth]
+    {img/inverse_law.png}
+  }
+  \caption{Propagation Attenuation}
+  \label{att}
+\end{figure}\vskip 3pt
+
+At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold. As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
+start all over (after reinitialization) and it yields a reasonable source-target structure. 
+
+
 In diesem und den nachfolgenden Abschnitten werden die Beiträge der
 Arbeit motiviert, formal sauber (oft mathematisch, sprich mit
 Definitionen etc.) beschrieben, und bei Bedarf mithilfe von Beispielen
 verdeutlicht. Die Beschreibungen in diesem Kapitel sind meist
 unabhängig von einer konkreten Realisierung und Daten; diese werden im
 nachfolgenden Kapitel detailliert.
+
+\section{Transmission Profiles and Weighting}
+\label{sec:trans}
 
 \section{Global Illumination Gradient}
 \label{sec:ftle}
