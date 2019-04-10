@@ -322,19 +322,19 @@ Each cone (yellow and green) is an individual neighbor-dependent angular area. W
   \centering
  {
     \includegraphics[width=0.8\textwidth]
-    {img/scheme.png}
+    {img/scheme2.png}
   }
   \caption{Propagation Scheme}
   \label{HAT}
 \end{figure}\vskip 3pt
 
-The linear combination weights for the overlapping (green) parts ($\beta$) are obtained from the relative overlapping angular area of $\beta$ w.r.t. diagonal cones ($2\beta$) and face cones ($\alpha+2\beta = 90^\circ$)(yellow cone is overlapped by green cones at full angle) subsequently normalized to sum $1.0$ (normalization condition):
+The linear combination weights for the overlapping (green) parts ($\beta$) are obtained from the relative overlapping angular area of $\beta$ w.r.t. diagonal cones ($2\beta$) and face cones ($\alpha+2\beta = 90^\circ$) (yellow cone is overlapped by green cones at full angle) subsequently normalized to sum $1.0$ (normalization condition):
 \begin{align}
-	\gamma_1 &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
-	\gamma_2 &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771
+	\varepsilon_1 &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
+	\varepsilon_2 &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771
 \end{align}
 
-We place a cosine lobe scaled with the integrated energies in each of the 8 cone directions, whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. This manner of propagation is inspired by the propagation scheme of \cite{dachsbacher} et.al. (see the paper on how to "project the flux into a point light"). The implementation is done in a dual buffer approach which pushes the energies back and forth until it is spreaded throughout the map. Note that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions). This occurs, since the diagonals are more strongly attenuated by default and there is a redistribution of intensities in the long term. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). The verification of these principal requirements and specifications can be observed in the Experimental Evaluation in chap. \ref{chap:eval}
+We place a cosine lobe scaled with the integrated energies in each of the 8 cone directions, whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. This manner of propagation is inspired by the propagation scheme of \cite{dachsbacher} et.al. (see the paper on how to "project the flux into a point light"). The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) until convergence, which happens when the energy is spreaded throughout the grid and enters a stationary state, with equal out (at grid borders) to in (at light sources) energy-flow . Note that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions). This occurs, since the diagonals are more strongly attenuated by default and there is a redistribution of intensities in the long term. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). The verification of these principal requirements and specifications can be observed in the Experimental Evaluation in chap. \ref{chap:eval}
 In diesem und den nachfolgenden Abschnitten werden die Beiträge der
 Arbeit motiviert, formal sauber (oft mathematisch, sprich mit
 Definitionen etc.) beschrieben, und bei Bedarf mithilfe von Beispielen

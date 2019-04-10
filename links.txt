@@ -11,4 +11,5 @@ Projects 02.04.19:S
 https://www86.zippyshare.com/v/mo811VdG/file.html
 https://www112.zippyshare.com/v/k5N9oCut/file.html
 
+g++ -I/usr/local/include -I/usr/vtk/include -L/usr/lib --verbose -g -Wall getopt.c main.cpp -lvtksys-8.2 -lvtkCommon -lvtkFiltering -lvtkImaging -lvtkGraphics -lvtkGenericFiltering -lvtkIO
 

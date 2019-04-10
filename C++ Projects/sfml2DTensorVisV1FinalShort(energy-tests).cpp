@@ -22,17 +22,18 @@
 #include <math.h>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-#include <array>
+//#include <array>
 #include <filesystem>
 #include <string>
 #include <algorithm> 
-#include <cctype>
-#include <locale>
-#include <functional>
+//#include <cctype>
+//#include <locale>
+//#include <functional>
 #include <numeric>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>
 #include <limits>
+#include <ctime>
 
 // NAMESPACE IMPORTS
 using namespace std;
@@ -47,6 +48,9 @@ typedef std::numeric_limits< double > dbl;
 std::string functionString = "2.1"; // Prototyping of functionString for strFunction (symbolic string arg parsed by muparser in cpp functional ptr rep)!
 int width;
 int height;
+int steps; // use n steps for angular resolution - radres
+double radres;
+
 template <typename T>
 T clip(const T& n, const T& lower, const T& upper); // template clip function
 
@@ -61,7 +65,14 @@ const double pi = M_PI;
 
 // -> muparser custom clip function: template functions need to be static callback (call after) functions, which can be passed as arguments
 static value_type clipNeg(value_type v) { return clip(v, 0.0, 1.0); }
-
+static value_type deltaFunction(value_type v)
+{
+	double radres = 2 * pi / steps;
+	if (abs(v) < radres / 2.0 || v == radres / 2.0)
+		return steps;
+	else
+		return 0.0;
+}
 //writes frames to file 
 //directory must already exist -- parse file methods
 void record(sf::RenderTexture& in, int frameskip, std::string directory)
@@ -111,9 +122,30 @@ class neighborhood
 
 public:
 
+	neighborhood() // standard constructor
+	{}
 	//constructor
-	neighborhood(int j, int i, const int length) // check the neighbourhood of (j,i) for missing neighbors..
+	neighborhood(int j, int i) // check the neighbourhood of (j,i) for missing neighbors..
 	{
+		// check if frame exceeded, outside FOV, offscreen..
+		if (i == 0)
+			neighborL = false; // left
+		else if (i == width - 1)
+			neighborR = false; // right
+		if (j == 0)
+			neighborT = false; // top
+		else if (j == height - 1)
+			neighborB = false; // bottom
+		// leave order.. functional!
+	}
+
+	void change(int j, int i)
+	{
+		// RE-INITIALIZE
+		neighborR = true;
+		neighborT = true;
+		neighborL = true;
+		neighborB = true;
 		// check if frame exceeded, outside FOV, offscreen..
 		if (i == 0)
 			neighborL = false; // left
@@ -181,7 +213,7 @@ public:
 	}
 
 	//constructor #2 array parser w. array-inherited resolution radres
-	polarPlot(std::vector<double> Sample,
+	polarPlot(std::vector<std::vector<double>> SampleBuffer,
 		int speed_in,
 		int line_width_in,
 		int steps_in,
@@ -247,20 +279,26 @@ public:
 		return graphSpr;
 	}
 	//plots point to pixel(s)
-	void plot(int index = 0, int mode = 0) {
+	void plot(int index = 0, int mode = 0)
+	{
+		// line width
+		if (r >= 1.0)
+			line_width = line_width + 1;
 
 		//scale
 		double scale;
 		if (mode == 1)
-			scale = 10;
+			scale = 10;// / 360.0;
 		else
-			scale = 50;
+			scale = 100;
 		//convert polar to cartesian
 		double x = scale * r * cos(t);
 		double y = -1 * scale * r * sin(t);
 
 		if (x + 1 + wSize / 2 > wSize || x - 1 + wSize / 2 < 0 || y + 1 + wSize / 2 > wSize || y - 1 + wSize / 2 < 0)
-			return;
+		{
+			line_width -= 1; return;
+		}
 
 		int offsetX = (index % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
 		int offsetY = (index / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
@@ -281,7 +319,7 @@ public:
 		//graph.setPixel((x + wSize / 2), (y + wSize / 2), color);
 
 		// set 4 -neighborhood
-		if (line_width == 1 || line_width == 2) {
+		if ((line_width == 1 || line_width == 2) && xIndex > 0 && xIndex < wSize - 1 && yIndex > 0 && yIndex < wSize - 1) {
 			graph.setPixel((xIndex), (yIndex + 1), color);
 			graph.setPixel((xIndex), (yIndex - 1), color);
 			graph.setPixel((xIndex + 1), (yIndex), color);
@@ -295,6 +333,10 @@ public:
 			graph.setPixel((xIndex - 1), (yIndex - 1), color);
 			graph.setPixel((xIndex - 1), (yIndex + 1), color);
 		}
+
+		if (r >= 1.0)
+			line_width = line_width - 1;
+
 	}
 
 	// STRING PARSER OVERLOAD of animation - use w. string/mixed resolution constructor overload
@@ -314,7 +356,7 @@ public:
 	}
 	// DISCRETE SAMPING OVERLOAD for animation... faster and no string parsing necessary - use for inherited resolution constructor overload
 	void animation(int index, int mode, std::vector<std::vector<double>>& sampleArray, TeeStream* both = NULL)
-	{	
+	{
 		t = 0.0; // reset theta variable for each cell to prevent from long-term shifting
 
 		for (int i = 0; (i < speed || speed == 0) && i < steps; i++)
@@ -322,12 +364,12 @@ public:
 			r = sampleArray.at(index).at(i);
 
 			// PROPAGATION ATTENUATION TEST //
-			if (i == 0 && index / width == height/2 && mode == 0 && ctr == 0)
+			if (i == 0 && index / width == height / 2 && mode == 0 && ctr == 0)
 			{
 
-				*both << "r: " << r << endl;
+				/**both << "r: " << r << endl;
 				*both << "attenuation: " << r / 1.0 << endl;
-				ctr++;
+				ctr++;*/
 			}
 
 			/*if(t > 45*tinc && t < 47*tinc && index/width == width/2 - 1 && index%width == width/2 + 1 )
@@ -381,10 +423,11 @@ Pair lightSrcPos{ height / 2, width / 2 };
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
 int record_frameskip = 0; // --> disables recording //recording frameskip
-int steps = 360; // use n steps for angular resolution - radres
 double intensity = 2.1; // --> initial intensity val
 std::string workDir;
 double thresh = 0.001;
+bool total_anisotropy = false;
+int ctrLimit = 0;
 
 // parse files
 void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions) {
@@ -412,7 +455,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 				func_literal = "100*cos(theta)";
 				positions.push_back(position);
 			}
-			
+
 			//parse other statements
 			else {
 				//grab keyword
@@ -436,7 +479,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					color = sf::Color(r, g, b);
 				}
 				// enter light src position
-				else if (tag == "pos") 
+				else if (tag == "pos")
 				{
 					std::stringstream s;
 					s << line.substr(pos + 1);
@@ -450,11 +493,24 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					s << line.substr(pos + 1);
 					s >> thresh;
 				}
+				// total anisotropy permission
+				else if (tag == "total_anisotropy") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> total_anisotropy;
+				}
 				// steps
 				else if (tag == "steps") {
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					s >> steps;
+					radres = 2 * pi / steps;
+				}
+				// steps
+				else if (tag == "ctrLimit") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> ctrLimit;
 				}
 				//window/graph size
 				else if (tag == "window_size") {
@@ -495,7 +551,7 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 
 		switch (c)
 		{
-		// correct option use
+			// correct option use
 		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
@@ -657,7 +713,7 @@ T strFunction(T theta)
 	parser.DefineVar("theta", &t);
 	parser.SetExpr(functionString);
 	parser.DefineFun(_T("clip"), clipNeg, false);
-
+	parser.DefineFun(_T("delta"), deltaFunction, false);
 
 	T y = parser.Eval(); // evaluate parser expression
 
@@ -717,7 +773,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	return result;
 };
 
-void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
+void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
 {
 	int cols = 0; // create ptr to cols of txt tensor field
 	int rows = 0; // create ptr to rows of txt tensor field
@@ -747,45 +803,73 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer)
 	}
 
 	// define parameters
-	double radres = 0.01745;
-	int steps = (2 * pi) / radres; // set # of steps
+	double radres = (2 * pi) / steps;
 
-	
-	// iterate through the matrixList/svdList and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
+	std::complex<double> sigma1(0, 0);
+	std::complex<double> sigma2(0, 0);
+	std::vector<bool> signs(3, false);
+	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
-		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes 
-		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes "sigma_xx"
-		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes 
-		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes "sigma_xx"
+		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-vector
+		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes
+		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes -- Get RIGHT U-vector
+		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes
 		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
+		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
+		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
+		glyphParameters.at(i).at(2) = deg1;
+
+		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
+		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
+		sigma2 = std::complex<double>(0.5*(xx + yy), 0) - 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
+
+		// crop sign of real part.. https://www.cg.tuwien.ac.at/research/vis/seminar9596/2-topo/evinter.html (rotational (complex) part already present in transformation)
+		if (abs(sigma1 - sigma2) < 0) // check order of principal stresses sigma to match corresponding singular values/vectors
+		{
+			signs.at(0) = sigma2.real() < 0 ? true : false;
+			signs.at(1) = sigma1.real() < 0 ? true : false;
+		}
+		else
+		{
+			signs.at(0) = sigma1.real() < 0 ? true : false;
+			signs.at(1) = sigma2.real() < 0 ? true : false;
+		}
+
+		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
 		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
-		if (deg1 < 0)
-			deg1 = 360 + deg1;
-		if (deg2 < 0)
-			deg2 = 360 + deg2;
+		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
+		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
 		// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
 		double sv1 = svdList.at(i).singularValues()[0];
 		double sv2 = svdList.at(i).singularValues()[1];
 		double dot = sv2 * sv1;
 
-		double deg = 0;
-		deg = atan(y1 / x1) * 180.0 / M_PI; // use u1 as lagging vector
-
 		double sum = 0.0;
-		for (int j = 0; j < steps; j++)
+		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0)
 		{
-			double val = dot / sqrt(sv2*sv2*cos(j*radres - deg * (M_PI / 180.0))*cos(j*radres - deg * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg * (M_PI / 180.0))*sin(j*radres - deg * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
-			sum += val;
-			glyphBuffer.at(i).at(j) = val;
+			glyphBuffer.at(i).at(round(deg1*steps / 360)) = sv1;
+			glyphBuffer.at(i).at(static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps) = sv1;
+			sum += 2 * sv1;
 		}
+		else
+		{
 
+			for (int j = 0; j < steps; j++) // sample ellipse equation for all steps
+			{
+				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
+				sum += val;
+				glyphBuffer.at(i).at(j) = val;
+			}
+		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
+		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
@@ -799,37 +883,47 @@ std::vector<double> sample(double(*f)(double x), std::vector<std::vector<double>
 	return sample;
 }
 
+int fast_mod(const int input, const int ceil) {
+	// apply the modulo operator only when needed
+	// (i.e. when the input is greater than the ceiling)
+	return input >= ceil ? input % ceil : input;
+	// NB: the assumption here is that the numbers are positive
+}
+
 class propagator
 {
 	// set principal arture angles in rads
 	double alpha = 36.8699 * M_PI / 180;
 	double beta = 26.5651 * M_PI / 180;
 	// define principal central directions array (12 central directions in 2D --> 30 in 3D, ufff..)
-	std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
-	std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
+	//std::array<double, 12> centralDirections{ 3.0 / 2 * M_PI + 1.0172232666228471, 0, 0.5535748055013016, 1.0172232666228471, M_PI / 2, M_PI / 2 + 0.5535748055013016, M_PI / 2 + 1.0172232666228471, M_PI, M_PI + 0.5535748055013016, M_PI + 1.0172232666228471, 3.0 / 2 * M_PI, 3.0 / 2 * M_PI + 0.5535748055013016 };
+	//std::array<double, 12> apertureAngles{ beta, alpha, beta, beta, alpha, beta, beta, alpha, beta, beta, alpha, beta }; // define aperture angles array in order
 
 	// define function parser (muparser)
-	double radres = (2 * pi)/360; // set radres for discretized theta (phi) directions for sampling
-	int steps = (2 * pi) / radres;
 	int shiftIndex = steps / 4;
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
-	
+	int dim = width * height;
+
 	double* meanA;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
 	std::vector<std::vector<double>>* glyphBuffer;
-	
+
 	std::vector<std::vector<double>> cosines;
-	
+
 	// create sample vector (dynamic)
 	std::vector<double> read;
 	std::vector<double> glyph;
 	std::vector<double> out;
-	std::vector<double> initArray;
 
+	neighborhood hood;
+	bool flag = false;
+
+	std::vector<double> initArray;
+	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 public:
 	propagator(const int dim, double* mean, std::vector<std::vector<double>>* sampleBuffA, std::vector<std::vector<double>>* sampleBuffB, std::vector<std::vector<double>>* ellipseArray)
 	{
@@ -854,10 +948,8 @@ public:
 			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
 			{
 				int deltaJ = j - midIndex;
-				int j_index = j % steps;
+				int j_index = j < 0 ? j + steps : j % steps;
 
-				if (j < 0)
-					j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
 				cosine_sum += res * radres;
 				cosK.at(j_index) = res;
@@ -865,6 +957,9 @@ public:
 			cosines.push_back(cosK);
 		}
 		cosine_sum = cosine_sum / 8.0;
+		for (int k = 0; k < 8; k++) // for each node..
+			cosines.at(k) = 1.0 / cosine_sum * cosines.at(k);
+
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
 	}
@@ -878,8 +973,13 @@ public:
 			if (read == initArray)
 				continue;
 			glyph = glyphBuffer->at(i);
-			neighborhood hood(i / width, i%width, width);
-			
+
+			flag = false;
+			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width - 1)
+			{
+				hood.change(i / width, i%width); flag = true;
+			}
+
 			// calculate mean and variance.. of I(phi)
 			double sum1 = 0.0;
 			double sum2 = 0.0;
@@ -888,8 +988,13 @@ public:
 			for (int j = 0; j < steps; j++)
 			{
 				sum1 += read.at(j); // evaluate for iMean (sum1)
-				sum2 += glyphBuffer->at(i).at(j);
-				sum3 += read.at(j)*glyphBuffer->at(i).at(j);
+				sum2 += glyph.at(j);
+				sum3 += read.at(j)*glyph.at(j);
+
+				/*if (read.at(j) < 0)
+					cout << "WARNING: Negative values in SAMPLE in grid encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
+				if (glyphBuffer->at(i).at(j) < 0)
+					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;*/
 			}
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -899,36 +1004,41 @@ public:
 			// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-			double cFactor = tMean * iMean / tiMean;
-		
+			double cFactor = 1.0;
+			if (tiMean)
+				cFactor = tMean * iMean / tiMean;
+
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
-				// empty (reset) sample, upper and lower for each edge
-				std::fill(out.begin(), out.end(), 0);
+				// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
+				//out = initArray;
 
+				if (flag) // if position on grid borders..
+				{
 					// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-				if (!hood.getR() && k == 0)
-					continue;
-				if ((!hood.getT() || !hood.getR()) && k == 1)
-					continue;
-				if (!hood.getT() && k == 2)
-					continue;
-				if ((!hood.getT() || !hood.getL()) && k == 3)
-					continue;
-				if (!hood.getL() && k == 4)
-					continue;
-				if ((!hood.getB() || !hood.getL()) && k == 5)
-					continue;
-				if (!hood.getB() && k == 6)
-					continue;
-				if ((!hood.getB() || !hood.getR()) && k == 7)
-					continue;
+					if (k == 0 && !hood.getR())
+						continue;
+					if (k == 1 && (!hood.getT() || !hood.getR()))
+						continue;
+					if (k == 2 && !hood.getT())
+						continue;
+					if (k == 3 && (!hood.getT() || !hood.getL()))
+						continue;
+					if (k == 4 && !hood.getL())
+						continue;
+					if (k == 5 && (!hood.getB() || !hood.getL()))
+						continue;
+					if (k == 6 && !hood.getB())
+						continue;
+					if (k == 7 && (!hood.getB() || !hood.getR()))
+						continue;
+				}
 
-				int midIndex = (k * pi / 4) / radres;
+				int midIndex = k * shiftIndex / 2;
 				int index = betaIndex;
-				if (k % 2 == 0)
-					index =shiftIndex/2;
+				if (fast_mod(k, 2) == 0)
+					index = shiftIndex / 2;
 
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
@@ -936,21 +1046,20 @@ public:
 				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
-					int j_index = j%steps;
+					int j_index = j < 0 ? j + steps : j % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					if (j < 0)
-						j_index = j + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 					double val = cFactor * read.at(j_index)*glyph.at(j_index);
-					
-					if ((abs(deltaJ) > centralIndex) && k % 2 == 0) // for alphas, use edge overlap > centralIndex
-						if (abs(deltaJ) == shiftIndex/2)
+
+					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
+						if (abs(deltaJ) == shiftIndex / 2)
 							val = 0.5*0.3622909908722584*val;
 						else
 							val = 0.3622909908722584*val;
-					else if (k%2 != 0) // for betas (diagonals), use static edge overlap-
-						val = 0.6377090091277417*val;
-					
-					val_sum += val * radres;
+					else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
+						val = 0.6377090091277417*val; // part1: beta(half-angle)/90 (face neighbor) part2: beta(half-angle)/2beta -->normalize
+
+					val_sum += val; // val*radres
 					//for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
 					//{
 					//	int deltaL = l - midIndex;
@@ -958,34 +1067,25 @@ public:
 					//		continue;
 					//	int l_index = l % steps;
 					//	if (l < 0)
-					//		l_index = l + steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
-
-					//	double res = val * clip(cos((j_index - l_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
-
-					//	out.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in
+					//		l_index = l + steps; // cyclic (circular) value permutation in case i exceeds the full circle degree 2pi
+					//	double res = val * clip(cos((j_index - l_index) * radres), 0.0, 1.0);// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in polar
+					//	out.at(l_index) += res;// *clip(cos(round(offset / radres) - dirIndex * pi / 2), 0.0, 1.0); // integrate over angle in polar
 					//	energy_sum += res * radres;
 					//}
 				}
 
-				out = (val_sum / cosine_sum) * cosines.at(k);
+				out = cosines.at(k); // assign cosine cone w.r.t cone direction (index) k
+
+				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
+				std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
 				*meanA += val_sum;
 
-				switch (k) // propagate correspondent to each edge dir w.r.t forward edges
-				{
-				case 0:	sampleBufferB->at(i + 1) = sampleBufferB->at(i + 1) + out; break;
-				case 1:	sampleBufferB->at(i + 1 - width) = sampleBufferB->at(i + 1 - width) + out; break;
-				case 2:	sampleBufferB->at(i - width) = sampleBufferB->at(i - width) + out; break;
-				case 3: sampleBufferB->at(i - 1 - width) = sampleBufferB->at(i - 1 - width) + out; break;
-				case 4: sampleBufferB->at(i - 1) = sampleBufferB->at(i - 1) + out; break;
-				case 5: sampleBufferB->at(i - 1 + width) = sampleBufferB->at(i - 1 + width) + out; break;
-				case 6: sampleBufferB->at(i + width) = sampleBufferB->at(i + width) + out; break;
-				case 7: sampleBufferB->at(i + 1 + width) = sampleBufferB->at(i + 1 + width) + out; break;
-		
-				default: break;
-				}
+				index = i + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				// add up contribution of scaled (normalized) cosine cone in sample out at position index
+				std::transform(sampleBufferB->at(index).begin(), sampleBufferB->at(index).end(), out.begin(), sampleBufferB->at(index).begin(), std::plus<double>());
 			}
-		
+
 		}
 	}
 };
@@ -1021,8 +1121,10 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> lightSrcs;
 	cout << "before compute glyphs" << endl;
 	
+	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
+	std::vector<std::vector<bool>> signMap(width*height, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values (sign_xx, sign_yy, dominant_shear)
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBuffer);
+	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	
 	// get defined light srcs positions and intensities...
 	if(userFunctions.size()) // if entered by user, use cmd AND config
@@ -1066,6 +1168,7 @@ int main(int argc, char* argv[])
 
 	while (!finished)
 	{
+		
 		meanA = 0.0;
 		prop.propagate(); // propagate until finished..
 		//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
@@ -1078,7 +1181,7 @@ int main(int argc, char* argv[])
 		meanMem = meanA;
 
 		ctr++;
-		if (ctr == 77)//6
+		if (ctr == 11)//6
 			break;
 		// TESTS START //
 		double energy_sum = 0.0;
@@ -1114,13 +1217,15 @@ int main(int argc, char* argv[])
 	sf::Color red = sf::Color(255, 0, 0);
 	sf::Color green = sf::Color(0, 255, 0, Alpha);
 
-
 	// add pre-computed function as string
-	for (int i = 0; i < dim; i++)
-	{
-		funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
-		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));
-	}
+		/*for (int i = 0; i < dim; i++)
+		{
+			funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
+			funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));
+		}*/
+
+	polarPlot samples(sampleBufferA, drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red);
+	//polarPlot glyphs(glyphBuffer, drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green);
 
 	//declare renderwindow
 	sf::RenderWindow window;
@@ -1133,8 +1238,8 @@ int main(int argc, char* argv[])
 	windowsize.y = window.getSize().y;
 
 	//initialize function graphics
-	for (int i = 0; i < funcs.size(); i++)
-		{funcs.at(i).init(); funcsEllipses.at(i).init();}
+	//for (int i = 0; i < funcs.size(); i++)
+	{samples.init();/* glyphs.init();*/ }
 
 	//initialize rendertexture for output image
 	sf::RenderTexture out;
@@ -1170,39 +1275,39 @@ int main(int argc, char* argv[])
 
 		window.clear(sf::Color::Black);
 		outAll.clear(sf::Color::Black);
-		out.clear(sf::Color::Black);		
+		out.clear(sf::Color::Black);
 		// ellipse parameters
 		unsigned short quality = 90;
-		
+
 		// define ellipses: white origin dots
 		sf::ConvexShape ellipse;
 		ellipse.setPointCount(quality);
-		defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
+		defineConvexEllipse(&ellipse, 0.5, 0.5, quality);
 
 		// draw polar function as graph sprite
-		for (int i = 0; i < dim; i++) 
+		for (int i = 0; i < dim; i++)
 		{
 			int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
 			int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
-						
+
 			ellipse.setPosition(offsetX, offsetY); // set ellipse position
 
 			// call animation to continously draw sampled arrays in polar space
-			funcs.at(i).animation(i, 0, sampleBufferA,&both); // mode 0 for logged test outputs
-			funcsEllipses.at(i).animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
-			sf::Sprite spr = funcs.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			sf::Sprite sprE = funcsEllipses.at(i).update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			//spr.setPosition(wSize / 2, wSize / 2);
+			samples.animation(i, 0, sampleBufferA, &both); // mode 0 for logged test outputs
+			//glyphs.animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
+			sf::Sprite spr = samples.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+			//sf::Sprite sprE = glyphs.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+			spr.setPosition(wSize / 2, wSize / 2);
 			window.draw(ellipse);
 			out.draw(ellipse);
 			outAll.draw(ellipse);
 			if (showBase)
-				{window.draw(spr);}
+				window.draw(spr);
 			if (showOverlay)
-				{window.draw(sprE);}
+				//window.draw(sprE);
 			out.draw(spr);
 			outAll.draw(spr);
-			outAll.draw(sprE);
+			//outAll.draw(sprE);
 		}
 		// window.draw(ellipse);  // TEST //
 		window.display(); // update window texture

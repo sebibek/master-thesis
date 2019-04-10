@@ -1072,9 +1072,9 @@ public:
 					//}
 				}
 
-				out = cosines.at
-				// multiply respective c(k); // assign cosine cone w.r.t cone direction (index) k
-osine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
+				out = cosines.at(k); // assign cosine cone w.r.t cone direction (index) k
+
+				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
 				std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
 				*meanA += val_sum;
