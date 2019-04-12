@@ -869,7 +869,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
-		glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
+		std::transform(glyphBuffer.at(i).begin(), glyphBuffer.at(i).end(), glyphBuffer.at(i).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 	}
 }
 
@@ -1055,7 +1055,7 @@ public:
 						else
 							val = 0.3622909908722584*val;
 					else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
-						val = 0.6377090091277417*val; // part1: beta(half-angle)/90 (face neighbor) part2: beta(half-angle)/2beta -->normalize
+						val = 0.6377090091277417*val;
 
 					val_sum += val; // val*radres
 					//for (int l = j - shiftIndex; l < j + shiftIndex; l++) // for each step (along edge)..
@@ -1171,6 +1171,7 @@ int main(int argc, char* argv[])
 	start = std::clock();
 	while (!finished)
 	{
+		meanA = 0.0;
 		prop.propagate(); // propagate until finished..
 		//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 		swap(sampleBufferA, sampleBufferB);
