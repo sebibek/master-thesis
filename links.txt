@@ -14,8 +14,13 @@ https://www112.zippyshare.com/v/k5N9oCut/file.html
 https://stackoverflow.com/questions/48014656/vtk-undefined-reference
 https://stackoverflow.com/questions/47410057/undefined-references-vtk-and-make
 
+https://stackoverflow.com/questions/14492436/g-optimization-beyond-o3-ofast/38511897
+Optimization Switches: -O2; -O3; -Os
+https://devblogs.nvidia.com/even-easier-introduction-cuda/
+
+
 Include Ordner in /usr/local/include
-g++ -I/usr/local/include -I/usr/vtk/include -L/usr/lib --verbose -g -Wall getopt.c main.cpp -lvtksys-8.2 -lvtkCommon -lvtkImaging -lvtkGraphics -lvtkGenericFiltering -lvtkIO
+g++ -I/usr/local/include -I/usr/vtk/include -L/usr/lib -O2 --verbose -g -Wall getopt.c main.cpp -lvtksys-8.2 -lvtkCommon -lvtkImaging -lvtkGraphics -lvtkGenericFiltering -lvtkIO
 
 
 in VS2017:
