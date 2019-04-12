@@ -8,7 +8,7 @@
 #include <vector>
 #include <unistd.h>
 #include <math.h>
-#include "exprtk.hpp"
+//#include "exprtk.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <algorithm>
@@ -50,16 +50,26 @@ T muPlus(T& a, T& b)
 }
 
 // OPERATOR DEFINITIONS //
-template <typename T>
+
+template <typename T> // element-wise plus for std::vector
 std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 {
-	assert(a.size() == b.size());
-	
-	std::vector<T> result(a.size());
+	std::vector<T> result(b.size());
 
-	for(int i = 0; i < a.size(); i++)
-		result[i] = a[i] + b[i];
-	
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a.at(i) + b.at(i);
+
+	return result;
+}
+
+template <typename T> // element-wise plus for std::vector
+std::vector<T> operator*(const T a, const std::vector<T>& b)
+{
+	std::vector<T> result(b.size());
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a * b.at(i);
+
 	return result;
 }
 
@@ -833,7 +843,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	}
 }
 
-void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality)
+void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality, double rot = 0.0)
 {
 	for (int i = 0; i < quality; ++i)
 	{
@@ -918,6 +928,80 @@ int main(int argc, char* argv[])
 	// create flags for blending tensors(ellipses)/light distributions(polar plots)
 	bool showOverlay{ true };
 	bool showBase{ true };
+	// ellipse parameters
+	unsigned short quality = 90;
+	
+	int cellWidth = (wSize / (width)); // check rest (modulo) for x-offset
+	int cellHeight = (wSize / (width)); // check division for y offset
+
+
+	// define ellipses: white origin dots
+	sf::ConvexShape tensorFieldLinePos;
+	tensorFieldLinePos.setPointCount(quality);
+	
+	tensorFieldLinePos.setOrigin(0,0);
+	tensorFieldLinePos.setPosition(3*wSize / 4, wSize / 2);
+
+	sf::ConvexShape tensorFieldLineNeg;
+	tensorFieldLineNeg.setPointCount(quality);
+	defineConvexEllipse(&tensorFieldLineNeg, 3.0, 3.0, quality);
+
+	tensorFieldLineNeg.setOrigin(0,0);
+	tensorFieldLineNeg.setPosition(3 * wSize / 4, wSize / 2);
+
+	double degPos = glyphParameters.at(width/2+height/2*width).at(2);
+	double degNeg = glyphParameters.at(width / 2 + height / 2 * width).at(2);
+	double xPos = 3 * wSize / 4; double yPos = wSize / 2;
+	double xNeg = 3 * wSize / 4; double yNeg = wSize / 2;
+	for (int i = 0; i < 1000; i++)
+	{
+		/*if (xPos >= wSize || yPos >= wSize || xPos < 0 || yPos < 0 || xNeg >= wSize || yNeg >= wSize || xNeg < 0 || yNeg < 0)
+			continue;*/
+
+		// TensorFieldLinePos
+
+		if (xPos / cellWidth >= width-1 || yPos / cellWidth >= height-1 || xPos < 1 || yPos < 1 || xNeg / cellWidth >= width || yNeg / cellWidth >= height-1 || xNeg < 1 || yNeg < 1)
+			continue;
+		
+		double alphaX = abs(xPos - round(xPos));
+		std::vector<double> xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xPos)/cellWidth) + floor((yPos) /cellWidth * width)) + (1 - alphaX)*glyphParameters.at(floor((xPos) / cellWidth) + floor((yPos) / cellWidth) * width);
+		std::vector<double> xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xPos) / cellWidth) + ceil((yPos) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos)/ cellWidth) + ceil((yPos) / cellWidth) * width);
+		
+		double alphaYCeil = yPos - floor(yPos);
+		std::vector<double> interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;
+
+		defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
+		degPos = interpolant.at(2);
+		
+		//convert polar to cartesian
+		double dx = 1.0 * cos(degPos * pi/180.0);
+		double dy = -1.0 * sin(degPos * pi / 180.0);
+		xPos += dx; yPos += dy;
+
+		tensorFieldLinePos.setPosition(round(xPos),round(yPos));
+		window.draw(tensorFieldLinePos);
+		out.draw(tensorFieldLinePos);
+
+		// TensorFieldLineNeg
+		alphaX = abs(xNeg - round(xNeg));
+		xPosInterpolantFloor = alphaX * glyphParameters.at(ceil(xNeg / cellWidth) + floor(yNeg / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor(xNeg / cellWidth) + floor(yNeg / cellWidth) * width);
+		xPosInterpolantCeil = alphaX * glyphParameters.at(ceil(xNeg / cellWidth) + ceil(yNeg / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor(xNeg / cellWidth) + ceil(yNeg / cellWidth) * width);
+
+		alphaYCeil = yNeg - floor(yNeg);
+		interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;
+
+		defineConvexEllipse(&tensorFieldLineNeg, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
+		degNeg = interpolant.at(2);
+		
+		//convert polar to cartesian
+		dx = 1.0 * cos(degNeg*pi / 180.0);
+		dy = -1.0 * sin(degNeg*pi / 180.0);
+		xNeg -= dx; yNeg -= dy;
+		tensorFieldLineNeg.setPosition(round(xNeg), round(yNeg));
+		window.draw(tensorFieldLineNeg);
+		out.draw(tensorFieldLineNeg);
+
+	}
 
 	//main loop
 	while (window.isOpen())
@@ -941,11 +1025,10 @@ int main(int argc, char* argv[])
 		if (!window.isOpen())
 			break;
 
-		window.clear(sf::Color::Black);
+		/*window.clear(sf::Color::Black);
 		outAll.clear(sf::Color::Black);
-		out.clear(sf::Color::Black);
-		// ellipse parameters
-		unsigned short quality = 90;
+		out.clear(sf::Color::Black);*/
+	
 
 		// define ellipses: white origin dots
 		sf::ConvexShape ellipse;
@@ -974,6 +1057,7 @@ int main(int argc, char* argv[])
 		// window.draw(ellipse);  // TEST //
 		window.display(); // update window texture
 	}
+	window.display(); // update window texture
 
 	//write to image file
 	out.display(); // update output texture
