@@ -790,7 +790,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
-		glyphParameters.at(i).at(2) = deg1 < 0 ? steps + deg1 : deg1;
+		glyphParameters.at(i).at(2) = deg1 < 0 ? steps/2 + deg1 : deg1-steps/2;
 
 		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
 		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
@@ -940,62 +940,68 @@ int main(int argc, char* argv[])
 	tensorFieldLinePos.setPointCount(quality);
 	
 	tensorFieldLinePos.setOrigin(0,0);
-	tensorFieldLinePos.setPosition(1*wSize / 8, wSize / 2 -50);
+	tensorFieldLinePos.setPosition(3*wSize / 4, wSize / 2+50);
 
 	sf::ConvexShape tensorFieldLineNeg;
 	tensorFieldLineNeg.setPointCount(quality);
 
 	tensorFieldLineNeg.setOrigin(0,0);
-	tensorFieldLineNeg.setPosition(1 * wSize / 4, wSize / 2);
+	tensorFieldLineNeg.setPosition(3 * wSize / 4, wSize / 2);
 
+	double degMem = 0.0;
 	double degPos = glyphParameters.at(width/2+height/2*width).at(2);
 	double degNeg = glyphParameters.at(width / 2 + height / 2 * width).at(2);
-	double xPos = 1 * wSize / 8; double yPos = wSize / 2 - 50;
-	double xNeg = 1 * wSize / 8; double yNeg = wSize / 2 - 50;
-	for (int i = 0; i < 1000; i++)
+	double xPos = 3 * wSize / 4; double yPos = wSize / 2 + 50;
+	double xNeg = 3 * wSize / 4; double yNeg = wSize / 2 + 50;
+	for (int i = 0; i < 3000; i++)
 	{
 		/*if (xPos >= wSize || yPos >= wSize || xPos < 0 || yPos < 0 || xNeg >= wSize || yNeg >= wSize || xNeg < 0 || yNeg < 0)
 			continue;*/
 
 		if ((xPos - cellWidth / 2.0) / cellWidth >= width-1 || (yPos - cellWidth / 2.0) / cellWidth >= height-1 || (xPos - cellWidth / 2.0) < 1 || (yPos - cellWidth / 2.0) < 1 || (xNeg - cellWidth / 2.0) / cellWidth >= width || (yNeg - cellWidth / 2.0) / cellWidth >= height-1 || (xNeg - cellWidth / 2.0) < 1 || (yNeg - cellWidth / 2.0) < 1)
 			continue;
-		
+	
 		// TensorFieldLinePos
-		double alphaX = abs((xPos - cellWidth / 2.0) / cellWidth - floor((xPos - cellWidth / 2.0) / cellWidth));
+		/*double alphaX = abs((xPos - cellWidth / 2.0) / cellWidth - floor((xPos - cellWidth / 2.0) / cellWidth));
 		std::vector<double> xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xPos-cellWidth/2)/cellWidth) + floor((yPos - cellWidth / 2) /cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos - cellWidth / 2) / cellWidth) + floor((yPos - cellWidth / 2) / cellWidth) * width);
 		std::vector<double> xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xPos - cellWidth / 2) / cellWidth) + ceil((yPos - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos - cellWidth / 2) / cellWidth) + ceil((yPos - cellWidth / 2) / cellWidth) * width);
 		
 		double alphaYCeil = abs((yPos - cellWidth / 2.0) - floor((yPos - cellWidth / 2.0)));
-		std::vector<double> interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;
+		std::vector<double> interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;*/
+		std::vector<double> interpolant = glyphParameters.at(round((xPos - cellWidth / 2) / cellWidth) + round((yPos - cellWidth / 2) / cellWidth) * width); // snap to nearest neighbor as work solution!
 
 		defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
 		degPos = interpolant.at(2);
-		if (i > 400)
-			int a = 1;
-		//convert polar to cartesian
-		double dx = -1.0 * cos(degPos * pi / 180.0);
-		double dy = 1.0 * sin(degPos * pi / 180.0);
-
-		xPos += dx; yPos += dy;
-
-		tensorFieldLinePos.setPosition(round(xPos),round(yPos));
 		window.draw(tensorFieldLinePos);
 		out.draw(tensorFieldLinePos);
 
+		/*if (abs(degMem - degPos) > 35 && i>0)
+			degPos = degMem;*/
+		//convert polar to cartesian
+		double dx = 5.0 * cos(degPos * pi / 180.0);
+		double dy = -5.0 * sin(degPos * pi / 180.0);
+		xPos += dx; yPos += dy;
+
+		tensorFieldLinePos.setPosition(round(xPos),round(yPos));
+		
+		xPos = round(xPos);
+		yPos=round(yPos);
+		degMem = degPos;
+
 		// TensorFieldLineNeg
-		//alphaX = abs(xNeg - floor(xNeg));
-		//xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xNeg - cellWidth / 2) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xNeg - cellWidth / 2) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width);
+		//alphaX = abs((xNeg - cellWidth / 2.0) / cellWidth - floor((xNeg - cellWidth / 2.0) / cellWidth));
+		//xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xNeg - cellWidth / 2.0) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xNeg - cellWidth / 2) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width);
 		//xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xNeg - cellWidth / 2) / cellWidth) + ceil((yNeg - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xNeg - cellWidth / 2) / cellWidth) + ceil((yNeg - cellWidth / 2) / cellWidth) * width);
 
-		//alphaYCeil = abs(yNeg - floor(yNeg));
+		//alphaYCeil = abs((yNeg - cellWidth / 2.0) - floor((yNeg - cellWidth / 2.0)));
 		//interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;
 
 		//defineConvexEllipse(&tensorFieldLineNeg, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
 		//degNeg = interpolant.at(2);
 		//
 		////convert polar to cartesian
-		//dx = 1.0 * cos(degNeg*pi / 180.0);
-		//dy = -1.0 * sin(degNeg*pi / 180.0);
+		//dx = -5.0 * cos(degNeg*pi / 180.0);
+		//dy = 5.0 * sin(degNeg*pi / 180.0);
 		//xNeg -= dx; yNeg -= dy;
 		//tensorFieldLineNeg.setPosition(round(xNeg), round(yNeg));
 		//window.draw(tensorFieldLineNeg);
