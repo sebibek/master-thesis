@@ -951,9 +951,9 @@ int main(int argc, char* argv[])
 
 	double degPos = glyphParameters.at(width/2+height/2*width).at(2);
 	double degNeg = glyphParameters.at(width / 2 + height / 2 * width).at(2);
-	double xPos = 3 * wSize / 4; double yPos = wSize / 2;
-	double xNeg = 3 * wSize / 4; double yNeg = wSize / 2;
-	for (int i = 0; i < 1000; i++)
+	double xPos = 3 * wSize / 4; double yPos = wSize / 2 - 20;
+	double xNeg = 3 * wSize / 4; double yNeg = wSize / 2 - 20;
+	for (int i = 0; i < 500; i++)
 	{
 		/*if (xPos >= wSize || yPos >= wSize || xPos < 0 || yPos < 0 || xNeg >= wSize || yNeg >= wSize || xNeg < 0 || yNeg < 0)
 			continue;*/
@@ -964,8 +964,8 @@ int main(int argc, char* argv[])
 			continue;
 		
 		double alphaX = abs(xPos - round(xPos));
-		std::vector<double> xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xPos)/cellWidth) + floor((yPos) /cellWidth * width)) + (1 - alphaX)*glyphParameters.at(floor((xPos) / cellWidth) + floor((yPos) / cellWidth) * width);
-		std::vector<double> xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xPos) / cellWidth) + ceil((yPos) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos)/ cellWidth) + ceil((yPos) / cellWidth) * width);
+		std::vector<double> xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xPos-cellWidth/2)/cellWidth) + floor((yPos - cellWidth / 2) /cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos - cellWidth / 2) / cellWidth) + floor((yPos - cellWidth / 2) / cellWidth) * width);
+		std::vector<double> xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xPos - cellWidth / 2) / cellWidth) + ceil((yPos - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos - cellWidth / 2) / cellWidth) + ceil((yPos - cellWidth / 2) / cellWidth) * width);
 		
 		double alphaYCeil = yPos - floor(yPos);
 		std::vector<double> interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;
@@ -984,8 +984,8 @@ int main(int argc, char* argv[])
 
 		// TensorFieldLineNeg
 		alphaX = abs(xNeg - round(xNeg));
-		xPosInterpolantFloor = alphaX * glyphParameters.at(ceil(xNeg / cellWidth) + floor(yNeg / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor(xNeg / cellWidth) + floor(yNeg / cellWidth) * width);
-		xPosInterpolantCeil = alphaX * glyphParameters.at(ceil(xNeg / cellWidth) + ceil(yNeg / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor(xNeg / cellWidth) + ceil(yNeg / cellWidth) * width);
+		xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xNeg - cellWidth / 2) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xNeg - cellWidth / 2) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width);
+		xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xNeg - cellWidth / 2) / cellWidth) + ceil((yNeg - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xNeg - cellWidth / 2) / cellWidth) + ceil((yNeg - cellWidth / 2) / cellWidth) * width);
 
 		alphaYCeil = yNeg - floor(yNeg);
 		interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;
