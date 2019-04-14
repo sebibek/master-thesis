@@ -15,6 +15,7 @@
 #include <functional>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>
+#include <random>
 typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
 
@@ -790,7 +791,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
-		glyphParameters.at(i).at(2) = deg1 < 0 ? steps/2 + deg1 : deg1-steps/2;
+		glyphParameters.at(i).at(2) = deg1 < 0 ? deg1+180 : deg1-180;
 
 		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
 		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
@@ -895,7 +896,6 @@ int main(int argc, char* argv[])
 	sf::Color red = sf::Color(255, 0, 0);
 	sf::Color green = sf::Color(0, 255, 0, Alpha);
 
-
 	// add pre-computed function as string
 	/*for (int i = 0; i < dim; i++)
 	{
@@ -942,71 +942,45 @@ int main(int argc, char* argv[])
 	tensorFieldLinePos.setOrigin(0,0);
 	tensorFieldLinePos.setPosition(3*wSize / 4, wSize / 2+50);
 
-	sf::ConvexShape tensorFieldLineNeg;
-	tensorFieldLineNeg.setPointCount(quality);
+	int seeds = 25;
+	const double start = 0.0;
+	const double stop = 1.0;
 
-	tensorFieldLineNeg.setOrigin(0,0);
-	tensorFieldLineNeg.setPosition(3 * wSize / 4, wSize / 2);
+	std::random_device rd;
+	std::mt19937 gen(rd());
 
-	double degMem = 0.0;
-	double degPos = glyphParameters.at(width/2+height/2*width).at(2);
-	double degNeg = glyphParameters.at(width / 2 + height / 2 * width).at(2);
-	double xPos = 3 * wSize / 4; double yPos = wSize / 2 + 50;
-	double xNeg = 3 * wSize / 4; double yNeg = wSize / 2 + 50;
-	for (int i = 0; i < 3000; i++)
+	std::uniform_real_distribution<> dis(start, std::nextafter(stop, DBL_MAX));
+
+	for (int k = 0; k < seeds; k++)
 	{
-		/*if (xPos >= wSize || yPos >= wSize || xPos < 0 || yPos < 0 || xNeg >= wSize || yNeg >= wSize || xNeg < 0 || yNeg < 0)
-			continue;*/
-
-		if ((xPos - cellWidth / 2.0) / cellWidth >= width-1 || (yPos - cellWidth / 2.0) / cellWidth >= height-1 || (xPos - cellWidth / 2.0) < 1 || (yPos - cellWidth / 2.0) < 1 || (xNeg - cellWidth / 2.0) / cellWidth >= width || (yNeg - cellWidth / 2.0) / cellWidth >= height-1 || (xNeg - cellWidth / 2.0) < 1 || (yNeg - cellWidth / 2.0) < 1)
-			continue;
-	
-		// TensorFieldLinePos
-		/*double alphaX = abs((xPos - cellWidth / 2.0) / cellWidth - floor((xPos - cellWidth / 2.0) / cellWidth));
-		std::vector<double> xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xPos-cellWidth/2)/cellWidth) + floor((yPos - cellWidth / 2) /cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos - cellWidth / 2) / cellWidth) + floor((yPos - cellWidth / 2) / cellWidth) * width);
-		std::vector<double> xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xPos - cellWidth / 2) / cellWidth) + ceil((yPos - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xPos - cellWidth / 2) / cellWidth) + ceil((yPos - cellWidth / 2) / cellWidth) * width);
+		double seedPosX = dis(gen)*(wSize - cellWidth / 2.0 - cellWidth / 2.0) + cellWidth / 2.0;
+		double seedPosY = dis(gen)*(wSize - cellWidth / 2.0 - cellWidth / 2.0) + cellWidth / 2.0;
+		double degPos = glyphParameters.at(round((seedPosX - cellWidth / 2) / cellWidth) + round((seedPosY - cellWidth / 2) / cellWidth) * width).at(2);
 		
-		double alphaYCeil = abs((yPos - cellWidth / 2.0) - floor((yPos - cellWidth / 2.0)));
-		std::vector<double> interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;*/
-		std::vector<double> interpolant = glyphParameters.at(round((xPos - cellWidth / 2) / cellWidth) + round((yPos - cellWidth / 2) / cellWidth) * width); // snap to nearest neighbor as work solution!
+		for (int i = 0; i < 500; i++)
+		{
+			/*if (xPos >= wSize || yPos >= wSize || xPos < 0 || yPos < 0 || xNeg >= wSize || yNeg >= wSize || xNeg < 0 || yNeg < 0)
+				continue;*/
 
-		defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
-		degPos = interpolant.at(2);
-		window.draw(tensorFieldLinePos);
-		out.draw(tensorFieldLinePos);
+			if ((seedPosX - cellWidth / 2.0) / cellWidth >= width - 1 || (seedPosY - cellWidth / 2.0) / cellWidth >= height - 1 || (seedPosX - cellWidth / 2.0) < 1 || (seedPosY - cellWidth / 2.0) < 1)
+				continue;
 
-		/*if (abs(degMem - degPos) > 35 && i>0)
-			degPos = degMem;*/
-		//convert polar to cartesian
-		double dx = 5.0 * cos(degPos * pi / 180.0);
-		double dy = -5.0 * sin(degPos * pi / 180.0);
-		xPos += dx; yPos += dy;
+			// TensorFieldLinePos (nearest neighbor interpolation)
+			std::vector<double> interpolant = glyphParameters.at(round((seedPosX - cellWidth / 2) / cellWidth) + round((seedPosY - cellWidth / 2) / cellWidth) * width); // snap to nearest neighbor as work solution!
 
-		tensorFieldLinePos.setPosition(round(xPos),round(yPos));
-		
-		xPos = round(xPos);
-		yPos=round(yPos);
-		degMem = degPos;
+			defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
+			degPos = interpolant.at(2);
+			window.draw(tensorFieldLinePos);
+			out.draw(tensorFieldLinePos);
 
-		// TensorFieldLineNeg
-		//alphaX = abs((xNeg - cellWidth / 2.0) / cellWidth - floor((xNeg - cellWidth / 2.0) / cellWidth));
-		//xPosInterpolantFloor = alphaX * glyphParameters.at(ceil((xNeg - cellWidth / 2.0) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xNeg - cellWidth / 2) / cellWidth) + floor((yNeg - cellWidth / 2) / cellWidth) * width);
-		//xPosInterpolantCeil = alphaX * glyphParameters.at(ceil((xNeg - cellWidth / 2) / cellWidth) + ceil((yNeg - cellWidth / 2) / cellWidth) * width) + (1 - alphaX)*glyphParameters.at(floor((xNeg - cellWidth / 2) / cellWidth) + ceil((yNeg - cellWidth / 2) / cellWidth) * width);
+			//convert polar to cartesian
+			double dx = 2.0 * cos(degPos * pi / 180.0);
+			double dy = -2.0 * sin(degPos * pi / 180.0);
+			seedPosX += dx; seedPosY += dy;
 
-		//alphaYCeil = abs((yNeg - cellWidth / 2.0) - floor((yNeg - cellWidth / 2.0)));
-		//interpolant = alphaYCeil * xPosInterpolantCeil + (1 - alphaYCeil)*xPosInterpolantFloor;
+			tensorFieldLinePos.setPosition(round(seedPosX), round(seedPosY));
 
-		//defineConvexEllipse(&tensorFieldLineNeg, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
-		//degNeg = interpolant.at(2);
-		//
-		////convert polar to cartesian
-		//dx = -5.0 * cos(degNeg*pi / 180.0);
-		//dy = 5.0 * sin(degNeg*pi / 180.0);
-		//xNeg -= dx; yNeg -= dy;
-		//tensorFieldLineNeg.setPosition(round(xNeg), round(yNeg));
-		//window.draw(tensorFieldLineNeg);
-		//out.draw(tensorFieldLineNeg);
-
+		}
 	}
 
 	//main loop
