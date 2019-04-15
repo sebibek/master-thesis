@@ -1,0 +1,5 @@
+g++ -I/usr/include/vtk-6.3 -L/usr/lib/x86_64-linux-gnu -Ofast --verbose -g -funroll-loops -fprofile-generate -Wall getopt.c main.cpp -lvtksys-6.3 -lvtkCommonCore-6.3 -lvtkImagingCore-6.3 -lvtkIOCore-6.3 -lvtkIOXML-6.3 -lvtkCommonDataModel-6.3
+
+
+pgo (profile-guided optimization): -fprofile-generate/fprofile-use 
+
