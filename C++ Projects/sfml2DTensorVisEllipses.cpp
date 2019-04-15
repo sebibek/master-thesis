@@ -19,7 +19,7 @@
 typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
 
-#define MAXBUFSIZE  ((int) 1e3)
+#define MAXBUFSIZE  ((int) 1e8)
 #ifdef WINDOWS
 #include <direct.h>
 #define GetCurrentDir _getcwd
@@ -30,6 +30,8 @@ typedef boost::iostreams::stream<Tee> TeeStream;
 
 using namespace std;
 using namespace Eigen;
+
+double buffer[MAXBUFSIZE];
 
 //length and width of window
 int wSize = 700;
@@ -709,9 +711,10 @@ string trim(const string& str)
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
-	double buff[MAXBUFSIZE];
+	//std::vector<double> buff(MAXBUFSIZE);
+	
 	ifstream infile(filepath);
-
+	
 	while (!infile.eof())
 	{
 		string line;
@@ -720,7 +723,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 		int temp_cols = 0;
 		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
 		while (!stream.eof())
-			stream >> buff[cols*rows + temp_cols++];
+			stream >> buffer[cols*rows + temp_cols++];
 
 		if (temp_cols == 0) // if empty line
 			continue;
@@ -737,7 +740,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	MatrixXd result(rows, cols);
 	for (int j = 0; j < rows; j++) // use (j, i)-index for data matrices, use (i, j) for mathematical matrices (w. apt Transpose/Transformations etc.)
 		for (int i = 0; i < cols; i++)
-			result(j, i) = buff[cols*j + i];
+			result(j, i) = buffer[cols*j + i];
 
 	return result;
 };
@@ -931,9 +934,9 @@ int main(int argc, char* argv[])
 	// ellipse parameters
 	unsigned short quality = 90;
 	
-	int cellWidth = (wSize / (width)); // check rest (modulo) for x-offset
-	int cellHeight = (wSize / (width)); // check division for y offset
-
+	const int cellWidth = wSize / (width); // check rest (modulo) for x-offset
+	const int cellHeight = wSize / (width); // check division for y offset
+	const int gridWidth = (wSize - cellWidth)/cellWidth;
 
 	// define ellipses: white origin dots
 	sf::ConvexShape tensorFieldLinePos;
@@ -944,7 +947,7 @@ int main(int argc, char* argv[])
 
 	int seeds = 25;
 	const double start = 0.0;
-	const double stop = 1.0;
+	const double stop = width - 1;
 
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -953,20 +956,20 @@ int main(int argc, char* argv[])
 
 	for (int k = 0; k < seeds; k++)
 	{
-		double seedPosX = dis(gen)*(wSize - cellWidth / 2.0 - cellWidth / 2.0) + cellWidth / 2.0;
-		double seedPosY = dis(gen)*(wSize - cellWidth / 2.0 - cellWidth / 2.0) + cellWidth / 2.0;
-		double degPos = glyphParameters.at(round((seedPosX - cellWidth / 2) / cellWidth) + round((seedPosY - cellWidth / 2) / cellWidth) * width).at(2);
+		double seedPosX = dis(gen);
+		double seedPosY = dis(gen);
+		double degPos = glyphParameters.at(int(seedPosX) + int(seedPosY) * width).at(2);
 		
 		for (int i = 0; i < 500; i++)
 		{
 			/*if (xPos >= wSize || yPos >= wSize || xPos < 0 || yPos < 0 || xNeg >= wSize || yNeg >= wSize || xNeg < 0 || yNeg < 0)
 				continue;*/
 
-			if ((seedPosX - cellWidth / 2.0) / cellWidth >= width - 1 || (seedPosY - cellWidth / 2.0) / cellWidth >= height - 1 || (seedPosX - cellWidth / 2.0) < 1 || (seedPosY - cellWidth / 2.0) < 1)
+			if ((seedPosX) / cellWidth >= width - 1 || (seedPosY) / cellWidth >= height - 1 || (seedPosX)/ cellWidth < 1 || (seedPosY / cellWidth) < 1)
 				continue;
 
 			// TensorFieldLinePos (nearest neighbor interpolation)
-			std::vector<double> interpolant = glyphParameters.at(round((seedPosX - cellWidth / 2) / cellWidth) + round((seedPosY - cellWidth / 2) / cellWidth) * width); // snap to nearest neighbor as work solution!
+			std::vector<double> interpolant = glyphParameters.at((seedPosX) + (seedPosY) * width); // snap to nearest neighbor as work solution
 
 			defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
 			degPos = interpolant.at(2);
@@ -978,7 +981,7 @@ int main(int argc, char* argv[])
 			double dy = -2.0 * sin(degPos * pi / 180.0);
 			seedPosX += dx; seedPosY += dy;
 
-			tensorFieldLinePos.setPosition(round(seedPosX), round(seedPosY));
+			tensorFieldLinePos.setPosition(floor(seedPosX*cellWidth + cellWidth/2), floor(seedPosY*cellWidth + cellWidth / 2));
 
 		}
 	}
