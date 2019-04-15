@@ -1,2 +1,0 @@
-g++ -I/usr/include/vtk-6.3 -L/usr/lib/x86_64-linux-gnu -O3 --verbose -g -Wall getopt.c main.cpp -lvtksys-6.3 -lvtkCommonCore-6.3 -lvtkImagingCore-6.3 -lvtkIOCore-6.3 -lvtkIOXML-6.3 -lvtkCommonDataModel-6.3
-
