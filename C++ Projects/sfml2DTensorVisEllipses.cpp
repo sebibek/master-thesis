@@ -28,10 +28,11 @@ typedef boost::iostreams::stream<Tee> TeeStream;
 #define GetCurrentDir getcwd
 #endif
 
-using namespace std;
 using namespace Eigen;
+using namespace std;
 
 double buffer[MAXBUFSIZE];
+// double* buffer = (double*) malloc (MAXBUFSIZE+1); => for huge arrays w. size()>1e8
 
 //length and width of window
 int wSize = 700;
@@ -847,6 +848,18 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	}
 }
 
+//void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality, double rot = 0.0)
+//{
+//	for (int i = 0; i < quality; ++i)
+//	{
+//		double rad = (360 / quality * i) / (360 / M_PI / 2);
+//		double x = cos(rad-rot*pi/180)*radius_x;
+//		double y = sin(rad - rot * pi / 180)*radius_y;
+//
+//		ellipse[0].setPoint(i, sf::Vector2f(x, y));
+//	}
+//}
+
 void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality, double rot = 0.0)
 {
 	for (int i = 0; i < quality; ++i)
@@ -858,6 +871,7 @@ void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radiu
 		ellipse[0].setPoint(i, sf::Vector2f(x, y));
 	}
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -935,8 +949,6 @@ int main(int argc, char* argv[])
 	unsigned short quality = 90;
 	
 	const int cellWidth = wSize / (width); // check rest (modulo) for x-offset
-	const int cellHeight = wSize / (width); // check division for y offset
-	const int gridWidth = (wSize - cellWidth)/cellWidth;
 
 	// define ellipses: white origin dots
 	sf::ConvexShape tensorFieldLinePos;
@@ -956,20 +968,19 @@ int main(int argc, char* argv[])
 
 	for (int k = 0; k < seeds; k++)
 	{
-		double seedPosX = dis(gen);
-		double seedPosY = dis(gen);
-		double degPos = glyphParameters.at(int(seedPosX) + int(seedPosY) * width).at(2);
+		double seedPosXIndex = dis(gen);
+		double seedPosYIndex = dis(gen);
+		double seedPosX = (seedPosXIndex)* cellWidth + cellWidth / 2.0;
+		double seedPosY = (seedPosYIndex)* cellWidth + cellWidth / 2.0;
+		double degPos = glyphParameters.at(int(seedPosXIndex) + int(seedPosYIndex) * width).at(2);
 		
 		for (int i = 0; i < 500; i++)
 		{
-			/*if (xPos >= wSize || yPos >= wSize || xPos < 0 || yPos < 0 || xNeg >= wSize || yNeg >= wSize || xNeg < 0 || yNeg < 0)
-				continue;*/
-
-			if ((seedPosX) / cellWidth >= width - 1 || (seedPosY) / cellWidth >= height - 1 || (seedPosX)/ cellWidth < 1 || (seedPosY / cellWidth) < 1)
-				continue;
+			if (seedPosXIndex >= width-1 || seedPosYIndex >= height-1 || (seedPosXIndex) < 0 || (seedPosYIndex) < 0)
+				break;
 
 			// TensorFieldLinePos (nearest neighbor interpolation)
-			std::vector<double> interpolant = glyphParameters.at((seedPosX) + (seedPosY) * width); // snap to nearest neighbor as work solution
+			std::vector<double> interpolant = glyphParameters.at(seedPosXIndex + seedPosYIndex * width); // snap to nearest neighbor as work solution
 
 			defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
 			degPos = interpolant.at(2);
@@ -981,10 +992,14 @@ int main(int argc, char* argv[])
 			double dy = -2.0 * sin(degPos * pi / 180.0);
 			seedPosX += dx; seedPosY += dy;
 
-			tensorFieldLinePos.setPosition(floor(seedPosX*cellWidth + cellWidth/2), floor(seedPosY*cellWidth + cellWidth / 2));
+			tensorFieldLinePos.setPosition(seedPosX, seedPosY);
+
+			seedPosXIndex = round((seedPosX - cellWidth / 2.0) / cellWidth);
+			seedPosYIndex = round((seedPosY - cellWidth / 2.0) / cellWidth);
 
 		}
 	}
+
 
 	//main loop
 	while (window.isOpen())
