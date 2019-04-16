@@ -848,19 +848,21 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	}
 }
 
-//void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality, double rot = 0.0)
-//{
-//	for (int i = 0; i < quality; ++i)
-//	{
-//		double rad = (360 / quality * i) / (360 / M_PI / 2);
-//		double x = cos(rad-rot*pi/180)*radius_x;
-//		double y = sin(rad - rot * pi / 180)*radius_y;
-//
-//		ellipse[0].setPoint(i, sf::Vector2f(x, y));
-//	}
-//}
-
 void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality, double rot = 0.0)
+{
+	double radres = 2 * pi / quality;
+	for (int i = 0; i < quality; ++i)
+	{
+		double rad = (360 / quality * i) / (360 / M_PI / 2);
+		double val = radius_x*radius_y / sqrt(radius_y*radius_y*cos(i*radres - rot * (pi / 180.0))*cos(i*radres - rot * (pi / 180.0)) + radius_x * radius_x*sin(i*radres - rot * (pi / 180.0))*sin(i*radres - rot * (pi / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
+		double x = val* cos(rad);
+		double y = -val* sin(rad)*radius_y;
+
+		ellipse[0].setPoint(i, sf::Vector2f(x, y));
+	}
+}
+
+void defineCircle(sf::ConvexShape* ellipse, double radius_x, double radius_y, unsigned short quality, double rot = 0.0)
 {
 	for (int i = 0; i < quality; ++i)
 	{
@@ -957,7 +959,7 @@ int main(int argc, char* argv[])
 	tensorFieldLinePos.setOrigin(0,0);
 	tensorFieldLinePos.setPosition(3*wSize / 4, wSize / 2+50);
 
-	int seeds = 25;
+	int seeds = 50;
 	const double start = 0.0;
 	const double stop = width - 1;
 
@@ -974,7 +976,7 @@ int main(int argc, char* argv[])
 		double seedPosY = (seedPosYIndex)* cellWidth + cellWidth / 2.0;
 		double degPos = glyphParameters.at(int(seedPosXIndex) + int(seedPosYIndex) * width).at(2);
 		
-		for (int i = 0; i < 500; i++)
+		for (int i = 0; i < 1000; i++)
 		{
 			if (seedPosXIndex >= width-1 || seedPosYIndex >= height-1 || (seedPosXIndex) < 0 || (seedPosYIndex) < 0)
 				break;
@@ -982,8 +984,8 @@ int main(int argc, char* argv[])
 			// TensorFieldLinePos (nearest neighbor interpolation)
 			std::vector<double> interpolant = glyphParameters.at(seedPosXIndex + seedPosYIndex * width); // snap to nearest neighbor as work solution
 
-			defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, interpolant.at(2));
 			degPos = interpolant.at(2);
+			defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, degPos);
 			window.draw(tensorFieldLinePos);
 			out.draw(tensorFieldLinePos);
 
@@ -1031,7 +1033,7 @@ int main(int argc, char* argv[])
 		// define ellipses: white origin dots
 		sf::ConvexShape ellipse;
 		ellipse.setPointCount(quality);
-		defineConvexEllipse(&ellipse, 1.5, 1.5, quality);
+		defineCircle(&ellipse, 1.5, 1.5, quality);
 
 		// draw polar function as graph sprite
 		for (int i = 0; i < dim; i++)
