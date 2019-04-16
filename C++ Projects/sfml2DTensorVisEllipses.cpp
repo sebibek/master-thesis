@@ -77,6 +77,17 @@ std::vector<T> operator*(const T a, const std::vector<T>& b)
 	return result;
 }
 
+template <typename T> // element-wise mult. for std::vector
+std::vector<T> operator*(const std::vector<T>& a, const std::vector<T>& b)
+{
+	std::vector<T> result(b.size());
+
+	for (int i = 0; i < b.size(); i++)
+		result.at(i) = a.at(i) * b.at(i);
+
+	return result;
+}
+
 // get current working directory to assign matrix.txt path
 std::string GetCurrentWorkingDir(void) {
 	char buff[FILENAME_MAX];
@@ -795,7 +806,8 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
-		glyphParameters.at(i).at(2) = deg1 < 0 ? deg1+180 : deg1-180;
+		glyphParameters.at(i).at(2) = deg1;// < -90 ? deg1 + 180 : deg1;
+		glyphParameters.at(i).at(2) = deg1;// > 90 ? deg1 - 180 : deg1;
 
 		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
 		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
@@ -970,22 +982,78 @@ int main(int argc, char* argv[])
 
 	for (int k = 0; k < seeds; k++)
 	{
-		double seedPosXIndex = dis(gen);
-		double seedPosYIndex = dis(gen);
-		double seedPosX = (seedPosXIndex)* cellWidth + cellWidth / 2.0;
-		double seedPosY = (seedPosYIndex)* cellWidth + cellWidth / 2.0;
-		double degPos = glyphParameters.at(int(seedPosXIndex) + int(seedPosYIndex) * width).at(2);
+		double seedPosXIndex = dis(gen); // grid index
+		double seedPosYIndex = dis(gen); // grid index
+		double seedPosX = (seedPosXIndex)* cellWidth + cellWidth / 2.0; // frame (screen) index (position)
+		double seedPosY = (seedPosYIndex)* cellWidth + cellWidth / 2.0; // frame (screen) index (position)
+		double degPos = glyphParameters.at(round(seedPosXIndex) + round(seedPosYIndex) * width).at(2);
+		double degMem = 0.0;
 		
-		for (int i = 0; i < 1000; i++)
+		
+		for (int i = 0; i < 100; i++)
 		{
 			if (seedPosXIndex >= width-1 || seedPosYIndex >= height-1 || (seedPosXIndex) < 0 || (seedPosYIndex) < 0)
 				break;
+			
+			// get current cell center degrees
+			double degLeftBottom = glyphParameters.at(floor(seedPosXIndex) + ceil(seedPosYIndex) * width).at(2);
+			double degRightBottom = glyphParameters.at(ceil(seedPosXIndex) + ceil(seedPosYIndex) * width).at(2);
+			double degRightTop = glyphParameters.at(ceil(seedPosXIndex) + floor(seedPosYIndex) * width).at(2);
+			double degLeftTop = glyphParameters.at(floor(seedPosXIndex) + floor(seedPosYIndex) * width).at(2);
 
-			// TensorFieldLinePos (nearest neighbor interpolation)
-			std::vector<double> interpolant = glyphParameters.at(seedPosXIndex + seedPosYIndex * width); // snap to nearest neighbor as work solution
+			// obtain linear interpolation weights from relative grid position
+			double alphaX = abs(seedPosXIndex - floor(seedPosXIndex));
+			double alphaY = abs(seedPosYIndex - floor(seedPosYIndex));
 
-			degPos = interpolant.at(2);
-			defineConvexEllipse(&tensorFieldLinePos, interpolant.at(0), interpolant.at(1), quality, degPos);
+			// construct 2D vectors from angles
+			std::vector<double> leftBottom{ cos(degLeftBottom* pi / 180.0),sin(degLeftBottom* pi / 180.0) };
+			std::vector<double> RightBottom{ cos(degRightBottom* pi / 180.0),sin(degRightBottom* pi / 180.0) };
+			std::vector<double> RightTop{ cos(degRightTop* pi / 180.0),sin(degRightTop* pi / 180.0) };
+			std::vector<double> leftTop{ cos(degLeftTop* pi / 180.0),sin(degLeftTop* pi / 180.0) };
+
+			// bilinear interpolation of component-wise mean of random variables mean(X,Y) (weighted vector addition)
+			std::vector<double> meanBottom = (1.0-alphaX)*leftBottom + alphaX*RightBottom;
+			std::vector<double> meanTop = (1.0 - alphaX)*leftTop + alphaX * RightTop;
+			std::vector<double> mean = (1.0 - alphaY)*meanTop + alphaY * meanBottom;
+
+			// bilinear interpolation of component-wise variance of random variables var(X,Y) (weighted vector addition)
+			std::vector<double> varBottom = (1.0 - alphaX)*(leftBottom + (-1.0)*mean)*(leftBottom + (-1.0)*mean) + alphaX * (RightBottom + (-1.0)*mean)*(RightBottom + (-1.0)*mean);
+			std::vector<double> varTop = (1.0 - alphaX)*(leftTop + (-1.0)*mean)*(leftTop + (-1.0)*mean) + alphaX * (RightTop + (-1.0)*mean)*(RightTop + (-1.0)*mean);
+			std::vector<double> var = (1.0 - alphaY)*varTop + alphaY * varBottom;
+
+			// bilinear interpolation of component-wise covariance of random variables cov(X,Y) (weighted vector addition)
+			double varXYBottom = (1.0 - alphaX)*(leftBottom.at(0) - mean.at(0))*(leftBottom.at(1) - mean.at(1)) + alphaX * (RightBottom.at(0) - mean.at(0))*(RightBottom.at(1) - mean.at(1));
+			double varXYTop = (1.0 - alphaX)*(leftTop.at(0) - mean.at(0))*(leftTop.at(1) - mean.at(1)) + alphaX * (RightTop.at(0) - mean.at(0))*(RightTop.at(1) - mean.at(1));
+			double varXY = (1.0 - alphaY)*varXYTop + alphaY * varXYBottom;
+
+			// construct covariance matrix..
+			MatrixXd covariance(2, 2); // covariance matrix
+			//EigenSolver<MatrixXd> es(covariance); // EigenSystem Solver: Eigendecomposition --> alternative: but unsorted insconsistently!!
+			covariance.row(0) = Vector2d(var.at(0), varXY);
+			covariance.row(1) = Vector2d(varXY, var.at(1));
+			// compute PCA (SVD)
+			JacobiSVD<MatrixXd> svd(covariance, ComputeThinU | ComputeThinV);
+			//Vector2d svector1 = es.eigenvectors().col(1).real(); // alternative: but unsorted insconsistently!!
+			// assign elements
+			double y1 = svd.matrixU().col(1)[1];// svd.matrixV().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-
+			double x1 = svd.matrixU().col(1)[0]; //svd.matrixV().col(0)[0]; // use x - coordinate of both semi-axes
+
+			// assign singular values
+			double sv1 = glyphParameters.at(round(seedPosXIndex) + round(seedPosYIndex) * width).at(0);
+			double sv2 = glyphParameters.at(round(seedPosXIndex) + round(seedPosYIndex) * width).at(1);
+
+			degPos = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°];
+			
+			degPos = degPos - degMem > 90 ? degPos - 180 : degPos;
+			degPos = degPos - degMem < -90 ? degPos + 180 : degPos;
+
+			degMem = degPos;
+
+			if(sv1 > 0.0)
+				defineConvexEllipse(&tensorFieldLinePos, 3.0*sv1 / (sv1 + sv2), sv2 / (sv1 + sv2) + 1.0, quality, degPos);
+			else
+				defineConvexEllipse(&tensorFieldLinePos, 1.0, 1.0, quality, degPos);
+			
 			window.draw(tensorFieldLinePos);
 			out.draw(tensorFieldLinePos);
 
@@ -996,9 +1064,8 @@ int main(int argc, char* argv[])
 
 			tensorFieldLinePos.setPosition(seedPosX, seedPosY);
 
-			seedPosXIndex = round((seedPosX - cellWidth / 2.0) / cellWidth);
-			seedPosYIndex = round((seedPosY - cellWidth / 2.0) / cellWidth);
-
+			seedPosXIndex = (seedPosX - cellWidth / 2.0) / cellWidth; // nearest neighbor interpolation as work solution
+			seedPosYIndex = (seedPosY - cellWidth / 2.0) / cellWidth; // nearest neighbor interpolation as work solution
 		}
 	}
 
@@ -1051,7 +1118,7 @@ int main(int argc, char* argv[])
 			out.draw(ellipse);
 			outAll.draw(ellipse);
 			if (showOverlay)
-				window.draw(sprE);
+				//window.draw(sprE);
 			outAll.draw(sprE);
 		}
 		// window.draw(ellipse);  // TEST //
