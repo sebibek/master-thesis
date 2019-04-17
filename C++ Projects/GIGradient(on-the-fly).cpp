@@ -393,8 +393,7 @@ std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 	std::vector<T> result;
 	result.reserve(a.size());
 
-	std::transform(a.begin(), a.end(), b.begin(),
-		std::back_inserter(result), std::plus<T>());
+	std::transform(a.begin(), a.end(), b.begin(), std::back_inserter(result), std::plus<T>());
 	return result;
 }
 
@@ -406,27 +405,26 @@ std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
 	std::vector<T> result;
 	result.reserve(a.size());
 
-	std::transform(a.begin(), a.end(), b.begin(),
-		std::back_inserter(result), std::minus<T>());
+	std::transform(a.begin(), a.end(), b.begin(), std::back_inserter(result), std::minus<T>());
 	return result;
 }
 
-template <typename T> // element-wise multiplication for number, std::vector
-std::vector<T> operator*(const T& a, const std::vector<T>& b)
-{
-	std::vector<T> result(b.size());
-	std::transform(b.begin(), b.end(), result.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, a));
-
-	//for (int i = 0; i < b.size(); i++)
-	//	result.at(i) = a * b.at(i);
-	return result;
-}
+//template <typename T> // element-wise multiplication for number, std::vector
+//std::vector<T> operator*(const T& a, const std::vector<T>& b)
+//{
+//	std::vector<T> result(b.size());
+//	std::transform(b.begin(), b.end(), result.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, a));
+//
+//	//for (int i = 0; i < b.size(); i++)
+//	//	result.at(i) = a * b.at(i);
+//	return result;
+//}
 
 template <typename T> // element-wise minus for vector of vectors
 std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, const std::vector<std::vector<T>>& b)
 {
 	std::vector<std::vector<T>> result(b.size());
-
+	
 	for (int i = 0; i < b.size(); i++)
 		result.at(i) = a.at(i) - b.at(i);
 
@@ -707,7 +705,7 @@ public:
 		}
 		cosine_sum = cosine_sum / 8.0;
 		for (int k = 0; k < 8; k++) // for each node..
-			cosines.at(k) = 1.0 / cosine_sum * cosines.at(k);
+			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/cosine_sum));
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;

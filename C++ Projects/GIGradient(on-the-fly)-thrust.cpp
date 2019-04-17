@@ -416,8 +416,7 @@ std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 	std::vector<T> result;
 	result.reserve(a.size());
 
-	std::transform(a.begin(), a.end(), b.begin(),
-		std::back_inserter(result), std::plus<T>());
+	std::transform(a.begin(), a.end(), b.begin(), std::back_inserter(result), std::plus<T>());
 	return result;
 }
 
@@ -429,21 +428,20 @@ std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
 	std::vector<T> result;
 	result.reserve(a.size());
 
-	std::transform(a.begin(), a.end(), b.begin(),
-		std::back_inserter(result), std::minus<T>());
+	std::transform(a.begin(), a.end(), b.begin(), std::back_inserter(result), std::minus<T>());
 	return result;
 }
 
-template <typename T> // element-wise multiplication for number, std::vector
-std::vector<T> operator*(const T& a, const std::vector<T>& b)
-{
-	std::vector<T> result(b.size());
-
-	for (int i = 0; i < b.size(); i++)
-		result.at(i) = a * b.at(i);
-
-	return result;
-}
+//template <typename T> // element-wise multiplication for number, std::vector
+//std::vector<T> operator*(const T& a, const std::vector<T>& b)
+//{
+//	std::vector<T> result(b.size());
+//
+//	for (int i = 0; i < b.size(); i++)
+//		result.at(i) = a * b.at(i);
+//
+//	return result;
+//}
 
 template <typename T> // element-wise minus for vector of vectors
 std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, const std::vector<std::vector<T>>& b)
@@ -684,7 +682,7 @@ class propagator
 	std::vector<std::vector<double>>* sampleBufferB;
 	std::vector<std::vector<double>>* glyphBuffer;
 	
-	thrust::device_vector<thrust::device_vector<double>> cosines;
+	std::vector<thrust::device_vector<double>> cosines;
 	
 	// create sample vector (dynamic)
 	thrust::device_vector<double> read;
@@ -737,7 +735,7 @@ public:
 		}
 		cosine_sum = cosine_sum / 8.0;
 		for (int k = 0; k < 8; k++) // for each node..
-			cosines.at(k) = 1.0 / cosine_sum * cosines.at(k);
+			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(thrust::multiplies<double>(), std::placeholders::_1, 1.0 / cosine_sum));
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
@@ -885,20 +883,20 @@ public:
 };
 
 //template <typename T>
-double acc(std::vector<double>& vec)
+double acc(thrust::device_vector<double>& vec)
 {
 	double(*dabs)(double) = &std::abs; // cast abs function as type to set overload
-	std::transform(vec.begin(), vec.end(), vec.begin(), dabs); // apply abs function
+	thrust::transform(vec.begin(), vec.end(), vec.begin(), dabs); // apply abs function
 	
 	/*double sum = 0.0;
 	for (int i = 0; i < vec.size(); i++)
 		sum += abs(vec.at(i));*/
-	return std::accumulate(vec.begin(), vec.end(), 0.0); // accumulate and return
+	return thrust::accumulate(vec.begin(), vec.end(), 0.0); // accumulate and return
 	
 }
 
 //template <typename T>
-double acc2(std::vector<std::vector<double>>& vec)
+double acc2(std::vector<thrust::device_vector<double>>& vec)
 {
 	/*double sum = std::accumulate(m.begin(), m.end(), 0, [](auto lhs, const auto& rhs)
 	{
@@ -1036,12 +1034,11 @@ int main(int argc, char* argv[])
 	//cout << "..after propagation TOTAL, total timer:" << total << " ms" << endl;
 	// PROPAGATION SCHEME END //
 
-
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 
-	std::vector<thrust::device_vector<double>> sampleBufferLeft(dim, std::vector<double>(steps, 0.0));
-	std::vector<thrust::device_vector<double>> sampleBufferRight(dim, std::vector<double>(steps, 0.0));
+	std::vector<thrust::device_vector<double>> sampleBufferLeft(dim, initArray);
+	std::vector<thrust::device_vector<double>> sampleBufferRight(dim, initArray);
 	cout << "before constructing gradient vector.." << endl;
 	double duration; float total = 0.0;
 	std::clock_t startTotal = std::clock();
