@@ -523,7 +523,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	int rows = 0; // create ptr to rows of txt tensor field
 	std::string workDir = GetCurrentWorkingDir();
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows);
-	int dim = rows / 2 * cols / 2; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
+	int dim = (rows / 2) * (cols / 2); // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 
 	// block the read-out matrices into a list of MatrixXd types (hardcoded 2x2 read-out)
 	std::vector<MatrixXd> matrixList(dim, MatrixXd::Ones(2, 2));
@@ -549,6 +549,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 	// define parameters
 	double radres = (2 * pi) / steps;
 
+	cout << "HERE1!" << endl;
 	std::complex<double> sigma1(0, 0);
 	std::complex<double> sigma2(0, 0);
 	std::vector<bool> signs(3, false);
