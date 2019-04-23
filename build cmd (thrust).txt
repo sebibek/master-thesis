@@ -1,4 +1,4 @@
-nvcc -I/usr/include/vtk-6.3 -I/usr/include/crt -I/export/home/sbek/Documents/TensorVis/Eigen -L/usr/lib/x86_64-linux-gnu --verbose -g getopt.c main.cu -lvtksys-6.3 -lvtkCommonCore-6.3 -lvtkImagingCore-6.3 -lvtkIOCore-6.3 -lvtkIOXML-6.3 -lvtkCommonDataModel-6.3
+nvcc -I/usr/include/vtk-6.3 -I/usr/include/crt -I/export/home/sbek/Documents/TensorVis/Eigen -L/usr/lib/x86_64-linux-gnu --verbose getopt.c main.cu -lvtksys-6.3 -lvtkCommonCore-6.3 -lvtkImagingCore-6.3 -lvtkIOCore-6.3 -lvtkIOXML-6.3 -lvtkCommonDataModel-6.3 -gencode arch=compute_61,code=sm_61 -O3
 
 // needs new version of Eigen3 to support CUDA Toolkit 9
 pgo (profile-guided optimization): -fprofile-generate/fprofile-use 
