@@ -8,7 +8,7 @@
 #define GetCurrentDir getcwd
 #endif
 
-#define MAXBUFSIZE  ((int) 1e5)
+#define MAXBUFSIZE  ((int) 1e8)
 #define _USE_MATH_DEFINES
 
 // INCLUDES (IMPORTS)
@@ -50,6 +50,9 @@ typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
 typedef std::numeric_limits< double > dbl;
 
+// txt file buffer
+double buffer[MAXBUFSIZE];
+
 //definition of pi
 const double pi = M_PI;
 
@@ -69,9 +72,9 @@ int wSize = 701;
 
 // get current working directory to assign matrix.txt path
 std::string GetCurrentWorkingDir(void) {
-	char buff[FILENAME_MAX];
-	GetCurrentDir(buff, FILENAME_MAX);
-	std::string current_working_dir(buff);
+	char buffer[FILENAME_MAX];
+	GetCurrentDir(buffer, FILENAME_MAX);
+	std::string current_working_dir(buffer);
 	return current_working_dir;
 }
 
@@ -419,6 +422,45 @@ std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
 //	//	result.at(i) = a * b.at(i);
 //	return result;
 //}
+MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
+{
+	int cols = 0, rows = 0;
+	//double buff[MAXBUFSIZE];
+	ifstream infile(filepath);
+
+	while (!infile.eof())
+	{
+		string line;
+		getline(infile, line);
+
+		if (line.empty())
+			break;
+
+		int temp_cols = 0;
+		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
+		while (!stream.eof())
+			stream >> buffer[cols*rows + temp_cols++];
+
+		if (temp_cols == 0) // if empty line
+			continue;
+
+		if (cols == 0) // set col count from first line
+			cols = temp_cols;
+
+		rows++;
+	}
+
+	infile.close();
+	*colsCount = cols;
+	*rowsCount = rows;
+	MatrixXd result(rows, cols);
+	for (int j = 0; j < rows; j++) // use (j, i)-index for data matrices, use (i, j) for mathematical matrices (w. apt Transpose/Transformations etc.)
+		for (int i = 0; i < cols; i++)
+			result(j, i) = buffer[cols*j + i];
+
+	return result;
+};
+
 
 template <typename T> // element-wise minus for vector of vectors
 std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, const std::vector<std::vector<T>>& b)
