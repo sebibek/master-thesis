@@ -22,9 +22,8 @@ https://devblogs.nvidia.com/even-easier-introduction-cuda/
 Include Ordner in /usr/local/include
 g++ -I/usr/local/include -I/usr/vtk/include -L/usr/lib -O2 --verbose -g -Wall getopt.c main.cpp -lvtksys-8.2 -lvtkCommon -lvtkImaging -lvtkGraphics -lvtkGenericFiltering -lvtkIO
 
-https://stackoverflow.com/questions/20414151/simple-cuda-thrust-program-error
-ERROR: terminate called after throwing an instance of 'thrust::system::system_error'
-  what():  reduce failed to synchronize: invalid program counter
+https://stackoverflow.com/questions/16380464/how-to-store-the-vector-begin-iterator-of-template-type-in-thrust
+
 
 in VS2017:
 vtkChartsCore-8.2.lib
