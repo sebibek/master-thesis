@@ -112,10 +112,10 @@ struct abs_functor
 };
 
 
-void saxpy_fast(double a, thrust::device_vector<double>& X, thrust::device_vector<double>& Y)
+void saxpy_fast(double a, const thrust::device_vector<double>::iterator& start, const thrust::device_vector<double>::iterator& end, thrust::device_vector<double>& out)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
-	thrust::transform(X.begin(), X.end(), Y.begin(), Y.begin(), saxpy_functor(a));
+	thrust::transform(out.begin(), out.end(), start, end, saxpy_functor(a));
 }
 
 void scale_fast(double a, thrust::device_vector<double>& X)
@@ -253,7 +253,7 @@ double intensity = 2.1; // --> initial intensity val
 double thresh = 0.001;
 
 // parse files
-void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions)
+void parse_file(char* filename)
 {
 	std::ifstream f(filename);
 	std::string line;
@@ -270,13 +270,6 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 			//ignore comments
 			if (line[0] == '#')
 				continue;
-			//write function to vector
-			else if (line == "end") {
-				funcs.push_back(func_literal);
-				//reset default values
-				func_literal = "100*cos(theta)";
-				positions.push_back(position);
-			}
 			
 			//parse other statements
 			else {
@@ -354,7 +347,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 		std::cerr << filename << " is not a valid filename.\n";
 }
 
-void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<Pair>& positions) {
+void parse_options(int argc, char* argv[]) {
 
 	int c;
 	std::string frameskip_opt = "-1";
@@ -440,13 +433,13 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 	}
 	int optmem = optind; // set up option index memory variable
 	for (int i = optind; i < argc; i++)
-		parse_file(argv[i], funcs, positions); // parse "filename.txt" passed as LAST cmd line arg
+		parse_file(argv[i]); // parse "filename.txt" passed as LAST cmd line arg
 	if (optind == optmem) // if optind did not change.., use standard config.txt in workDir for configuration
 	{
 		std::string str = workDir + "/config.txt";
 		char* cstr = new char[str.length() + 1];
 		strncpy(cstr, str.c_str(), str.length() + 1);
-		parse_file(cstr, funcs, positions); // parse config.txt in workDir
+		parse_file(cstr); // parse config.txt in workDir
 		free(cstr);
 	}
 }
@@ -636,7 +629,7 @@ void computeGlyphs(thrust::device_vector<double>& glyphBuffer, std::vector<std::
 
 	// define parameters
 	double radres = (2 * pi) / steps;
-
+	
 	std::complex<double> sigma1(0, 0);
 	std::complex<double> sigma2(0, 0);
 	std::vector<bool> signs(3, false);
@@ -681,12 +674,12 @@ void computeGlyphs(thrust::device_vector<double>& glyphBuffer, std::vector<std::
 		double sv1 = svdList.at(i).singularValues()[0];
 		double sv2 = svdList.at(i).singularValues()[1];
 		double dot = sv2 * sv1;
-
+		//cout << "HERE" << endl;
 		double sum = 0.0;
 		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0)
 		{
-			glyphBuffer[i*steps][round(deg1*steps / 360)] = sv1;
-			glyphBuffer[i*steps][static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			glyphBuffer[i*steps + round(deg1*steps / 360)] = sv1;
+			glyphBuffer[i*steps + static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
 			sum += 2 * sv1;
 		}
 		else
@@ -696,16 +689,17 @@ void computeGlyphs(thrust::device_vector<double>& glyphBuffer, std::vector<std::
 			{
 				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
 				sum += val;
-				glyphBuffer[i*steps][j] = val;
+				glyphBuffer[i*steps + j] = val;
 			}
 		}
+		//cout << "HERE" << endl;
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 		// write glyphParameters
 		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
-
+		
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphBuffer[i*steps].begin(), glyphBuffer[i*steps].end(), glyphBuffer[i*steps].begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		std::transform(glyphBuffer.begin() + i*steps, glyphBuffer.begin()+ (i+1)*steps, glyphBuffer.begin() + i*steps, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
 }
@@ -738,6 +732,7 @@ class propagator
 	thrust::device_vector<double>* sampleBufferA;
 	thrust::device_vector<double>* sampleBufferB;
 	thrust::device_vector<double>* glyphBuffer;
+	thrust::device_vector<double> sampleBufferInit;
 	
 	std::vector<thrust::device_vector<double>> cosines;
 	
@@ -754,7 +749,6 @@ class propagator
 
 	thrust::device_vector<double> lightSrc;
 	std::vector<thrust::device_vector<double>> lightSrcs;
-	std::vector<thrust::device_vector<double>> sampleBufferInit;
 
 
 public:
@@ -770,7 +764,7 @@ public:
 		// assign ptrs to member vectors
 		sampleBufferA = sampleBuffA;
 		sampleBufferB = sampleBuffB;
-		sampleBufferInit = thrust::device_vector<double>(dim, initArray);
+		sampleBufferInit = thrust::device_vector<double>(dim, 0.0);
 		glyphBuffer = ellipseArray;
 		meanA = mean;
 
@@ -812,10 +806,17 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			thrust::copy(sampleBufferA.begin() + i * steps, sampleBufferA.begin() + (i+1) * steps, read.begin());
+			// define iterators for accessing current sample
+			typename thrust::device_vector<double>::iterator start = sampleBufferA->begin() + i * steps;
+			typename thrust::device_vector<double>::iterator end = sampleBufferA->begin() + (i+1) * steps;
+
+			typename thrust::device_vector<double>::iterator glyphStart = sampleBufferA->begin() + i * steps;
+			typename thrust::device_vector<double>::iterator glyphEnd = sampleBufferA->begin() + (i+1) * steps;
+
+			thrust::copy(start, end, read.begin());
 			if (read == initArray)
 				continue;
-			thrust::copy(glyphBuffer.begin() + i * steps, glyphBuffer.begin() + (i + 1) * steps, glyph.begin());
+			//thrust::copy(glyphStart, glyphEnd, glyph.begin());
 
 			flag = false;
 			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
@@ -838,10 +839,10 @@ public:
 					cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;*/
 			//}
 
-			
+			cout << "HERE" << endl;
 			// calculate mean and variance.. of I(phi)
-			double sum1 = thrust::reduce(read.begin(), read.end()); // THRUSTs accumulate analog starting w. sum = 0.0
-			double sum2 = thrust::reduce(glyph.begin(), glyph.end()); // THRUSTs accumulate analog starting w. sum = 0.0
+			double sum1 = thrust::reduce(start, end); // THRUSTs accumulate analog starting w. sum = 0.0
+			double sum2 = thrust::reduce(glyphStart, glyphEnd); // THRUSTs accumulate analog starting w. sum = 0.0
 			double sum3 = multsum(read,glyph);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
 			//double sum3 = thrust::reduce(out.begin(), out.end(), (double) 0.0, thrust::plus<double>()); // THRUSTs accumulate analog starting w. sum = 0.0
 
@@ -910,16 +911,17 @@ public:
 					val_sum += val; // val*radres
 				}
 
-				out = cosines.at(k); // assign cosine cone w.r.t cone direction (index) k
+				cout << "HERE cosine" << endl;
+				//out = cosines.at(k); // assign cosine cone w.r.t cone direction (index) k
 
 				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-				//thrust::transform(out.begin(), out.end(), out.begin(), std::bind(thrust::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
-
-				index = i + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
-				
-				//thrust::device_vector<double> accumulate = sampleBufferB->at(index);
-				saxpy_fast(val_sum *= radres, out, sampleBufferB->at(index)); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
+				//scale_fast(val_sum *= radres, out);
+								
+				/*thrust::copy(sampleBufferB->begin() + i * steps, sampleBufferB->begin() + (i+1) * steps, read.begin());
+				//thrust::device_vector<double> accumulate = sampleBufferB->at(index);*/
+				saxpy_fast(val_sum *= radres, sampleBufferB->begin() + i * steps, sampleBufferB->begin() + (i+1) * steps, cosines.at(k)); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
 				*meanA += val_sum;
+				//thrust::transform(out.begin(), out.end(), sampleBufferB->begin() + i * steps, sampleBufferB->begin() + i * steps, thrust::plus<double>());
 				// add up contribution of scaled (normalized) cosine cone in sample out at position index
 				//thrust::transform(sampleBufferB->at(index).begin(), sampleBufferB->at(index).end(), out.begin(), sampleBufferB->at(index).begin(), std::plus<double>());
 			}
@@ -929,13 +931,14 @@ public:
 	thrust::device_vector<double> propagateDist(int i, int j, int t)
 	{
 		// DUAL BUFFER PROPAGATION //
-		thrust::fill(sampleBufferA.begin(), sampleBufferA.end(), 0.0);
-		thrust::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);
+		
+		thrust::fill(sampleBufferA->begin(), sampleBufferA->end(), 0.0);
+		thrust::fill(sampleBufferB->begin(), sampleBufferB->end(), 0.0);
 		double meanMem = 0.0;
 		bool finished = false;
 		lightSrc = lightSrcs.at(t);
-		sampleBufferA->at(j*width + i) = lightSrc; // get pre-computed light src for current direction t
-
+		thrust::copy(sampleBufferA->begin() + steps*(j*width + i), sampleBufferA->begin() + steps*(j*width + i + 1), lightSrc.begin()); // get pre-computed light src for current direction t
+		
 		// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 		while (!finished) // perform one single light propagation pass (iteration)
 		{
@@ -944,16 +947,16 @@ public:
 			//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 			thrust::swap(sampleBufferA, sampleBufferB);
 			//sampleBufferA = sampleBufferB;
-			sampleBufferA->at(j*width + i) = lightSrc;
+			thrust::copy(sampleBufferA->begin() + steps*(j*width + i), sampleBufferA->begin() + steps*(j*width + i + 1), lightSrc.begin());
 
 			if (abs(*meanA - meanMem) < thresh)
 				finished = true;
 			meanMem = *meanA;
 
-			thrust::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);
+			thrust::fill(sampleBufferB->begin(), sampleBufferB->end(), 0.0);
 		}
 
-		thrust::fill(sampleBufferA.begin() + i * steps, sampleBufferA.begin() + (i + 1) * steps, 0.0); //remove light src to prevent trivial differences at light src positions ???? try comment!
+		thrust::fill(sampleBufferA->begin() + steps*(j*width + i), sampleBufferA->begin() + steps*(j*width + i + 1), 0.0); //remove light src to prevent trivial differences at light src positions ???? try comment!
 		return *sampleBufferA;
 	}
 };
@@ -1002,16 +1005,9 @@ int main(int argc, char* argv[])
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
-	cout << "width|height: " << width << "|" << height << endl;
+	parse_options(argc, argv);// parse input option file
 	const int dim = width * height * steps; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
-
-	// create vector for light src's symbolic user-input functions in convenient string format
-	std::vector<std::string> userFunctions;
-	std::vector<Pair> userPositions;
-	// parse input option file
-	parse_options(argc, argv, userFunctions, userPositions);
-
-	//thrust::host_vector<double> initArray(steps, 0.0);
+	cout << "width|height|steps|dim: " << width << "|" << height << "|"<< steps << "|" << dim << endl;
 
 	// define dual buffers for propagation on host (CPU)
 	thrust::host_vector<double> sampleBufferAhost(dim, 0.0);
@@ -1020,35 +1016,35 @@ int main(int argc, char* argv[])
 	thrust::host_vector<double> glyphBufferHost(dim, 0.0);
 	
 	// define dual buffers for propagation on host (GPU)
-	thrust::device_vector<double>> sampleBufferA(dim);
-	thrust::device_vector<double>> sampleBufferB(dim);
-	thrust::device_vector<double>> sampleBufferInit(dim);
-	thrust::device_vector<double>> glyphBuffer(dim);
+	thrust::device_vector<double> sampleBufferA(dim);
+	thrust::device_vector<double> sampleBufferB(dim);
+	thrust::device_vector<double> sampleBufferInit(dim);
+	thrust::device_vector<double> glyphBuffer(dim);
 
 	// create left and right pointer buffers
-	std::vector<thrust::device_vector<double>> sampleBufferLeft(dim);
-	std::vector<thrust::device_vector<double>> sampleBufferRight(dim);
-	for (int i = 0; i < dim; i++)
-	{
-		sampleBufferA.at(i) = sampleBufferAhost.at(i);
-		sampleBufferB.at(i) = sampleBufferBhost.at(i);
-		sampleBufferInit.at(i) = sampleBufferInitHost.at(i);
-		glyphBuffer.at(i) = glyphBufferHost.at(i);
-		sampleBufferLeft.at(i) = sampleBufferAhost.at(i);
-		sampleBufferRight.at(i) = sampleBufferAhost.at(i);
-	}
+	thrust::device_vector<double> sampleBufferLeft(dim);
+	thrust::device_vector<double> sampleBufferRight(dim);
+
+	sampleBufferA = sampleBufferAhost;
+	sampleBufferB = sampleBufferBhost;
+	sampleBufferInit = sampleBufferInitHost;
+
+	sampleBufferLeft = sampleBufferAhost;
+	sampleBufferRight = sampleBufferAhost;
 
 	std::vector<double> initGradient(3, 0.0); // construct 3D Gradient
 	std::vector<std::vector<double>> deltaBuffer(width*height*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 	
 	// define glyphParameters for TFLs and signMap for sign Handler
-	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
-	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
+	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
+	std::vector<std::vector<bool>> signMap(width*height, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	
 	cout << "before compute glyphs" << endl;
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
+	//glyphBuffer = glyphBufferHost;
+	cout << "after compute glyphs" << endl;
 	double meanA = 0.0;
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &meanA, &sampleBufferA, &sampleBufferB, &glyphBuffer);
@@ -1075,23 +1071,24 @@ int main(int argc, char* argv[])
 
 				// X-1D central differences.. VARIANT 1: bin by bin - spatial+directional distribution of energies
 				sampleBufferA = sampleBufferRight - sampleBufferLeft;
-				meanA = acc2(sampleBufferA);
+				meanA = acc(sampleBufferA);
 				gradient.at(0) = meanA / 2.0;
-				
+				//cout << "HERE2" << endl;
 				sampleBufferLeft = prop.propagateDist(i, (j - 1), t); // propagate current distribution vector
 				sampleBufferRight = prop.propagateDist(i, (j + 1), t); // propagate current distribution vector
 				// Y-1D central differences..
 				sampleBufferA = sampleBufferRight - sampleBufferLeft;
-				meanA = acc2(sampleBufferA);
+				meanA = acc(sampleBufferA);
 				gradient.at(1) = meanA / 2.0;
-
+				//cout << "HERE3" << endl;
 				sampleBufferLeft = prop.propagateDist(i, j, (t == 0 ? (steps - 1) : (t - 1))); // propagate current distribution vector
 				sampleBufferRight = prop.propagateDist(i, j, (t + 1) % steps); // propagate current distribution vector
+				//cout << "HERE3" << endl;
 				// t-1D central differences..
 				sampleBufferA = sampleBufferRight - sampleBufferLeft;
-				meanA = acc2(sampleBufferA);
+				meanA = acc(sampleBufferA);
 				gradient.at(2) = meanA / 2.0;//(2.0*radres) for normalization
-
+				//cout << "HERE3" << endl;
 				// X-1D central differences.. VARIANT 2: cell by cell - spatial distribution of energies (chose because of redundancy for same spatial distribution but differing directional distribution)
 				//meanA = 0.0;
 				//for(int k = 0; k < dim; k++)
@@ -1108,7 +1105,8 @@ int main(int argc, char* argv[])
 				//	meanA += abs(std::accumulate(distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).begin(), distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).begin(), distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).end(),0.0));
 				//gradient.at(2) = meanA / 2.0;
 
-				deltaBuffer.at(j*width + i + t * dim) = gradient;
+				deltaBuffer.at(j*width + i + t * width*height) = gradient;
+				//cout << "HERE3" << endl;
 				//cout << "HERE: 1 cycle passed" << endl;
 			}
 		duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
@@ -1148,8 +1146,8 @@ int main(int argc, char* argv[])
 		for (int j = 0; j < height; j++)
 			for (int i = 0; i < width; i++)
 			{
-				double res = vectorNorm(deltaBuffer.at(j*width + i + t * dim).begin(), deltaBuffer.at(j*width + i + t * dim).end());
-				scalarNorm.at(j*width + i + t * dim) = res;
+				double res = vectorNorm(deltaBuffer.at(j*width + i + t * width*height).begin(), deltaBuffer.at(j*width + i + t * width*height).end());
+				scalarNorm.at(j*width + i + t * width*height) = res;
 				energy->SetValue(ctr, res);
 				ctr++;
 			}
@@ -1179,3 +1177,4 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
+
