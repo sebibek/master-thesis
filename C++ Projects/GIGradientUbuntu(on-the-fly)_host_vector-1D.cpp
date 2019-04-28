@@ -497,11 +497,11 @@ thrust::host_vector<double> operator+(const thrust::host_vector<double>& a, cons
 }
 
 //template <typename T>
-thrust::host_vector<double> operator-(const thrust::host_vector<double>& a, const thrust::host_vector<double>& b)
+thrust::device_vector<double> operator-(const thrust::device_vector<double>& a, const thrust::device_vector<double>& b)
 {
 	assert(a.size() == b.size());
 
-	thrust::host_vector<double> result(a.size());
+	thrust::device_vector<double> result(a.size());
 
 	//thrust::transform(a.begin(), a.end(), b.begin(), thrust::back_inserter(result), thrust::minus<T>());
 	thrust::transform(a.begin(), a.end(), b.begin(), result.begin(), thrust::minus<double>());
