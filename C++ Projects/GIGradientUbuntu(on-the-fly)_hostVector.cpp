@@ -1063,8 +1063,8 @@ int main(int argc, char* argv[])
 		for (int j = 0; j < height; j++)
 			for (int i = 0; i < width; i++)
 			{
-				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
-					continue;
+				if (i == 0 || i == width - 1 || j == 0 || j == height - 1) // if OFF grid
+					continue; // skip step..
 
 				sampleBufferLeft = prop.propagateDist(i - 1, j, t); // propagate current lower distribution vector
 				sampleBufferRight = prop.propagateDist(i + 1, j, t); // propagate current upper distribution vector
@@ -1072,14 +1072,14 @@ int main(int argc, char* argv[])
 				meanA = acc2(sampleBufferRight - sampleBufferLeft);
 				gradient.at(0) = meanA / 2.0;
 
-				sampleBufferLeft = prop.propagateDist(i, (j - 1), t); // propagate current distribution vector
-				sampleBufferRight = prop.propagateDist(i, (j + 1), t); // propagate current distribution vector
+				sampleBufferLeft = prop.propagateDist(i, (j - 1), t); // propagate current lower distribution vector
+				sampleBufferRight = prop.propagateDist(i, (j + 1), t); // propagate current upper distribution vector
 				// Y-1D central differences..
 				meanA = acc2(sampleBufferRight - sampleBufferLeft);
 				gradient.at(1) = meanA / 2.0;
 
-				sampleBufferLeft = prop.propagateDist(i, j, (t == 0 ? (steps - 1) : (t - 1))); // propagate current distribution vector
-				sampleBufferRight = prop.propagateDist(i, j, (t + 1) % steps); // propagate current distribution vector
+				sampleBufferLeft = prop.propagateDist(i, j, (t == 0 ? (steps - 1) : (t - 1))); // propagate current lower distribution vectoribution vector
+				sampleBufferRight = prop.propagateDist(i, j, (t + 1) % steps); // propagate current upper distribution vector
 				// t-1D central differences..
 				meanA = acc2(sampleBufferRight - sampleBufferLeft);
 				gradient.at(2) = meanA / 2.0;//(2.0*radres) for normalization
