@@ -739,6 +739,15 @@ int fast_mod(const int input, const int ceil) {
 	// NB: the assumption here is that the numbers are positive
 }
 
+// convenience function to convert from vector<device_vector> to vector<host_vector>
+std::vector<thrust::host_vector> create_parameters(std::vector<thrust::device_vector> const& params)
+{
+	std::vector<thrust::host_vector> ret(params.size());
+	std::transform(params.begin(), params.end(), ret.begin(),
+		[](auto value) { return Parameter{ value, 0 }; });
+	return ret;
+}
+
 class propagator
 {
 	// set principal arture angles in rads
@@ -836,7 +845,7 @@ public:
 			read = sampleBufferA.at(i); // copy current sample to HOST (CPU) Vector for averaging (normalization)
 			//if (sampleBufferA.at(i) == initArray) // test current sample on host
 			//	continue;
-			if (thrust::equal_to<double>(sampleBufferA.at(i), initArray) // test current sample on host
+			if (thrust::equal_to<double>(read, initArray) // test current sample on host
 				continue;
 			glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 
@@ -973,7 +982,7 @@ public:
 		}
 
 		sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions ???? try comment!
-		return sampleBufferA;
+		return sampleBufferA; //create_parameters(sampleBufferA);
 	}
 };
 
