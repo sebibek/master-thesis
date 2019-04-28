@@ -148,7 +148,7 @@ double multsum(thrust::device_vector<double>& X, thrust::device_vector<double>& 
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 
-	thrust::device_vector<double> res(steps,0.0);
+	thrust::device_vector<double> res(steps, 0.0);
 	thrust::transform(X.begin(), X.end(), Y.begin(), res.begin(), multsum_functor());;
 	return thrust::reduce(res.begin(), res.end());
 }
@@ -749,10 +749,10 @@ class propagator
 	double* meanA;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
-	std::vector<thrust::host_vector<double>> sampleBufferA;
-	std::vector<thrust::host_vector<double>> sampleBufferB;
-	std::vector<thrust::host_vector<double>> sampleBufferInit;
-	std::vector<thrust::host_vector<double>>* glyphBuffer;
+	thrust::host_vector<double> sampleBufferInit;
+	thrust::host_vector<double> sampleBufferA;
+	thrust::host_vector<double> sampleBufferB;
+	thrust::host_vector<double>* glyphBuffer;
 	
 	std::vector<thrust::device_vector<double>> cosines;
 	
@@ -773,7 +773,7 @@ class propagator
 
 
 public:
-	propagator(const int dim, double* mean, std::vector<thrust::host_vector<double>>* ellipseArray)
+	propagator(const int dim, double* mean, std::vector<thrust::device_vector<double>>* ellipseArray)
 	{
 		// initialize member samples w. 0
 		initArray = thrust::host_vector<double>(steps, 0.0);
@@ -782,7 +782,8 @@ public:
 		out = initArray;
 
 		// assign ptrs to member vectors
-		sampleBufferInit = std::vector<thrust::host_vector<double>>(dim, initArray);
+		sampleBufferInit = thrust::host_vector<double>(dim, 0.0);
+		sampleBufferOut = sampleBufferInit;
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
@@ -825,12 +826,21 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			read = sampleBufferA.at(i); // copy current sample to Device (GPU) Vector for averaging (normalization)
-			//if (sampleBufferA.at(i) == initArray) // test current sample on host
-			//	continue;
-			if (thrust::equal_to<double>(sampleBufferA.at(i), initArray) // test current sample on host
-				continue;
-			glyph = glyphBuffer->at(i); // copy current glyph to Device (GPU) Vector for averaging (normalization)
+			// define iterators for accessing current sample
+			thrust::device_vector<double>::iterator start = sampleBufferA->begin() + i * steps;
+			thrust::device_vector<double>::iterator end = sampleBufferA->begin() + (i + 1) * steps;
+
+			thrust::device_vector<double>::iterator glyphStart = sampleBufferA->begin() + i * steps;
+			thrust::device_vector<double>::iterator glyphEnd = sampleBufferA->begin() + (i + 1) * steps;
+
+			thrust::copy(start, end, read.begin());// copy current sample to DEVICE (GPU) Vector for averaging (normalization)
+			/*if (read == initArray)
+				continue;*/
+			if (thrust::equal_to<double>(read, initArray) // test current sample on host for trivial (NULL) sample
+				continue; // if so, skip cell
+
+			thrust::copy(glyphStart, glyphEnd, glyph.begin()); // copy current glyph to DEVICE (GPU) Vector for averaging (normalization)
+			//glyph = glyphBuffer->at(i);  // copy current glyph to DEVICE (GPU) Vector for averaging (normalization)
 
 			flag = false;
 			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
@@ -856,7 +866,7 @@ public:
 			// calculate mean and variance.. of I(phi)
 			double sum1 = thrust::reduce(read.begin(), read.end()); // THRUSTs accumulate analog starting w. sum = 0.0
 			double sum2 = thrust::reduce(glyph.begin(), glyph.end()); // THRUSTs accumulate analog starting w. sum = 0.0
-			double sum3 = multsum(read,glyph);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+			double sum3 = multsum(read, glyph);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
 			//double sum3 = thrust::reduce(out.begin(), out.end(), (double) 0.0, thrust::plus<double>()); // THRUSTs accumulate analog starting w. sum = 0.0
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -910,7 +920,7 @@ public:
 					int deltaJ = j - midIndex;
 					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = cFactor*sampleBufferA.at(i)[j_index]*glyphBuffer->at(i)[j_index];
+					double val = cFactor*start[j_index]*glyphStart[j_index];
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
 					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
@@ -936,12 +946,13 @@ public:
 		
 		}
 	}
-	std::vector<thrust::host_vector<double>> propagateDist(int i, int j, int t)
+	thrust::host_vector<double> propagateDist(int i, int j, int t)
 	{
 		// DUAL BUFFER PROPAGATION //
-		sampleBufferA = sampleBufferInit;
-		sampleBufferB = sampleBufferInit;
-		//thrust::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);
+		//sampleBufferA = sampleBufferInit;
+		//sampleBufferB = sampleBufferInit;
+		thrust::fill(sampleBufferA.begin(), sampleBufferA.end(), 0.0);
+		thrust::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);
 		double meanMem = 0.0;
 		bool finished = false;
 		lightSrc = lightSrcs.at(t);
@@ -953,7 +964,7 @@ public:
 			*meanA = 0.0;
 			this->propagate(); // propagate until finished..
 			//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
-			std::swap(sampleBufferA, sampleBufferB);
+			thrust::swap(sampleBufferA, sampleBufferB);
 			//sampleBufferA = sampleBufferB;
 			sampleBufferA.at(j*width + i) = lightSrc;
 
@@ -961,11 +972,13 @@ public:
 				finished = true;
 			meanMem = *meanA;
 
-			sampleBufferB = sampleBufferInit;
+			thrust::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);
+			//sampleBufferB = sampleBufferInit;
 		}
 
 		sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions ???? try comment!
-		return sampleBufferA;
+		//thrust::copy(sampleBufferA.begin(), sampleBufferA.end(), sampleBufferOut.begin());
+		return sampleBufferA;//thrust::host_vector(sampleBufferA.begin(),sampleBufferA.end());
 	}
 };
 
@@ -1004,7 +1017,7 @@ double vectorNorm(Iter_T first, Iter_T last)
 }
 
 int main(int argc, char* argv[])
-{
+{	
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
 
@@ -1017,24 +1030,20 @@ int main(int argc, char* argv[])
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
-	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
+	const int dim = width * height*steps; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 
-	thrust::host_vector<double> initArray(steps, 0.0);
-
-	std::vector<thrust::host_vector<double>> glyphBufferHost(dim,initArray);
-	std::vector<thrust::device_vector<double>> glyphBuffer(dim,initArray);
+	std::vector<thrust::host_vector<double>> glyphBuffer(dim,0.0);
+	
 	std::vector<double> initGradient(3, 0.0); // construct 3D Gradient
-	std::vector<std::vector<double>> deltaBuffer(width*height*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
+	std::vector<std::vector<double>> deltaBuffer(dim, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
-	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
-	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
+	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
+	std::vector<std::vector<bool>> signMap(width*height, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	
 	cout << "before compute glyphs" << endl;
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBufferHost, signMap, glyphParameters);
-	glyphBuffer = glyphBufferHost;
+	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
-
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &meanA, &glyphBuffer);
@@ -1042,8 +1051,8 @@ int main(int argc, char* argv[])
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 
-	std::vector<thrust::host_vector<double>> sampleBufferLeft;
-	std::vector<thrust::host_vector<double>> sampleBufferRight;
+	thrust::host_vector<double> sampleBufferLeft;
+	thrust::host_vector<double> sampleBufferRight;
 	cout << "before constructing gradient vector.." << endl;
 	double duration; float total = 0.0;
 	std::clock_t startTotal = std::clock();
@@ -1055,25 +1064,25 @@ int main(int argc, char* argv[])
 		for (int j = 0; j < height; j++)
 			for (int i = 0; i < width; i++)
 			{
-				if (i == 0 || i == width - 1 || j == 0 || j == height - 1) // if OFF grid
-					continue; // skip step..
+				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
+					continue;
 
 				sampleBufferLeft = prop.propagateDist(i - 1, j, t); // propagate current lower distribution vector
 				sampleBufferRight = prop.propagateDist(i + 1, j, t); // propagate current upper distribution vector
 				// X-1D central differences.. VARIANT 1: bin by bin - spatial+directional distribution of energies
-				meanA = acc2(sampleBufferRight - sampleBufferLeft);
+				meanA = accAbs(sampleBufferRight - sampleBufferLeft);
 				gradient.at(0) = meanA / 2.0;
 
-				sampleBufferLeft = prop.propagateDist(i, (j - 1), t); // propagate current lower distribution vector
-				sampleBufferRight = prop.propagateDist(i, (j + 1), t); // propagate current upper distribution vector
+				sampleBufferLeft = prop.propagateDist(i, (j - 1), t); // propagate current distribution vector
+				sampleBufferRight = prop.propagateDist(i, (j + 1), t); // propagate current distribution vector
 				// Y-1D central differences..
-				meanA = acc2(sampleBufferRight - sampleBufferLeft);
+				meanA = accAbs(sampleBufferRight - sampleBufferLeft);
 				gradient.at(1) = meanA / 2.0;
 
-				sampleBufferLeft = prop.propagateDist(i, j, (t == 0 ? (steps - 1) : (t - 1))); // propagate current lower distribution vectoribution vector
-				sampleBufferRight = prop.propagateDist(i, j, (t + 1) % steps); // propagate current upper distribution vector
+				sampleBufferLeft = prop.propagateDist(i, j, (t == 0 ? (steps - 1) : (t - 1))); // propagate current distribution vector
+				sampleBufferRight = prop.propagateDist(i, j, (t + 1) % steps); // propagate current distribution vector
 				// t-1D central differences..
-				meanA = acc2(sampleBufferRight - sampleBufferLeft);
+				meanA = accAbs(sampleBufferRight - sampleBufferLeft);
 				gradient.at(2) = meanA / 2.0;//(2.0*radres) for normalization
 
 				// X-1D central differences.. VARIANT 2: cell by cell - spatial distribution of energies (chose because of redundancy for same spatial distribution but differing directional distribution)

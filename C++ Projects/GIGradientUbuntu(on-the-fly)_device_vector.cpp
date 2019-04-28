@@ -122,20 +122,10 @@ struct abs_functor
         }
 };
 
-
-void saxpy_fast(double a, thrust::device_vector<double>& X, thrust::host_vector<double>& Y) // TODO: try changing 2nd Y.begin() to Z.begin, Y to thrust::host_vector<double> Y and UNCOMMENT
+void saxpy_fast(double a, thrust::device_vector<double>& X, thrust::device_vector<double>& Y) // TODO: try changing 2nd Y.begin() to Z.begin, Y to thrust::host_vector<double> Y and UNCOMMENT
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 	thrust::transform(X.begin(), X.end(), Y.begin(), Y.begin(), saxpy_functor(a));
-}
-
-//thrust::host_vector<double> saxpy_fast(double a, thrust::device_vector<double>& X, thrust::device_vector<double> Y)
-//{
-//	thrust::host_vector Z(Y.size()); // COPY to GPU first then transform, copy back
-//	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
-//	thrust::transform(X.begin(), X.end(), Y.begin(), Z.begin(), saxpy_functor(a));
-//	//Z = Y;
-//	return Z;
 }
 
 void scale_fast(double a, thrust::device_vector<double>& X)
@@ -144,20 +134,20 @@ void scale_fast(double a, thrust::device_vector<double>& X)
 	thrust::transform(X.begin(), X.end(), X.begin(), scale_functor(a));
 }
 
-double multsum(thrust::host_vector<double>& X, thrust::host_vector<double>& Y)
+double multsum(thrust::device_vector<double>& X, thrust::device_vector<double>& Y)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 
-	thrust::host_vector<double> res(steps,0.0);
+	thrust::device_vector<double> res(steps,0.0);
 	thrust::transform(X.begin(), X.end(), Y.begin(), res.begin(), multsum_functor());;
 	return thrust::reduce(res.begin(), res.end());
 }
 
-double accAbs(thrust::host_vector<double>& X)
+double accAbs(thrust::device_vector<double>& X)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED	
 
-	thrust::host_vector<double> res(steps,0.0);
+	thrust::device_vector<double> res(steps,0.0);
 	thrust::transform(X.begin(), X.end(), res.begin(), abs_functor());
 	return thrust::reduce(res.begin(), res.end());
 }
@@ -374,7 +364,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 		std::cerr << filename << " is not a valid filename.\n";
 }
 
-void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<Pair>& positions) {
+void parse_options(int argc, char* argv[]) {
 
 	int c;
 	std::string frameskip_opt = "-1";
@@ -460,13 +450,13 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 	}
 	int optmem = optind; // set up option index memory variable
 	for (int i = optind; i < argc; i++)
-		parse_file(argv[i], funcs, positions); // parse "filename.txt" passed as LAST cmd line arg
+		parse_file(argv[i]); // parse "filename.txt" passed as LAST cmd line arg
 	if (optind == optmem) // if optind did not change.., use standard config.txt in workDir for configuration
 	{
 		std::string str = workDir + "/config.txt";
 		char* cstr = new char[str.length() + 1];
 		strncpy(cstr, str.c_str(), str.length() + 1);
-		parse_file(cstr, funcs, positions); // parse config.txt in workDir
+		parse_file(cstr); // parse config.txt in workDir
 		free(cstr);
 	}
 }
@@ -783,7 +773,7 @@ public:
 
 		// assign ptrs to member vectors
 		sampleBufferInit = std::vector<thrust::host_vector<double>>(dim, initArray);
-		sampleBufferOut = std::vector<thrust::host_vector<double>>(dim, initArray);
+		sampleBufferOut = sampleBufferInit;
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
@@ -938,7 +928,7 @@ public:
 		
 		}
 	}
-	std::vector<thrust::host_vector<double>> propagateDist(int i, int j, int t)
+	std::vector<thrust::device_vector<double>> propagateDist(int i, int j, int t)
 	{
 		// DUAL BUFFER PROPAGATION //
 		sampleBufferA = sampleBufferInit;
@@ -967,8 +957,8 @@ public:
 		}
 
 		sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions ???? try comment!
-		thrust::copy(sampleBufferA.begin(), sampleBufferA.end(), sampleBufferOut.begin());
-		return sampleBufferOut;//thrust::host_vector(sampleBufferA.begin(),sampleBufferA.end());
+		//thrust::copy(sampleBufferA.begin(), sampleBufferA.end(), sampleBufferOut.begin());
+		return sampleBufferA;//thrust::host_vector(sampleBufferA.begin(),sampleBufferA.end());
 	}
 };
 
@@ -986,7 +976,7 @@ double acc(thrust::device_vector<double>& vec)
 }
 
 //template <typename T>
-double acc2(std::vector<thrust::host_vector<double>> vec)
+double acc2(std::vector<thrust::device_vector<double>> vec)
 {
 	/*double sum = std::accumulate(m.begin(), m.end(), 0, [](auto lhs, const auto& rhs)
 	{
@@ -1025,7 +1015,6 @@ int main(int argc, char* argv[])
 	thrust::host_vector<double> initArray(steps, 0.0);
 
 	std::vector<thrust::host_vector<double>> glyphBufferHost(dim,initArray);
-	std::vector<thrust::device_vector<double>> glyphBuffer(dim,initArray);
 	std::vector<double> initGradient(3, 0.0); // construct 3D Gradient
 	std::vector<std::vector<double>> deltaBuffer(width*height*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
@@ -1035,7 +1024,10 @@ int main(int argc, char* argv[])
 	cout << "before compute glyphs" << endl;
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBufferHost, signMap, glyphParameters);
-	glyphBuffer = glyphBufferHost;
+	std::vector<thrust::device_vector<double>> glyphBuffer;
+	for(int i = 0; i < glyphBufferHost.size(); i++)
+		glyphBuffer.push_back(glyphBufferHost.at(i));
+	
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
@@ -1044,8 +1036,8 @@ int main(int argc, char* argv[])
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 
-	std::vector<thrust::host_vector<double>> sampleBufferLeft;
-	std::vector<thrust::host_vector<double>> sampleBufferRight;
+	std::vector<thrust::device_vector<double>> sampleBufferLeft;
+	std::vector<thrust::device_vector<double>> sampleBufferRight;
 	cout << "before constructing gradient vector.." << endl;
 	double duration; float total = 0.0;
 	std::clock_t startTotal = std::clock();
