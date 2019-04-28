@@ -773,6 +773,7 @@ class propagator
 	neighborhood hood; 
 	bool flag = false;
 
+	// create deltaIndex Map to access current neighbor cell for direction k[0..7]
 	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 
 	thrust::host_vector<double> lightSrc;
@@ -782,17 +783,16 @@ class propagator
 public:
 	propagator(const int dim, double* mean, std::vector<thrust::host_vector<double>>* ellipseArray)
 	{
-		cout << "steps: " << steps << endl;
 		// initialize member samples w. 0
-		read = thrust::device_vector<double>(steps, 0.0);
-		glyph = thrust::device_vector<double>(steps, 0.0);
-		out = thrust::host_vector<double>(steps, 0.0);
 		initArray = thrust::host_vector<double>(steps, 0.0);
+		read = initArray;
+		glyph = initArray;
+		out = initArray;
 
 		// assign ptrs to member vectors
-		sampleBufferA = std::vector<thrust::host_vector<double>>(dim, initArray);
-		sampleBufferB = std::vector<thrust::host_vector<double>>(dim, initArray);
 		sampleBufferInit = std::vector<thrust::host_vector<double>>(dim, initArray);
+		sampleBufferA = sampleBufferInit;
+		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
 		meanA = mean;
 
@@ -826,7 +826,6 @@ public:
 			lightSrcs.push_back(out);
 			out = initArray;
 		}
-
 	}
 	
 	void propagate()
@@ -1030,6 +1029,7 @@ int main(int argc, char* argv[])
 	std::vector<Pair> userPositions;
 	// parse input option file
 	parse_options(argc, argv, userFunctions, userPositions);
+	cout << "steps: " << steps << endl;
 
 	thrust::host_vector<double> initArray(steps, 0.0);
 
