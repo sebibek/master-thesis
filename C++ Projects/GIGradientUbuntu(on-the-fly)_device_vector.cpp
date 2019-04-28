@@ -757,16 +757,16 @@ class propagator
 	double* meanA;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
-	std::vector<thrust::host_vector<double>> sampleBufferA;
-	std::vector<thrust::host_vector<double>> sampleBufferB;
 	std::vector<thrust::host_vector<double>> sampleBufferInit;
-	std::vector<thrust::host_vector<double>>* glyphBuffer;
+	std::vector<thrust::device_vector<double>> sampleBufferA;
+	std::vector<thrust::device_vector<double>> sampleBufferB;
+	std::vector<thrust::device_vector<double>>* glyphBuffer;
 	
 	std::vector<thrust::device_vector<double>> cosines;
 	
 	// create sample vector (dynamic)
-	thrust::device_vector<double> read;
-	thrust::device_vector<double> glyph;
+	thrust::host_vector<double> read;
+	thrust::host_vector<double> glyph;
 	thrust::host_vector<double> out;
 	thrust::host_vector<double> initArray;
 
@@ -833,12 +833,12 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			read = sampleBufferA.at(i); // copy current sample to Device (GPU) Vector for averaging (normalization)
+			read = sampleBufferA.at(i); // copy current sample to HOST (CPU) Vector for averaging (normalization)
 			//if (sampleBufferA.at(i) == initArray) // test current sample on host
 			//	continue;
 			if (thrust::equal_to<double>(sampleBufferA.at(i), initArray) // test current sample on host
 				continue;
-			glyph = glyphBuffer->at(i); // copy current glyph to Device (GPU) Vector for averaging (normalization)
+			glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 
 			flag = false;
 			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
@@ -862,9 +862,9 @@ public:
 			//}
 
 			// calculate mean and variance.. of I(phi)
-			double sum1 = thrust::reduce(read.begin(), read.end()); // THRUSTs accumulate analog starting w. sum = 0.0
-			double sum2 = thrust::reduce(glyph.begin(), glyph.end()); // THRUSTs accumulate analog starting w. sum = 0.0
-			double sum3 = multsum(read,glyph);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+			double sum1 = thrust::reduce(sampleBufferA.at(i).begin(), sampleBufferA.at(i).end()); // THRUSTs accumulate analog starting w. sum = 0.0
+			double sum2 = thrust::reduce(glyphBuffer->at(i).begin(), glyphBuffer->at(i).end()); // THRUSTs accumulate analog starting w. sum = 0.0
+			double sum3 = multsum(sampleBufferA.at(i), glyphBuffer->at(i));//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
 			//double sum3 = thrust::reduce(out.begin(), out.end(), (double) 0.0, thrust::plus<double>()); // THRUSTs accumulate analog starting w. sum = 0.0
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -918,7 +918,7 @@ public:
 					int deltaJ = j - midIndex;
 					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = cFactor*sampleBufferA.at(i)[j_index]*glyphBuffer->at(i)[j_index];
+					double val = cFactor*read[j_index]*glyph[j_index];
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
 					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
