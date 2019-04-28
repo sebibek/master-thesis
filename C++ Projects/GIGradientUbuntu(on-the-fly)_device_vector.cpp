@@ -724,14 +724,6 @@ void computeGlyphs(std::vector<thrust::host_vector<double>>& glyphBuffer, std::v
 	}
 }
 
-std::vector<double> sample(double(*f)(double x), std::vector<std::vector<double>>& sampleArray, int jIndex, int iIndex)
-{
-	std::vector<double> sample(steps, 0.0);
-	for (int i = 0; i < steps; i++)
-		sample.at(i) = f(i*radres);
-	return sample;
-}
-
 int fast_mod(const int input, const int ceil) {
 	// apply the modulo operator only when needed
 	// (i.e. when the input is greater than the ceiling)
@@ -744,7 +736,7 @@ std::vector<thrust::host_vector> create_parameters(std::vector<thrust::device_ve
 {
 	std::vector<thrust::host_vector> ret(params.size());
 	std::transform(params.begin(), params.end(), ret.begin(),
-		[](auto value) { return Parameter{ value, 0 }; });
+		[](auto value) { return thrust::host_vector{ value, 0 }; });
 	return ret;
 }
 
@@ -845,8 +837,9 @@ public:
 			read = sampleBufferA.at(i); // copy current sample to HOST (CPU) Vector for averaging (normalization)
 			//if (sampleBufferA.at(i) == initArray) // test current sample on host
 			//	continue;
-			if (thrust::equal_to<double>(read, initArray) // test current sample on host
-				continue;
+			if (thrust::equal_to<double>(read, initArray) // test current sample on host for trivial (NULL) sample
+				continue; // if so, skip cell
+
 			glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 
 			flag = false;
@@ -982,7 +975,7 @@ public:
 		}
 
 		sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions ???? try comment!
-		return sampleBufferA; //create_parameters(sampleBufferA);
+		return thrust::host_vector(sampleBufferA); //create_parameters(sampleBufferA);
 	}
 };
 
