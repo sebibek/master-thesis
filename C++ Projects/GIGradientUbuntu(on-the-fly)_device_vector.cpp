@@ -731,15 +731,6 @@ int fast_mod(const int input, const int ceil) {
 	// NB: the assumption here is that the numbers are positive
 }
 
-// convenience function to convert from vector<device_vector> to vector<host_vector>
-std::vector<thrust::host_vector> create_parameters(std::vector<thrust::device_vector> const& params)
-{
-	std::vector<thrust::host_vector> ret(params.size());
-	std::transform(params.begin(), params.end(), ret.begin(),
-		[](auto value) { return thrust::host_vector{ value, 0 }; });
-	return ret;
-}
-
 class propagator
 {
 	// set principal arture angles in rads
@@ -782,7 +773,7 @@ class propagator
 
 
 public:
-	propagator(const int dim, double* mean, std::vector<thrust::host_vector<double>>* ellipseArray)
+	propagator(const int dim, double* mean, std::vector<thrust::device_vector<double>>* ellipseArray)
 	{
 		// initialize member samples w. 0
 		initArray = thrust::host_vector<double>(steps, 0.0);
@@ -792,6 +783,7 @@ public:
 
 		// assign ptrs to member vectors
 		sampleBufferInit = std::vector<thrust::host_vector<double>>(dim, initArray);
+		sampleBufferOut = std::vector<thrust::host_vector<double>>(dim, initArray);
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
@@ -975,7 +967,8 @@ public:
 		}
 
 		sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions ???? try comment!
-		return thrust::host_vector(sampleBufferA); //create_parameters(sampleBufferA);
+		thrust::copy(sampleBufferA.begin(), sampleBufferA.end(), sampleBufferOut.begin());
+		return sampleBufferOut;//thrust::host_vector(sampleBufferA.begin(),sampleBufferA.end());
 	}
 };
 
@@ -1014,7 +1007,10 @@ double vectorNorm(Iter_T first, Iter_T last)
 }
 
 int main(int argc, char* argv[])
-{
+{	
+	// parse input option file
+	parse_options(argc, argv, userFunctions, userPositions);
+
 	// 2D Grid START //
 	int cols = 0; // create cols of txt tensor field
 	int rows = 0; // create rows of txt tensor field
@@ -1023,29 +1019,23 @@ int main(int argc, char* argv[])
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
-	cout << "width|height: " << width << "|" << height << endl;
+	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
-
-	// create vector for light src's symbolic user-input functions in convenient string format
-	std::vector<std::string> userFunctions;
-	std::vector<Pair> userPositions;
-	// parse input option file
-	parse_options(argc, argv, userFunctions, userPositions);
-	cout << "steps: " << steps << endl;
 
 	thrust::host_vector<double> initArray(steps, 0.0);
 
-	std::vector<thrust::host_vector<double>> glyphBuffer(dim,initArray);
+	std::vector<thrust::host_vector<double>> glyphBufferHost(dim,initArray);
+	std::vector<thrust::device_vector<double>> glyphBuffer(dim,initArray);
 	std::vector<double> initGradient(3, 0.0); // construct 3D Gradient
 	std::vector<std::vector<double>> deltaBuffer(width*height*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
-	cout << "before compute glyphs" << endl;
-	
 	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
 	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
-	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	
+	cout << "before compute glyphs" << endl;
+	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
+	computeGlyphs(glyphBufferHost, signMap, glyphParameters);
+	glyphBuffer = glyphBufferHost;
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
