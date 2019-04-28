@@ -963,19 +963,6 @@ public:
 };
 
 //template <typename T>
-double acc(thrust::device_vector<double>& vec)
-{
-	//thrust::device_vector<double> res(vec.size());
-	//thrust::transform(vec.begin(), vec.end(), res.begin(), abs_functor()); // apply abs function to vector
-	
-	double sum = 0.0;
-	for (int i = 0; i < vec.size(); i++)
-		sum += abs(vec[i]);
-	return sum;//thrust::reduce(res.begin(), res.end());//, (double) 0.0, thrust::plus<double>()); // return THRUSTs accumulate analog starting w. sum = 0.0
-	
-}
-
-//template <typename T>
 double acc2(std::vector<thrust::device_vector<double>> vec)
 {
 	/*double sum = std::accumulate(m.begin(), m.end(), 0, [](auto lhs, const auto& rhs)

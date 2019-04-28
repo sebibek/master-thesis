@@ -805,8 +805,8 @@ public:
 			cosines.push_back(cosK);
 		}
 		cosine_sum = cosine_sum / 8.0;
-		for (int k = 0; k < 8; k++) // for each node..
-			scale_fast(1.0 / cosine_sum, cosines.at(k));
+		for (auto cosine : cosines) // for each node..
+			scale_fast(1.0 / cosine_sum, cosine);
 			//thrust::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, ));
 
 		cout.precision(dbl::max_digits10);
@@ -981,19 +981,6 @@ public:
 		return sampleBufferA;//thrust::host_vector(sampleBufferA.begin(),sampleBufferA.end());
 	}
 };
-
-//template <typename T>
-double acc(thrust::device_vector<double>& vec)
-{
-	//thrust::device_vector<double> res(vec.size());
-	//thrust::transform(vec.begin(), vec.end(), res.begin(), abs_functor()); // apply abs function to vector
-	
-	double sum = 0.0;
-	for (int i = 0; i < vec.size(); i++)
-		sum += abs(vec[i]);
-	return sum;//thrust::reduce(res.begin(), res.end());//, (double) 0.0, thrust::plus<double>()); // return THRUSTs accumulate analog starting w. sum = 0.0
-	
-}
 
 //template <typename T>
 double acc2(std::vector<thrust::host_vector<double>> vec)
