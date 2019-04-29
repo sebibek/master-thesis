@@ -730,12 +730,12 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 	}
 }
 
-int fast_mod(const int input, const int ceil) {
+/*int fast_mod(const int input, const int ceil) {
 	// apply the modulo operator only when needed
 	// (i.e. when the input is greater than the ceiling)
 	return input >= ceil ? input % ceil : input;
 	// NB: the assumption here is that the numbers are positive
-}
+}*/
 
 class propagator
 {
@@ -752,6 +752,13 @@ class propagator
 	int centralIndex = (alpha / 2) / radres;
 	int dim = width * height;
 	
+	// define indices for odd (diagonal) and even (face) neighbors
+	thrust::vector<int> indexMap{ shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex }; 
+	thrust::vector<int> midIndices{ 0, shiftIndex/2, shiftIndex, 3*shiftIndex/2, 2*shiftIndex, 5*shiftIndex/2, 3*shiftIndex, 7*shiftIndex/2 }; 
+	thrust::host_vector<int> lowerIndices; 
+	thrust::host_vector<int> upperIndices;
+	thrust::host_vector<bool> evenIndex{ true, false, true, false, true, false, true, false }; 
+
 	double* meanA;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
@@ -772,7 +779,7 @@ class propagator
 	bool flag = false;
 
 	// create deltaIndex Map to access current neighbor cell for direction k[0..7]
-	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
+	thrust::host_vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 
 	thrust::host_vector<double> lightSrc;
 	std::vector<thrust::host_vector<double>> lightSrcs;
@@ -794,6 +801,9 @@ public:
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
 		meanA = mean;
+		
+		lowerIndices = midIndices - indexMap;
+		upperIndices = midIndices + indexMap;
 
 		for (int k = 0; k < 8; k++) // for each node..
 		{
@@ -881,11 +891,10 @@ public:
 			// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-			double cFactor = 1.0;
-			if(tiMean>0.0)
-				cFactor = tMean * iMean / tiMean;
+			double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
 
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+			#pragma unroll // pragma for unrolling loop
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
 				// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
@@ -912,28 +921,26 @@ public:
 						continue;
 				}
 
-				int midIndex = k * shiftIndex/2;
-				int index = betaIndex;
-				if (fast_mod(k,2) == 0)
-					index = shiftIndex / 2;
+				//int midIndex = midIndices.at(k);
+				//int index = indexMap.at(k);
 
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
-				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
+				for (int j = lowerIndices[k]; j <= upperIndices[k]; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
 					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = cFactor*read[j_index]*glyph[j_index];
+					double val = cFactor*read[j_index]*glyph[j_index]; // TODO? : use thrust::transform for upper part from here --> Problem: circular indices needed?
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
+					if ((abs(deltaJ) > centralIndex) && evenIndex.at(k)) // for alphas (face neighbors-->even index), use edge overlap > centralIndex
 						if (abs(deltaJ) == shiftIndex / 2)
 							val = 0.5*0.3622909908722584*val;
 						else
 							val = 0.3622909908722584*val;
-					else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
+					else if ( !evenIndex.at(k) ) // for betas (diagonals -->non-even index), use static edge overlap-
 						val = 0.6377090091277417*val;
 
 					val_sum += val; // val*radres
@@ -942,7 +949,7 @@ public:
 				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
 				//thrust::transform(out.begin(), out.end(), out.begin(), std::bind(thrust::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
-				index = i + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				index = i + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 				
 				// scale respective cosine direction w. summed energy valsum*radres (initially normalized to 1.0/cosine_sum) to distribute energy
 				saxpy_fast(val_sum *= radres, cosines.at(k), sampleBufferB.begin() + index * steps); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
