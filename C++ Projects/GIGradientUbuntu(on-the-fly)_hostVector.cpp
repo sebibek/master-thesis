@@ -145,11 +145,11 @@ void scale_fast(double a, thrust::device_vector<double>& X)
 	thrust::transform(X.begin(), X.end(), X.begin(), scale_functor(a));
 }
 
-double multsum(thrust::device_vector<double>& X, thrust::device_vector<double>& Y)
+double multsum(thrust::host_vector<double>& X, thrust::host_vector<double>& Y)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 
-	thrust::device_vector<double> res(steps,0.0);
+	thrust::host_vector<double> res(steps,0.0);
 	thrust::transform(X.begin(), X.end(), Y.begin(), res.begin(), multsum_functor());;
 	return thrust::reduce(res.begin(), res.end());
 }
@@ -826,12 +826,12 @@ public:
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
-			read = sampleBufferA.at(i); // copy current sample to Device (GPU) Vector for averaging (normalization)
+			//read = sampleBufferA.at(i); // copy current sample to Device (GPU) Vector for averaging (normalization)
 			//if (sampleBufferA.at(i) == initArray) // test current sample on host
 			//	continue;
 			if (thrust::equal(sampleBufferA.at(i).begin(),sampleBufferA.at(i).end(), initArray.begin())) // test current sample on host
 				continue;
-			glyph = glyphBuffer->at(i); // copy current glyph to Device (GPU) Vector for averaging (normalization)
+			//glyph = glyphBuffer->at(i); // copy current glyph to Device (GPU) Vector for averaging (normalization)
 
 			flag = false;
 			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
@@ -855,9 +855,9 @@ public:
 			//}
 
 			// calculate mean and variance.. of I(phi)
-			double sum1 = thrust::reduce(read.begin(), read.end()); // THRUSTs accumulate analog starting w. sum = 0.0
-			double sum2 = thrust::reduce(glyph.begin(), glyph.end()); // THRUSTs accumulate analog starting w. sum = 0.0
-			double sum3 = multsum(read,glyph);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+			double sum1 = thrust::reduce(sampleBufferA.at(i).begin(), sampleBufferA.at(i).end()); // THRUSTs accumulate analog starting w. sum = 0.0
+			double sum2 = thrust::reduce(glyphBuffer->at(i).begin(), glyphBuffer->at(i).end()); // THRUSTs accumulate analog starting w. sum = 0.0
+			double sum3 = multsum(sampleBufferA.at(i),glyphBuffer->at(i));//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
 			//double sum3 = thrust::reduce(out.begin(), out.end(), (double) 0.0, thrust::plus<double>()); // THRUSTs accumulate analog starting w. sum = 0.0
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
