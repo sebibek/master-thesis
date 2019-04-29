@@ -123,20 +123,21 @@ struct abs_functor
 };
 
 
-void saxpy_fast(double a, thrust::device_vector<double>& X, thrust::host_vector<double>& Y) // TODO: try changing 2nd Y.begin() to Z.begin, Y to thrust::host_vector<double> Y and UNCOMMENT
+/*void saxpy_fast(double a, thrust::device_vector<double>& X, thrust::host_vector<double>& Y) // TODO: try changing 2nd Y.begin() to Z.begin, Y to thrust::host_vector<double> Y and UNCOMMENT
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 	thrust::transform(X.begin(), X.end(), Y.begin(), Y.begin(), saxpy_functor(a));
+}*/
+
+thrust::host_vector<double> saxpy_fast(double a, thrust::device_vector<double>& X, thrust::device_vector<double> Y)
+{
+	thrust::host_vector<double> Z(Y.size()); // COPY to GPU first then transform, copy back
+	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
+	thrust::transform(X.begin(), X.end(), Y.begin(), Y.begin(), saxpy_functor(a));
+	Z = Y;
+	return Z;
 }
 
-//thrust::host_vector<double> saxpy_fast(double a, thrust::device_vector<double>& X, thrust::device_vector<double> Y)
-//{
-//	thrust::host_vector Z(Y.size()); // COPY to GPU first then transform, copy back
-//	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
-//	thrust::transform(X.begin(), X.end(), Y.begin(), Z.begin(), saxpy_functor(a));
-//	//Z = Y;
-//	return Z;
-}
 
 void scale_fast(double a, thrust::device_vector<double>& X)
 {
@@ -273,7 +274,7 @@ double intensity = 2.1; // --> initial intensity val
 double thresh = 0.001;
 
 // parse files
-void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions)
+void parse_file(char* filename)
 {
 	std::ifstream f(filename);
 	std::string line;
@@ -291,12 +292,12 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 			if (line[0] == '#')
 				continue;
 			//write function to vector
-			else if (line == "end") {
+			/*else if (line == "end") {
 				funcs.push_back(func_literal);
 				//reset default values
 				func_literal = "100*cos(theta)";
 				positions.push_back(position);
-			}
+			}*/
 			
 			//parse other statements
 			else {
@@ -463,7 +464,7 @@ void parse_options(int argc, char* argv[]) {
 		parse_file(argv[i]); // parse "filename.txt" passed as LAST cmd line arg
 	if (optind == optmem) // if optind did not change.., use standard config.txt in workDir for configuration
 	{
-		std::string str = workDir + "/config.txt";
+		std::string str = workDir + "config.txt";
 		char* cstr = new char[str.length() + 1];
 		strncpy(cstr, str.c_str(), str.length() + 1);
 		parse_file(cstr); // parse config.txt in workDir
@@ -497,11 +498,11 @@ thrust::host_vector<double> operator+(const thrust::host_vector<double>& a, cons
 }
 
 //template <typename T>
-thrust::device_vector<double> operator-(const thrust::device_vector<double>& a, const thrust::device_vector<double>& b)
+thrust::host_vector<double> operator-(const thrust::host_vector<double>& a, const thrust::host_vector<double>& b)
 {
 	assert(a.size() == b.size());
 
-	thrust::device_vector<double> result(a.size());
+	thrust::host_vector<double> result(a.size());
 
 	//thrust::transform(a.begin(), a.end(), b.begin(), thrust::back_inserter(result), thrust::minus<T>());
 	thrust::transform(a.begin(), a.end(), b.begin(), result.begin(), thrust::minus<double>());
@@ -520,9 +521,9 @@ thrust::device_vector<double> operator-(const thrust::device_vector<double>& a, 
 //}
 
 //template <typename T> // element-wise minus for vector of vectors
-std::vector<thrust::device_vector<double>> operator-(const std::vector<thrust::device_vector<double>>& a, const std::vector<thrust::device_vector<double>>& b)
+std::vector<thrust::host_vector<double>> operator-(const std::vector<thrust::host_vector<double>>& a, const std::vector<thrust::host_vector<double>>& b)
 {
-	std::vector<thrust::device_vector<double>> result(b.size());
+	std::vector<thrust::host_vector<double>> result(b.size());
 
 	for (int i = 0; i < b.size(); i++)
 		result.at(i) = a.at(i) - b.at(i);
@@ -828,7 +829,7 @@ public:
 			read = sampleBufferA.at(i); // copy current sample to Device (GPU) Vector for averaging (normalization)
 			//if (sampleBufferA.at(i) == initArray) // test current sample on host
 			//	continue;
-			if (thrust::equal_to<double>(sampleBufferA.at(i), initArray) // test current sample on host
+			if (thrust::equal(sampleBufferA.at(i).begin(),sampleBufferA.at(i).end(), initArray.begin())) // test current sample on host
 				continue;
 			glyph = glyphBuffer->at(i); // copy current glyph to Device (GPU) Vector for averaging (normalization)
 
@@ -993,7 +994,7 @@ double vectorNorm(Iter_T first, Iter_T last)
 int main(int argc, char* argv[])
 {
 	// parse input option file
-	parse_options(argc, argv, userFunctions, userPositions);
+	parse_options(argc, argv);
 
 	// 2D Grid START //
 	int cols = 0; // create cols of txt tensor field
@@ -1008,8 +1009,7 @@ int main(int argc, char* argv[])
 
 	thrust::host_vector<double> initArray(steps, 0.0);
 
-	std::vector<thrust::host_vector<double>> glyphBufferHost(dim,initArray);
-	std::vector<thrust::device_vector<double>> glyphBuffer(dim,initArray);
+	std::vector<thrust::host_vector<double>> glyphBuffer(dim,initArray);
 	std::vector<double> initGradient(3, 0.0); // construct 3D Gradient
 	std::vector<std::vector<double>> deltaBuffer(width*height*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
@@ -1018,8 +1018,8 @@ int main(int argc, char* argv[])
 	
 	cout << "before compute glyphs" << endl;
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBufferHost, signMap, glyphParameters);
-	glyphBuffer = glyphBufferHost;
+	computeGlyphs(glyphBuffer, signMap, glyphParameters);
+
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 
 
