@@ -758,6 +758,8 @@ class propagator
 	std::vector<int> deltaIndexSTL{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };// create deltaIndex Map to access current neighbor cell for direction k[0..7]
 	std::vector<int> indexMapSTL{ shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex }; 
 	std::vector<int> midIndicesSTL{ 0, shiftIndex/2, shiftIndex, 3*shiftIndex/2, 2*shiftIndex, 5*shiftIndex/2, 3*shiftIndex, 7*shiftIndex/2 };
+	std::vector<int> lowerIndices = std::vector<int>(8);
+	std::vector<int> upperIndices = std::vector<int>(8);
 	std::vector<bool> evenIndexSTL{ true, false, true, false, true, false, true, false }; 
 
 	
@@ -774,7 +776,7 @@ class propagator
 	// create sample vector (dynamic)
 	thrust::host_vector<double> read;
 	thrust::host_vector<double> glyph;
-	thrust::host_vector<double> out;
+	thrust::device_vector<double> out;
 	thrust::host_vector<double> initArray;
 
 	neighborhood hood; 
@@ -794,12 +796,19 @@ public:
 		initArray = thrust::host_vector<double>(steps, 0.0);
 		read = initArray;
 		glyph = initArray;
+		out = initArray;
 
 		// assign ptrs to member vectors
 		sampleBufferInit = thrust::host_vector<double>(dim, 0.0);
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
+
+		for (int k = 0; k < 8; k++) // for each node..
+		{
+			lowerIndices.at(k) = midIndicesSTL.at(k) - indexMapSTL.at(k);
+			upperIndices.at(k) = midIndicesSTL.at(k) + indexMapSTL.at(k);
+		}
 
 		for (int k = 0; k < 8; k++) // for each node..
 		{
@@ -841,23 +850,24 @@ public:
 		{
 			// define iterators for accessing current sample
 			thrust::device_vector<double>::iterator start = sampleBufferA.begin() + i * steps;
-			thrust::device_vector<double>::iterator end = sampleBufferA.begin() + (i + 1) * steps;
+			thrust::device_vector<double>::iterator end = sampleBufferA.begin() + (i + 1) * steps-1;
 
-			thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
+			//thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
 			/*if (read == initArray)
 				continue;*/
-			if (thrust::equal(read.begin(),read.end(), initArray.begin())) // test current sample on host
+			thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
+			if (thrust::equal( read.begin(), read.end(), initArray.begin())) // test current sample on host
 				continue;
 
 			thrust::device_vector<double>::iterator glyphStart = glyphBuffer->begin() + i * steps;
-			thrust::device_vector<double>::iterator glyphEnd = glyphBuffer->begin() + (i + 1) * steps;
-			//thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
+			thrust::device_vector<double>::iterator glyphEnd = glyphBuffer->begin() + (i + 1) * steps-1;
+		
 			thrust::copy(glyphStart, glyphEnd, glyph.begin()); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 			//glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 
 			flag = false;
 			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
-				{hood.change(i / width, i%width); flag = true;}
+				{continue;}//hood.change(i / width, i%width); flag = true;}
 			
 			// calculate mean.. of I(phi)
 			/*double sum1 = 0.0;
@@ -896,6 +906,7 @@ public:
 				// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
 				//out = initArray;
 
+				/*
 				if (flag) // if position on grid borders..
 				{
 					// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
@@ -916,6 +927,7 @@ public:
 					if (k == 7 && (!hood.getB() || !hood.getR()))
 						continue;
 				}
+				*/
 
 				int midIndex = midIndicesSTL.at(k);
 				int index = indexMapSTL.at(k);
@@ -923,7 +935,7 @@ public:
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
-				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
+				for (int j = lowerIndices.at(k); j <= upperIndices.at(k); j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
 					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
@@ -945,10 +957,10 @@ public:
 				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
 				//thrust::transform(out.begin(), out.end(), out.begin(), std::bind(thrust::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
-				index = i + deltaIndexSTL.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				int delta = deltaIndexSTL.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 				
 				// scale respective cosine direction w. summed energy valsum*radres (initially normalized to 1.0/cosine_sum) to distribute energy
-				saxpy_fast(val_sum *= radres, cosines.at(k), sampleBufferB.begin() + index*steps); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
+				saxpy_fast(val_sum *= radres, cosines.at(k), sampleBufferB.begin() + (i+delta)*steps); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
 				meanA += val_sum;
 			}
 		
@@ -964,8 +976,7 @@ public:
 		bool finished = false;
 		lightSrc = lightSrcs.at(t);// assign light src from current light src direction t
 		thrust::copy(lightSrc.begin(), lightSrc.end(), sampleBufferA.begin() + steps*(j*width + i)); // get pre-computed light src for current direction t
-		//int ctr = 0;
-		// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
+		//int ctr = 0;// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 		while (!finished) // perform one single light propagation pass (iteration)
 		{
 			meanA = 0.0;
