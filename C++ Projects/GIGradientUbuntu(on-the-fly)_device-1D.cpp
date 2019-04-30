@@ -706,8 +706,8 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // for strong (total anisotropy)
 		{
 			// define bidirectional delta impulses
-			glyphBuffer[i+round(deg1*steps / 360)] = sv1;
-			glyphBuffer[i+static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			glyphBuffer[i*steps+round(deg1*steps / 360)] = sv1;
+			glyphBuffer[i*steps+static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
 			sum += 2 * sv1;
 		}
 		else // default case:
@@ -725,17 +725,20 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphBuffer.begin() + i*steps, glyphBuffer.begin() +(i+1)*steps, glyphBuffer.begin() + i*steps, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		//thrust::transform(vec.begin(), vec.end(), vec.begin(), myConst * _1); 
+		thrust::transform(glyphBuffer.begin()+ i*steps, glyphBuffer.begin()+(i+1)*steps, thrust::make_constant_iterator(1.0/rMean),glyphBuffer.begin()+ i*steps, thrust::multiplies<double>());
+		//thrust::transform(glyphBuffer.begin()+ i*steps, glyphBuffer.begin()+(i+1)*steps, glyphBuffer.begin()+ i*steps, 1.0/rMean * _1);
+		//thrust::transform(glyphBuffer.begin() + i*steps, glyphBuffer.begin() +(i+1)*steps, glyphBuffer.begin() + i*steps, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
 }
 
-/*int fast_mod(const int input, const int ceil) {
+int fast_mod(const int input, const int ceil) {
 	// apply the modulo operator only when needed
 	// (i.e. when the input is greater than the ceiling)
 	return input >= ceil ? input % ceil : input;
 	// NB: the assumption here is that the numbers are positive
-}*/
+}
 
 class propagator
 {
@@ -750,16 +753,15 @@ class propagator
 	int shiftIndex = steps / 4;
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
-	int dim = width * height;
-	
-	// define indices for odd (diagonal) and even (face) neighbors
-	thrust::vector<int> indexMap{ shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex }; 
-	thrust::vector<int> midIndices{ 0, shiftIndex/2, shiftIndex, 3*shiftIndex/2, 2*shiftIndex, 5*shiftIndex/2, 3*shiftIndex, 7*shiftIndex/2 }; 
-	thrust::host_vector<int> lowerIndices; 
-	thrust::host_vector<int> upperIndices;
-	thrust::host_vector<bool> evenIndex{ true, false, true, false, true, false, true, false }; 
 
-	double* meanA;
+		// define indices for odd (diagonal) and even (face) neighbors
+	std::vector<int> deltaIndexSTL{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };// create deltaIndex Map to access current neighbor cell for direction k[0..7]
+	std::vector<int> indexMapSTL{ shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex, shiftIndex / 2, betaIndex }; 
+	std::vector<int> midIndicesSTL{ 0, shiftIndex/2, shiftIndex, 3*shiftIndex/2, 2*shiftIndex, 5*shiftIndex/2, 3*shiftIndex, 7*shiftIndex/2 };
+	std::vector<bool> evenIndexSTL{ true, false, true, false, true, false, true, false }; 
+
+	
+	double meanA = 0.0;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
 	thrust::host_vector<double> sampleBufferInit;
@@ -778,32 +780,26 @@ class propagator
 	neighborhood hood; 
 	bool flag = false;
 
-	// create deltaIndex Map to access current neighbor cell for direction k[0..7]
-	thrust::host_vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
+	// create deltaIndex Map to access current neighbor cell for direction k[0..7] --- CAVEAT: deltaIndices change for 1D arrangement of grid!!!
+	//std::vector<int> deltaIndex{ 1*steps, (1 - width)*steps, -width*steps, (-1 - width)*steps, -1*steps, (-1 + width)*steps, width*steps, (1 + width)*steps };
 
-	thrust::host_vector<double> lightSrc;
+	thrust::host_vector<double> lightSrc = thrust::host_vector<double>(steps, 0.0);
 	std::vector<thrust::host_vector<double>> lightSrcs;
 
 
 public:
-	propagator(const int dim, double* mean, thrust::device_vector<double>* ellipseArray)
+	propagator(const int dim, thrust::device_vector<double>* ellipseArray)
 	{
 		// initialize member samples w. 0
 		initArray = thrust::host_vector<double>(steps, 0.0);
 		read = initArray;
 		glyph = initArray;
-		out = initArray;
 
 		// assign ptrs to member vectors
 		sampleBufferInit = thrust::host_vector<double>(dim, 0.0);
-		//sampleBufferOut = sampleBufferInit;
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
-		meanA = mean;
-		
-		lowerIndices = midIndices - indexMap;
-		upperIndices = midIndices + indexMap;
 
 		for (int k = 0; k < 8; k++) // for each node..
 		{
@@ -827,13 +823,14 @@ public:
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
+		cout << "steps: " << steps << endl;
 
 		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
 		for (int j = 0; j < steps; j++)
 		{
-			out[j] = steps;
-			lightSrcs.push_back(out);
-			out = initArray;
+			lightSrc[j] = steps;
+			lightSrcs.push_back(lightSrc);
+			lightSrc = initArray;
 		}
 	}
 	
@@ -891,10 +888,9 @@ public:
 			// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-			double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
+			double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
 
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
-			#pragma unroll // pragma for unrolling loop
 			for (int k = 0; k < 8; k++) // for each adjacent edge...
 			{
 				// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
@@ -921,26 +917,26 @@ public:
 						continue;
 				}
 
-				//int midIndex = midIndices.at(k);
-				//int index = indexMap.at(k);
+				int midIndex = midIndicesSTL.at(k);
+				int index = indexMapSTL.at(k);
 
 				//double energy_sum = 0.0;
 				double val_sum = 0.0;
 
-				for (int j = lowerIndices[k]; j <= upperIndices[k]; j++) // for each step (along edge)..
+				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
 					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = cFactor*read[j_index]*glyph[j_index]; // TODO? : use thrust::transform for upper part from here --> Problem: circular indices needed?
+					double val = cFactor*read[j_index]*glyph[j_index];
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-					if ((abs(deltaJ) > centralIndex) && evenIndex.at(k)) // for alphas (face neighbors-->even index), use edge overlap > centralIndex
+					if ((abs(deltaJ) > centralIndex) && evenIndexSTL.at(k)) // for alphas, use edge overlap > centralIndex
 						if (abs(deltaJ) == shiftIndex / 2)
 							val = 0.5*0.3622909908722584*val;
 						else
 							val = 0.3622909908722584*val;
-					else if ( !evenIndex.at(k) ) // for betas (diagonals -->non-even index), use static edge overlap-
+					else if (!evenIndexSTL.at(k)) // for betas (diagonals), use static edge overlap-
 						val = 0.6377090091277417*val;
 
 					val_sum += val; // val*radres
@@ -949,11 +945,11 @@ public:
 				// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
 				//thrust::transform(out.begin(), out.end(), out.begin(), std::bind(thrust::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
-				index = i + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				index = i + deltaIndexSTL.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 				
 				// scale respective cosine direction w. summed energy valsum*radres (initially normalized to 1.0/cosine_sum) to distribute energy
-				saxpy_fast(val_sum *= radres, cosines.at(k), sampleBufferB.begin() + index * steps); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
-				*meanA += val_sum;
+				saxpy_fast(val_sum *= radres, cosines.at(k), sampleBufferB.begin() + index*steps); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
+				meanA += val_sum;
 			}
 		
 		}
@@ -961,28 +957,28 @@ public:
 	thrust::device_vector<double> propagateDist(int i, int j, int t)
 	{
 		// DUAL BUFFER PROPAGATION //
-		//sampleBufferA = sampleBufferInit;
-		//sampleBufferB = sampleBufferInit;
-		thrust::fill(sampleBufferA.begin(), sampleBufferA.end(), 0.0);
+		thrust::fill(sampleBufferA.begin(), sampleBufferA.end(), 0.0); // initialize buffers
 		thrust::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);
-		double meanMem = 0.0;
+
+		double meanMem = 0.0; // init energy_sum for convergence criterion (constraint)
 		bool finished = false;
-		lightSrc = lightSrcs.at(t);
+		lightSrc = lightSrcs.at(t);// assign light src from current light src direction t
 		thrust::copy(lightSrc.begin(), lightSrc.end(), sampleBufferA.begin() + steps*(j*width + i)); // get pre-computed light src for current direction t
 		//int ctr = 0;
 		// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 		while (!finished) // perform one single light propagation pass (iteration)
 		{
-			*meanA = 0.0;
+			meanA = 0.0;
 			this->propagate(); // propagate until finished..
 			//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 			thrust::swap(sampleBufferA, sampleBufferB);
 			//sampleBufferA = sampleBufferB;
 			thrust::copy(lightSrc.begin(), lightSrc.end(), sampleBufferA.begin() + steps*(j*width + i)); // get pre-computed light src for current direction t
 
-			if (abs(*meanA - meanMem) < thresh)
+			if (abs(meanA - meanMem) < thresh)
 				finished = true;
-			meanMem = *meanA;
+
+			meanMem = meanA;
 
 			thrust::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);
 			//sampleBufferB = sampleBufferInit;
@@ -990,8 +986,8 @@ public:
 		}
 		//cout << "ctr: " << ctr << endl;
 
-		thrust::fill(sampleBufferA.begin() + steps*(j*width + i), sampleBufferA.begin() + steps*(j*width + i + 1), 0.0); //remove light src to prevent trivial differences at light src positions ???? try comment!
-		//thrust::copy(sampleBufferA.begin(), sampleBufferA.end(), sampleBufferOut.begin());
+		thrust::copy(initArray.begin(), initArray.end(), sampleBufferA.begin() + steps*(j*width + i)); //remove light src to prevent trivial differences at light src positions ???? try comment!
+		
 		return sampleBufferA;//thrust::host_vector(sampleBufferA.begin(),sampleBufferA.end());
 	}
 };
@@ -1031,7 +1027,7 @@ int main(int argc, char* argv[])
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
-	const int dim = width * height*steps; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
+	const int dim = width * height * steps; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 
 	thrust::host_vector<double> glyphBufferHost(dim,0.0);
 	
@@ -1048,7 +1044,7 @@ int main(int argc, char* argv[])
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &meanA, &glyphBuffer);
+	propagator prop(dim, &glyphBuffer);
 
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta

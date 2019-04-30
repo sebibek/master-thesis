@@ -745,7 +745,7 @@ class propagator
 	int shiftIndex = steps / 4;
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
-	int dim = width * height;
+	//int dim = width * height;
 	
 	double* meanA;
 	double cosine_sum = 0.0;
