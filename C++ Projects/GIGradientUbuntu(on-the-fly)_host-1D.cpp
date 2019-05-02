@@ -102,15 +102,16 @@ struct scale_functor
         }
 };
 
-struct multsum_functor
+struct mult_functor
 {
-    multsum_functor() {}
+    mult_functor() {}
 
     __host__ __device__
         double operator()(const double& x, const double& y) const { 
             return y * x; // performs y = a*x (scale-OP)
         }
 };
+
 
 struct abs_functor
 {
@@ -135,13 +136,27 @@ void scale_fast(double a, thrust::host_vector<double>& X)
 	thrust::transform(X.begin(), X.end(), X.begin(), scale_functor(a));
 }
 
+thrust::host_vector<double> scale_fast(double a, const thrust::host_vector<double>::iterator& start,const thrust::host_vector<double>::iterator& end)
+{
+	thrust::host_vector<double> res(end-start, 0.0);
+	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
+	thrust::transform(start, end, res.begin(), scale_functor(a));
+	return res;
+}
+
 double multsum(const thrust::host_vector<double>::iterator& start,const thrust::host_vector<double>::iterator& end,const thrust::host_vector<double>::iterator& glyphStart)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 
 	thrust::host_vector<double> res(end-start, 0.0);
-	thrust::transform(start, end, glyphStart, res.begin(), multsum_functor());;
+	thrust::transform(start, end, glyphStart, res.begin(), mult_functor());;
 	return thrust::reduce(res.begin(), res.end());
+}
+
+void mult(const thrust::host_vector<double>::iterator& start,const thrust::host_vector<double>::iterator& end,const thrust::host_vector<double>::iterator& glyphStart)
+{
+	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
+	thrust::transform(start, end, glyphStart, start, mult_functor());
 }
 
 double accAbs(const thrust::host_vector<double>& X)
@@ -763,6 +778,9 @@ class propagator
 	thrust::host_vector<double> lightSrc;
 	std::vector<thrust::host_vector<double>> lightSrcs;
 
+	std::vector<thrust::host_vector<double>> faceWeights;
+	std::vector<thrust::host_vector<double>> diagWeights;
+
 
 public:
 	propagator(const int dim, thrust::host_vector<double>* ellipseArray)
@@ -809,6 +827,41 @@ public:
 			lightSrcs.push_back(out);
 			out = initArray;
 		}
+
+
+		faceWeights = std::vector<thrust::host_vector<double>>(8, initArray);
+		diagWeights = std::vector<thrust::host_vector<double>>(8, initArray);
+		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		for (int k = 0; k < 8; k++) // for each adjacent edge...
+		{
+			int midIndex = k * shiftIndex / 2;
+			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
+
+			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
+			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
+			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
+			{
+				int deltaJ = t - midIndex;
+				int t_index = t < 0 ? t + steps : t % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
+				double val = 1.0;
+
+				// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+				if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
+					if (abs(deltaJ) == shiftIndex / 2)
+						val = 0.5*0.3622909908722584*val;
+					else
+						val = 0.3622909908722584*val;
+				else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
+					val = 0.6377090091277417*val;
+
+				if (fast_mod(k, 2) == 0)
+					faceWeights.at(k)[t_index] = val;
+				else
+					diagWeights.at(k)[t_index] = val;
+			}
+			
+}
 	}
 	
 	void propagate()
@@ -824,7 +877,7 @@ public:
 				//thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
 				/*if (read == initArray)
 					continue;*/
-				//read = thrust::host_vector<double>(start, end); // copy current sample to HOST (CPU) Vector for averaging (normalization)
+				read = thrust::host_vector<double>(start, end); // copy current sample to HOST (CPU) Vector for averaging (normalization)
 				if (thrust::equal(start,end,initArray.begin())) // test current sample on host
 					continue;
 
@@ -869,6 +922,27 @@ public:
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
 
+				
+
+				//// EXAMPLE iterator calculation and use (right face neighbor k=0)
+				int k = 0; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				int index = 7*shiftIndex / 2; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				int delta = i + j * width + deltaIndex.at(0); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				//std::vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
+				//std::vector<double>::iterator dstEnd = sampleBufferB.begin() + (delta + 1)*steps;
+
+				out = scale_fast(cFactor, faceWeights.at(k).begin(), faceWeights.at(k).end()); // scale current weight array w. constant normalization factor
+				mult(out.begin(),out.end(),read.begin());
+				mult(out.begin(),out.end(),glyph.begin());
+
+				//// add up contribution of scaled (normalized) cosine cone in sample out at position index  CAVEAT: for right face neighbor one needs to split up transform iterator ranges
+				/*thrust::transform(read.begin() + index, read.end(), out.begin() + index, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
+				std::transform(out.begin(), out.begin() + shiftIndex/2, out.begin() + index, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
+
+				std::transform(out.begin() + index, out.end(), glyph.begin() + index, out.begin(), std::multiplies<double>());
+				std::transform(out.begin(), out.begin() + shiftIndex / 2, glyph.begin(), out.begin(), std::multiplies<double>());
+
+				std::transform(faceWeights.at(0), dstEnd, out.begin(), dstStart, std::multiplies<double>());*/
 				// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 				for (int k = 0; k < 8; k++) // for each adjacent edge...
 				{
