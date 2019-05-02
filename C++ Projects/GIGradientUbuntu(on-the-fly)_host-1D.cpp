@@ -149,7 +149,7 @@ double multsum(const thrust::host_vector<double>::iterator& start,const thrust::
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 
 	thrust::host_vector<double> res(end-start, 0.0);
-	thrust::transform(start, end, glyphStart, res.begin(), mult_functor());;
+	thrust::transform(start, end, glyphStart, res.begin(), mult_functor());
 	return thrust::reduce(res.begin(), res.end());
 }
 
@@ -157,6 +157,14 @@ void mult(const thrust::host_vector<double>::iterator& start,const thrust::host_
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 	thrust::transform(start, end, glyphStart, start, mult_functor());
+}
+
+thrust::host_vector<double> mult(thrust::host_vector<double>& X, const thrust::host_vector<double>::iterator& start)
+{
+	thrust::host_vector<double> res(X.size(), 0.0);
+	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
+	thrust::transform(X.begin(), X.end(), start, res.begin(), mult_functor());
+	return res;
 }
 
 double accAbs(const thrust::host_vector<double>& X)
@@ -768,6 +776,7 @@ class propagator
 	thrust::host_vector<double> glyph;
 	thrust::host_vector<double> out;
 	thrust::host_vector<double> initArray;
+	thrust::host_vector<double> readGlyphC;
 
 	neighborhood hood; 
 	bool flag = false;
@@ -789,10 +798,11 @@ public:
 		initArray = thrust::host_vector<double>(steps, 0.0);
 		read = initArray;
 		glyph = initArray;
+		readGlyphC = thrust::host_vector<double>(steps, 1.0);
 		out = initArray;
 
 		// assign ptrs to member vectors
-		sampleBufferInit = thrust::host_vector<double>(dim, 0.0);
+		sampleBufferInit = thrust::host_vector<double>(dim*steps, 0.0);
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
@@ -861,7 +871,7 @@ public:
 					diagWeights.at(k)[t_index] = val;
 			}
 			
-}
+		}
 	}
 	
 	void propagate()
@@ -922,7 +932,10 @@ public:
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
 
-				
+				// prepare readGlyphC for whole cell
+				readGlyphC = mult(readGlyphC,start); // multiply read
+				mult(readGlyphC.begin(),readGlyphC.end(),glyphStart); // multiply glyph- 
+				readGlyphC = scale_fast(cFactor, out.begin(), out.end()); // -> out yields cFactor*read*glyph for all steps
 
 				//// EXAMPLE iterator calculation and use (right face neighbor k=0)
 				int k = 0; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
@@ -931,9 +944,13 @@ public:
 				//std::vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
 				//std::vector<double>::iterator dstEnd = sampleBufferB.begin() + (delta + 1)*steps;
 
-				out = scale_fast(cFactor, faceWeights.at(k).begin(), faceWeights.at(k).end()); // scale current weight array w. constant normalization factor
-				mult(out.begin(),out.end(),read.begin());
-				mult(out.begin(),out.end(),glyph.begin());
+				thrust::transform(readGlyphC.begin(),readGlyphC.end(), faceWeights.at(k).begin(), out.begin(), mult_functor()); // scale current weight array w. cFactor*read*glyph
+
+				double valsum0 = thrust::reduce(out.begin() + index, out.end()); // reduce w. iter ranges to obtain valsum
+				valsum0 += thrust::reduce(out.begin(), out.begin() + shiftIndex/2); // reduce w. iter ranges to obtain valsum
+
+				// iterator calculation and use (top right diag neighbor k=1)
+				k = 1; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
 				//// add up contribution of scaled (normalized) cosine cone in sample out at position index  CAVEAT: for right face neighbor one needs to split up transform iterator ranges
 				/*thrust::transform(read.begin() + index, read.end(), out.begin() + index, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
