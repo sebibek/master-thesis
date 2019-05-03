@@ -794,7 +794,7 @@ public:
 				/*if (read == initArray)
 					continue;*/
 				//read = thrust::host_vector<double>(start, end); // copy current sample to HOST (CPU) Vector for averaging (normalization)
-				if (thrust::equal(start,end,initArray.begin())) // test current sample on host
+				if (std::equal(start,end,initArray.begin())) // test current sample on host
 					continue;
 
 				std::vector<double>::iterator glyphStart = glyphBuffer->begin() + (i + j * width) * steps;
@@ -805,8 +805,8 @@ public:
 // calculate mean and variance.. of I(phi)
 				double sum1 = std::accumulate(start,end,0.0);
 				double sum2 = std::accumulate(glyphStart,glyphEnd, 0.0);
-				std::transform(start,end, glyphStart, out.begin(), std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
-				double sum3 = std::accumulate(out.begin(), out.end(), 0.0);;
+				std::transform(start,end, glyphStart, start, std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+				double sum3 = std::accumulate(start, end, 0.0);
 
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 				double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
@@ -818,10 +818,10 @@ public:
 				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
 
 				// prepare readGlyphC for whole cell
-				readGlyphC = std::vector<double>(out.begin(), out.end()); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
+				//readGlyphC = std::vector<double>(out.begin(), out.end()); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
 
 				//std::transform( readGlyphC.begin(), readGlyphC.end(), glyphStart, readGlyphC.begin(), std::multiplies<double>()); // assumes v1,v2 of same size > 1, 
-				std::transform(readGlyphC.begin(), readGlyphC.end(), readGlyphC.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
+				std::transform(start,end, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
 				double val_sum = 0.0;
 				int delta = 0;
@@ -832,7 +832,7 @@ public:
 				{
 					delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					std::transform( readGlyphC.begin(), readGlyphC.end(), weights.at(k).begin(), out.begin(), std::multiplies<double>());
+					std::transform( start, end, weights.at(k).begin(), out.begin(), std::multiplies<double>());
 					val_sum = std::accumulate(out.begin(),out.end(), 0.0);
 					out = cosines.at(k);
 
