@@ -76,19 +76,6 @@ T clip(const T& n, const T& lower, const T& upper); // template clip function
 //length and width of window
 int wSize = 701;
 
-struct saxpy_functor
-{
-	const double a;
-
-	saxpy_functor(double _a) : a(_a) {}
-
-	//__host__ __device__
-		double operator()(const double& x, const double& y) const {
-		return a*x + y; // performs y = a*x + y (SAXPY-OP)
-	}
-};
-
-
 // GENERIC FUNCTION DEFINITIONS
 
 // get current working directory to assign matrix.txt path
@@ -963,83 +950,9 @@ int main(int argc, char* argv[])
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	
-	// get defined light srcs positions and intensities...
-	//if(userFunctions.size()) // if entered by user, use cmd AND config
-	//	for (int i = 0; i < userFunctions.size(); i++)
-	//	{
-	//		functionString = userFunctions.at(i);
-	//		lightSrcPos = userPositions.at(i);
-	//		lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-	//	}
-	//else // if entered by default value, use default value in center position
-	//{
-	//	functionString = std::to_string(intensity);
-	//	lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-	//	userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
-	//}
-	//for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
-	//	sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
-	//cout << "HERE: " << endl;
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &glyphBuffer);
 
-	/*std::ofstream file("cout.txt");
-	Tee tee(cout, file);
-	TeeStream both(tee);
-	both.precision(dbl::max_digits10);*/
-
-	//int ctr = 0;
-	//int tCtr = 0;
-	//double total = 0.0;
-	//bool finished = false;
-	
-	//for (int t = 0; t < steps; t++)
-	//{
-	//	cout << "before propagating t: " << t << endl;
-	//	std::clock_t start = std::clock();
-	//	for (int j = 0; j < height; j++)
-	//		for (int i = 0; i < width; i++)
-	//		{
-	//			//tCtr = 0;
-	//			//lightSrcPos = Pair(j, i);
-	//			// DUAL BUFFER PROPAGATION //
-	//			sampleBufferA.at(j*width + i) = lightSrc; // get pre-computed light src for current direction t
-	//			meanMem = 0.0;
-	//			//ctr = 0;
-	//			finished = false;
-	//			// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
-	//			while (!finished) // perform one single light propagation pass (iteration)
-	//			{
-	//				meanA = 0.0;
-	//				prop.propagate(); // propagate until finished..
-	//				//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
-	//				swap(sampleBufferA, sampleBufferB);
-	//				//sampleBufferA = sampleBufferB;
-	//				sampleBufferA.at(j*width + i) = lightSrc;
-	//				if (abs(meanA - meanMem) < thresh)
-	//					finished = true;
-	//				meanMem = meanA;
-	//				//if (ctr == ctrLimit)//6
-	//				//	break;
-	//				//ctr++;
-	//				sampleBufferB = sampleBufferInit;
-	//				//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
-	//			}
-	//			/*if (ctr <= 3)
-	//			tCtr++;*/
-	//			sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions 
-	//			swap(distBuffer.at(j*width + i + t * dim), sampleBufferA);
-	//			//distBuffer.at(j*width + i + t * dim) = sampleBufferA;
-	//			//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
-	//			//sampleBufferA = sampleBufferInit;
-	//		}
-	//	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
-	//	cout << "timer: " << duration << " ms" << endl;
-	//	cout << "..after propagation, (last) ctr:" << ctr << endl;
-	//	cout << "..trivial ctr:" << tCtr << endl;
-	//}
-	//total = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
-	//cout << "..after propagation TOTAL, total timer:" << total << " ms" << endl;
 	// PROPAGATION SCHEME END //
 
 	double meanA = 0.0;
