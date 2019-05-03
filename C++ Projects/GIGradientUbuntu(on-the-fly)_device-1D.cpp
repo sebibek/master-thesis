@@ -114,6 +114,16 @@ struct multsum_functor
         }
 };
 
+struct mult_functor
+{
+    mult_functor() {}
+
+    __host__ __device__
+        double operator()(const double& x, const double& y) const { 
+            return y * x; // performs y = a*x (scale-OP)
+        }
+};
+
 struct abs_functor
 {
     abs_functor() {}
@@ -137,13 +147,34 @@ void scale_fast(double a, thrust::device_vector<double>& X)
 	thrust::transform(X.begin(), X.end(), X.begin(), scale_functor(a));
 }
 
+thrust::device_vector<double> scale_fast(double a, const thrust::device_vector<double>::iterator& start,const thrust::device_vector<double>::iterator& end)
+{
+	thrust::device_vector<double> res(end-start, 0.0);
+	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
+	thrust::transform(start, end, res.begin(), scale_functor(a));
+	return res;
+}
+
 double multsum(const thrust::device_vector<double>::iterator& start,const thrust::device_vector<double>::iterator& end,const thrust::device_vector<double>::iterator& glyphStart)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
-
 	thrust::device_vector<double> res(end-start, 0.0);
 	thrust::transform(start, end, glyphStart, res.begin(), multsum_functor());;
 	return thrust::reduce(res.begin(), res.end());
+}
+
+void mult(const thrust::device_vector<double>::iterator& start,const thrust::device_vector<double>::iterator& end,const thrust::device_vector<double>::iterator& glyphStart)
+{
+	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
+	thrust::transform(start, end, glyphStart, start, mult_functor());
+}
+
+void mult(thrust::device_vector<double>& X, const thrust::device_vector<double>::iterator& start)
+{
+	//thrust::host_vector<double> res(X.size(), 0.0);
+	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
+	thrust::transform(X.begin(), X.end(), start, X.begin(), mult_functor());
+	//return res;
 }
 
 double accAbs(const thrust::device_vector<double>& X)
@@ -163,9 +194,9 @@ double accAbs(const thrust::device_vector<double>& X)
 
 // get current working directory to assign matrix.txt path
 std::string GetCurrentWorkingDir(void) {
-	char buffer[FILENAME_MAX];
-	GetCurrentDir(buffer, FILENAME_MAX);
-	std::string current_working_dir(buffer);
+	char buff[FILENAME_MAX];
+	GetCurrentDir(buff, FILENAME_MAX);
+	std::string current_working_dir(buff);
 	return current_working_dir;
 }
 
@@ -753,19 +784,21 @@ class propagator
 	std::vector<thrust::device_vector<double>> cosines;
 	
 	// create sample vector (dynamic)
-	thrust::host_vector<double> read;
-	thrust::host_vector<double> glyph;
-	thrust::device_vector<double> out;
 	thrust::host_vector<double> initArray;
+	thrust::device_vector<double> init;
+
 
 	neighborhood hood; 
 	bool flag = false;
 
 	// create deltaIndex Map to access current neighbor cell for direction k[0..7]
-	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
+	std::vector<int> deltaIndexSTL{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
+	thrust::host_vector<int> deltaIndex;
 
 	thrust::host_vector<double> lightSrc;
 	std::vector<thrust::host_vector<double>> lightSrcs;
+
+	std::vector<thrust::device_vector<double>> weights;
 
 
 public:
@@ -773,9 +806,9 @@ public:
 	{
 		// initialize member samples w. 0
 		initArray = thrust::host_vector<double>(steps, 0.0);
-		read = initArray;
-		glyph = initArray;
-		out = initArray;
+		init = initArray;
+		lightSrc = initArray;
+		deltaIndex = deltaIndexSTL;
 
 		// assign ptrs to member vectors
 		sampleBufferInit = thrust::host_vector<double>(dim*steps, 0.0);
@@ -809,9 +842,43 @@ public:
 		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
 		for (int j = 0; j < steps; j++)
 		{
-			out[j] = steps;
-			lightSrcs.push_back(out);
-			out = initArray;
+			lightSrc[j] = steps;
+			lightSrcs.push_back(lightSrc);
+			lightSrc = initArray;
+		}
+
+		weights = std::vector<thrust::device_vector<double>>(8, initArray);
+		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		for (int k = 0; k < 8; k++) // for each adjacent edge...
+		{
+			int midIndex = k * shiftIndex / 2;
+			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
+
+			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
+			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
+			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
+			{
+				int deltaJ = t - midIndex;
+				int t_index = t < 0 ? t + steps : t % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
+				double val = 1.0;
+
+				// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+				if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
+					if (abs(deltaJ) == shiftIndex / 2)
+						val = 0.5*0.3622909908722584*val;
+					else
+						val = 0.3622909908722584*val;
+				else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
+					val = 0.6377090091277417*val;
+
+				/*if (fast_mod(k, 2) == 0)
+					faceWeights.at(k)[t_index] = val;
+				else
+					diagWeights.at(k)[t_index] = val;*/
+				weights.at(k)[t_index] = val;
+			}
+			
 		}
 	}
 	
@@ -829,7 +896,7 @@ public:
 				/*if (read == initArray)
 					continue;*/
 				//read = thrust::host_vector<double>(start, end); // copy current sample to HOST (CPU) Vector for averaging (normalization)
-				if (thrust::equal(start,end,out.begin())) // test current sample on host
+				if (thrust::equal(start,end,init.begin())) // test current sample on host
 					continue;
 
 				thrust::device_vector<double>::iterator glyphStart = glyphBuffer->begin() + (i + j * width) * steps;
@@ -838,31 +905,11 @@ public:
 				//glyph = thrust::host_vector<double>(glyphStart, glyphEnd); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 				//glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 
-				//flag = false;
-				/*if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
-					{continue;}//hood.change(i / width, i%width); flag = true;}*/
-				
-				// calculate mean.. of I(phi)
-				/*double sum1 = 0.0;
-				double sum2 = 0.0;
-				double sum3 = 0.0;
-
-				for (int j = 0; j < steps; j++)
-				{
-					sum1 += read[j]; // evaluate for iMean (sum1)
-					sum2 += glyph[j];
-					sum3 += read[j]*glyph[j]);
-
-					/*if (read.at(j) < 0)
-						cout << "WARNING: Negative values in SAMPLE in grid encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;
-					if (glyphBuffer->at(i).at(j) < 0)
-						cout << "WARNING: Negative values in GLYPHS (Tensor Ellipse Eq.) encountered, UNEXPECTED Behavior can not be excluded (negative energies->mirroring by 180 deg in polar plot) !!!" << endl;*/
-				//}
-
 				// calculate means of I(phi) and T(phi)
 				double sum1 = thrust::reduce(start, end); // THRUSTs accumulate analog starting w. sum = 0.0
 				double sum2 = thrust::reduce(glyphStart, glyphEnd); // THRUSTs accumulate analog starting w. sum = 0.0
-				double sum3 = multsum(start, end, glyphStart);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+				mult(start,end,glyphStart);
+				double sum3 = thrust::reduce(start, end);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
 
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 				double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
@@ -873,74 +920,25 @@ public:
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
 
-				// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+				// prepare readGlyphC for whole cell
+				//readGlyphC = thrust::host_vector<double>(start,end); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
+				scale_fast(cFactor, start, end); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
+
+				double val_sum = 0.0;
+				int delta = 0;
+				int index = i + j*width;
+
+				#pragma unroll // --> bringt nicht viel, aber stört auch nicht
 				for (int k = 0; k < 8; k++) // for each adjacent edge...
 				{
-					// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
-					//out = initArray;
+					delta = index + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					/*
-					if (flag) // if position on grid borders..
-					{
-						// check the neighborhood for missing (or already processed) neighbors, if missing, skip step..continue
-						if (k == 0 && !hood.getR())
-							continue;
-						if (k == 1 && (!hood.getT() || !hood.getR()))
-							continue;
-						if (k == 2 && !hood.getT())
-							continue;
-						if (k == 3 && (!hood.getT() || !hood.getL()))
-							continue;
-						if (k == 4 && !hood.getL())
-							continue;
-						if (k == 5 && (!hood.getB() || !hood.getL()))
-							continue;
-						if (k == 6 && !hood.getB())
-							continue;
-						if (k == 7 && (!hood.getB() || !hood.getR()))
-							continue;
-					}
-					*/
+					val_sum = multsum(start, end, weights.at(k).begin());
 
-					int midIndex = k * shiftIndex/2;
-					int index = betaIndex;
-					if (fast_mod(k,2) == 0)
-						index = shiftIndex / 2;
-
-					//double energy_sum = 0.0;
-					double val_sum = 0.0;
-
-					for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
-					{
-						int deltaJ = t - midIndex;
-						int t_index = t < 0 ? t+steps : t%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
-
-						double val = start[t_index]*cFactor*glyphStart[t_index];
-
-						// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-						if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
-							if (abs(deltaJ) == shiftIndex / 2)
-								val = 0.5*0.3622909908722584*val;
-							else
-								val = 0.3622909908722584*val;
-						else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
-							val = 0.6377090091277417*val;
-
-						val_sum += val; // val*radres
-					}
-
-					//out = cosines.at(k);
-					// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-					//thrust::transform(out.begin(), out.end(), out.begin(), std::bind(thrust::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
-
-					index = i + j*width + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
-					thrust::device_vector<double>::iterator dstStart = sampleBufferB.begin() + (index)*steps;
-					
-					// scale respective cosine direction w. summed energy valsum*radres (initially normalized to 1.0/cosine_sum) to distribute energy
-					saxpy_fast(val_sum *= radres, cosines.at(k), dstStart); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
-
+					thrust::device_vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
+					saxpy_fast(val_sum *= radres, cosines.at(k), dstStart);
 					meanA += val_sum;
-				}
+				}		
 		}
 	}
 	thrust::device_vector<double> propagateDist(int i, int j, int t)
