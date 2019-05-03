@@ -809,8 +809,8 @@ public:
 				// calculate means of I(phi) and T(phi)
 				double sum1 = thrust::reduce(start, end); // THRUSTs accumulate analog starting w. sum = 0.0
 				double sum2 = thrust::reduce(glyphStart, glyphEnd); // THRUSTs accumulate analog starting w. sum = 0.0
-				mult(start,end,glyphStart);
-				double sum3 = thrust::reduce(start, end);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+				//mult(start,end,glyphStart);
+				double sum3 = multsum(start,end,glyphStart);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
 
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 				double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
@@ -823,23 +823,53 @@ public:
 
 				// prepare readGlyphC for whole cell
 				//readGlyphC = thrust::host_vector<double>(start,end); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
-				scale_fast(cFactor, start, end); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
+				//scale_fast(cFactor, start, end); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
 
-				double val_sum = 0.0;
+				//double val_sum = 0.0;
 				int delta = 0;
-				int index = i + j*width;
+				//int index = i + j*width;
 
 				#pragma unroll // --> bringt nicht viel, aber stört auch nicht
 				for (int k = 0; k < 8; k++) // for each adjacent edge...
 				{
-					delta = index + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+					// empty (reset) sample, upper and lower for each edge, --> not necessary: OVERWRITE
+					//out = initArray;
 
-					val_sum = multsum(start, end, weights.at(k).begin());
+					int midIndex = k * shiftIndex/2;
+					int index = betaIndex;
+					if (fast_mod(k,2) == 0)
+						index = shiftIndex / 2;
 
+					//double energy_sum = 0.0;
+					double val_sum = 0.0;
+
+					for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
+					{
+						int deltaJ = t - midIndex;
+						int t_index = t < 0 ? t+steps : t%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
+						double val = cFactor*start[t_index]*glyphStart[t_index];
+
+						// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+						if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
+							if (abs(deltaJ) == shiftIndex / 2)
+								val = 0.5*0.3622909908722584*val;
+							else
+								val = 0.3622909908722584*val;
+						else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
+							val = 0.6377090091277417*val;
+
+						val_sum += val; // val*radres
+					}
+
+					delta = i+ j*width + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 					thrust::host_vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
-					saxpy_fast(val_sum *= radres, cosines.at(k), dstStart);
+					
+					// scale respective cosine direction w. summed energy valsum*radres (initially normalized to 1.0/cosine_sum) to distribute energy
+					saxpy_fast(val_sum *= radres, cosines.at(k), dstStart); // saxpy_fast(a,X,Y) --> perform Y = a*X + Y element-wise accumulate w. Thrust
+
 					meanA += val_sum;
-				}							
+				}			
 			}
 	}
 	thrust::host_vector<double> propagateDist(int i, int j, int t)
