@@ -50,6 +50,8 @@
 #include <thrust/copy.h>
 #include <thrust/fill.h>
 #include <thrust/functional.h>
+#include <thrust/transform_reduce.h>
+
 
 // NAMESPACE IMPORTS
 using namespace std;
@@ -170,11 +172,10 @@ double accAbs(const thrust::host_vector<double>& X)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED	
 
-	thrust::host_vector<double> res(X.size(),0.0);
-	thrust::transform(X.begin(), X.end(), res.begin(), abs_functor());
-	return thrust::reduce(res.begin(), res.end());
+	//thrust::device_vector<double> res(X.size(),0.0);
+	return thrust::transform_reduce(X.begin(), X.end(), abs_functor(), 0.0, thrust::plus<double>());
+	//return thrust::reduce(res.begin(), res.end());
 }
-
 
 // THRUST 
 
@@ -187,89 +188,6 @@ std::string GetCurrentWorkingDir(void) {
 	return current_working_dir;
 }
 
-// CLASS DEFINITIONS //
-
-class neighborhood
-{
-	bool neighborR = true;
-	bool neighborT = true;
-	bool neighborL = true;
-	bool neighborB = true;
-
-public:
-
-	neighborhood() // standard constructor
-	{}
-	//constructor
-	neighborhood(int j, int i) // check the neighbourhood of (j,i) for missing neighbors..
-	{
-		// check if frame exceeded, outside FOV, offscreen..
-		if (i == 0)
-			neighborL = false; // left
-		else if (i == width - 1)
-			neighborR = false; // right
-		if (j == 0)
-			neighborT = false; // top
-		else if (j == height - 1)
-			neighborB = false; // bottom
-		// leave order.. functional!
-	}
-
-	void change(int j, int i)
-	{
-		// RE-INITIALIZE
-		neighborR = true;
-		neighborT = true;
-		neighborL = true;
-		neighborB = true;
-		// check if frame exceeded, outside FOV, offscreen..
-		if (i == 0)
-			neighborL = false; // left
-		else if (i == width - 1)
-			neighborR = false; // right
-		if (j == 0)
-			neighborT = false; // top
-		else if (j == height - 1)
-			neighborB = false; // bottom
-		// leave order.. functional!
-	}
-	
-	bool getR() { return neighborR; }
-	bool getT() { return neighborT; }
-	bool getL() { return neighborL; }
-	bool getB() { return neighborB; }
-};
-
-class Pair
-{
-public:
-	int jIndex = width / 2;
-	int iIndex = width / 2;
-
-	Pair() {}
-	Pair(int j, int i)
-	{
-		jIndex = j;
-		iIndex = i;
-	}
-
-	friend istringstream& operator>>(istringstream& stream, Pair& pair)
-	{
-		std::string token;
-		int i = 0;
-		while (getline(stream, token, ','))
-		{
-			if (i == 0)
-				pair.jIndex = std::stoi(token);
-			else
-				pair.iIndex = std::stoi(token);
-			i++;
-		}
-
-
-		return stream;
-	}
-};
 
 // OPTION (cmd args) DEFINITIONS - getopt
 
@@ -281,7 +199,7 @@ bool fullscreen = false; //fullscreen flag
 bool total_anisotropy = false;
 int record_frameskip = 0; // --> disables recording //recording frameskip
 int ctrLimit = 0;
-Pair lightSrcPos{ height / 2, width / 2 };
+//Pair lightSrcPos{ height / 2, width / 2 };
 double intensity = 2.1; // --> initial intensity val
 double thresh = 0.001;
 
@@ -294,7 +212,7 @@ void parse_file(char* filename)
 	//default function attributes
 	//sf::Color color = sf::Color::Cyan;
 	std::string func_literal = "100*cos(theta)";
-	Pair position{ height / 2, width / 2 };
+	//Pair position{ height / 2, width / 2 };
 
 	if (f.is_open()) {
 
@@ -458,11 +376,11 @@ void parse_options(int argc, char* argv[]) {
 				break;
 			case 'l':
 				std::cerr << "option -l requires argument, using default position (center-point)\n";
-				lightSrcPos = { width / 2, width / 2 };
+				//lightSrcPos = { width / 2, width / 2 };
 				break;
 			case 'p':
 				std::cerr << "option -p requires argument, using default position (center-point)\n";
-				lightSrcPos = { width / 2, width / 2 };
+				//lightSrcPos = { width / 2, width / 2 };
 				break;
 			}
 			break;
@@ -771,14 +689,8 @@ class propagator
 	std::vector<thrust::host_vector<double>> cosines;
 	
 	// create sample vector (dynamic)
-	thrust::host_vector<double> read;
-	thrust::host_vector<double> glyph;
-	thrust::host_vector<double> out;
 	thrust::host_vector<double> initArray;
 	thrust::host_vector<double> readGlyphC;
-
-	neighborhood hood; 
-	bool flag = false;
 
 	// create deltaIndex Map to access current neighbor cell for direction k[0..7]
 	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
@@ -795,10 +707,8 @@ public:
 	{
 		// initialize member samples w. 0
 		initArray = thrust::host_vector<double>(steps, 0.0);
-		read = initArray;
-		glyph = initArray;
-		readGlyphC = thrust::host_vector<double>(steps, 1.0);
-		out = initArray;
+		readGlyphC = initArray;
+		lightSrc = initArray;
 
 		// assign ptrs to member vectors
 		sampleBufferInit = thrust::host_vector<double>(dim*steps, 0.0);
@@ -832,9 +742,9 @@ public:
 		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
 		for (int j = 0; j < steps; j++)
 		{
-			out[j] = steps;
-			lightSrcs.push_back(out);
-			out = initArray;
+			lightSrc[j] = steps;
+			lightSrcs.push_back(lightSrc);
+			lightSrc = initArray;
 		}
 
 
@@ -912,17 +822,17 @@ public:
 
 				// prepare readGlyphC for whole cell
 				readGlyphC = thrust::host_vector<double>(start,end); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
-			   // mult(readGlyphC,start); // multiply read
-				mult(readGlyphC, glyphStart); // multiply glyph- 
-				scale_fast(cFactor, readGlyphC); // -> readGlyphC yields cFactor*read*glyph for all steps
+				mult(readGlyphC, glyphStart); // multiply read*glyph
+				scale_fast(cFactor, readGlyphC); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
 
 				double val_sum = 0.0;
 				int delta = 0;
+				int index = i + j*width;
 
 				#pragma unroll // --> bringt nicht viel, aber stört auch nicht
 				for (int k = 0; k < 8; k++) // for each adjacent edge...
 				{
-					delta = i + j * width + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+					delta = index + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
 					val_sum = multsum(readGlyphC.begin(),readGlyphC.end(), weights.at(k).begin());
 
@@ -1007,15 +917,15 @@ int main(int argc, char* argv[])
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
-	const int dim = width * height*steps; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
+	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 
-	thrust::host_vector<double> glyphBuffer(dim,0.0);
+	thrust::host_vector<double> glyphBuffer(dim*steps,0.0);
 	
 	std::vector<double> initGradient(3, 0.0); // construct 3D Gradient
-	std::vector<std::vector<double>> deltaBuffer(dim, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
+	std::vector<std::vector<double>> deltaBuffer(dim*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
-	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
-	std::vector<std::vector<bool>> signMap(width*height, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
+	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
+	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	
 	cout << "before compute glyphs" << endl;
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
@@ -1078,7 +988,7 @@ int main(int argc, char* argv[])
 				//	meanA += abs(std::accumulate(distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).begin(), distBuffer.at(j*width + i + (t + 1) % steps * dim).at(k).end(),0.0) - std::accumulate(distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).begin(), distBuffer.at(j *width + i + (t == 0 ? (steps - 1) : (t - 1)) * dim).at(k).end(),0.0));
 				//gradient.at(2) = meanA / 2.0;
 
-				deltaBuffer.at(j*width + i + t * width*height) = gradient;
+				deltaBuffer.at(j*width + i + t * dim) = gradient;
 				//cout << "HERE: 1 cycle passed" << endl;
 			}
 		duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
@@ -1112,8 +1022,8 @@ int main(int argc, char* argv[])
 		for (int j = 0; j < height; j++)
 			for (int i = 0; i < width; i++)
 			{
-				double res = vectorNorm(deltaBuffer.at(j*width + i + t * width*height).begin(), deltaBuffer.at(j*width + i + t * width*height).end());
-				scalarNorm.at(j*width + i + t * width*height) = res;
+				double res = vectorNorm(deltaBuffer.at(j*width + i + t * dim).begin(), deltaBuffer.at(j*width + i + t * dim).end());
+				scalarNorm.at(j*width + i + t * dim) = res;
 				energy->SetValue(ctr, res);
 				ctr++;
 			}
