@@ -651,7 +651,7 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphBuffer.begin() + i*steps, glyphBuffer.begin() +(i+1)*steps, glyphBuffer.begin() + i*steps, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		thrust::transform(glyphBuffer.begin() + i*steps, glyphBuffer.begin() +(i+1)*steps, glyphBuffer.begin() + i*steps, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
 }
