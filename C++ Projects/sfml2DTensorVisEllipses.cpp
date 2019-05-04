@@ -723,16 +723,14 @@ string trim(const string& str)
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
-	//double buff[MAXBUFSIZE];
+	//std::vector<double> buff(MAXBUFSIZE);
+	
 	ifstream infile(filepath);
-
+	
 	while (!infile.eof())
 	{
 		string line;
 		getline(infile, line);
-
-		if (line.empty())
-			break;
 
 		int temp_cols = 0;
 		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
@@ -805,8 +803,8 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
 		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
-		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180Â°,180Â°]
-		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180Â°,180Â°]
+		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
+		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
 		glyphParameters.at(i).at(2) = deg1;// < -90 ? deg1 + 180 : deg1;
 		glyphParameters.at(i).at(2) = deg1;// > 90 ? deg1 - 180 : deg1;
@@ -828,7 +826,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		}
 
 		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
-		// shift (normalize) degs from [-180Â°,180Â°] into the interval [0Â°,360Â°] - "circular value permutation"
+		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
 		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
@@ -920,7 +918,7 @@ int main(int argc, char* argv[])
 		//vector to store functions
 
 		// set options
-	int Alpha = 200; // set opacity ("Deckung")
+	int Alpha = 100; // set opacity ("Deckung")
 	int drawSpeed = 0; // set instant drawing
 	int lineWidth = 0; // set line width = 1px
 	double thetaMax = 2 * pi;
@@ -971,7 +969,7 @@ int main(int argc, char* argv[])
 	tensorFieldLinePos.setPointCount(quality);
 	
 	tensorFieldLinePos.setOrigin(0,0);
-	tensorFieldLinePos.setPosition(3*wSize / 4, wSize / 2+50);
+	//tensorFieldLinePos.setPosition(3*wSize / 4, wSize / 2+50);
 
 	int seeds = 50;
 	const double start = 0.0;
@@ -1037,14 +1035,14 @@ int main(int argc, char* argv[])
 			JacobiSVD<MatrixXd> svd(covariance, ComputeThinU | ComputeThinV);
 			//Vector2d svector1 = es.eigenvectors().col(1).real(); // alternative: but unsorted insconsistently!!
 			// assign elements
-			double y1 = svd.matrixU().col(1)[1];// svd.matrixV().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-
-			double x1 = svd.matrixU().col(1)[0]; //svd.matrixV().col(0)[0]; // use x - coordinate of both semi-axes
+			double y1 = svd.matrixV().col(1)[1];// svd.matrixV().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-
+			double x1 = svd.matrixV().col(1)[0]; //svd.matrixV().col(0)[0]; // use x - coordinate of both semi-axes
 
 			// assign singular values
 			double sv1 = glyphParameters.at(round(seedPosXIndex) + round(seedPosYIndex) * width).at(0);
 			double sv2 = glyphParameters.at(round(seedPosXIndex) + round(seedPosYIndex) * width).at(1);
 
-			degPos = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180Â°,180Â°];
+			degPos = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°];
 			
 			degPos = degPos - degMem > 90 ? degPos - 180 : degPos;
 			degPos = degPos - degMem < -90 ? degPos + 180 : degPos;
@@ -1120,7 +1118,7 @@ int main(int argc, char* argv[])
 			out.draw(ellipse);
 			outAll.draw(ellipse);
 			if (showOverlay)
-				//window.draw(sprE);
+				window.draw(sprE);
 			outAll.draw(sprE);
 		}
 		// window.draw(ellipse);  // TEST //
