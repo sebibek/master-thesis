@@ -779,7 +779,9 @@ public:
 
 				read = std::vector<double>(start, end); // CAVEAT: constructor needed to extract (crop) subset of vector
 				//read =  + ;
-				if (read == initArray)
+				/*if (read == initArray)
+					continue;*/
+				if(equal(start,end,initArray.begin()))
 					continue;
 			
 				glyph = std::vector<double>(glyphStart, glyphEnd);
