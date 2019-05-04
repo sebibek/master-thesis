@@ -601,8 +601,8 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 		double sum = 0.0;
 		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // if total anisotropy, needed to hit (match) the indices corresponding to glyph orientation
 		{
-			glyphBuffer[i*steps + round(deg1*steps / 360)] = sv1;
-			glyphBuffer[i*steps + static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			glyphStart[round(deg1*steps / 360)] = sv1;
+			glyphStart[static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
 			sum += 2 * sv1;
 		}
 		else
@@ -611,7 +611,7 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 			{
 				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
 				sum += val;
-				glyphBuffer[i*steps + j] = val;
+				glyphStart[j] = val;
 			}
 		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -827,7 +827,7 @@ public:
 
 					std::transform(cosines.at(k).begin(), cosines.at(k).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
-					std::vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
+					std::vector<double>::iterator dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
 
 					std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
 
