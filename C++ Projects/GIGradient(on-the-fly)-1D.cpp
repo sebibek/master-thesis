@@ -660,6 +660,9 @@ class propagator
 	std::vector<double> sampleBufferInit;
 
 	std::vector<std::vector<double>> cosines;
+
+	std::vector<int> lowerIndex;
+	std::vector<int> upperIndex;
 	
 	// create sample vector (dynamic)
 	std::vector<double> read;
@@ -736,6 +739,8 @@ public:
 			int midIndex = k * shiftIndex / 2;
 			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
 
+			lowerIndex.push_back(midIndex - index);
+			upperIndex.push_back(midIndex + index);
 			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
 			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
 			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
@@ -761,6 +766,7 @@ public:
 				weights.at(k)[t_index] = val;
 			}
 		}
+		
 	}
 	
 	void propagate()
@@ -772,6 +778,7 @@ public:
 		std::vector<double>::iterator glyphEnd;
 		std::vector<double>::iterator readGlyphStart;
 		std::vector<double>::iterator readGlyphEnd;
+		std::vector<double>::iterator dstStart;
 
 		// 1 propagation cycle
 		for(int j = 1; j < width -1; j++)
@@ -816,18 +823,37 @@ public:
 				double val_sum = 0.0;
 				int delta = 0;
 
+				// precompute neighbor 0 (right face neighbor) because of circular value (index) permutation --> ANGLES
+				delta = index + deltaIndex.at(0); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+
+				// transform (multiply weights)
+				std::transform(start+7*shiftIndex/2, end, weights.at(0).begin() + 7 * shiftIndex / 2, out.begin() + 7 * shiftIndex / 2, std::multiplies<double>());
+				std::transform(start, start + upperIndex.at(0), weights.at(0).begin(), out.begin(), std::multiplies<double>());
+
+				// 2 partial sums...[315,0],[0,45]
+				val_sum = std::accumulate(out.begin() + 7 * shiftIndex / 2, out.end(), 0.0);
+				val_sum += std::accumulate(out.begin(), out.begin() + upperIndex.at(0), 0.0);
+
+				std::transform(cosines.at(0).begin(), cosines.at(0).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+
+				dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+
+				std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
+
+				meanA += val_sum;
+
 				//pragma unroll
-				for (int k = 0; k < 8; k++) // for each adjacent edge...
+				for (int k = 1; k < 8; k++) // for each adjacent edge...
 				{
 					delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					std::transform(start, end, weights.at(k).begin(), out.begin(), std::multiplies<double>());
-					val_sum = std::accumulate(out.begin(), out.end(), 0.0);
+					std::transform(start + lowerIndex.at(k), start + upperIndex.at(k), weights.at(k).begin() + lowerIndex.at(k), out.begin() + lowerIndex.at(k), std::multiplies<double>());
+					val_sum = std::accumulate(out.begin() + lowerIndex.at(k), out.begin() + upperIndex.at(k), 0.0);
 					//out = cosines.at(k);
 
 					std::transform(cosines.at(k).begin(), cosines.at(k).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
-					std::vector<double>::iterator dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+					dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
 
 					std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
 
