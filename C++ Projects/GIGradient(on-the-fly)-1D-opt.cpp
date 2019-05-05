@@ -8,9 +8,8 @@
 #define GetCurrentDir getcwd
 #endif
 
-#define MAXBUFSIZE  ((int) 1e8)
+#define MAXBUFSIZE  ((int) 1e5)
 #define _USE_MATH_DEFINES
-
 
 // INCLUDES (IMPORTS)
 //#include <SFML/Graphics.hpp>
@@ -19,12 +18,12 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-//#include <unistd.h>
+#include <unistd.h>
 #include <math.h>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Eigenvalues>
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 //#include <array>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <string>
 //#include <algorithm> 
 //#include <cctype>
@@ -35,21 +34,13 @@
 #include <boost/iostreams/tee.hpp>
 #include <limits>
 #include <ctime>
-
 // VTK Includes
-//#include <vtkVersion.h>
+#include <vtkVersion.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLImageDataWriter.h>
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkDoubleArray.h>
-
-//thrust
-#include <thrust/device_vector.h>
-#include <thrust/transform.h>
-#include <thrust/copy.h>
-#include <thrust/fill.h>
-#include <thrust/functional.h>
 
 // NAMESPACE IMPORTS
 using namespace std;
@@ -58,8 +49,6 @@ using namespace Eigen;
 typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
 typedef std::numeric_limits< double > dbl;
-
-double buffer[MAXBUFSIZE];
 
 //definition of pi
 const double pi = M_PI;
@@ -185,7 +174,7 @@ double intensity = 2.1; // --> initial intensity val
 double thresh = 0.001;
 
 // parse files
-void parse_file(char* filename)
+void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions)
 {
 	std::ifstream f(filename);
 	std::string line;
@@ -203,12 +192,12 @@ void parse_file(char* filename)
 			if (line[0] == '#')
 				continue;
 			//write function to vector
-			/*else if (line == "end") {
+			else if (line == "end") {
 				funcs.push_back(func_literal);
 				//reset default values
 				func_literal = "100*cos(theta)";
 				positions.push_back(position);
-			}*/
+			}
 			
 			//parse other statements
 			else {
@@ -233,14 +222,14 @@ void parse_file(char* filename)
 					color = sf::Color(r, g, b);
 				}*/
 				// enter light src position
-				/*else if (tag == "pos") 
+				else if (tag == "pos") 
 				{
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					std::string str;
 					s >> str;
 					std::istringstream(str) >> position;
-				}*/
+				}
 				// thresh
 				else if (tag == "thresh") {
 					std::stringstream s;
@@ -286,7 +275,7 @@ void parse_file(char* filename)
 		std::cerr << filename << " is not a valid filename.\n";
 }
 
-void parse_options(int argc, char* argv[]) {
+void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<Pair>& positions) {
 
 	int c;
 	std::string frameskip_opt = "-1";
@@ -306,13 +295,13 @@ void parse_options(int argc, char* argv[]) {
 		switch (c)
 		{
 		// correct option use
-		/*case 'l': {
+		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
 			positions.push_back(lightSrcPos);
 			funcs.push_back(std::to_string(intensity));
 			break;
-		}*/
+		}
 		case 'i': {
 			intensity_opt.assign(optarg);
 			std::istringstream(intensity_opt) >> intensity;
@@ -372,13 +361,13 @@ void parse_options(int argc, char* argv[]) {
 	}
 	int optmem = optind; // set up option index memory variable
 	for (int i = optind; i < argc; i++)
-		parse_file(argv[i]); // parse "filename.txt" passed as LAST cmd line arg
+		parse_file(argv[i], funcs, positions); // parse "filename.txt" passed as LAST cmd line arg
 	if (optind == optmem) // if optind did not change.., use standard config.txt in workDir for configuration
 	{
 		std::string str = workDir + "/config.txt";
 		char* cstr = new char[str.length() + 1];
-		strncpy(cstr, str.c_str(), str.length() + 1);
-		parse_file(cstr); // parse config.txt in workDir
+		strcpy_s(cstr, str.length() + 1, str.c_str());
+		parse_file(cstr, funcs, positions); // parse config.txt in workDir
 		free(cstr);
 	}
 }
@@ -495,7 +484,7 @@ string trim(const string& str)
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
-	
+	double buff[MAXBUFSIZE];
 	ifstream infile(filepath);
 
 	while (!infile.eof())
@@ -506,7 +495,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 		int temp_cols = 0;
 		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
 		while (!stream.eof())
-			stream >> buffer[cols*rows + temp_cols++];
+			stream >> buff[cols*rows + temp_cols++];
 
 		if (temp_cols == 0) // if empty line
 			continue;
@@ -523,7 +512,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	MatrixXd result(rows, cols);
 	for (int j = 0; j < rows; j++) // use (j, i)-index for data matrices, use (i, j) for mathematical matrices (w. apt Transpose/Transformations etc.)
 		for (int i = 0; i < cols; i++)
-			result(j, i) = buffer[cols*j + i];
+			result(j, i) = buff[cols*j + i];
 
 	return result;
 };
@@ -534,7 +523,7 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 	int rows = 0; // create ptr to rows of txt tensor field
 	std::string workDir = GetCurrentWorkingDir();
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows);
-	int dim = (rows / 2) * (cols / 2); // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
+	int dim = rows / 2 * cols / 2; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 
 	// block the read-out matrices into a list of MatrixXd types (hardcoded 2x2 read-out)
 	std::vector<MatrixXd> matrixList(dim, MatrixXd::Ones(2, 2));
@@ -562,13 +551,11 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 
 	std::complex<double> sigma1(0, 0);
 	std::complex<double> sigma2(0, 0);
-	std::vector<bool> signs(2, false);
+	std::vector<bool> signs(3, false);
 
 	std::vector<double>::iterator glyphStart = glyphBuffer.begin();
 	std::vector<double>::iterator glyphEnd = glyphBuffer.begin();
 	std::advance(glyphEnd, steps);
-	//cout << "listSize: " <<matrixList.size()<< endl;
-
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
@@ -580,11 +567,10 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
 		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
-		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180ÔøΩ,180ÔøΩ]
-		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180ÔøΩ,180ÔøΩ]
+		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180∞,180∞]
+		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180∞,180∞]
 
 		glyphParameters.at(i).at(2) = deg1;
-		//cout << "HERE1: " << endl;
 
 		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
 		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
@@ -602,10 +588,8 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 			signs.at(1) = sigma2.real() < 0 ? true : false;
 		}
 
-		//cout << "HERE2: " << endl;
-
 		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
-		// shift (normalize) degs from [-180ÔøΩ,180ÔøΩ] into the interval [0ÔøΩ,360ÔøΩ] - "circular value permutation"
+		// shift (normalize) degs from [-180∞,180∞] into the interval [0∞,360∞] - "circular value permutation"
 		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
@@ -617,8 +601,8 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 		double sum = 0.0;
 		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // if total anisotropy, needed to hit (match) the indices corresponding to glyph orientation
 		{
-			glyphBuffer[i*steps + round(deg1*steps / 360)] = sv1;
-			glyphBuffer[i*steps + static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			glyphStart[round(deg1*steps / 360)] = sv1;
+			glyphStart[static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
 			sum += 2 * sv1;
 		}
 		else
@@ -627,11 +611,9 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 			{
 				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
 				sum += val;
-				glyphBuffer[i*steps + j] = val;
+				glyphStart[j] = val;
 			}
 		}
-		//cout << "HERE3: " << endl;
-
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 		// write glyphParameters
 		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
@@ -673,10 +655,14 @@ class propagator
 	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<double> sampleBufferA;
 	std::vector<double> sampleBufferB;
+	std::vector<double> readGlyph;
 	std::vector<double>* glyphBuffer;
 	std::vector<double> sampleBufferInit;
 
 	std::vector<std::vector<double>> cosines;
+
+	std::vector<int> lowerIndex;
+	std::vector<int> upperIndex;
 	
 	// create sample vector (dynamic)
 	std::vector<double> read;
@@ -687,13 +673,13 @@ class propagator
 	bool flag = false;
 
 	std::vector<double> initArray;
-	thrust::host_vector<double> readGlyphC;
 	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 
 	std::vector<double> lightSrc;
 	std::vector<std::vector<double>> lightSrcs;
 
-	std::vector<thrust::host_vector<double>> weights;
+	std::vector<std::vector<double>> weights;
+
 
 
 public:
@@ -703,13 +689,12 @@ public:
 		sampleBufferInit = std::vector<double>(dim*steps, 0.0);
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
+		readGlyph = sampleBufferInit;
 		glyphBuffer = ellipseArray;
 
 		// initialize member samples w. 0
-		read = std::vector<double>(steps, 0.0);
-		glyph = std::vector<double>(steps, 0.0);
-		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
+		out = initArray;
 
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
@@ -735,23 +720,25 @@ public:
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
 
-		std::vector<double> sample = initArray;
+		lightSrc = initArray;
 
 		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
 		for (int j = 0; j < steps; j++)
 		{
-			sample.at(j) = steps;
-			lightSrcs.push_back(sample);
-			sample = initArray;
+			lightSrc.at(j) = steps;
+			lightSrcs.push_back(lightSrc);
+			lightSrc = initArray;
 		}
 		
-		weights = std::vector<thrust::host_vector<double>>(8, initArray);
+		weights = std::vector<std::vector<double>>(8, initArray);
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < 8; k++) // for each adjacent edge...
 		{
 			int midIndex = k * shiftIndex / 2;
 			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
 
+			lowerIndex.push_back(midIndex - index);
+			upperIndex.push_back(midIndex + index);
 			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
 			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
 			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
@@ -777,73 +764,129 @@ public:
 				weights.at(k)[t_index] = val;
 			}
 		}
+		
 	}
 	
 	void propagate()
 	{
+		std::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer->begin(), readGlyph.begin(), std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+		std::vector<double>::iterator start;
+		std::vector<double>::iterator end;// = std::next(start, steps);
+		std::vector<double>::iterator glyphStart;
+		std::vector<double>::iterator glyphEnd;
+		std::vector<double>::iterator readGlyphStart;
+		std::vector<double>::iterator readGlyphEnd;
+		std::vector<double>::iterator dstStart;
 
 		// 1 propagation cycle
 		for(int j = 1; j < width -1; j++)
 			for (int i = 1; i < width-1; i++) // for each node..
 			{
-				// define iterators for accessing current sample
-				std::vector<double>::iterator start = sampleBufferA.begin() + (i + j * width) * steps;
-				std::vector<double>::iterator end = sampleBufferA.begin() + (i + j * width + 1) * steps;
+				int index = i + j * width; // compute 1D grid index
 
-				//thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
+				// define iterators for accessing current sample
+				start = std::next(sampleBufferA.begin(), index * steps);
+				end = std::next(start, steps);
+
+				//read = std::vector<double>(start, end); // CAVEAT: constructor needed to extract (crop) subset of vector
+				//read =  + ;
 				/*if (read == initArray)
 					continue;*/
-				//read = thrust::host_vector<double>(start, end); // copy current sample to HOST (CPU) Vector for averaging (normalization)
-				if (std::equal(start,end,initArray.begin())) // test current sample on host
+				if(equal(start,end,initArray.begin()))
 					continue;
 
-				std::vector<double>::iterator glyphStart = glyphBuffer->begin() + (i + j * width) * steps;
-				std::vector<double>::iterator glyphEnd = glyphBuffer->begin() + (i + j * width + 1) * steps;
+				glyphStart = std::next(glyphBuffer->begin(), index *steps);
+				glyphEnd = std::next(glyphStart, steps);
 			
-				//glyph = thrust::host_vector<double>(glyphStart, glyphEnd); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
-				//glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
-// calculate mean and variance.. of I(phi)
-				double sum1 = std::accumulate(start,end,0.0);
-				double sum2 = std::accumulate(glyphStart,glyphEnd, 0.0);
-				std::transform(start,end, glyphStart, start, std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
-				double sum3 = std::accumulate(start, end, 0.0);
+				readGlyphStart = std::next(readGlyph.begin(), index *steps);
+				readGlyphEnd = std::next(readGlyphStart, steps);
+
+				//glyph = std::vector<double>(glyphStart, glyphEnd);
 
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double iMean = std::accumulate(start, end, 0.0)/ steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
-				double tMean = sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double tMean = std::accumulate(glyphStart, glyphEnd, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double tiMean = std::accumulate(readGlyphStart, readGlyphEnd, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
+				double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
 
 				// prepare readGlyphC for whole cell
 				//readGlyphC = std::vector<double>(out.begin(), out.end()); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
 
 				//std::transform( readGlyphC.begin(), readGlyphC.end(), glyphStart, readGlyphC.begin(), std::multiplies<double>()); // assumes v1,v2 of same size > 1, 
-				std::transform(start,end, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
+				std::transform(readGlyphStart, readGlyphEnd, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
-				double val_sum = 0.0;
-				int delta = 0;
-				int index = i + j*width; // compute 1D grid index
+				// NEIGHBOR 0
+				// precompute neighbor 0 (right face neighbor) because of circular value (index) permutation --> ANGLES
+				int delta = index + deltaIndex.at(0); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-				#pragma unroll // --> bringt nicht viel, aber st√∂rt auch nicht
-				for (int k = 0; k < 8; k++) // for each adjacent edge...
+													  // transform (multiply weights)
+				std::transform(start+7*shiftIndex/2, end, weights.at(0).begin() + 7 * shiftIndex / 2, out.begin() + 7 * shiftIndex / 2, std::multiplies<double>());
+				std::transform(start, start + upperIndex.at(0), weights.at(0).begin(), out.begin(), std::multiplies<double>());
+
+				// 2 partial sums...[315,0],[0,45] 
+				double val_sum = std::accumulate(out.begin() + 7 * shiftIndex / 2, out.end(), 0.0);
+				val_sum += std::accumulate(out.begin(), out.begin() + upperIndex.at(0), 0.0);
+
+				std::transform(cosines.at(0).begin()+3*shiftIndex, cosines.at(0).end(), out.begin() + 3 * shiftIndex, std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+				std::transform(cosines.at(0).begin(), cosines.at(0).begin() + shiftIndex, out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+
+				dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+
+				std::transform(out.begin() + 3 * shiftIndex, out.end(), dstStart + 3 * shiftIndex, dstStart + 3 * shiftIndex, std::plus<double>());
+				std::transform(out.begin(), out.begin() +  shiftIndex, dstStart, dstStart, std::plus<double>());
+
+				meanA += val_sum;
+
+				// NEIGHBOR 1
+				delta = index + deltaIndex.at(1); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+
+				std::transform(start + lowerIndex.at(1), start + upperIndex.at(1), weights.at(1).begin() + lowerIndex.at(1), out.begin() + lowerIndex.at(1), std::multiplies<double>());
+				val_sum = std::accumulate(out.begin() + lowerIndex.at(1), out.begin() + upperIndex.at(1), 0.0);
+
+				std::transform(cosines.at(1).begin() + 7 * shiftIndex/2, cosines.at(1).end(), out.begin() + 7 * shiftIndex / 2, std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+				std::transform(cosines.at(1).begin(), cosines.at(1).begin() + 3 * shiftIndex / 2, out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+
+				dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+
+				std::transform(out.begin() + 7 * shiftIndex / 2, out.end(), dstStart + 7 * shiftIndex / 2, dstStart + 7 * shiftIndex / 2, std::plus<double>());
+				std::transform(out.begin(), out.begin() + 3 * shiftIndex / 2, dstStart, dstStart, std::plus<double>());
+
+				// NEIGHBOR 7 
+				delta = index + deltaIndex.at(7); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+
+				std::transform(start + lowerIndex.at(7), start + upperIndex.at(7), weights.at(7).begin() + lowerIndex.at(7), out.begin() + lowerIndex.at(1), std::multiplies<double>());
+				val_sum = std::accumulate(out.begin() + lowerIndex.at(1), out.begin() + upperIndex.at(1), 0.0);
+
+				std::transform(cosines.at(7).begin() + 5 * shiftIndex/2, cosines.at(7).end(), out.begin() + 5 * shiftIndex / 2, std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+				std::transform(cosines.at(7).begin(), cosines.at(7).begin() + shiftIndex/2, out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+
+				dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+
+				std::transform(out.begin() + 5 * shiftIndex / 2, out.end(), dstStart + 5 * shiftIndex / 2, dstStart + 5 * shiftIndex / 2, std::plus<double>());
+				std::transform(out.begin(), out.begin() + shiftIndex / 2, dstStart, dstStart, std::plus<double>());
+				meanA += val_sum;
+
+				//pragma unroll
+				for (int k = 2; k < 7; k++) // for each adjacent edge...
 				{
 					delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					std::transform( start, end, weights.at(k).begin(), out.begin(), std::multiplies<double>());
-					val_sum = std::accumulate(out.begin(),out.end(), 0.0);
-					out = cosines.at(k);
+					std::transform(start + lowerIndex.at(k), start + upperIndex.at(k), weights.at(k).begin() + lowerIndex.at(k), out.begin() + lowerIndex.at(k), std::multiplies<double>());
+					val_sum = std::accumulate(out.begin() + lowerIndex.at(k), out.begin() + upperIndex.at(k), 0.0);
+					//out = cosines.at(k);
 
-					std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *=radres));
+					std::transform(cosines.at(k).begin(), cosines.at(k).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
-					std::vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
+					dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
 
-					std::transform( out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
+					std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
 
 					meanA += val_sum;
-				}	
+				}
+
 			}	
 	}
 	std::vector<double> propagateDist(int i, int j, int t)
@@ -858,7 +901,7 @@ public:
 		int index = (j*width + i)*steps + t; // compute 1D index
 		
 		sampleBufferA[index] = steps;
-		int ctr = 0;
+		//int ctr = 0;
 		// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
 		while (!finished) // perform one single light propagation pass (iteration)
 		{
@@ -875,7 +918,7 @@ public:
 
 			std::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);// = sampleBufferInit; // init sampleBuffer
 			//*sampleBufferB = sampleBufferInit;
-			ctr++;
+			//ctr++;
 		}
 		//cout << "ctr: " << ctr << endl;
 
@@ -928,10 +971,13 @@ int main(int argc, char* argv[])
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
 	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
-	//lightSrcPos = { height / 2, width / 2 }; // initialize light src position option w. center point
+	lightSrcPos = { height / 2, width / 2 }; // initialize light src position option w. center point
 
+	// create vector for light src's symbolic user-input functions in convenient string format
+	std::vector<std::string> userFunctions;
+	std::vector<Pair> userPositions;
 	// parse input option file
-	parse_options(argc, argv);
+	parse_options(argc, argv, userFunctions, userPositions);
 
 	const std::vector<double> initArray(steps, 0.0);
 
@@ -950,17 +996,91 @@ int main(int argc, char* argv[])
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 	
+	// get defined light srcs positions and intensities...
+	//if(userFunctions.size()) // if entered by user, use cmd AND config
+	//	for (int i = 0; i < userFunctions.size(); i++)
+	//	{
+	//		functionString = userFunctions.at(i);
+	//		lightSrcPos = userPositions.at(i);
+	//		lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
+	//	}
+	//else // if entered by default value, use default value in center position
+	//{
+	//	functionString = std::to_string(intensity);
+	//	lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
+	//	userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
+	//}
+	//for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
+	//	sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
+
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &glyphBuffer);
 
+	/*std::ofstream file("cout.txt");
+	Tee tee(cout, file);
+	TeeStream both(tee);
+	both.precision(dbl::max_digits10);*/
+
+	//int ctr = 0;
+	//int tCtr = 0;
+	//double total = 0.0;
+	//bool finished = false;
+	
+	//for (int t = 0; t < steps; t++)
+	//{
+	//	cout << "before propagating t: " << t << endl;
+	//	std::clock_t start = std::clock();
+	//	for (int j = 0; j < height; j++)
+	//		for (int i = 0; i < width; i++)
+	//		{
+	//			//tCtr = 0;
+	//			//lightSrcPos = Pair(j, i);
+	//			// DUAL BUFFER PROPAGATION //
+	//			sampleBufferA.at(j*width + i) = lightSrc; // get pre-computed light src for current direction t
+	//			meanMem = 0.0;
+	//			//ctr = 0;
+	//			finished = false;
+	//			// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
+	//			while (!finished) // perform one single light propagation pass (iteration)
+	//			{
+	//				meanA = 0.0;
+	//				prop.propagate(); // propagate until finished..
+	//				//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
+	//				swap(sampleBufferA, sampleBufferB);
+	//				//sampleBufferA = sampleBufferB;
+	//				sampleBufferA.at(j*width + i) = lightSrc;
+	//				if (abs(meanA - meanMem) < thresh)
+	//					finished = true;
+	//				meanMem = meanA;
+	//				//if (ctr == ctrLimit)//6
+	//				//	break;
+	//				//ctr++;
+	//				sampleBufferB = sampleBufferInit;
+	//				//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
+	//			}
+	//			/*if (ctr <= 3)
+	//			tCtr++;*/
+	//			sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions 
+	//			swap(distBuffer.at(j*width + i + t * dim), sampleBufferA);
+	//			//distBuffer.at(j*width + i + t * dim) = sampleBufferA;
+	//			//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
+	//			//sampleBufferA = sampleBufferInit;
+	//		}
+	//	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
+	//	cout << "timer: " << duration << " ms" << endl;
+	//	cout << "..after propagation, (last) ctr:" << ctr << endl;
+	//	cout << "..trivial ctr:" << tCtr << endl;
+	//}
+	//total = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
+	//cout << "..after propagation TOTAL, total timer:" << total << " ms" << endl;
 	// PROPAGATION SCHEME END //
 
 	double meanA = 0.0;
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 
-	std::vector<double> sampleBufferLeft(dim*steps, 0.0);
-	std::vector<double> sampleBufferRight(dim*steps, 0.0);
+	std::vector<double> sampleBufferLeft(dim, 0.0);
+	std::vector<double> sampleBufferRight(dim, 0.0);
 	cout << "before constructing gradient vector.." << endl;
 	double duration; float total = 0.0;
 	std::clock_t startTotal = std::clock();
