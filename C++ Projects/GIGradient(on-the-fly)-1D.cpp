@@ -818,18 +818,15 @@ public:
 				//std::transform( readGlyphC.begin(), readGlyphC.end(), glyphStart, readGlyphC.begin(), std::multiplies<double>()); // assumes v1,v2 of same size > 1, 
 				std::transform(readGlyphStart, readGlyphEnd, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
-				double val_sum = 0.0;
-				int delta = 0;
-
 				// precompute neighbor 0 (right face neighbor) because of circular value (index) permutation --> ANGLES
-				delta = index + deltaIndex.at(0); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+				int delta = index + deltaIndex.at(0); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
 				// transform (multiply weights)
 				std::transform(start+7*shiftIndex/2, end, weights.at(0).begin() + 7 * shiftIndex / 2, out.begin() + 7 * shiftIndex / 2, std::multiplies<double>());
 				std::transform(start, start + upperIndex.at(0), weights.at(0).begin(), out.begin(), std::multiplies<double>());
 
 				// 2 partial sums...[315,0],[0,45]
-				val_sum = std::accumulate(out.begin() + 7 * shiftIndex / 2, out.end(), 0.0);
+				double val_sum = std::accumulate(out.begin() + 7 * shiftIndex / 2, out.end(), 0.0);
 				val_sum += std::accumulate(out.begin(), out.begin() + upperIndex.at(0), 0.0);
 
 				std::transform(cosines.at(0).begin(), cosines.at(0).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
