@@ -198,7 +198,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 				func_literal = "100*cos(theta)";
 				positions.push_back(position);
 			}
-			
+
 			//parse other statements
 			else {
 				//grab keyword
@@ -222,7 +222,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					color = sf::Color(r, g, b);
 				}*/
 				// enter light src position
-				else if (tag == "pos") 
+				else if (tag == "pos")
 				{
 					std::stringstream s;
 					s << line.substr(pos + 1);
@@ -294,7 +294,7 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 
 		switch (c)
 		{
-		// correct option use
+			// correct option use
 		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
@@ -424,7 +424,7 @@ template <typename T> // element-wise minus for vector of vectors
 std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, const std::vector<std::vector<T>>& b)
 {
 	std::vector<std::vector<T>> result(b.size());
-	
+
 	for (int i = 0; i < b.size(); i++)
 		result.at(i) = a.at(i) - b.at(i);
 
@@ -620,7 +620,7 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 
 		std::advance(glyphStart, steps);
@@ -649,7 +649,7 @@ class propagator
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
 	int dim = width * height;
-	
+
 	double meanA = 0.0;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
@@ -663,13 +663,13 @@ class propagator
 
 	std::vector<int> lowerIndex;
 	std::vector<int> upperIndex;
-	
+
 	// create sample vector (dynamic)
 	std::vector<double> read;
 	std::vector<double> glyph;
 	std::vector<double> out;
 
-	neighborhood hood; 
+	neighborhood hood;
 	bool flag = false;
 
 	std::vector<double> initArray;
@@ -705,7 +705,7 @@ public:
 			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
 			{
 				int deltaJ = j - midIndex;
-				int j_index = j < 0 ? j+steps : j % steps;
+				int j_index = j < 0 ? j + steps : j % steps;
 
 				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
 				cosine_sum += res * radres;
@@ -715,7 +715,7 @@ public:
 		}
 		cosine_sum = cosine_sum / 8.0;
 		for (int k = 0; k < 8; k++) // for each node..
-			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/cosine_sum));
+			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / cosine_sum));
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
@@ -729,7 +729,7 @@ public:
 			lightSrcs.push_back(lightSrc);
 			lightSrc = initArray;
 		}
-		
+
 		weights = std::vector<std::vector<double>>(8, initArray);
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < 8; k++) // for each adjacent edge...
@@ -764,9 +764,9 @@ public:
 				weights.at(k)[t_index] = val;
 			}
 		}
-		
+
 	}
-	
+
 	void propagate()
 	{
 		std::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer->begin(), readGlyph.begin(), std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
@@ -779,8 +779,8 @@ public:
 		std::vector<double>::iterator dstStart;
 
 		// 1 propagation cycle
-		for(int j = 1; j < width -1; j++)
-			for (int i = 1; i < width-1; i++) // for each node..
+		for (int j = 1; j < width - 1; j++)
+			for (int i = 1; i < width - 1; i++) // for each node..
 			{
 				int index = i + j * width; // compute 1D grid index
 
@@ -792,19 +792,19 @@ public:
 				//read =  + ;
 				/*if (read == initArray)
 					continue;*/
-				if(equal(start,end,initArray.begin()))
+				if (equal(start, end, initArray.begin()))
 					continue;
 
 				glyphStart = std::next(glyphBuffer->begin(), index *steps);
 				glyphEnd = std::next(glyphStart, steps);
-			
+
 				readGlyphStart = std::next(readGlyph.begin(), index *steps);
 				readGlyphEnd = std::next(readGlyphStart, steps);
 
 				//glyph = std::vector<double>(glyphStart, glyphEnd);
 
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double iMean = std::accumulate(start, end, 0.0)/ steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double iMean = std::accumulate(start, end, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
 				double tMean = std::accumulate(glyphStart, glyphEnd, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -822,7 +822,7 @@ public:
 				int delta = index + deltaIndex.at(0); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
 				// transform (multiply weights)
-				std::transform(start+7*shiftIndex/2, end, weights.at(0).begin() + 7 * shiftIndex / 2, out.begin() + 7 * shiftIndex / 2, std::multiplies<double>());
+				std::transform(start + 7 * shiftIndex / 2, end, weights.at(0).begin() + 7 * shiftIndex / 2, out.begin() + 7 * shiftIndex / 2, std::multiplies<double>());
 				std::transform(start, start + upperIndex.at(0), weights.at(0).begin(), out.begin(), std::multiplies<double>());
 
 				// 2 partial sums...[315,0],[0,45]
@@ -855,7 +855,7 @@ public:
 					meanA += val_sum;
 				}
 
-			}	
+			}
 	}
 	std::vector<double> propagateDist(int i, int j, int t)
 	{
@@ -867,7 +867,7 @@ public:
 		bool finished = false;
 		//lightSrc = lightSrcs.at(t);
 		int index = (j*width + i)*steps + t; // compute 1D index
-		
+
 		sampleBufferA[index] = steps;
 		//int ctr = 0;
 		// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
@@ -898,8 +898,8 @@ public:
 //template <typename T>
 double acc(std::vector<double>& vec)
 {
-	double(*dabs)(double) = &std::abs; // cast abs function as type to set overload
-	std::transform(vec.begin(), vec.end(), vec.begin(), dabs); // apply abs function
+	//double(*dabs)(double) = &std::abs; // cast abs function as type to set overload
+	//std::transform(vec.begin(), vec.end(), vec.begin(), dabs); // apply abs function
 
 	double sum = 0.0;
 	for (int i = 0; i < vec.size(); i++)
@@ -958,90 +958,14 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> deltaBuffer(dim*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
 	cout << "before compute glyphs" << endl;
-	
+
 	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
 	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
-	
-	// get defined light srcs positions and intensities...
-	//if(userFunctions.size()) // if entered by user, use cmd AND config
-	//	for (int i = 0; i < userFunctions.size(); i++)
-	//	{
-	//		functionString = userFunctions.at(i);
-	//		lightSrcPos = userPositions.at(i);
-	//		lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-	//	}
-	//else // if entered by default value, use default value in center position
-	//{
-	//	functionString = std::to_string(intensity);
-	//	lightSrcs.push_back(sample(strFunction, sampleBufferA, lightSrcPos.jIndex, lightSrcPos.iIndex)); // sample the light profile w. muParser
-	//	userPositions.push_back(Pair(lightSrcPos.jIndex, lightSrcPos.iIndex));
-	//}
-	//for (int i = 0; i < lightSrcs.size(); i++) // enter the light src's profiles into the grid positions in userPositions
-	//	sampleBufferA.at(userPositions.at(i).jIndex*width + userPositions.at(i).iIndex) = lightSrcs.at(i); // initialize grid (sampleBufferA) w. "light src list" lightSrcs
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &glyphBuffer);
-
-	/*std::ofstream file("cout.txt");
-	Tee tee(cout, file);
-	TeeStream both(tee);
-	both.precision(dbl::max_digits10);*/
-
-	//int ctr = 0;
-	//int tCtr = 0;
-	//double total = 0.0;
-	//bool finished = false;
-	
-	//for (int t = 0; t < steps; t++)
-	//{
-	//	cout << "before propagating t: " << t << endl;
-	//	std::clock_t start = std::clock();
-	//	for (int j = 0; j < height; j++)
-	//		for (int i = 0; i < width; i++)
-	//		{
-	//			//tCtr = 0;
-	//			//lightSrcPos = Pair(j, i);
-	//			// DUAL BUFFER PROPAGATION //
-	//			sampleBufferA.at(j*width + i) = lightSrc; // get pre-computed light src for current direction t
-	//			meanMem = 0.0;
-	//			//ctr = 0;
-	//			finished = false;
-	//			// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
-	//			while (!finished) // perform one single light propagation pass (iteration)
-	//			{
-	//				meanA = 0.0;
-	//				prop.propagate(); // propagate until finished..
-	//				//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
-	//				swap(sampleBufferA, sampleBufferB);
-	//				//sampleBufferA = sampleBufferB;
-	//				sampleBufferA.at(j*width + i) = lightSrc;
-	//				if (abs(meanA - meanMem) < thresh)
-	//					finished = true;
-	//				meanMem = meanA;
-	//				//if (ctr == ctrLimit)//6
-	//				//	break;
-	//				//ctr++;
-	//				sampleBufferB = sampleBufferInit;
-	//				//std::fill(sampleBufferB.begin(), sampleBufferB.end(), initArray);
-	//			}
-	//			/*if (ctr <= 3)
-	//			tCtr++;*/
-	//			sampleBufferA.at(j*width + i) = initArray; //remove light src to prevent trivial differences at light src positions 
-	//			swap(distBuffer.at(j*width + i + t * dim), sampleBufferA);
-	//			//distBuffer.at(j*width + i + t * dim) = sampleBufferA;
-	//			//std::fill(sampleBufferA.begin(), sampleBufferA.end(), initArray);
-	//			//sampleBufferA = sampleBufferInit;
-	//		}
-	//	duration = ((std::clock() - start)*1000.0 / (double)CLOCKS_PER_SEC);
-	//	cout << "timer: " << duration << " ms" << endl;
-	//	cout << "..after propagation, (last) ctr:" << ctr << endl;
-	//	cout << "..trivial ctr:" << tCtr << endl;
-	//}
-	//total = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
-	//cout << "..after propagation TOTAL, total timer:" << total << " ms" << endl;
-	// PROPAGATION SCHEME END //
 
 	double meanA = 0.0;
 	// DELTA (Gradient) COMPUTATION START //
@@ -1118,7 +1042,7 @@ int main(int argc, char* argv[])
 	sampleBufferA.shrink_to_fit();
 	sampleBufferInit.shrink_to_fit();
 	glyphBuffer.shrink_to_fit();
-	
+
 	// vector norm (Gradient) COMPUTATION START //
 	std::vector<double> scalarNorm(width*height*steps, 0.0); // construct 3D Gradient Norm Vector
 
@@ -1143,9 +1067,9 @@ int main(int argc, char* argv[])
 				energy->SetValue(ctr, res);
 				ctr++;
 			}
-	
+
 	// vector norm (Gradient) COMPUTATION END //
-	
+
 	duration = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
 	cout << "..after, timer: " << duration << " ms" << endl;
 
