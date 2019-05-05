@@ -693,10 +693,8 @@ public:
 		glyphBuffer = ellipseArray;
 
 		// initialize member samples w. 0
-		read = std::vector<double>(steps, 0.0);
-		glyph = std::vector<double>(steps, 0.0);
-		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
+		out = initArray;
 
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
@@ -722,14 +720,14 @@ public:
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
 
-		std::vector<double> sample = initArray;
+		lightSrc = initArray;
 
 		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
 		for (int j = 0; j < steps; j++)
 		{
-			sample.at(j) = steps;
-			lightSrcs.push_back(sample);
-			sample = initArray;
+			lightSrc.at(j) = steps;
+			lightSrcs.push_back(lightSrc);
+			lightSrc = initArray;
 		}
 		
 		weights = std::vector<std::vector<double>>(8, initArray);
@@ -870,7 +868,7 @@ public:
 		//*sampleBufferB = sampleBufferInit; // init sampleBuffer
 		double meanMem = 0.0;
 		bool finished = false;
-		lightSrc = lightSrcs.at(t);
+		//lightSrc = lightSrcs.at(t);
 		int index = (j*width + i)*steps + t; // compute 1D index
 		
 		sampleBufferA[index] = steps;
