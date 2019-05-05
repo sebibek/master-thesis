@@ -8,7 +8,7 @@
 #define GetCurrentDir getcwd
 #endif
 
-#define MAXBUFSIZE  ((int) 1e5)
+#define MAXBUFSIZE  ((int) 1e8)
 #define _USE_MATH_DEFINES
 
 // INCLUDES (IMPORTS)
@@ -53,6 +53,8 @@ typedef std::numeric_limits< double > dbl;
 //definition of pi
 const double pi = M_PI;
 
+double buff[MAXBUFSIZE];
+
 // PROTOTYPES
 int width;
 int height;
@@ -69,9 +71,9 @@ int wSize = 701;
 
 // get current working directory to assign matrix.txt path
 std::string GetCurrentWorkingDir(void) {
-	char buff[FILENAME_MAX];
-	GetCurrentDir(buff, FILENAME_MAX);
-	std::string current_working_dir(buff);
+	char buffer[FILENAME_MAX];
+	GetCurrentDir(buffer, FILENAME_MAX);
+	std::string current_working_dir(buffer);
 	return current_working_dir;
 }
 
@@ -484,7 +486,7 @@ string trim(const string& str)
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
-	double buff[MAXBUFSIZE];
+	
 	ifstream infile(filepath);
 
 	while (!infile.eof())
