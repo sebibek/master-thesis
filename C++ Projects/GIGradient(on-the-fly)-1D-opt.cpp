@@ -567,8 +567,6 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 	std::vector<double>::iterator glyphStart = glyphBuffer.begin();
 	std::vector<double>::iterator glyphEnd = glyphBuffer.begin();
 	std::advance(glyphEnd, steps);
-	//cout << "listSize: " <<matrixList.size()<< endl;
-
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
@@ -580,11 +578,10 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
 		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
-		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180�,180�]
-		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180�,180�]
+		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
+		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
 		glyphParameters.at(i).at(2) = deg1;
-		//cout << "HERE1: " << endl;
 
 		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
 		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
@@ -602,10 +599,8 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 			signs.at(1) = sigma2.real() < 0 ? true : false;
 		}
 
-		//cout << "HERE2: " << endl;
-
 		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
-		// shift (normalize) degs from [-180�,180�] into the interval [0�,360�] - "circular value permutation"
+		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
 		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
@@ -617,8 +612,8 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 		double sum = 0.0;
 		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // if total anisotropy, needed to hit (match) the indices corresponding to glyph orientation
 		{
-			glyphBuffer[i*steps + round(deg1*steps / 360)] = sv1;
-			glyphBuffer[i*steps + static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			glyphStart[round(deg1*steps / 360)] = sv1;
+			glyphStart[static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
 			sum += 2 * sv1;
 		}
 		else
@@ -627,18 +622,16 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 			{
 				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
 				sum += val;
-				glyphBuffer[i*steps + j] = val;
+				glyphStart[j] = val;
 			}
 		}
-		//cout << "HERE3: " << endl;
-
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 		// write glyphParameters
 		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 
 		std::advance(glyphStart, steps);
@@ -674,20 +667,21 @@ class propagator
 	std::vector<double> sampleBufferA;
 	std::vector<double> sampleBufferB;
 	std::vector<double>* glyphBuffer;
+	std::vector<double> readGlyph;
 	std::vector<double> sampleBufferInit;
 
 	std::vector<std::vector<double>> cosines;
+
+	std::vector<int> lowerIndex;
+	std::vector<int> upperIndex;
 	
 	// create sample vector (dynamic)
-	std::vector<double> read;
-	std::vector<double> glyph;
+	std::vector<double> initArray;
 	std::vector<double> out;
 
 	neighborhood hood; 
 	bool flag = false;
 
-	std::vector<double> initArray;
-	thrust::host_vector<double> readGlyphC;
 	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 
 	std::vector<double> lightSrc;
@@ -701,15 +695,15 @@ public:
 	{
 		// assign ptrs to member vectors
 		sampleBufferInit = std::vector<double>(dim*steps, 0.0);
+		readGlyph = sampleBufferInit;
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
 
 		// initialize member samples w. 0
-		read = std::vector<double>(steps, 0.0);
-		glyph = std::vector<double>(steps, 0.0);
-		out = std::vector<double>(steps, 0.0);
 		initArray = std::vector<double>(steps, 0.0);
+		lightSrc = initArray;
+		out = initArray;
 
 		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
@@ -735,14 +729,12 @@ public:
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
 
-		std::vector<double> sample = initArray;
-
 		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
 		for (int j = 0; j < steps; j++)
 		{
-			sample.at(j) = steps;
-			lightSrcs.push_back(sample);
-			sample = initArray;
+			lightSrc.at(j) = steps;
+			lightSrcs.push_back(lightSrc);
+			lightSrc = initArray;
 		}
 		
 		weights = std::vector<thrust::host_vector<double>>(8, initArray);
@@ -752,6 +744,8 @@ public:
 			int midIndex = k * shiftIndex / 2;
 			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
 
+			lowerIndex.push_back(midIndex - index);
+			upperIndex.push_back(midIndex + index + 1);
 			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
 			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
 			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
@@ -776,75 +770,98 @@ public:
 					diagWeights.at(k)[t_index] = val;*/
 				weights.at(k)[t_index] = val;
 			}
-		}
+}
 	}
 	
 	void propagate()
 	{
+		std::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer->begin(), readGlyph.begin(), std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+		std::vector<double>::iterator start;
+		std::vector<double>::iterator end;// = std::next(start, steps);
+		std::vector<double>::iterator glyphStart;
+		std::vector<double>::iterator glyphEnd;
+		std::vector<double>::iterator readGlyphStart;
+		std::vector<double>::iterator readGlyphEnd;
+		std::vector<double>::iterator dstStart;
 
 		// 1 propagation cycle
-		for(int j = 1; j < width -1; j++)
-			for (int i = 1; i < width-1; i++) // for each node..
+		for (int j = 1; j < width - 1; j++)
+			for (int i = 1; i < width - 1; i++) // for each node..
 			{
-				// define iterators for accessing current sample
-				std::vector<double>::iterator start = sampleBufferA.begin() + (i + j * width) * steps;
-				std::vector<double>::iterator end = sampleBufferA.begin() + (i + j * width + 1) * steps;
+				int index = i + j * width; // compute 1D grid index
 
-				//thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
+				// define iterators for accessing current sample
+				start = std::next(sampleBufferA.begin(), index * steps);
+				end = std::next(start, steps);
+
+				//read = std::vector<double>(start, end); // CAVEAT: constructor needed to extract (crop) subset of vector
+				//read =  + ;
 				/*if (read == initArray)
 					continue;*/
-				//read = thrust::host_vector<double>(start, end); // copy current sample to HOST (CPU) Vector for averaging (normalization)
-				if (std::equal(start,end,initArray.begin())) // test current sample on host
+				if (equal(start, end, initArray.begin()))
 					continue;
 
-				std::vector<double>::iterator glyphStart = glyphBuffer->begin() + (i + j * width) * steps;
-				std::vector<double>::iterator glyphEnd = glyphBuffer->begin() + (i + j * width + 1) * steps;
-			
-				//glyph = thrust::host_vector<double>(glyphStart, glyphEnd); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
-				//glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
-// calculate mean and variance.. of I(phi)
-				double sum1 = std::accumulate(start,end,0.0);
-				double sum2 = std::accumulate(glyphStart,glyphEnd, 0.0);
-				std::transform(start,end, glyphStart, start, std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
-				double sum3 = std::accumulate(start, end, 0.0);
+				glyphStart = std::next(glyphBuffer->begin(), index *steps);
+				glyphEnd = std::next(glyphStart, steps);
+
+				readGlyphStart = std::next(readGlyph.begin(), index *steps);
+				readGlyphEnd = std::next(readGlyphStart, steps);
+
+				//glyph = std::vector<double>(glyphStart, glyphEnd);
 
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double iMean = std::accumulate(start, end, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
-				double tMean = sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double tMean = std::accumulate(glyphStart, glyphEnd, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double tiMean = std::accumulate(readGlyphStart, readGlyphEnd, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
+				double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
 
 				// prepare readGlyphC for whole cell
 				//readGlyphC = std::vector<double>(out.begin(), out.end()); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
 
 				//std::transform( readGlyphC.begin(), readGlyphC.end(), glyphStart, readGlyphC.begin(), std::multiplies<double>()); // assumes v1,v2 of same size > 1, 
-				std::transform(start,end, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
+				std::transform(readGlyphStart, readGlyphEnd, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
-				double val_sum = 0.0;
-				int delta = 0;
-				int index = i + j*width; // compute 1D grid index
+				// precompute neighbor 0 (right face neighbor) because of circular value (index) permutation --> ANGLES
+				int delta = index + deltaIndex.at(0); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-				#pragma unroll // --> bringt nicht viel, aber stört auch nicht
-				for (int k = 0; k < 8; k++) // for each adjacent edge...
+				// transform (multiply weights)
+				std::transform(start + 7 * shiftIndex / 2, end, weights.at(0).begin() + 7 * shiftIndex / 2, out.begin() + 7 * shiftIndex / 2, std::multiplies<double>());
+				std::transform(start, start + upperIndex.at(0), weights.at(0).begin(), out.begin(), std::multiplies<double>());
+
+				// 2 partial sums...[315,0],[0,45]
+				double val_sum = std::accumulate(out.begin() + 7 * shiftIndex / 2, out.end(), 0.0);
+				val_sum += std::accumulate(out.begin(), out.begin() + upperIndex.at(0), 0.0);
+
+				std::transform(cosines.at(0).begin(), cosines.at(0).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+
+				dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+
+				std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
+
+				meanA += val_sum;
+
+				//pragma unroll
+				for (int k = 1; k < 8; k++) // for each adjacent edge...
 				{
 					delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					std::transform( start, end, weights.at(k).begin(), out.begin(), std::multiplies<double>());
-					val_sum = std::accumulate(out.begin(),out.end(), 0.0);
-					out = cosines.at(k);
+					std::transform(start + lowerIndex.at(k), start + upperIndex.at(k), weights.at(k).begin() + lowerIndex.at(k), out.begin() + lowerIndex.at(k), std::multiplies<double>());
+					val_sum = std::accumulate(out.begin() + lowerIndex.at(k), out.begin() + upperIndex.at(k), 0.0);
+					//out = cosines.at(k);
 
-					std::transform(out.begin(), out.end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *=radres));
+					std::transform(cosines.at(k).begin(), cosines.at(k).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
 
-					std::vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
+					dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
 
-					std::transform( out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
+					std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
 
 					meanA += val_sum;
-				}	
-			}	
+				}
+
+			}
 	}
 	std::vector<double> propagateDist(int i, int j, int t)
 	{
@@ -959,8 +976,8 @@ int main(int argc, char* argv[])
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 
-	std::vector<double> sampleBufferLeft(dim*steps, 0.0);
-	std::vector<double> sampleBufferRight(dim*steps, 0.0);
+	std::vector<double> sampleBufferLeft;
+	std::vector<double> sampleBufferRight;
 	cout << "before constructing gradient vector.." << endl;
 	double duration; float total = 0.0;
 	std::clock_t startTotal = std::clock();
