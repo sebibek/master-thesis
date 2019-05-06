@@ -670,8 +670,8 @@ class propagator
 	
 	std::vector<thrust::host_vector<double>> cosines;
 	
-	std::vector<int> lowerIndex;
-	std::vector<int> upperIndex;
+	thrust::host_vector<int> lowerIndex;
+	thrust::host_vector<int> upperIndex;
 
 	// create sample vector (dynamic)
 	thrust::host_vector<double> initArray;
@@ -821,17 +821,32 @@ public:
 				//readGlyphC = thrust::host_vector<double>(start,end); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
 				scale_fast(cFactor, readGlyphStart, readGlyphEnd); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
 
-				double val_sum = 0.0;
-				int delta = 0;
+
+				// precompute neighbor 0 (right face neighbor) because of circular value (index) permutation --> ANGLES
+				int delta = index + deltaIndex[0]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+
+				// transform (multiply weights)
+				thrust::transform(readGlyphStart + 7 * shiftIndex / 2, readGlyphEnd, weights.at(0).begin() + 7 * shiftIndex / 2, start + 7 * shiftIndex / 2, std::multiplies<double>());
+				thrust::transform(readGlyphStart, readGlyphStart + upperIndex[0], weights.at(0).begin(), start, std::multiplies<double>());
+
+				// 2 partial sums...[315,0],[0,45]
+				double val_sum = thrust::reduce(start + 7 * shiftIndex / 2, end, 0.0);
+				val_sum += thrust::reduce(start, start + upperIndex[0], 0.0);
+
+				dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+
+				saxpy_fast(val_sum *= radres, cosines.at(0), dstStart);
+
+				meanA += val_sum;
 
 				//#pragma unroll // --> bringt nicht viel, aber stört auch nicht
-				for (int k = 0; k < 8; k++) // for each adjacent edge...
+				for (int k = 1; k < 8; k++) // for each adjacent edge...
 				{
 					delta = index + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					val_sum = multsum(readGlyphStart, readGlyphEnd, weights.at(k).begin());
+					val_sum = multsum(readGlyphStart + lowerIndex[k], readGlyphStart + upperIndex[k], weights.at(k).begin() + lowerIndex[k]);
 
-					thrust::host_vector<double>::iterator dstStart = std::next(sampleBufferB.begin(), delta*steps);
+					dstStart = std::next(sampleBufferB.begin(), delta*steps);
 					saxpy_fast(val_sum *= radres, cosines.at(k), dstStart);
 					meanA += val_sum;
 				}							
