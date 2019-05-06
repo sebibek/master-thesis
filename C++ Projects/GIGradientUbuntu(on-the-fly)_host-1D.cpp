@@ -104,17 +104,6 @@ struct scale_functor
         }
 };
 
-struct mult_functor
-{
-    mult_functor() {}
-
-    __host__ __device__
-        double operator()(const double& x, const double& y) const { 
-            return y * x; // performs y = a*x (scale-OP)
-        }
-};
-
-
 struct abs_functor
 {
     abs_functor() {}
@@ -150,22 +139,8 @@ double multsum(const thrust::host_vector<double>::iterator& start,const thrust::
 {
 	thrust::host_vector<double> res(end-start, 0.0);
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
-	thrust::transform(start, end, glyphStart, res.begin(), mult_functor());
+	thrust::transform(start, end, glyphStart, res.begin(), thrust::multiplies<double>());
 	return thrust::reduce(res.begin(), res.end());
-}
-
-void mult(const thrust::host_vector<double>::iterator& start,const thrust::host_vector<double>::iterator& end,const thrust::host_vector<double>::iterator& glyphStart)
-{
-	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
-	thrust::transform(start, end, glyphStart, start, mult_functor());
-}
-
-void mult(thrust::host_vector<double>& X, const thrust::host_vector<double>::iterator& start)
-{
-	//thrust::host_vector<double> res(X.size(), 0.0);
-	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
-	thrust::transform(X.begin(), X.end(), start, X.begin(), mult_functor());
-	//return res;
 }
 
 double accAbs(const thrust::host_vector<double>& X)
@@ -562,7 +537,7 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 	// block the read-out matrices into a list of MatrixXd types (hardcoded 2x2 read-out)
 	std::vector<MatrixXd> matrixList(dim, MatrixXd::Ones(2, 2));
 
-	// REMEMBER: Grid size is half the amount of numbers for 2x2 matrices! CROPPING
+	// REMEMBER: Grid size is half the amount of numbers for 2x2 matrices!
 	for (int i = 0; i < rows / 2; i++)
 		for (int j = 0; j < cols / 2; j++)
 		{
@@ -585,7 +560,11 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 
 	std::complex<double> sigma1(0, 0);
 	std::complex<double> sigma2(0, 0);
-	std::vector<bool> signs(3, false);
+	std::vector<bool> signs(2, false);
+
+	thrust::host_vector<double>::iterator glyphStart = glyphBuffer.begin();
+	thrust::host_vector<double>::iterator glyphEnd = glyphBuffer.begin();
+	std::advance(glyphEnd, steps);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	for (int i = 0; i < matrixList.size(); i++)
 	{
@@ -629,20 +608,19 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 		double dot = sv2 * sv1;
 
 		double sum = 0.0;
-		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // for strong (total anisotropy)
+		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // if total anisotropy, needed to hit (match) the indices corresponding to glyph orientation
 		{
-			// define bidirectional delta impulses
-			glyphBuffer[i*steps+round(deg1*steps / 360)] = sv1;
-			glyphBuffer[i*steps+static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			glyphStart[round(deg1*steps / 360)] = sv1;
+			glyphStart[static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
 			sum += 2 * sv1;
 		}
-		else // default case:
+		else
 		{
 			for (int j = 0; j < steps; j++) // sample ellipse equation for all steps
 			{
 				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
 				sum += val;
-				glyphBuffer[i*steps + j] = val;
+				glyphStart[j] = val;
 			}
 		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -651,8 +629,11 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		thrust::transform(glyphBuffer.begin() + i*steps, glyphBuffer.begin() +(i+1)*steps, glyphBuffer.begin() + i*steps, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
+
+		std::advance(glyphStart, steps);
+		std::advance(glyphEnd, steps);
 	}
 }
 
@@ -684,10 +665,14 @@ class propagator
 	thrust::host_vector<double> sampleBufferInit;
 	thrust::host_vector<double> sampleBufferA;
 	thrust::host_vector<double> sampleBufferB;
+	thrust::host_vector<double> readGlyph;
 	thrust::host_vector<double>* glyphBuffer;
 	
 	std::vector<thrust::host_vector<double>> cosines;
 	
+	std::vector<int> lowerIndex;
+	std::vector<int> upperIndex;
+
 	// create sample vector (dynamic)
 	thrust::host_vector<double> initArray;
 
@@ -705,17 +690,20 @@ class propagator
 public:
 	propagator(const int dim, thrust::host_vector<double>* ellipseArray)
 	{
-		// initialize member samples w. 0
-		initArray = thrust::host_vector<double>(steps, 0.0);
-		lightSrc = initArray;
-		deltaIndex = deltaIndexSTL;
-
 		// assign ptrs to member vectors
 		sampleBufferInit = thrust::host_vector<double>(dim*steps, 0.0);
+		readGlyph = sampleBufferInit;
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
 		glyphBuffer = ellipseArray;
 
+		// initialize member samples w. 0
+		initArray = thrust::host_vector<double>(steps, 0.0);
+		lightSrc = initArray;
+
+		deltaIndex = deltaIndexSTL;
+
+		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
 		{
 			int midIndex = (k * pi / 4) / radres;
@@ -734,7 +722,7 @@ public:
 		}
 		cosine_sum = cosine_sum / 8.0;
 		for (int k = 0; k < 8; k++) // for each node..
-			scale_fast(1.0 / cosine_sum, cosines.at(k));
+			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/cosine_sum));
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
@@ -746,8 +734,7 @@ public:
 			lightSrcs.push_back(lightSrc);
 			lightSrc = initArray;
 		}
-
-
+		
 		weights = std::vector<thrust::host_vector<double>>(8, initArray);
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < 8; k++) // for each adjacent edge...
@@ -755,6 +742,8 @@ public:
 			int midIndex = k * shiftIndex / 2;
 			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
 
+			lowerIndex.push_back(midIndex - index);
+			upperIndex.push_back(midIndex + index + 1);
 			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
 			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
 			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
@@ -779,64 +768,70 @@ public:
 					diagWeights.at(k)[t_index] = val;*/
 				weights.at(k)[t_index] = val;
 			}
-			
 		}
 	}
 	
 	void propagate()
 	{
+		thrust::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer->begin(), readGlyph.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+		thrust::host_vector<double>::iterator start;
+		thrust::host_vector<double>::iterator end;// = std::next(start, steps);
+		thrust::host_vector<double>::iterator glyphStart;
+		thrust::host_vector<double>::iterator glyphEnd;
+		thrust::host_vector<double>::iterator readGlyphStart;
+		thrust::host_vector<double>::iterator readGlyphEnd;
+		thrust::host_vector<double>::iterator dstStart;
+
 		// 1 propagation cycle
 		for(int j = 1; j < width -1; j++)
 			for (int i = 1; i < width-1; i++) // for each node..
 			{
-				// define iterators for accessing current sample
-				thrust::host_vector<double>::iterator start = sampleBufferA.begin() + (i + j * width) * steps;
-				thrust::host_vector<double>::iterator end = sampleBufferA.begin() + (i + j * width + 1) * steps;
+				int index = i + j * width; // compute 1D grid index
 
-				//thrust::copy(start, end, read.begin()); // copy current sample to HOST (CPU) Vector for averaging (normalization)
+				// define iterators for accessing current sample
+				start = std::next(sampleBufferA.begin(), index * steps);
+				end = std::next(start, steps);
+
+				//read = std::vector<double>(start, end); // CAVEAT: constructor needed to extract (crop) subset of vector
+				//read =  + ;
 				/*if (read == initArray)
 					continue;*/
-				//read = thrust::host_vector<double>(start, end); // copy current sample to HOST (CPU) Vector for averaging (normalization)
-				if (thrust::equal(start,end,initArray.begin())) // test current sample on host
+				if (thrust::equal(start, end, initArray.begin()))
 					continue;
 
-				thrust::host_vector<double>::iterator glyphStart = glyphBuffer->begin() + (i + j * width) * steps;
-				thrust::host_vector<double>::iterator glyphEnd = glyphBuffer->begin() + (i + j * width + 1) * steps;
+				glyphStart = std::next(glyphBuffer->begin(), index *steps);
+				glyphEnd = std::next(glyphStart, steps);
+
+				readGlyphStart = std::next(readGlyph.begin(), index *steps);
+				readGlyphEnd = std::next(readGlyphStart, steps);
 			
 				//glyph = thrust::host_vector<double>(glyphStart, glyphEnd); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 				//glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 
-				// calculate means of I(phi) and T(phi)
-				double sum1 = thrust::reduce(start, end); // THRUSTs accumulate analog starting w. sum = 0.0
-				double sum2 = thrust::reduce(glyphStart, glyphEnd); // THRUSTs accumulate analog starting w. sum = 0.0
-				mult(start,end,glyphStart);
-				double sum3 = thrust::reduce(start, end);//thrust::transform(read.begin(), read.end(), glyph.begin(), out.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via trust transform method
-
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double iMean = sum1 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double iMean = thrust::reduce(start, end) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
-				double tMean = sum2 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double tMean = thrust::reduce(glyphStart, glyphEnd) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double tiMean = thrust::reduce(readGlyphStart, readGlyphEnd) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
 
 				// prepare readGlyphC for whole cell
 				//readGlyphC = thrust::host_vector<double>(start,end); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
-				scale_fast(cFactor, start, end); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
+				scale_fast(cFactor, readGlyphStart, readGlyphEnd); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
 
 				double val_sum = 0.0;
 				int delta = 0;
-				int index = i + j*width;
 
-				#pragma unroll // --> bringt nicht viel, aber stört auch nicht
+				//#pragma unroll // --> bringt nicht viel, aber stört auch nicht
 				for (int k = 0; k < 8; k++) // for each adjacent edge...
 				{
 					delta = index + deltaIndex[k]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					val_sum = multsum(start, end, weights.at(k).begin());
+					val_sum = multsum(readGlyphStart, readGlyphEnd, weights.at(k).begin());
 
-					thrust::host_vector<double>::iterator dstStart = sampleBufferB.begin() + (delta)*steps;
+					thrust::host_vector<double>::iterator dstStart = std::next(sampleBufferB.begin(), delta*steps);
 					saxpy_fast(val_sum *= radres, cosines.at(k), dstStart);
 					meanA += val_sum;
 				}							
