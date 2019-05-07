@@ -690,16 +690,104 @@ class propagator
 
 	std::vector<std::vector<double>> weights;
 
+	
+
+public:
+	propagator(const int dim, std::vector<double>* ellipseArray)
+	{
+		// assign ptrs to member vectors
+		sampleBufferInit = std::vector<double>(dim*steps, 0.0);
+		sampleBufferA = sampleBufferInit;
+		sampleBufferB = sampleBufferInit;
+		readGlyph = sampleBufferInit;
+		glyphBuffer = ellipseArray;
+
+		// initialize member samples w. 0
+		initArray = std::vector<double>(steps, 0.0);
+		out = initArray;
+		outVector = std::vector<std::vector<double>>(8, out);
+		sumVector = outVector;
+
+		double energy_sum = 0.0;
+		for (int k = 0; k < 8; k++) // for each node..
+		{
+			int midIndex = (k * pi / 4) / radres;
+
+			std::vector<double> cosK(steps, 0.0);
+			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
+			{
+				int deltaJ = j - midIndex;
+				int j_index = j < 0 ? j + steps : j % steps;
+
+				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
+				cosine_sum += res * radres;
+				cosK.at(j_index) = res;
+			}
+			cosines.push_back(cosK);
+		}
+		cosine_sum = cosine_sum / 8.0;
+		for (int k = 0; k < 8; k++) // for each node..
+			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / cosine_sum));
+
+		cout.precision(dbl::max_digits10);
+		cout << "cosine_sum: " << cosine_sum << endl;
+
+		lightSrc = initArray;
+
+		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
+		for (int j = 0; j < steps; j++)
+		{
+			lightSrc.at(j) = steps;
+			lightSrcs.push_back(lightSrc);
+			lightSrc = initArray;
+		}
+
+		weights = std::vector<std::vector<double>>(8, initArray);
+		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
+		for (int k = 0; k < 8; k++) // for each adjacent edge...
+		{
+			int midIndex = k * shiftIndex / 2;
+			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
+
+			lowerIndex.push_back(midIndex - index);
+			upperIndex.push_back(midIndex + index);
+			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
+			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
+			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
+			{
+				int deltaJ = t - midIndex;
+				int t_index = t < 0 ? t + steps : t % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+
+				double val = 1.0;
+
+				// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
+				if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
+					if (abs(deltaJ) == shiftIndex / 2)
+						val = 0.5*0.3622909908722584*val;
+					else
+						val = 0.3622909908722584*val;
+				else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
+					val = 0.6377090091277417*val;
+
+				/*if (fast_mod(k, 2) == 0)
+					faceWeights.at(k)[t_index] = val;
+				else
+					diagWeights.at(k)[t_index] = val;*/
+				weights.at(k)[t_index] = val;
+			}
+		}
+
+	}
 	struct functor
 	{
 		std::vector<double>* glyphBuffer;
 
-		void init(std::vector<double>* ellipseArray)
+		functor(std::vector<double>* ellipseArray)
 		{
 			std::vector<double>* glyphBuffer = ellipseArray;
 
 		}
-		/*__host__ __device__*/ void operator() (const int i)
+		/*__host__ __device__*/ void operator() (const int i, std::vector<double>* sampleBufferA)
 		{
 			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width - 1)
 				return;
@@ -801,94 +889,6 @@ class propagator
 
 		}
 	};
-
-public:
-	propagator(const int dim, std::vector<double>* ellipseArray)
-	{
-		// assign ptrs to member vectors
-		sampleBufferInit = std::vector<double>(dim*steps, 0.0);
-		sampleBufferA = sampleBufferInit;
-		sampleBufferB = sampleBufferInit;
-		readGlyph = sampleBufferInit;
-		glyphBuffer = ellipseArray;
-
-		// initialize member samples w. 0
-		initArray = std::vector<double>(steps, 0.0);
-		out = initArray;
-		outVector = std::vector<std::vector<double>>(8, out);
-		sumVector = outVector;
-
-		double energy_sum = 0.0;
-		for (int k = 0; k < 8; k++) // for each node..
-		{
-			int midIndex = (k * pi / 4) / radres;
-
-			std::vector<double> cosK(steps, 0.0);
-			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
-			{
-				int deltaJ = j - midIndex;
-				int j_index = j < 0 ? j + steps : j % steps;
-
-				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
-				cosine_sum += res * radres;
-				cosK.at(j_index) = res;
-			}
-			cosines.push_back(cosK);
-		}
-		cosine_sum = cosine_sum / 8.0;
-		for (int k = 0; k < 8; k++) // for each node..
-			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / cosine_sum));
-
-		cout.precision(dbl::max_digits10);
-		cout << "cosine_sum: " << cosine_sum << endl;
-
-		lightSrc = initArray;
-
-		// construct a light src vector (delta functions for each sampled direction - normalized to total area (energy) of unit circle 1.0)
-		for (int j = 0; j < steps; j++)
-		{
-			lightSrc.at(j) = steps;
-			lightSrcs.push_back(lightSrc);
-			lightSrc = initArray;
-		}
-
-		weights = std::vector<std::vector<double>>(8, initArray);
-		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
-		for (int k = 0; k < 8; k++) // for each adjacent edge...
-		{
-			int midIndex = k * shiftIndex / 2;
-			int index = fast_mod(k, 2) == 0 ? shiftIndex / 2 : betaIndex;
-
-			lowerIndex.push_back(midIndex - index);
-			upperIndex.push_back(midIndex + index);
-			// TODO: thrust OP multiplies 3 vectors --> first scale one w. cFactor (constant) then call thrust OP w. read,glyph and prepared weightVector (3 args)
-			// --> construct thrust vector w. following loop by running 1 time in constructor RUN k loop in 8 sequential transform and mult calls (also iterator vectors needed)
-			for (int t = midIndex - index; t <= midIndex + index; t++) // for each step (along edge)..
-			{
-				int deltaJ = t - midIndex;
-				int t_index = t < 0 ? t + steps : t % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
-
-				double val = 1.0;
-
-				// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
-				if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
-					if (abs(deltaJ) == shiftIndex / 2)
-						val = 0.5*0.3622909908722584*val;
-					else
-						val = 0.3622909908722584*val;
-				else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
-					val = 0.6377090091277417*val;
-
-				/*if (fast_mod(k, 2) == 0)
-					faceWeights.at(k)[t_index] = val;
-				else
-					diagWeights.at(k)[t_index] = val;*/
-				weights.at(k)[t_index] = val;
-			}
-		}
-
-	}
-
 	
 
 	void propagate()
@@ -906,14 +906,15 @@ public:
 		boost::counting_iterator<int> it1(0);
 		boost::counting_iterator<int> it2 = it1 + dim;
 		
-		std::for_each(it1, it2, functor());
 		// 1 propagation cycle
-		for (int j = 1; j < width - 1; j++)
-			for (int i = 1; i < width - 1; i++) // for each node..
-			{
-				
+		std::for_each(it1, it2, functor(&sampleBufferA));
 
-			}
+		//for (int j = 1; j < width - 1; j++)
+		//	for (int i = 1; i < width - 1; i++) // for each node..
+		//	{
+		//		
+
+		//	}
 	}
 	std::vector<double> propagateDist(int i, int j, int t)
 	{
