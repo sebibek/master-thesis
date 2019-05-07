@@ -853,7 +853,7 @@ public:
                 //auto lastDst = boost::compute::make_zip_iterator(boost::make_tuple(std::next(sampleBufferB.begin(), (index + deltaIndex.at(0)+1)*steps), std::next(sampleBufferB.begin(), (index + deltaIndex.at(1) + 1)*steps), std::next(sampleBufferB.begin(), (index + deltaIndex.at(2) + 1)*steps), std::next(sampleBufferB.begin(), (index + deltaIndex.at(3) + 1)*steps), std::next(sampleBufferB.begin(), (index + deltaIndex.at(4) + 1)*steps), std::next(sampleBufferB.begin(), (index + deltaIndex.at(5) + 1)*steps), std::next(sampleBufferB.begin(), (index + deltaIndex.at(6) + 1)*steps), std::next(sampleBufferB.begin(), (index + deltaIndex.at(7) + 1)*steps)));
 				//std::next(firstDst, steps);
 				
-				// multiply weights to readGlyph parallel in 8 different branches (neighbors)
+				// multiply weights to readGlyph parallel in 8 different branches (neighbors) contained in firstOut-->outVector
 				std::transform(firstReadGlyph, lastReadGlyph, firstWeights, firstOut, std::multiplies<double>());
 				
 				// define zip iterator to write parallel sums for 8 branches
@@ -862,11 +862,7 @@ public:
 				// sum up 8 branches and write to sumVector to single double sum in 8 branches
 				std::transform(firstOut, std::next(firstOut), sumStart, boost::compute::reduce(firstOut, lastOut, 0.0));
 				
-				std::for_each(firstOut, lastOut, functor());
-
-				//boost::compute::reduce(firstOut, lastOut, sumStart);
-				
-				// DEREFERENCE! (*sumVector.begin()) and multiply radres for resolution-independent results
+				// make constant iterator for val_sum to scale each neighbor cosine lobe w.r.t. energy			DEREFERENCE! (*sumVector.begin()) and multiply radres for resolution-independent results
 				auto sumIter = boost::compute::make_zip_iterator(boost::make_tuple(boost::compute::make_constant_iterator(*sumVector.at(0).begin()*radres), boost::compute::make_constant_iterator(*sumVector.at(1).begin()*radres), boost::compute::make_constant_iterator(*sumVector.at(2).begin()*radres), boost::compute::make_constant_iterator(*sumVector.at(3).begin()*radres), boost::compute::make_constant_iterator(*sumVector.at(4).begin()*radres), boost::compute::make_constant_iterator(*sumVector.at(5).begin()*radres), boost::compute::make_constant_iterator(*sumVector.at(6).begin()*radres), boost::compute::make_constant_iterator(*sumVector.at(7).begin()*radres)));
 				
 				// SAXPY-OPERATION //
