@@ -633,8 +633,8 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 		//std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 
-		std::advance(glyphStart, steps);
-		std::advance(glyphEnd, steps);
+		thrust::advance(glyphStart, steps);
+		thrust::advance(glyphEnd, steps);
 	}
 }
 
@@ -885,7 +885,7 @@ public:
 				//int delta = index + deltaIndex[0]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
 				// multiply weights to readGlyph parallel in 8 different branches (neighbors) contained in firstOut-->outVector
-				thrust::transform(firstReadGlyph, lastReadGlyph, firstWeights, firstOut, elementMult());
+				thrust::transform(firstReadGlyph, lastReadGlyph, firstWeights, firstOut, elementMult()); // evtl. TODO: Opt for smaller multiplication ranges: 8 hardcoded commands
 
 				// sum up 8 branches and write to sumVector to single double sum in 8 branches
 				/*std::vector<double> stlSums{thrust::reduce(outVector[0].begin(), outVector[0].end()), thrust::reduce(outVector[1].begin(), outVector[1].end()), thrust::reduce(outVector[2].begin(), outVector[2].end()), thrust::reduce(outVector[3].begin(), outVector[3].end()), thrust::reduce(outVector[4].begin(), outVector[4].end()), thrust::reduce(outVector[5].begin(), outVector[5].end()), thrust::reduce(outVector[6].begin(), outVector[6].end()), thrust::reduce(outVector[7].begin(), outVector[7].end())};
