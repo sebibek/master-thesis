@@ -837,7 +837,8 @@ public:
 			// sum up 8 branches and write to sumVector to single double sum in 8 branches
 			/*std::vector<double> stlSums{thrust::reduce(outVector[0].begin(), outVector[0].end()), thrust::reduce(outVector[1].begin(), outVector[1].end()), thrust::reduce(outVector[2].begin(), outVector[2].end()), thrust::reduce(outVector[3].begin(), outVector[3].end()), thrust::reduce(outVector[4].begin(), outVector[4].end()), thrust::reduce(outVector[5].begin(), outVector[5].end()), thrust::reduce(outVector[6].begin(), outVector[6].end()), thrust::reduce(outVector[7].begin(), outVector[7].end())};
 			thrust::host_vector<double> sums = stlSums;*/
-			sums[0] = thrust::reduce(outVector[0].begin() + lowerIndex[0], outVector[0].begin() + upperIndex[0])*radres;
+			
+			sums[0] = thrust::reduce(outVector[0].begin(), outVector[0].end())*radres;
 			sums[1] = thrust::reduce(outVector[1].begin() + lowerIndex[1], outVector[1].begin() + upperIndex[1])*radres;
 			sums[2] = thrust::reduce(outVector[2].begin() + lowerIndex[2], outVector[2].begin() + upperIndex[2])*radres;
 			sums[3] = thrust::reduce(outVector[3].begin() + lowerIndex[3], outVector[3].begin() + upperIndex[3])*radres;
@@ -913,7 +914,7 @@ public:
 			meanA = 0.0;
 			this->propagate(); // propagate until finished..
 			//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
-			boost::swap(sampleBufferA, sampleBufferB);
+			thrust::swap(sampleBufferA, sampleBufferB);
 			
 			//sampleBufferA = sampleBufferB;
 			sampleBufferA[index] = steps; // get pre-computed light src for current direction t
