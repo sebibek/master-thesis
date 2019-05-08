@@ -629,7 +629,8 @@ void computeGlyphs(thrust::host_vector<double>& glyphBuffer, std::vector<std::ve
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
+		thrust::transform(glyphStart, glyphEnd, thrust::make_constant_iterator(1.0 / rMean), glyphStart, thrust::multiplies<double>());
+		//std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 
 		std::advance(glyphStart, steps);
@@ -708,7 +709,6 @@ class propagator
 	thrust::host_vector<int> lowerIndex;
 	thrust::host_vector<int> upperIndex;
 
-	std::vector<thrust::host_vector<double>> sumVector;
 	std::vector<thrust::host_vector<double>> outVector;
 
 	// create sample vector (dynamic)
@@ -723,6 +723,8 @@ class propagator
 
 	std::vector<thrust::host_vector<double>> weights;
 	//std::vector<thrust::host_vector<double>> diagWeights;
+
+	thrust::host_vector<double> sums(8, 0.0);
 
 
 public:
@@ -810,6 +812,16 @@ public:
 				weights.at(k)[t_index] = val;
 			}
 		}
+
+		// make zip iterators of weights
+		auto firstWeights = thrust::make_zip_iterator(thrust::make_tuple(weights[0].begin(), weights[1].begin(), weights[2].begin(), weights[3].begin(), weights[4].begin(), weights[5].begin(), weights[6].begin(), weights[7].begin()));
+		//auto lastWeights = boost::compute::make_zip_iterator(boost::make_tuple(weights[0).end(), weights[1).end(), weights[2).end(), weights[3).end(), weights[4).end(), weights[5).end(), weights[6).end(), weights[7).end()));
+		// make zip iterators of destination iterators
+		auto firstOut = thrust::make_zip_iterator(thrust::make_tuple(outVector[0].begin(), outVector[1].begin(), outVector[2].begin(), outVector[3].begin(), outVector[4].begin(), outVector[5].begin(), outVector[6].begin(), outVector[7].begin()));
+		auto lastOut = thrust::make_zip_iterator(thrust::make_tuple(outVector[0].end(), outVector[1].end(), outVector[2].end(), outVector[3].end(), outVector[4].end(), outVector[5].end(), outVector[6].end(), outVector[7].end()));
+		// make cosine zip iterators			
+		auto firstCosine = thrust::make_zip_iterator(thrust::make_tuple(cosines[0].begin(), cosines[1].begin(), cosines[2].begin(), cosines[3].begin(), cosines[4].begin(), cosines[5].begin(), cosines[6].begin(), cosines[7].begin()));
+		auto lastCosine = thrust::make_zip_iterator(thrust::make_tuple(cosines[0].end(), cosines[1].end(), cosines[2].end(), cosines[3].end(), cosines[4].end(), cosines[5].end(), cosines[6].end(), cosines[7].end()));
 	}
 	
 	void propagate()
@@ -856,7 +868,7 @@ public:
 				// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 				double tiMean = thrust::reduce(readGlyphStart, readGlyphEnd) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
-				double cFactor = tiMean>0.0? tMean * iMean / tiMean : 1.0;
+				double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
 
 				// prepare readGlyphC for whole cell
 				//readGlyphC = thrust::host_vector<double>(start,end); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
@@ -864,44 +876,41 @@ public:
 
 				thrust::transform(readGlyphStart, readGlyphEnd, thrust::make_constant_iterator(cFactor), readGlyphStart, thrust::multiplies<double>());
 
-				// make zip iterators of cell ranges
+				// make zip iterators of src (cell) ranges
 				auto firstReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart));
 				auto lastReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd));
-				// make zip iterators of weights
-				auto firstWeights = thrust::make_zip_iterator(thrust::make_tuple(weights[0].begin(), weights[1].begin(), weights[2].begin(), weights[3].begin(), weights[4].begin(), weights[5].begin(), weights[6].begin(), weights[7].begin()));
-				//auto lastWeights = boost::compute::make_zip_iterator(boost::make_tuple(weights[0).end(), weights[1).end(), weights[2).end(), weights[3).end(), weights[4).end(), weights[5).end(), weights[6).end(), weights[7).end()));
-				// make zip iterators of destination iterators
-				auto firstOut = thrust::make_zip_iterator(thrust::make_tuple(outVector[0].begin(), outVector[1].begin(), outVector[2].begin(), outVector[3].begin(), outVector[4].begin(), outVector[5].begin(), outVector[6].begin(), outVector[7].begin()));
-				auto lastOut = thrust::make_zip_iterator(thrust::make_tuple(outVector[0].end(), outVector[1].end(), outVector[2].end(), outVector[3].end(), outVector[4].end(), outVector[5].end(), outVector[6].end(), outVector[7].end()));
-				// make cosine zip iterators			
-				auto firstCosine = thrust::make_zip_iterator(thrust::make_tuple(cosines[0].begin(), cosines[1].begin(), cosines[2].begin(), cosines[3].begin(), cosines[4].begin(), cosines[5].begin(), cosines[6].begin(), cosines[7].begin()));
-				auto lastCosine = thrust::make_zip_iterator(thrust::make_tuple(cosines[0].end(), cosines[1].end(), cosines[2].end(), cosines[3].end(), cosines[4].end(), cosines[5].end(), cosines[6].end(), cosines[7].end()));
-				
+				// make zip iterators of dst ranges		
 				auto firstDst = thrust::make_zip_iterator(thrust::make_tuple(std::next(sampleBufferB.begin(), (index + deltaIndex[0])*steps), std::next(sampleBufferB.begin(), (index + deltaIndex[1])*steps), std::next(sampleBufferB.begin(), (index + deltaIndex[2])*steps), std::next(sampleBufferB.begin(), (index + deltaIndex[3])*steps), std::next(sampleBufferB.begin(), (index + deltaIndex[4])*steps), std::next(sampleBufferB.begin(), (index + deltaIndex[5])*steps), std::next(sampleBufferB.begin(), (index + deltaIndex[6])*steps), std::next(sampleBufferB.begin(), (index + deltaIndex[7])*steps)));
-
 				// precompute neighbor 0 (right face neighbor) because of circular value (index) permutation --> ANGLES
 				//int delta = index + deltaIndex[0]; // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-				//thrust::multiplies<thrust::tuple<double,double,double,double,double,double,double,double>> binary_op;
 				// multiply weights to readGlyph parallel in 8 different branches (neighbors) contained in firstOut-->outVector
 				thrust::transform(firstReadGlyph, lastReadGlyph, firstWeights, firstOut, elementMult());
 
-				//for(int i = 0; i < steps; i++)
-					//cout << thrust::get<0>(firstOut[0]) << endl;
-
-				// define zip iterator to write parallel sums for 8 branches
-				//auto sumStart = thrust::make_zip_iterator(thrust::make_tuple(thrust::reduce(outVector[0].begin(), outVector[0].end()),thrust::reduce(outVector[0].begin(), outVector[0].end())));
-
 				// sum up 8 branches and write to sumVector to single double sum in 8 branches
-				//thrust::transform(firstOut, lastOut, sumStart,sumStart, reduceFunctor(firstOut,lastOut));
+				/*std::vector<double> stlSums{thrust::reduce(outVector[0].begin(), outVector[0].end()), thrust::reduce(outVector[1].begin(), outVector[1].end()), thrust::reduce(outVector[2].begin(), outVector[2].end()), thrust::reduce(outVector[3].begin(), outVector[3].end()), thrust::reduce(outVector[4].begin(), outVector[4].end()), thrust::reduce(outVector[5].begin(), outVector[5].end()), thrust::reduce(outVector[6].begin(), outVector[6].end()), thrust::reduce(outVector[7].begin(), outVector[7].end())};
+				thrust::host_vector<double> sums = stlSums;*/
+				sums[0] = thrust::reduce(outVector[0].begin() + lowerIndex[0], outVector[0].begin() + upperIndex[0])*radres;
+				sums[1] = thrust::reduce(outVector[1].begin() + lowerIndex[1], outVector[1].begin() + upperIndex[1])*radres;
+				sums[2] = thrust::reduce(outVector[2].begin() + lowerIndex[2], outVector[2].begin() + upperIndex[2])*radres;
+				sums[3] = thrust::reduce(outVector[3].begin() + lowerIndex[3], outVector[3].begin() + upperIndex[3])*radres;
+				sums[4] = thrust::reduce(outVector[4].begin() + lowerIndex[4], outVector[4].begin() + upperIndex[4])*radres;
+				sums[5] = thrust::reduce(outVector[5].begin() + lowerIndex[5], outVector[5].begin() + upperIndex[5])*radres;
+				sums[6] = thrust::reduce(outVector[6].begin() + lowerIndex[6], outVector[6].begin() + upperIndex[6])*radres;
+				sums[7] = thrust::reduce(outVector[7].begin() + lowerIndex[7], outVector[7].begin() + upperIndex[7])*radres;
+				
+				/*sums[1] = thrust::reduce(outVector[1].begin(), outVector[1].end())*radres);
+				sums[2] = thrust::reduce(outVector[2].begin(), outVector[2].end())*radres);
+				sums[3] = thrust::reduce(outVector[3].begin(), outVector[3].end())*radres);
+				sums[4] = thrust::reduce(outVector[4].begin(), outVector[4].end())*radres);
+				sums[5] = thrust::reduce(outVector[5].begin(), outVector[5].end())*radres);
+				sums[6] = thrust::reduce(outVector[6].begin(), outVector[6].end())*radres);
+				sums[7] = thrust::reduce(outVector[7].begin(), outVector[7].end())*radres);*/
 
-				//thrust::tuple<double> sums = thrust::make_tuple(thrust::reduce(outVector[0].begin(), outVector[0].end())*radres, thrust::reduce(outVector[1].begin(), outVector[1].end())*radres, thrust::reduce(outVector[2].begin(), outVector[2].end())*radres, thrust::reduce(outVector[3].begin(), outVector[3].end())*radres, thrust::reduce(outVector[4].begin(), outVector[4].end())*radres, thrust::reduce(outVector[5].begin(), outVector[5].end())*radres, thrust::reduce(outVector[6].begin(), outVector[6].end())*radres, thrust::reduce(outVector[7].begin(), outVector[7].end())*radres);
-				std::vector<double> stlSums{thrust::reduce(outVector[0].begin(), outVector[0].end()), thrust::reduce(outVector[1].begin(), outVector[1].end()), thrust::reduce(outVector[2].begin(), outVector[2].end()), thrust::reduce(outVector[3].begin(), outVector[3].end()), thrust::reduce(outVector[4].begin(), outVector[4].end()), thrust::reduce(outVector[5].begin(), outVector[5].end()), thrust::reduce(outVector[6].begin(), outVector[6].end()), thrust::reduce(outVector[7].begin(), outVector[7].end())};
-				thrust::host_vector<double> sums = stlSums;
-				meanA += thrust::reduce(sums.begin(), sums.end(), 0.0)*radres; // sum up sums to obtain mean energy for convergence criterion
+				meanA += thrust::reduce(sums.begin(), sums.end(), 0.0); // sum up sums to obtain mean energy for convergence criterion
 
-				// make constant iterator for sums as scaling parameters
-				auto sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums[0]*radres), thrust::make_constant_iterator(sums[1]*radres), thrust::make_constant_iterator(sums[2]*radres), thrust::make_constant_iterator(sums[3]*radres), thrust::make_constant_iterator(sums[4]*radres), thrust::make_constant_iterator(sums[5]*radres), thrust::make_constant_iterator(sums[6]*radres), thrust::make_constant_iterator(sums[7]*radres)));
+				// make constant iterator for sums as scaling parameters // define zip iterator to write parallel sums for 8 branches
+				auto sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums[0]), thrust::make_constant_iterator(sums[1]), thrust::make_constant_iterator(sums[2]), thrust::make_constant_iterator(sums[3]), thrust::make_constant_iterator(sums[4]), thrust::make_constant_iterator(sums[5]), thrust::make_constant_iterator(sums[6]), thrust::make_constant_iterator(sums[7])));
 
 				// VAR 1
 				// scale respective cosines lobes w. constant iterator(ptr) to dbl sums in 8 branches

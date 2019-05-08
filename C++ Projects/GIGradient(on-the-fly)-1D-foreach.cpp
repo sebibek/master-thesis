@@ -789,8 +789,10 @@ public:
 		}
 		/*__host__ __device__*/ void operator() (const int i, std::vector<double>* sampleBufferA)
 		{
-			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width - 1)
+			if (i == 0 || i % width == 0 || i / width == height - 1 || i % width == width - 1)
 				return;
+			/*if (thrust::equal(i, 0) || i % width == 0 || i / width == height - 1 || i % width == width - 1)
+				return;*/
 			//int i = my_i * M;
 			// Body of the loop
 
@@ -907,7 +909,7 @@ public:
 		boost::counting_iterator<int> it2 = it1 + dim;
 		
 		// 1 propagation cycle
-		std::for_each(it1, it2, functor(&sampleBufferA));
+		thrust::for_each(it1, it2, functor(&sampleBufferA));
 
 		//for (int j = 1; j < width - 1; j++)
 		//	for (int i = 1; i < width - 1; i++) // for each node..
