@@ -845,10 +845,7 @@ public:
 				start = std::next(sampleBufferA.begin(), index * steps);
 				end = std::next(start, steps);
 
-				//read = std::vector<double>(start, end); // CAVEAT: constructor needed to extract (crop) subset of vector
-				//read =  + ;
-				/*if (read == initArray)
-					continue;*/
+				// check for trivial NULL-sample, if true, skip step (cell)
 				if (thrust::equal(start, end, initArray.begin()))
 					continue;
 
@@ -857,9 +854,6 @@ public:
 
 				readGlyphStart = std::next(readGlyph.begin(), index *steps);
 				readGlyphEnd = std::next(readGlyphStart, steps);
-			
-				//glyph = thrust::host_vector<double>(glyphStart, glyphEnd); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
-				//glyph = glyphBuffer->at(i); // copy current glyph to HOST (CPU) Vector for averaging (normalization)
 
 				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 				double iMean = thrust::reduce(start, end) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
@@ -871,9 +865,6 @@ public:
 				double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
 
 				// prepare readGlyphC for whole cell
-				//readGlyphC = thrust::host_vector<double>(start,end); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
-				//scale_fast(cFactor, readGlyphStart, readGlyphEnd); // multiply cFactor*read*glyph -> readGlyphC yields cFactor*read*glyph for all steps
-
 				thrust::transform(readGlyphStart, readGlyphEnd, thrust::make_constant_iterator(cFactor), readGlyphStart, thrust::multiplies<double>());
 
 				// make zip iterators of src (cell) ranges
@@ -899,7 +890,8 @@ public:
 				sums[6] = thrust::reduce(outVector[6].begin() + lowerIndex[6], outVector[6].begin() + upperIndex[6])*radres;
 				sums[7] = thrust::reduce(outVector[7].begin() + lowerIndex[7], outVector[7].begin() + upperIndex[7])*radres;
 				
-				/*sums[1] = thrust::reduce(outVector[1].begin(), outVector[1].end())*radres);
+				/*sums[0] = thrust::reduce(outVector[0].begin(), outVector[0].end())*radres);
+				sums[1] = thrust::reduce(outVector[1].begin(), outVector[1].end())*radres);
 				sums[2] = thrust::reduce(outVector[2].begin(), outVector[2].end())*radres);
 				sums[3] = thrust::reduce(outVector[3].begin(), outVector[3].end())*radres);
 				sums[4] = thrust::reduce(outVector[4].begin(), outVector[4].end())*radres);
