@@ -799,8 +799,7 @@ class propagator
 	thrust::host_vector<int> upperIndex;
 
 	// create sample vector (dynamic)
-	thrust::host_vector<double> initArrayHost;
-	thrust::device_vector<double> initArray;
+	thrust::host_vector<double> initArray;
 
 	// create deltaIndex Map to access current neighbor cell for direction k[0..7]
 	std::vector<int> deltaIndexSTL{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
@@ -834,10 +833,9 @@ public:
 		glyphBuffer = ellipseArray;
 
 		// initialize member samples w. 0
-		initArrayHost = thrust::host_vector<double>(steps, 0.0);
-		initArray = initArrayHost;
-		lightSrc = initArrayHost;
-		outVector = std::vector<thrust::device_vector<double>>(8, initArrayHost);
+		initArray = thrust::host_vector<double>(steps, 0.0);
+		lightSrc = initArray;
+		outVector = std::vector<thrust::device_vector<double>>(8, initArray);
 		//sumVector = outVector;
 
 		deltaIndex = deltaIndexSTL;
@@ -943,8 +941,9 @@ public:
 				start = std::next(sampleBufferA.begin(), index * steps);
 				end = std::next(start, steps);
 
+				lightSrc = thrust::host_vector<double>(start,end);
 				// check for trivial NULL-sample, if true, skip step (cell)
-				if (thrust::equal(start, end, initArray.begin()))
+				if (thrust::equal(lightSrc.begin(), lightSrc.end(), initArray.begin()))
 					continue;
 
 				glyphStart = std::next(glyphBuffer.begin(), index *steps);
