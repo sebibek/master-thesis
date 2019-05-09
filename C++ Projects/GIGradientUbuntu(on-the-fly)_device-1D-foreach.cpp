@@ -645,17 +645,29 @@ int fast_mod(const int input, const int ceil) {
 	// NB: the assumption here is that the numbers are positive
 }
 
+typedef thrust::host_vector<int>::iterator IntIterator;
 typedef thrust::host_vector<double>::iterator DoubleIterator;
 typedef thrust::tuple<DoubleIterator, DoubleIterator, DoubleIterator,DoubleIterator, DoubleIterator, DoubleIterator,DoubleIterator, DoubleIterator> DoubleIteratorTuple; // -->8 dbl iterators
 typedef thrust::zip_iterator<DoubleIteratorTuple> Double8Iterator; // -> zipped
 
 // We'll use a 8-tuple to store our 8d vector type
-typedef thrust::tuple<double,double,double,double,double,double,double,double> Double8Tuple;
+typedef thrust::tuple<double,double,double,double,double,double,double,double> Double8Tuple; // --> 1 single element of zip iterator for DEREFERENCE!
 
-typedef thrust::tuple<int,double,double,double,double, Double8Iterator, Double8Iterator, Double8Iterator, Double8Iterator, Double8Iterator> zip10Tuple;
 
-typedef thrust::tuple<DoubleIterator, DoubleIterator, DoubleIterator,DoubleIterator, DoubleIterator, DoubleIterator,DoubleIterator, DoubleIterator> zip10IteratorTuple; // -->8 dbl iterators
-typedef thrust::zip_iterator<zipTuple10> zipTuple10Iterator;
+// define zip iterator types
+
+
+typedef thrust::tuple<Double8Iterator, Double8Iterator, Double8Iterator, Double8Iterator, Double8Iterator> zip5IteratorTuple;
+typedef thrust::zip_iterator<zip5IteratorTuple> zip5Iterator;
+
+typedef thrust::tuple<DoubleIterator, DoubleIterator, DoubleIterator> zip3IteratorTuple;
+typedef thrust::zip_iterator<zip3IteratorTuple> zip3Iterator;
+
+
+typedef thrust::tuple<IntIterator, zip3IteratorTuple, DoubleIterator, zip5IteratorTuple> zip4IteratorTuple; // -->8 dbl iterators
+typedef thrust::zip_iterator<zip4IteratorTuple> zipTuple4Iterator;
+
+typedef thrust::tuple<int, zip3IteratorTuple, double, zip5Iterator> zip4Tuple; // --> 1 single element of zip iterator for DEREFERENCE!
 
 
 /*struct reduceFunctor
@@ -717,20 +729,20 @@ public:
     template <typename Tuple>
     __host__ __device__ 
    
-    void operator()(zipTuple10 t)
+    void operator()(zipTuple10& t)
     {
 
     	int index = thrust::get<0>(t);
 
-    	// make zip iterators of weights
-		Double8Iterator firstWeights = thrust::get<5>(t); // get Double8Iterator 
+    	// make zip iterators of weights // evtl. build new zip iterator w. tuple ptrs: thrust::make_zip_iterator(thrust::get<5>(t))
+		Double8Iterator firstWeights = &thrust::get<5>(t); // get Double8Iterator 
 		// make zip iterators of output iterators
 
-		Double8Iterator firstOut = thrust::get<8>(t);
-		Double8Iterator lastOut = thrust::get<9>(t);
+		Double8Iterator firstOut = &thrust::get<8>(t);
+		Double8Iterator lastOut = &thrust::get<9>(t);
 		// make cosine zip iterators			
-		Double8Iterator firstCosine = thrust::get<6>(t); // get Double8Iterator 
-		Double8Iterator lastCosine = thrust::get<7>(t); // get Double8Iterator 
+		Double8Iterator firstCosine = &thrust::get<6>(t); // get Double8Iterator 
+		Double8Iterator lastCosine = &thrust::get<7>(t); // get Double8Iterator 
 
         // D[i] = A[i] + B[i] * C[i];
        // thrust::get<3>(t) = thrust::get<0>(t) + thrust::get<1>(t) * thrust::get<2>(t);
@@ -982,6 +994,14 @@ public:
 		// make cosine zip iterators			
 		firstCosine = thrust::make_zip_iterator(thrust::make_tuple(cosines[0].begin(), cosines[1].begin(), cosines[2].begin(), cosines[3].begin(), cosines[4].begin(), cosines[5].begin(), cosines[6].begin(), cosines[7].begin()));
 		lastCosine = thrust::make_zip_iterator(thrust::make_tuple(cosines[0].end(), cosines[1].end(), cosines[2].end(), cosines[3].end(), cosines[4].end(), cosines[5].end(), cosines[6].end(), cosines[7].end()));
+		
+		// zip one more level to prevent for_each from dereferencing
+		zip5IteratorTuple zipper5 = thrust::make_tuple(firstWeights,firstOut,lastOut,firstCosine, lastCosine))
+		
+		zip3IteratorTuple zipper3 = thrust::make_tuple(sampleBufferA.begin(), sampleBufferB.begin(), readGlyph.begin()):
+
+		
+		zipTuple4Iterator zipFirst = thrust::make_zip_iterator(thrust::make_tuple(itFirst, thrust::make_constant_iterator(zipper3), tMeans.begin(), thrust::make_constant_iterator(zipper5));
 	}
 
 	void propagate()
@@ -993,8 +1013,8 @@ public:
 
 		//typedef thrust::tuple<int,double,double,double,double, Double8Iterator, Double8Iterator, Double8Iterator, Double8Iterator, Double8Iterator> zipTuple10;
 
-		auto zipFirst = thrust::make_zip_iterator(thrust::make_tuple(itFirst, thrust::make_constant_iterator(sampleBufferA.begin()), thrust::make_constant_iterator(sampleBufferB.begin()), thrust::make_constant_iterator(readGlyph.begin()), thrust::make_constant_iterator(tMeans.begin()), thrust::make_constant_iterator(firstWeights), thrust::make_constant_iterator(firstCosine), thrust::make_constant_iterator(lastCosine), thrust::make_constant_iterator(firstOut), thrust::make_constant_iterator(lastOut)));
-		auto zipLast = thrust::make_zip_iterator(thrust::make_tuple(itLast, thrust::make_constant_iterator(sampleBufferA.begin()), thrust::make_constant_iterator(sampleBufferB.begin()), thrust::make_constant_iterator(readGlyph.begin()), thrust::make_constant_iterator(tMeans.end()), thrust::make_constant_iterator(firstWeights), thrust::make_constant_iterator(firstCosine), thrust::make_constant_iterator(lastCosine), thrust::make_constant_iterator(firstOut), thrust::make_constant_iterator(lastOut)));
+		zipTuple10Iterator zipFirst = thrust::make_zip_iterator(thrust::make_tuple(itFirst, thrust::make_constant_iterator(sampleBufferA.begin()), thrust::make_constant_iterator(sampleBufferB.begin()), thrust::make_constant_iterator(readGlyph.begin()), thrust::make_constant_iterator(tMeans.begin()), thrust::make_constant_iterator(firstWeights), thrust::make_constant_iterator(firstCosine), thrust::make_constant_iterator(lastCosine), thrust::make_constant_iterator(firstOut), thrust::make_constant_iterator(lastOut)));
+		zipTuple10Iterator zipLast = thrust::make_zip_iterator(thrust::make_tuple(itLast, thrust::make_constant_iterator(sampleBufferA.begin()), thrust::make_constant_iterator(sampleBufferB.begin()), thrust::make_constant_iterator(readGlyph.begin()), thrust::make_constant_iterator(tMeans.end()), thrust::make_constant_iterator(firstWeights), thrust::make_constant_iterator(firstCosine), thrust::make_constant_iterator(lastCosine), thrust::make_constant_iterator(firstOut), thrust::make_constant_iterator(lastOut)));
 
 		//propagateCell propagate(width,steps,radres);
 		// 1 propagation cycle
