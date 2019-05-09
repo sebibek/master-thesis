@@ -843,6 +843,7 @@ public:
 		thrust::host_vector<double>::iterator readGlyphEnd;
 		thrust::host_vector<double>::iterator dstStart;
 
+
 		// 1 propagation cycle
 		for(int j = 1; j < width -1; j++)
 			for (int i = 1; i < width-1; i++) // for each node..
