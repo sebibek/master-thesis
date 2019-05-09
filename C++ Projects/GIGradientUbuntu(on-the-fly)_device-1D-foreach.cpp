@@ -667,7 +667,7 @@ typedef thrust::zip_iterator<zip3IteratorTuple> zip3Iterator;
 typedef thrust::tuple<IntIterator, zip3IteratorTuple, DoubleIterator, zip5IteratorTuple> zip4IteratorTuple; // -->8 dbl iterators
 typedef thrust::zip_iterator<zip4IteratorTuple> zipTuple4Iterator;
 
-typedef thrust::tuple<int, zip3IteratorTuple, double, zip5Iterator> zip4Tuple; // --> 1 single element of zip iterator for DEREFERENCE!
+typedef thrust::tuple<int, zip3IteratorTuple, double, zip5IteratorTuple> zip4Tuple; // --> 1 single element of zip iterator for DEREFERENCE!
 
 
 /*struct reduceFunctor
@@ -726,36 +726,36 @@ public:
 		initArray = thrust::host_vector<double>(steps,0.0);
     }
 
-    template <typename Tuple>
+   // template <typename Tuple>
     __host__ __device__ 
    
-    void operator()(zipTuple10& t)
+    void operator()(zip4Tuple& t)
     {
 
     	int index = thrust::get<0>(t);
 
     	// make zip iterators of weights // evtl. build new zip iterator w. tuple ptrs: thrust::make_zip_iterator(thrust::get<5>(t))
-		Double8Iterator firstWeights = &thrust::get<5>(t); // get Double8Iterator 
+		Double8Iterator firstWeights = thrust::get<3>(thrust::get<0>(t)); // get Double8Iterator 
 		// make zip iterators of output iterators
 
-		Double8Iterator firstOut = &thrust::get<8>(t);
-		Double8Iterator lastOut = &thrust::get<9>(t);
+		Double8Iterator firstOut = thrust::get<3>(thrust::get<1>(t));
+		Double8Iterator lastOut = thrust::get<3>(thrust::get<2>(t)));
 		// make cosine zip iterators			
-		Double8Iterator firstCosine = &thrust::get<6>(t); // get Double8Iterator 
-		Double8Iterator lastCosine = &thrust::get<7>(t); // get Double8Iterator 
+		Double8Iterator firstCosine = thrust::get<3>(thrust::get<3>(t)); // get Double8Iterator 
+		Double8Iterator lastCosine = thrust::get<3>(thrust::get<4>(t)); // get Double8Iterator 
 
         // D[i] = A[i] + B[i] * C[i];
        // thrust::get<3>(t) = thrust::get<0>(t) + thrust::get<1>(t) * thrust::get<2>(t);
 
         // define iterators for accessing current sample
-		auto start = std::next(&thrust::get<1>(t), index * steps);
+		auto start = std::next(thrust::get<1>(thrust::get<0>(t)), index * steps);
 		auto end = std::next(start, steps);
 
 		// check for trivial NULL-sample, if true, skip step (cell)
 		if (thrust::equal(start, end, initArray.begin()))
 			return;
 
-		auto readGlyphStart = std::next(&thrust::get<3>(t[0]), index *steps);
+		auto readGlyphStart = std::next(thrust::get<1>(thrust::get<2>(t)), index *steps);
 		auto readGlyphEnd = std::next(readGlyphStart, steps);
 
 		// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -774,7 +774,7 @@ public:
 		auto lastReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd));
 
 		// make dst zip iterator
-		auto firstDst = thrust::make_zip_iterator(thrust::make_tuple(std::next(&thrust::get<2>(t), (index + deltaIndexSTL[0])*steps), std::next(&thrust::get<2>(t), (index + deltaIndexSTL[1])*steps), std::next(&thrust::get<2>(t), (index + deltaIndexSTL[2])*steps), std::next(&thrust::get<2>(t), (index + deltaIndexSTL[3])*steps), std::next(&thrust::get<2>(t), (index + deltaIndexSTL[4])*steps), std::next(&thrust::get<2>(t), (index + deltaIndexSTL[5])*steps), std::next(&thrust::get<2>(t), (index + deltaIndexSTL[6])*steps), std::next(&thrust::get<2>(t), (index + deltaIndexSTL[7])*steps)));
+		auto firstDst = thrust::make_zip_iterator(thrust::make_tuple(std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[0])*steps), std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[1])*steps), std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[2])*steps), std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[3])*steps), std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[4])*steps), std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[5])*steps), std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[6])*steps), std::next(thrust::get<1>(thrust::get<1>(t)), (index + deltaIndexSTL[7])*steps)));
 		// multiply weights to readGlyph parallel in 8 different branches (neighbors) contained in firstOut-->outVector
 		thrust::transform(firstReadGlyph, lastReadGlyph, firstWeights, firstOut, elementMult()); // evtl. TODO: Opt for smaller multiplication ranges: 8 hardcoded commands or functor constructor overload w. lowerIndex, uppperIndex
 
