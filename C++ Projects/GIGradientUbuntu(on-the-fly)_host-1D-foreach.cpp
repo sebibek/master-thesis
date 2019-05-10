@@ -670,7 +670,8 @@ typedef thrust::tuple<IntIterator, zip3Iterator, DoubleIterator, zip5Iterator> z
 typedef thrust::zip_iterator<zip4IteratorTuple> zip4Iterator;
 */
 
-typedef thrust::tuple<int, DoubleIterator, Double8IteratorTuple,DoubleIterator, double, Double8Iterator, Double8Iterator, Double8Iterator> zip8Tuple; // --> 1 single element of zip iterator for DEREFERENCE!
+typedef thrust::tuple<int, DoubleIterator, Double8IteratorTuple,DoubleIterator, double, Double8Iterator, Double8Iterator, Double8Iterator> zip8Tuple; // --> 1 single element of zip iterator for DEREFERENCE!, defines casting behaviour
+
 typedef thrust::tuple<thrust::counting_iterator<int>, thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<Double8IteratorTuple>,thrust::constant_iterator<DoubleIterator>, DoubleIterator, thrust::constant_iterator<Double8Iterator>,thrust::constant_iterator<Double8Iterator>,thrust::constant_iterator<Double8Iterator>> zip8IteratorTuple; // -->8 dbl iterators
 typedef thrust::zip_iterator<zip8IteratorTuple> zip8Iterator;
 
@@ -678,7 +679,9 @@ typedef thrust::zip_iterator<zip8IteratorTuple> zip8Iterator;
 /*typedef thrust::tuple<DoubleIterator, DoubleIterator, DoubleIterator, DoubleIterator, DoubleIterator, DoubleIterator, DoubleIterator, DoubleIterator> Double8IteratorTuple;
 typedef hrust::zip_iterator<ConstDouble8IteratorTuple> Double8IteratorTuple;*/
 
-typedef thrust::tuple<thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>> ConstDouble8IteratorTuple; // -->8 dbl iterators
+typedef thrust::tuple<thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<DoubleIterator>, thrust::constant_iterator<DoubleIterator>> ConstDouble8IteratorTuple; // -->8 dbl iterators
+
+//typedef thrust::tuple<thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>, thrust::constant_iterator<double>> ConstDouble8IteratorTuple; // -->8 dbl iterators
 
 typedef thrust::zip_iterator<ConstDouble8IteratorTuple> ConstDouble8Iterator;
 /*struct reduceFunctor
@@ -738,7 +741,13 @@ struct propagateCell
     thrust::host_vector<double> sums = thrust::host_vector<double>(8, 0.0);
     std::vector<thrust::host_vector<double>> outVector;
     
+    DoubleIterator start;
+    DoubleIterator end;
+    DoubleIterator readGlyphStart;
+    DoubleIterator readGlyphEnd;
 
+	Double8Iterator firstReadGlyph;
+	Double8Iterator lastReadGlyph; 
     Double8Iterator firstOut;
 	Double8Iterator lastOut;
 	Double8Iterator destinations;
@@ -769,7 +778,7 @@ public:
 		lastOut = thrust::make_zip_iterator(thrust::make_tuple(outVector[0].end(), outVector[1].end(), outVector[2].end(), outVector[3].end(), outVector[4].end(), outVector[5].end(), outVector[6].end(), outVector[7].end())); //= thrust::get<9>(t);
 		// make constant iterator for sums as scaling parameters // define zip iterator to write parallel sums for 8 branches
 		//sumIter = thrust::make_constant_iterator(thrust::make_zip_iterator(thrust::make_tuple(sums.begin(), sums.begin()+1, sums.begin()+2, sums.begin()+3, sums.begin()+4, sums.begin()+5, sums.begin()+6, sums.begin()+7)));
-		//sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums[0]), thrust::make_constant_iterator(sums[1]), thrust::make_constant_iterator(sums[2]), thrust::make_constant_iterator(sums[3]), thrust::make_constant_iterator(sums[4]), thrust::make_constant_iterator(sums[5]), thrust::make_constant_iterator(sums[6]), thrust::make_constant_iterator(sums[7])));
+		sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums.begin()), thrust::make_constant_iterator(sums.begin() + 1), thrust::make_constant_iterator(sums.begin() + 2), thrust::make_constant_iterator(sums.begin() + 3), thrust::make_constant_iterator(sums.begin() + 4), thrust::make_constant_iterator(sums.begin() + 5), sums.begin() + 6, thrust::make_constant_iterator(sums.begin() + 7))));
     }
 
    // template <typename Tuple>
@@ -795,8 +804,8 @@ public:
        // thrust::get<3>(t) = thrust::get<0>(t) + thrust::get<1>(t) * thrust::get<2>(t);
 
         // define iterators for accessing current sample
-		auto start = thrust::get<1>(t);
-		auto end = start;
+		start = thrust::get<1>(t);
+		end = start;
 		thrust::advance(start, index * steps);
 		thrust::advance(end, (index+1) * steps);
 
@@ -804,8 +813,8 @@ public:
 		if (thrust::equal(start, end, initArray.begin()))
 			return;
 
-		auto readGlyphStart = thrust::get<3>(t);
-		auto readGlyphEnd = readGlyphStart;
+		readGlyphStart = thrust::get<3>(t);
+		readGlyphEnd = readGlyphStart;
 		thrust::advance(readGlyphStart, index * steps);
 		thrust::advance(readGlyphEnd, (index+1) * steps);
 
@@ -821,8 +830,8 @@ public:
 		// prepare readGlyphC for whole cell
 		thrust::transform(readGlyphStart, readGlyphEnd, thrust::make_constant_iterator(cFactor), readGlyphStart, thrust::multiplies<double>());
 
-		auto firstReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart));
-		auto lastReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd));
+		firstReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart));
+		lastReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd));
 
 		// set 8 dst iterators
 		/*auto dst0 = thrust::get<2>(t);
@@ -870,7 +879,7 @@ public:
 
 		*meanA += thrust::reduce(sums.begin(), sums.end(), 0.0); // sum up sums to obtain mean energy for convergence criterion
 
-		sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums[0]), thrust::make_constant_iterator(sums[1]), thrust::make_constant_iterator(sums[2]), thrust::make_constant_iterator(sums[3]), thrust::make_constant_iterator(sums[4]), thrust::make_constant_iterator(sums[5]), thrust::make_constant_iterator(sums[6]), thrust::make_constant_iterator(sums[7])));
+		//sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums[0]), thrust::make_constant_iterator(sums[1]), thrust::make_constant_iterator(sums[2]), thrust::make_constant_iterator(sums[3]), thrust::make_constant_iterator(sums[4]), thrust::make_constant_iterator(sums[5]), thrust::make_constant_iterator(sums[6]), thrust::make_constant_iterator(sums[7])));
 		
 		// make dst iterators
 		DoubleIterator dst0 = thrust::get<0>(thrust::get<2>(t));
@@ -1130,9 +1139,9 @@ public:
 		//propagateCell propagate(width,steps,radres);
 		// 1 propagation cycle
 		thrust::for_each(zipFirst, zipLast, propagateCell(width,steps,radres, &meanA, firstWeights, firstCosine, lastCosine));
-
+		cout << "passed foreach.. ";
 		// add up 8 individual sample buffers
-		thrust::transform(destinationsFirst, destinationsLast, sampleBufferB.begin(), elementAcc());
+		thrust::transform(destinationsFirst, destinationsLast, sampleBufferB.begin(), elementAcc()); // TRY COMMENT !!!
 
 		
 	}
