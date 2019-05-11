@@ -720,14 +720,6 @@ struct elementAcc : public thrust::unary_function<Double8Tuple,double>
         }
 };
 
-/*struct propagateCell : public thrust::binary_function<zipTuple7,zipTuple7,double>
-{
-    __host__ __device__
-        Double8 operator()(const zipTuple7& a, const zipTuple7& b)
-        {
-            return thrust::make_tuple(thrust::get<0>(a) + thrust::get<0>(b), thrust::get<1>(a) + thrust::get<1>(b), thrust::get<2>(a) + thrust::get<2>(b), thrust::get<3>(a) + thrust::get<3>(b), thrust::get<4>(a) + thrust::get<4>(b), thrust::get<5>(a) + thrust::get<5>(b), thrust::get<6>(a) + thrust::get<6>(b), thrust::get<7>(a) + thrust::get<7>(b));   
-        }
-};*/
 
 struct propagateCell
 { 
@@ -741,7 +733,7 @@ struct propagateCell
 	double tiMean;
 	double cFactor;
     thrust::host_vector<double> initArray;
-    std::vector<int> deltaIndexSTL{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
+    //std::vector<int> deltaIndexSTL{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
     thrust::host_vector<double> sums = thrust::host_vector<double>(8, 0.0);
     std::vector<thrust::host_vector<double>> outVector;
     
@@ -750,7 +742,7 @@ struct propagateCell
     DoubleIterator readGlyphStart;
     DoubleIterator readGlyphEnd;
 
-	Double8Iterator* firstReadGlyph;
+	Double8Iterator firstReadGlyph;
 	Double8Iterator lastReadGlyph; 
     Double8Iterator firstOut;
 	Double8Iterator lastOut;
@@ -761,7 +753,7 @@ struct propagateCell
 	Double8Iterator* firstCosine;
 	Double8Iterator* lastCosine;
 
-	Double8Iterator* firstDst;
+	Double8Iterator firstDst;
 
 	ConstDouble16Iterator firstOutT;
 	//ConstDouble8Iterator lastOutT;
@@ -822,11 +814,11 @@ public:
 		if (thrust::equal(start, end, initArray.begin()))
 			return;
 
-		firstReadGlyph = &thrust::get<3>(t);
-		lastReadGlyph = *firstReadGlyph;
+		firstReadGlyph = thrust::get<3>(t)[index];
+		lastReadGlyph = firstReadGlyph;
 		thrust::advance(lastReadGlyph, steps);
 
-		readGlyphStart = *firstReadGlyph[0].get<0>();
+		readGlyphStart = firstReadGlyph[0].get<0>();
 		readGlyphEnd = readGlyphStart;
 		thrust::advance(readGlyphEnd, steps);
 
@@ -886,7 +878,7 @@ public:
 		thrust::advance(dst7, (index + deltaIndexSTL[7])*steps);*/
 
 		// make dst zip iterator
-		firstDst = &t.get<2>()[index]; // TODO: prepare firstDst as host::vector for every cell index, ALSO prepare start,end, readGlyph
+		firstDst = t.get<2>()[index]; // TODO: prepare firstDst as host::vector for every cell index, ALSO prepare start,end, readGlyph
 		//firstDst = &(thrust::get<2>(t)[index]); // TODO: prepare firstDst as host::vector for every cell index, ALSO prepare start,end, readGlyph
 		//firstDst = thrust::make_zip_iterator(thrust::make_tuple(dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7)); // TODO: prepare firstDst as host::vector for every cell index, ALSO prepare start,end, readGlyph
 
@@ -894,7 +886,7 @@ public:
 		// scale respective cosines lobes w. constant iterator(ptr) to dbl sums in 8 branches
 		thrust::transform(*firstCosine, *lastCosine, sumIter, firstOut, elementMult());
 		// add up contribution for respective neighbor in 8 branches
-		thrust::transform(firstOut, lastOut, *firstDst, *firstDst, elementPlus());
+		thrust::transform(firstOut, lastOut, firstDst, firstDst, elementPlus());
     }
 };
 
