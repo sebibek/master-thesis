@@ -833,25 +833,6 @@ public:
 		firstReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart, readGlyphStart));
 		lastReadGlyph = thrust::make_zip_iterator(thrust::make_tuple(readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd, readGlyphEnd));
 
-		// set 8 dst iterators
-		/*auto dst0 = thrust::get<2>(t);
-		thrust::advance(dst0, (index + deltaIndexSTL[0])*steps);
-		auto dst1 = thrust::get<2>(t);
-		thrust::advance(dst1, (index + deltaIndexSTL[1])*steps);
-		auto dst2 = thrust::get<2>(t);
-		thrust::advance(dst2, (index + deltaIndexSTL[2])*steps);
-		auto dst3 = thrust::get<2>(t);
-		thrust::advance(dst3, (index + deltaIndexSTL[3])*steps);
-		auto dst4 = thrust::get<2>(t);
-		thrust::advance(dst4, (index + deltaIndexSTL[4])*steps);
-		auto dst5 = thrust::get<2>(t);
-		thrust::advance(dst5, (index + deltaIndexSTL[5])*steps);
-		auto dst6 = thrust::get<2>(t);
-		thrust::advance(dst6, (index + deltaIndexSTL[6])*steps);
-		auto dst7 = thrust::get<2>(t);
-		thrust::advance(dst7, (index + deltaIndexSTL[7])*steps);*/
-
-		
 		// multiply weights to readGlyph parallel in 8 different branches (neighbors) contained in firstOut-->outVector
 		thrust::transform(firstReadGlyph, lastReadGlyph, firstWeights, firstOut, elementMult()); // evtl. TODO: Opt for smaller multiplication ranges: 8 hardcoded commands or functor constructor overload w. lowerIndex, uppperIndex
 
