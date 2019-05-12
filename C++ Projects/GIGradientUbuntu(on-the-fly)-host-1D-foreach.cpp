@@ -660,10 +660,10 @@ typedef thrust::tuple<double,double,double,double,double,double,double,double> D
 
 
 // zip5Iterator
-typedef thrust::tuple<int, DoubleIterator, Double8Iterator, Double8Iterator, double, DoubleIterator> zip6Tuple; // --> 1 single element of zip iterator for DEREFERENCE!, defines casting behaviour
+typedef thrust::tuple<int, DoubleIterator, Double8Iterator, Double8Iterator, double, DoubleIterator, double> zip7Tuple; // --> 1 single element of zip iterator for DEREFERENCE!, defines casting behaviour
 
-typedef thrust::tuple<thrust::counting_iterator<int>, thrust::host::vector<DoubleIterator>::iterator, thrust::host::vector<Double8Iterator>::iterator, thrust::host::vector<Double8Iterator>::iterator, DoubleIterator, thrust::host::vector<DoubleIterator>::iterator> zip6IteratorTuple; // -->6 packed iterators
-typedef thrust::zip_iterator<zip5IteratorTuple> zip6Iterator;
+typedef thrust::tuple<thrust::counting_iterator<int>, thrust::host::vector<DoubleIterator>::iterator, thrust::host::vector<Double8Iterator>::iterator, thrust::host::vector<Double8Iterator>::iterator, DoubleIterator, thrust::host::vector<DoubleIterator>::iterator, DoubleIterator> zip7IteratorTuple; // -->6 packed iterators
+typedef thrust::zip_iterator<zip7IteratorTuple> zip7Iterator;
 
 
 // ConstDouble8IteratorTuple
@@ -686,7 +686,7 @@ struct reduceFunctor : public thrust::unary_function<ConstDouble16IteratorTuple,
 		radres = _radres;
 	}
     __host__ //__device__
-		Double8Tuple operator()(ConstDouble16IteratorTuple& firstOutT)
+		Double8Tuple operator()(const ConstDouble16IteratorTuple& firstOutT)
         {
         	return thrust::make_tuple(thrust::reduce(firstOutT.get<0>(), firstOutT.get<1>())*radres, thrust::reduce(firstOutT.get<2>(), firstOutT.get<3>())*radres, thrust::reduce(firstOutT.get<4>(), firstOutT.get<5>())*radres, thrust::reduce(firstOutT.get<6>(), firstOutT.get<7>())*radres, thrust::reduce(firstOutT.get<8>(), firstOut.get<9>())*radres, thrust::reduce(firstOutT.get<10>(), firstOut.get<11>())*radres, thrust::reduce(firstOutT.get<12>(), firstOut.get<13>())*radres, thrust::reduce(firstOutT.get<14>(), firstOut.get<15>())*radres);
         	//return thrust::make_tuple(thrust::reduce(firstOut[0],lastOut[0]),thrust::reduce(firstOut[1],lastOut[1]),thrust::reduce(firstOut[2],lastOut[2]),thrust::reduce(firstOut[3],lastOut[3]),thrust::reduce(firstOut[4],lastOut[4]),thrust::reduce(firstOut[5],lastOut[5]),thrust::reduce(firstOut[6],lastOut[6]),thrust::reduce(firstOut[7],lastOut[7]));
@@ -787,7 +787,7 @@ public:
    // template <typename Tuple>
     __host__ //__device__ 
    
-    void operator()(const zip6Tuple& t)
+    void operator()(const zip7Tuple& t)
     {
     	int index = thrust::get<0>(t);
     	
@@ -844,7 +844,7 @@ public:
 		sums[7] = thrust::reduce(&thrust::get<7>(firstOut[0]), &thrust::get<7>(lastOut[0]))*radres;*/
 
 
-		*meanA += thrust::reduce(sums.begin(), sums.end(), 0.0); // sum up sums to obtain mean energy for convergence criterion
+		*thrust::get<6>(t) = thrust::reduce(sums.begin(), sums.end(), 0.0); // sum up sums to obtain mean energy for convergence criterion
 
 		//sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums[0]), thrust::make_constant_iterator(sums[1]), thrust::make_constant_iterator(sums[2]), thrust::make_constant_iterator(sums[3]), thrust::make_constant_iterator(sums[4]), thrust::make_constant_iterator(sums[5]), thrust::make_constant_iterator(sums[6]), thrust::make_constant_iterator(sums[7])));
 		
@@ -926,6 +926,7 @@ class propagator
 	//std::vector<thrust::host_vector<double>> diagWeights;
 
 	thrust::host_vector<double> sums = thrust::host_vector<double>(8, 0.0);
+	thrust::host_vector<double> means;
 
 	thrust::host_vector<double>::iterator start;
 	thrust::host_vector<double>::iterator end;// = std::next(start, steps);
@@ -951,8 +952,8 @@ class propagator
 	thrust::host::vector<Double8Iterator> firstReadGlyph;
 	thrust::host::vector<DoubleIterator> readGlyphStart;
 
-	zip6Iterator zipFirst;
-	zip6Iterator zipLast;
+	zip7Iterator zipFirst;
+	zip7Iterator zipLast;
 
 	Double8Iterator firstWeights;
 	Double8Iterator firstOut;
@@ -994,6 +995,7 @@ public:
 		sampleBuffer7 = sampleBuffer0;
 
 		tMeans = thrust::host_vector<double>(dim, 0.0);
+		means = thrust::host_vector<double>(dim, 0.0);
 
 		deltaIndex = deltaIndexSTL;
 
@@ -1108,8 +1110,8 @@ public:
 		thrust::counting_iterator<int> itFirst(0);
 		thrust::counting_iterator<int> itLast = itFirst + dim;
 
-		zipFirst = thrust::make_zip_iterator(thrust::make_tuple(itFirst, start.begin(), cellDestinations.begin(), firstReadGlyph.begin(), tMeans.begin(), readGlyphStart.begin()));
-		zipLast = thrust::make_zip_iterator(thrust::make_tuple(itLast, start.end(), cellDestinations.end(), firstReadGlyph.end(), tMeans.end(), readGlyphStart.end()));
+		zipFirst = thrust::make_zip_iterator(thrust::make_tuple(itFirst, start.begin(), cellDestinations.begin(), firstReadGlyph.begin(), tMeans.begin(), readGlyphStart.begin(), means.begin()));
+		zipLast = thrust::make_zip_iterator(thrust::make_tuple(itLast, start.end(), cellDestinations.end(), firstReadGlyph.end(), tMeans.end(), readGlyphStart.end(), means.end()));
 
 		
 	}
@@ -1133,6 +1135,7 @@ public:
 		cout << "passed foreach.. ";
 		// add up 8 individual sample buffers
 		thrust::transform(destinationsFirst, destinationsLast, sampleBufferB.begin(), elementAcc()); // TRY COMMENT !!!
+		meanA = thrust::reduce(means.begin(), means.end(), 0.0);
 
 		
 	}
