@@ -843,8 +843,8 @@ public:
 		sums[6] = thrust::reduce(&thrust::get<6>(firstOut[0]), &thrust::get<6>(lastOut[0]))*radres;
 		sums[7] = thrust::reduce(&thrust::get<7>(firstOut[0]), &thrust::get<7>(lastOut[0]))*radres;*/
 
-
-		*thrust::get<6>(t) = thrust::reduce(sums.begin(), sums.end(), 0.0); // sum up sums to obtain mean energy for convergence criterion
+		// write energy sum in individual cell mean
+		thrust::get<6>(t) = thrust::reduce(sums.begin(), sums.end(), 0.0); // sum up sums to obtain mean energy for convergence criterion
 
 		//sumIter = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sums[0]), thrust::make_constant_iterator(sums[1]), thrust::make_constant_iterator(sums[2]), thrust::make_constant_iterator(sums[3]), thrust::make_constant_iterator(sums[4]), thrust::make_constant_iterator(sums[5]), thrust::make_constant_iterator(sums[6]), thrust::make_constant_iterator(sums[7])));
 		
