@@ -757,7 +757,7 @@ struct propagateCell
     Double8Iterator firstOut;
 	Double8Iterator lastOut;
 	Double8Iterator destinations;
-	ConstDouble8Iterator sumIter;
+	Double8Iterator sumIter;
 
 	Double8Iterator* firstWeights;
 	Double8Iterator* firstCosine;
@@ -800,18 +800,7 @@ public:
     	if (index/width == 0 || index % width == 0 || index / width == height - 1 || index % width == width-1)
     		return;
 
-    	// make zip iterators of weights // evtl. build new zip iterator w. tuple ptrs: thrust::make_zip_iterator(thrust::get<5>(t))
-		//firstWeights = thrust::get<5>(t); // get Double8Iterator 
-		
-		// make cosine zip iterators			
-		//firstCosine = thrust::get<6>(t); // get Double8Iterator 
-		//lastCosine = thrust::get<7>(t); // get Double8Iterator 
-
-
-        // D[i] = A[i] + B[i] * C[i];
-       // thrust::get<3>(t) = thrust::get<0>(t) + thrust::get<1>(t) * thrust::get<2>(t);
-
-        // define iterators for accessing current sample
+		// define iterators for accessing current sample
 		start = thrust::get<1>(t);
 		thrust::advance(start, index * steps);
 		end = start;
@@ -820,11 +809,12 @@ public:
 		// check for trivial NULL-sample, if true, skip step (cell)
 		if (thrust::equal(start, end, initArray->begin()))
 			return;
-
+		
 		//outVector = thrust::get<5>(t)[index];
-		sums = thrust::get<6>(t)[index];
+		//sums = thrust::get<6>(t)[index];
 
-		firstOut = thrust::get<5>(t)[index];
+		firstOut = outVector[0][index];
+		sumIter = sums[0][index];
 
 		readGlyphStart = thrust::get<3>(t);
 		thrust::advance(readGlyphStart, index * steps);
