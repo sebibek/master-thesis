@@ -670,7 +670,7 @@ typedef thrust::zip_iterator<ConstDouble8IteratorTuple> ConstDouble8Iterator;
 
 struct elementMult : public thrust::binary_function<Double8Tuple,Double8Tuple,double>
 {
-    __host__ //__device__
+    __host__ __device__
         Double8Tuple operator()(const Double8Tuple& a, const Double8Tuple& b)
         {
             return thrust::make_tuple(thrust::get<0>(a) * thrust::get<0>(b), thrust::get<1>(a) * thrust::get<1>(b), thrust::get<2>(a) * thrust::get<2>(b), thrust::get<3>(a) * thrust::get<3>(b), thrust::get<4>(a) * thrust::get<4>(b), thrust::get<5>(a) * thrust::get<5>(b), thrust::get<6>(a) * thrust::get<6>(b), thrust::get<7>(a) * thrust::get<7>(b));   
@@ -679,7 +679,7 @@ struct elementMult : public thrust::binary_function<Double8Tuple,Double8Tuple,do
 
 struct elementPlus : public thrust::binary_function<Double8Tuple,Double8Tuple,double>
 {
-    __host__ //__device__
+    __host__ __device__
         Double8Tuple operator()(const Double8Tuple& a, const Double8Tuple& b)
         {
             return thrust::make_tuple(thrust::get<0>(a) + thrust::get<0>(b), thrust::get<1>(a) + thrust::get<1>(b), thrust::get<2>(a) + thrust::get<2>(b), thrust::get<3>(a) + thrust::get<3>(b), thrust::get<4>(a) + thrust::get<4>(b), thrust::get<5>(a) + thrust::get<5>(b), thrust::get<6>(a) + thrust::get<6>(b), thrust::get<7>(a) + thrust::get<7>(b));   
@@ -688,7 +688,7 @@ struct elementPlus : public thrust::binary_function<Double8Tuple,Double8Tuple,do
 
 struct elementAcc : public thrust::unary_function<Double8Tuple,double>
 {
-    __host__ //__device__
+    __host__ __device__
         double operator()(const Double8Tuple& a)
         {
             return thrust::get<0>(a) + thrust::get<1>(a) + thrust::get<2>(a) + thrust::get<3>(a) + thrust::get<4>(a) + thrust::get<5>(a) + thrust::get<6>(a) + thrust::get<7>(a);
@@ -704,7 +704,7 @@ struct propagateCell
     std::vector<int> deltaIndexSTL{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
     //thrust::host_vector<double> sums = thrust::host_vector<double>(8, 0.0);
    	thrust::host_vector<Double8Iterator>* sums;
-    
+
     DoubleIterator start;
     DoubleIterator end;
     DoubleIterator readGlyphStart;
@@ -747,14 +747,14 @@ public:
     }
 
    template <typename Tuple>
-    __host__ //__device__ 
+    __host__ __device__ 
    
     void operator()(Tuple& t)
     {
     	//cout << "HERE 1" << endl;
     	int index = thrust::get<0>(t);
     	
-    	if (index/width == 0 || index % width == 0 || index / width == height - 1 || index % width == width-1)
+    	if (index/width == 0 || index % width == 0 || index / width == width - 1 || index % width == width-1)
     		return;
 
 		// define iterators for accessing current sample
@@ -830,7 +830,7 @@ public:
 		thrust::get<7>(sumIter[0]) = thrust::reduce(&thrust::get<7>(firstOut[0]), &thrust::get<7>(lastOut[0]))*radres;
 
 		// make dst zip iterator
-		firstDst = thrust::get<2>(t);//thrust::make_zip_iterator(thrust::make_tuple(dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7)); // TODO: prepare firstDst as host::vector for every cell index, ALSO prepare start,end, readGlyph
+		firstDst = thrust::get<2>(t); //thrust::make_zip_iterator(thrust::make_tuple(dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7)); // TODO: prepare firstDst as host::vector for every cell index, ALSO prepare start,end, readGlyph
     	//cout << "HERE 8" << endl;
 
 		// VAR 1
@@ -859,6 +859,7 @@ class propagator
 	
 	double meanA = 0.0;
 	double cosine_sum = 0.0;
+	
 	// create member vectors (arrays) for storing the sampled directions theta
 	thrust::host_vector<double> sampleBufferInit;
 	thrust::host_vector<double> sampleBufferA;
@@ -930,9 +931,7 @@ class propagator
 	Double8Iterator firstCosine;
 	Double8Iterator lastCosine;
 
-	Double8IteratorTuple bufferTuple;
 	Double8Iterator destinationsFirst; 
-
 	Double8Iterator destinationsLast; 
 
 
@@ -1071,8 +1070,6 @@ public:
 				outVector[index] = thrust::make_zip_iterator(thrust::make_tuple(out0.begin() + index, out1.begin() + index, out2.begin() + index, out3.begin() + index, out4.begin() + index, out5.begin() + index, out6.begin() + index, out7.begin() + index)); 
 
 				sums[index] = thrust::make_zip_iterator(thrust::make_tuple(sumsMem[index].begin(), sumsMem[index].begin()+1, sumsMem[index].begin()+2, sumsMem[index].begin()+3, sumsMem[index].begin()+4, sumsMem[index].begin()+5, sumsMem[index].begin()+6, sumsMem[index].begin()+7));
-				//sums[index] = thrust::make_zip_iterator(thrust::make_tuple(thrust::make_constant_iterator(sumsMem[index].begin()), thrust::make_constant_iterator(sumsMem[index].begin()+1), thrust::make_constant_iterator(sumsMem[index].begin()+2), thrust::make_constant_iterator(sumsMem[index].begin()+3), thrust::make_constant_iterator(sumsMem[index].begin()+4), thrust::make_constant_iterator(sumsMem[index].begin()+5), thrust::make_constant_iterator(sumsMem[index].begin()+6), thrust::make_constant_iterator(sumsMem[index].begin())+7));
-				
 
 			}
 
