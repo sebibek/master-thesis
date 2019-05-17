@@ -907,15 +907,7 @@ public:
 
 			for (int i = 0; i < dim*steps; i++) // for each node..
 				sampleBufferB[i] = sampleBuffer0[i] + sampleBuffer1[i] + sampleBuffer2[i] + sampleBuffer3[i] + sampleBuffer4[i] + sampleBuffer5[i] + sampleBuffer6[i] + sampleBuffer7[i];
-		// add up 8 individual sample buffers
-		/*std::transform(sampleBuffer0.begin(), sampleBuffer0.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
-		std::transform(sampleBuffer1.begin(), sampleBuffer1.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
-		std::transform(sampleBuffer2.begin(), sampleBuffer2.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
-		std::transform(sampleBuffer3.begin(), sampleBuffer3.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
-		std::transform(sampleBuffer4.begin(), sampleBuffer4.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
-		std::transform(sampleBuffer5.begin(), sampleBuffer5.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
-		std::transform(sampleBuffer6.begin(), sampleBuffer6.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
-		std::transform(sampleBuffer7.begin(), sampleBuffer7.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());*/
+
 		
 		std::fill(sampleBuffer0.begin(), sampleBuffer0.end(), 0.0);
 		std::fill(sampleBuffer1.begin(), sampleBuffer1.end(), 0.0);
