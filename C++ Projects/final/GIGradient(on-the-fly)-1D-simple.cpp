@@ -648,6 +648,18 @@ int fast_mod(const int input, const int ceil) {
 
 typedef std::vector<double>::iterator DoubleIterator;
 
+
+struct saxpy_functor
+{
+	const double a;
+
+	saxpy_functor(double _a) : a(_a) {}
+
+	double operator()(const double& x, const double& y) const {
+		return a * x + y;
+	}
+};
+
 class propagator
 {
 	// set principal arture angles in rads
@@ -692,7 +704,8 @@ class propagator
 	
 	// create sample vector (dynamic)
 	std::vector<double> initArray;
-	std::vector<double> out;
+	std::vector<std::vector<double>> outs;
+	std::vector<DoubleIterator> outIterators;
 
 	neighborhood hood; 
 	bool flag = false;
@@ -745,7 +758,6 @@ public:
 		lightSrc = initArray;
 		out = initArray;
 
-		double energy_sum = 0.0;
 		for (int k = 0; k < 8; k++) // for each node..
 		{
 			int midIndex = (k * pi / 4) / radres;
@@ -777,7 +789,10 @@ public:
 			lightSrc = initArray;
 		}
 		
-		weights = std::vector<thrust::host_vector<double>>(8, initArray);
+		weights = std::vector<std::vector<double>>(8, initArray);
+		outs = std::vector<std::vector<double>>(dim, initArray);
+
+		outIterator = std::vector<DoubleIterator>(dim);
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < 8; k++) // for each adjacent edge...
 		{
@@ -813,8 +828,8 @@ public:
 		}
 
 		// make glyph mean vector
-		tMeans = thrust::host_vector<double>(dim, 0.0);
-
+		tMeans = std::vector<double>(dim, 0.0);
+		outIterators = std::vector<std::vector<DoubleIterator>>(dim, std::vector<DoubleIterator>(8));
 		// 1 propagation cycle
 		for (int j = 1; j < width - 1; j++)
 			for (int i = 1; i < width - 1; i++) // for each node..
@@ -824,6 +839,9 @@ public:
 				DoubleIterator glyphEnd = std::next(glyphStart, steps);
 
 				tMeans[index] = thrust::reduce(glyphStart, glyphEnd) / steps;
+
+				DoubleIterator outIter = outs.at(index).begin();
+				outIterators.at(index) = outIter;
 			}
 	}
 	
@@ -868,6 +886,10 @@ public:
 				//std::transform( readGlyphC.begin(), readGlyphC.end(), glyphStart, readGlyphC.begin(), std::multiplies<double>()); // assumes v1,v2 of same size > 1, 
 				std::transform(readGlyphStart, readGlyphEnd, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
+				DoubleIterator outStart = outIterators[index];
+				DoubleIterator outEnd = outStart;
+				std::advance(outEnd, steps)
+
 				int delta;
 				double val_sum;
 				//pragma unroll
@@ -875,17 +897,16 @@ public:
 				{
 					delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-					std::transform(start, end, weights.at(k).begin(), out.begin(), std::multiplies<double>());
-					val_sum = std::accumulate(out.begin(), out.end(), 0.0);
+					std::transform(start, end, weights.at(k).begin(), outStart, std::multiplies<double>());
+					val_sum = std::accumulate(outStart, outEnd, 0.0);
 					//out = cosines.at(k);
-
-					std::transform(cosines.at(k).begin(), cosines.at(k).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum *= radres));
+					val_sum *= radres;
 
 					dstStart = std::next(destinations[k], (delta)*steps);
+					std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, saxpy_functor(val_sum)));
 
-					std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
-
-					meanA += val_sum;
+					//std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
+					//meanA += val_sum;
 				}
 
 			}
