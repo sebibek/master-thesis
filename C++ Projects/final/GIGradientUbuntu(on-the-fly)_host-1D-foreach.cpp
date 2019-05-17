@@ -121,15 +121,15 @@ void saxpy_fast(double a, thrust::host_vector<double>& X, const thrust::host_vec
 }
 
 
-void scale_fast(double a, thrust::host_vector<double>& X)
+void scale_fast(double a, thrust::device_vector<double>& X)
 {
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 	thrust::transform(X.begin(), X.end(), X.begin(), scale_functor(a));
 }
 
-thrust::host_vector<double> scale_fast(double a, const thrust::host_vector<double>::iterator& start,const thrust::host_vector<double>::iterator& end)
+thrust::device_vector<double> scale_fast(double a, const thrust::device_vector<double>::iterator& start,const thrust::device_vector<double>::iterator& end)
 {
-	thrust::host_vector<double> res(end-start, 0.0);
+	thrust::device_vector<double> res(end-start, 0.0);
 	// Y <- A * X + Y multiply (scale) vector and add another --> NEEDED
 	thrust::transform(start, end, res.begin(), scale_functor(a));
 	return res;
@@ -734,18 +734,17 @@ public:
 		deltaIndex[5] = -1 + width;
 		deltaIndex[6] = width;
 		deltaIndex[7] = 1 + width;
-
     }
 
    template <typename Tuple>
     __host__ __device__ 
    
-    void operator()(Tuple& t)
+    void operator()(Tuple& A)
     {
 		// get current cell index
-    	int index = thrust::get<0>(t);
+    	int index = thrust::get<0>(A);
     	
-    	if (index/width == 0 || index % width == 0 || index / width == height - 1 || index % width == width-1)
+    	if (index/width == 0 || index % width == 0 || index / width == width - 1 || index % width == width-1)
     		return;
 
 		int offset = index * steps;
@@ -770,7 +769,7 @@ public:
 		iMean = iMean / steps;
 		tiMean = iMean / steps;
 		// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
-		double tMean = thrust::get<1>(t); // -->tinc(dt) is a constant that can be drawn out of the integral
+		double tMean = thrust::get<1>(A); // -->tinc(dt) is a constant that can be drawn out of the integral
 		// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 		double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0; // = tMean * iMean / tiMean for uncommented equality check
 
@@ -918,7 +917,7 @@ public:
 
 		cosines = thrust::host_vector<double>(8*steps, 0.0);
 
-		cosinesPtr = thrust::raw_pointer_cast(weights.data());
+		cosinesPtr = thrust::raw_pointer_cast(cosines.data());
 		for (int k = 0; k < 8; k++) // for each node/neighbor..
 		{
 			int midIndex = (k * pi / 4) / radres;
@@ -934,9 +933,9 @@ public:
 			}
 		}
 		cosine_sum = cosine_sum / 8.0;
-		for (int k = 0; k < 8; k++) // for each node..
-			thrust::transform(cosines.begin(), cosines.end(), thrust::make_constant_iterator(1.0/cosine_sum), cosines.at(k).begin(), thrust::multiplies<double>());
-			//std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/cosine_sum));
+		// scale (normalize) cosines w. their mean energy
+		thrust::transform(cosines.begin(), cosines.end(), thrust::make_constant_iterator(1.0/cosine_sum), cosines.at(k).begin(), thrust::multiplies<double>());
+		//std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/cosine_sum));
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
@@ -999,11 +998,15 @@ public:
 		// make zip iterator of values directly accessed !
 		zipFirst = thrust::make_zip_iterator(thrust::make_tuple(itFirst, tMeans.begin()));
 		zipLast = thrust::make_zip_iterator(thrust::make_tuple(itLast, tMeans.end()));
+
+		destinationsFirst = thrust::make_zip_iterator(thrust::make_tuple(sampleBuffer0.begin(), sampleBuffer1.begin(), sampleBuffer2.begin(), sampleBuffer3.begin(), sampleBuffer4.begin(), sampleBuffer5.begin(), sampleBuffer6.begin(), sampleBuffer7.begin()));
+		destinationsLast = thrust::make_zip_iterator(thrust::make_tuple(sampleBuffer0.end(), sampleBuffer1.end(), sampleBuffer2.end(), sampleBuffer3.end(), sampleBuffer4.end(), sampleBuffer5.end(), sampleBuffer6.end(), sampleBuffer7.end()));
 		
 	}
 
 	void propagate()
 	{
+		// TIMER!!!
 		thrust::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer.begin(), readGlyph.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via thrust transform method
 		
 		// 1 propagation cycle
