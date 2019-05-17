@@ -1019,7 +1019,7 @@ public:
 
 	void propagate()
 	{
-		// TIMER!!!
+		// TIMER!!! // Copy to CPU?
 		thrust::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer.begin(), readGlyph.begin(), thrust::multiplies<double>()); // perform read*glyph element-wise via thrust transform method
 		
 		// 1 propagation cycle
@@ -1037,6 +1037,7 @@ public:
 		thrust::fill(sampleBuffer6.begin(), sampleBuffer6.end(), 0.0);
 		thrust::fill(sampleBuffer7.begin(), sampleBuffer7.end(), 0.0);
 		
+		// Copy to CPU?
 		meanA = thrust::reduce(sampleBufferB.begin(), sampleBufferB.end(), 0.0)*radres;
 		
 	}
