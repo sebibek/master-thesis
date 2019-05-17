@@ -655,7 +655,6 @@ typedef thrust::zip_iterator<Double8IteratorTuple> Double8Iterator; // -> zipped
 // We'll use a 8-tuple to store our 8d vector type
 typedef thrust::tuple<double,double,double,double,double,double,double,double> Double8Tuple; // --> 1 single element of zip iterator for DEREFERENCE!
 
-
 // define zip iterator types
 
 // ZIP2 Iterator
@@ -701,6 +700,9 @@ struct propagateCell
     int width;
     int steps;
     double radres;
+	double beta = 26.5651 * M_PI / 180;
+	int shiftIndex;
+	int betaIndex = (beta) / radres;
     double* initArrayD;
 	int* deltaIndex;// { 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
 	double sums[8]; // 8 individual sums
@@ -712,15 +714,16 @@ struct propagateCell
 	double* read;
 	double* readGlyph; #
 
-	int shift[8];
+	int shifts[8];
 
 public:
     propagateCell(int _width, int _steps, double _radres, double* _weightsPtr, double* _cosinesPtr, double** _destinations, double* _read, double* _readGlyph)
     {
+		shiftIndex = steps / 4
 		width = _width;
 		steps = _steps;
 		radres = _radres;
-		outputs = new double[8 * steps];
+		//outputs = new double[8 * steps];
 		destinations = _destinations;
 		cosinesPtr = _cosinesPtr;
 		weightsPtr = _weightsPtr;
@@ -734,7 +737,15 @@ public:
 		deltaIndex[5] = -1 + width;
 		deltaIndex[6] = width;
 		deltaIndex[7] = 1 + width;
-    }
+		shifts[0] = shiftIndex / 2;
+		shifts[1] = betaIndex;
+		shifts[2] = shiftIndex / 2;
+		shifts[3] = betaIndex;
+		shifts[4] = shiftIndex / 2;
+		shifts[5] = betaIndex;
+		shifts[6] = shiftIndex / 2;
+		shifts[7] = betaIndex;
+	}
 
    template <typename Tuple>
     __host__ __device__ 
@@ -777,7 +788,7 @@ public:
 		for (int k = 0; k < 8; k++) // for each adjacent edge...
 		{
 			int midIndex = k * shiftIndex / 2;
-			int shift = k % 2 == 0 ? shiftIndex / 2 : betaIndex;
+			int shift = shifts[k];
 
 			double val_sum = 0.0;
 
@@ -870,7 +881,7 @@ class propagator
 	double* read;// = thrust::raw_pointer_cast(dev_ptr);
 	double* readGlyph;// = thrust::raw_pointer_cast(dev_ptr);
 
-	double** destinations;
+	double** destinations = new double*[8];
 
 
 public:
@@ -901,6 +912,8 @@ public:
 		sampleBuffer6 = sampleBufferInit;
 		sampleBuffer7 = sampleBufferInit;
 
+		for (int k = 0; k < 8; k++) // for each node/neighbor..
+			destinations[k] = new double*[8];
 		// cast raw ptrs for destination buffers
 		destinations[0] = thrust::raw_pointer_cast(sampleBuffer0.data());
 		destinations[1] = thrust::raw_pointer_cast(sampleBuffer1.data());
@@ -1119,7 +1132,7 @@ int main(int argc, char* argv[])
 	double meanA = 0.0; // set up mean variables for threshold comparison as STOP criterion..
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	propagator prop(dim, &glyphBuffer);
+	propagator prop(dim, glyphBuffer);
 
 	// DELTA (Gradient) COMPUTATION START //
 	std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
