@@ -44,13 +44,6 @@
 #include <vtkPointData.h>
 #include <vtkDoubleArray.h>
 
-//thrust
-#include <thrust/device_vector.h>
-#include <thrust/transform.h>
-#include <thrust/copy.h>
-#include <thrust/fill.h>
-#include <thrust/functional.h>
-
 // NAMESPACE IMPORTS
 using namespace std;
 using namespace Eigen;
@@ -209,7 +202,7 @@ void parse_file(char* filename)
 				func_literal = "100*cos(theta)";
 				positions.push_back(position);
 			}*/
-			
+
 			//parse other statements
 			else {
 				//grab keyword
@@ -233,7 +226,7 @@ void parse_file(char* filename)
 					color = sf::Color(r, g, b);
 				}*/
 				// enter light src position
-				/*else if (tag == "pos") 
+				/*else if (tag == "pos")
 				{
 					std::stringstream s;
 					s << line.substr(pos + 1);
@@ -305,14 +298,14 @@ void parse_options(int argc, char* argv[]) {
 
 		switch (c)
 		{
-		// correct option use
-		/*case 'l': {
-			light_opt.assign(optarg);
-			std::istringstream(light_opt) >> lightSrcPos;
-			positions.push_back(lightSrcPos);
-			funcs.push_back(std::to_string(intensity));
-			break;
-		}*/
+			// correct option use
+			/*case 'l': {
+				light_opt.assign(optarg);
+				std::istringstream(light_opt) >> lightSrcPos;
+				positions.push_back(lightSrcPos);
+				funcs.push_back(std::to_string(intensity));
+				break;
+			}*/
 		case 'i': {
 			intensity_opt.assign(optarg);
 			std::istringstream(intensity_opt) >> intensity;
@@ -435,7 +428,7 @@ template <typename T> // element-wise minus for vector of vectors
 std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, const std::vector<std::vector<T>>& b)
 {
 	std::vector<std::vector<T>> result(b.size());
-	
+
 	for (int i = 0; i < b.size(); i++)
 		result.at(i) = a.at(i) - b.at(i);
 
@@ -495,7 +488,7 @@ string trim(const string& str)
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
-	
+
 	ifstream infile(filepath);
 
 	while (!infile.eof())
@@ -674,7 +667,7 @@ class propagator
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
 	int dim = width * height;
-	
+
 	double meanA = 0.0;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
@@ -701,13 +694,13 @@ class propagator
 
 	std::vector<int> lowerIndex;
 	std::vector<int> upperIndex;
-	
+
 	// create sample vector (dynamic)
 	std::vector<double> initArray;
 	std::vector<std::vector<double>> outs;
 	std::vector<DoubleIterator> outIterators;
 
-	neighborhood hood; 
+	neighborhood hood;
 	bool flag = false;
 
 	std::vector<int> deltaIndex{ 1, 1 - width, -width, -1 - width, -1, -1 + width, width, 1 + width };
@@ -718,7 +711,7 @@ class propagator
 	std::vector<std::vector<double>> weights;
 
 	// allocate memory for buffer addresses (ptrs)
-	std::vector<DoubleIterator> destinations(8);
+	std::vector<DoubleIterator> destinations;
 
 
 public:
@@ -741,8 +734,7 @@ public:
 		sampleBuffer6 = sampleBufferInit;
 		sampleBuffer7 = sampleBufferInit;
 
-		destinations = new double*[8];
-
+		destinations = std::vector<DoubleIterator>(8);
 		// cast raw ptrs for destination buffers
 		destinations[0] = sampleBuffer0.begin();
 		destinations[1] = sampleBuffer1.begin();
@@ -756,7 +748,7 @@ public:
 		// initialize member samples w. 0
 		initArray = std::vector<double>(steps, 0.0);
 		lightSrc = initArray;
-		out = initArray;
+		//out = initArray;
 
 		for (int k = 0; k < 8; k++) // for each node..
 		{
@@ -766,7 +758,7 @@ public:
 			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
 			{
 				int deltaJ = j - midIndex;
-				int j_index = j < 0 ? j+steps : j % steps;
+				int j_index = j < 0 ? j + steps : j % steps;
 
 				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
 				cosine_sum += res * radres;
@@ -776,7 +768,7 @@ public:
 		}
 		cosine_sum = cosine_sum / 8.0;
 		for (int k = 0; k < 8; k++) // for each node..
-			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/cosine_sum));
+			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / cosine_sum));
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
@@ -788,11 +780,11 @@ public:
 			lightSrcs.push_back(lightSrc);
 			lightSrc = initArray;
 		}
-		
+
 		weights = std::vector<std::vector<double>>(8, initArray);
 		outs = std::vector<std::vector<double>>(dim, initArray);
 
-		outIterator = std::vector<DoubleIterator>(dim);
+		outIterators = std::vector<DoubleIterator>(dim);
 		// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
 		for (int k = 0; k < 8; k++) // for each adjacent edge...
 		{
@@ -829,27 +821,28 @@ public:
 
 		// make glyph mean vector
 		tMeans = std::vector<double>(dim, 0.0);
-		outIterators = std::vector<std::vector<DoubleIterator>>(dim, std::vector<DoubleIterator>(8));
+		outIterators = std::vector<DoubleIterator>(dim);
 		// 1 propagation cycle
 		for (int j = 1; j < width - 1; j++)
 			for (int i = 1; i < width - 1; i++) // for each node..
 			{
 				int index = i + j * width; // compute 1D grid index
-				DoubleIterator glyphStart = std::next(glyphBuffer.begin(), index *steps);
+				DoubleIterator glyphStart = std::next(glyphBuffer->begin(), index *steps);
 				DoubleIterator glyphEnd = std::next(glyphStart, steps);
 
-				tMeans[index] = thrust::reduce(glyphStart, glyphEnd) / steps;
+				tMeans[index] = std::accumulate(glyphStart, glyphEnd, 0.0) / steps;
 
 				DoubleIterator outIter = outs.at(index).begin();
 				outIterators.at(index) = outIter;
 			}
 	}
-	
+
 	void propagate()
 	{
 		std::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer->begin(), readGlyph.begin(), std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
 
 		// 1 propagation cycle
+		#pragma omp parallel for num_threads(2) collapse(2)
 		for (int j = 1; j < width - 1; j++)
 			for (int i = 1; i < width - 1; i++) // for each node..
 			{
@@ -888,7 +881,7 @@ public:
 
 				DoubleIterator outStart = outIterators[index];
 				DoubleIterator outEnd = outStart;
-				std::advance(outEnd, steps)
+				std::advance(outEnd, steps);
 
 				int delta;
 				double val_sum;
@@ -902,14 +895,39 @@ public:
 					//out = cosines.at(k);
 					val_sum *= radres;
 
-					dstStart = std::next(destinations[k], (delta)*steps);
-					std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, saxpy_functor(val_sum)));
+					DoubleIterator dstStart = std::next(destinations[k], (delta)*steps);
+					std::transform(cosines.at(k).begin(), cosines.at(k).end(), outStart, std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
+					//std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum));
 
-					//std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
+					std::transform(outStart, outEnd, dstStart, dstStart, std::plus<double>());
 					//meanA += val_sum;
 				}
 
 			}
+
+			for (int i = 0; i < dim*steps; i++) // for each node..
+				sampleBufferB[i] = sampleBuffer0[i] + sampleBuffer1[i] + sampleBuffer2[i] + sampleBuffer3[i] + sampleBuffer4[i] + sampleBuffer5[i] + sampleBuffer6[i] + sampleBuffer7[i];
+		// add up 8 individual sample buffers
+		/*std::transform(sampleBuffer0.begin(), sampleBuffer0.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
+		std::transform(sampleBuffer1.begin(), sampleBuffer1.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
+		std::transform(sampleBuffer2.begin(), sampleBuffer2.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
+		std::transform(sampleBuffer3.begin(), sampleBuffer3.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
+		std::transform(sampleBuffer4.begin(), sampleBuffer4.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
+		std::transform(sampleBuffer5.begin(), sampleBuffer5.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
+		std::transform(sampleBuffer6.begin(), sampleBuffer6.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());
+		std::transform(sampleBuffer7.begin(), sampleBuffer7.end(), sampleBufferB.begin(), sampleBufferB.begin(), std::plus<double>());*/
+		
+		std::fill(sampleBuffer0.begin(), sampleBuffer0.end(), 0.0);
+		std::fill(sampleBuffer1.begin(), sampleBuffer1.end(), 0.0);
+		std::fill(sampleBuffer2.begin(), sampleBuffer2.end(), 0.0);
+		std::fill(sampleBuffer3.begin(), sampleBuffer3.end(), 0.0);
+		std::fill(sampleBuffer4.begin(), sampleBuffer4.end(), 0.0);
+		std::fill(sampleBuffer5.begin(), sampleBuffer5.end(), 0.0);
+		std::fill(sampleBuffer6.begin(), sampleBuffer6.end(), 0.0);
+		std::fill(sampleBuffer7.begin(), sampleBuffer7.end(), 0.0);
+
+		meanA = std::accumulate(sampleBufferB.begin(), sampleBufferB.end(), 0.0)*radres;
+
 	}
 	std::vector<double> propagateDist(int i, int j, int t)
 	{
@@ -921,7 +939,7 @@ public:
 		bool finished = false;
 		//lightSrc = lightSrcs.at(t);
 		int index = (j*width + i)*steps + t; // compute 1D index
-		
+
 		sampleBufferA[index] = steps;
 		int ctr = 0;
 		// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
@@ -1009,12 +1027,12 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> deltaBuffer(dim*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
 	cout << "before compute glyphs" << endl;
-	
+
 	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
 	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
-	
+
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
 	propagator prop(dim, &glyphBuffer);
 
@@ -1095,7 +1113,7 @@ int main(int argc, char* argv[])
 	sampleBufferA.shrink_to_fit();
 	sampleBufferInit.shrink_to_fit();
 	glyphBuffer.shrink_to_fit();
-	
+
 	// vector norm (Gradient) COMPUTATION START //
 	std::vector<double> scalarNorm(width*height*steps, 0.0); // construct 3D Gradient Norm Vector
 
@@ -1120,9 +1138,9 @@ int main(int argc, char* argv[])
 				energy->SetValue(ctr, res);
 				ctr++;
 			}
-	
+
 	// vector norm (Gradient) COMPUTATION END //
-	
+
 	duration = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
 	cout << "..after, timer: " << duration << " ms" << endl;
 
