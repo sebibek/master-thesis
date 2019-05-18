@@ -839,10 +839,14 @@ public:
 
 	void propagate()
 	{
-		std::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer->begin(), readGlyph.begin(), std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
-
+		//std::transform(sampleBufferA.begin(), sampleBufferA.end(), glyphBuffer->begin(), readGlyph.begin(), std::multiplies<double>()); // perform read*glyph element-wise via trust transform method
+		#pragma omp parallel for num_threads(2)
+		for (int i = 0; i < dim*steps; i++) // for each node..
+			readGlyph[i] = sampleBufferA[i] * glyphBuffer[i];
+		//int i;
 		// 1 propagation cycle
-		#pragma omp parallel for num_threads(2) collapse(2)
+		//omp_set_nested(true);
+		#pragma omp parallel for num_threads(2)
 		for (int j = 1; j < width - 1; j++)
 			for (int i = 1; i < width - 1; i++) // for each node..
 			{
@@ -880,34 +884,32 @@ public:
 				std::transform(readGlyphStart, readGlyphEnd, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
 				DoubleIterator outStart = outIterators[index];
-				DoubleIterator outEnd = outStart;
-				std::advance(outEnd, steps);
+				DoubleIterator outEnd = std::next(outStart, steps);
 
 				int delta;
 				double val_sum;
-				//pragma unroll
+				//#pragma omp for
 				for (int k = 0; k < 8; k++) // for each adjacent edge...
 				{
 					delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
 					std::transform(start, end, weights.at(k).begin(), outStart, std::multiplies<double>());
-					val_sum = std::accumulate(outStart, outEnd, 0.0);
+					val_sum = std::accumulate(outStart, outEnd, 0.0)*radres;
 					//out = cosines.at(k);
-					val_sum *= radres;
 
 					DoubleIterator dstStart = std::next(destinations[k], (delta)*steps);
-					std::transform(cosines.at(k).begin(), cosines.at(k).end(), outStart, std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
+					std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum));// std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
 					//std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum));
 
-					std::transform(outStart, outEnd, dstStart, dstStart, std::plus<double>());
+					//std::transform(outStart, outEnd, dstStart, dstStart, std::plus<double>());
 					//meanA += val_sum;
 				}
 
 			}
-
-			for (int i = 0; i < dim*steps; i++) // for each node..
-				sampleBufferB[i] = sampleBuffer0[i] + sampleBuffer1[i] + sampleBuffer2[i] + sampleBuffer3[i] + sampleBuffer4[i] + sampleBuffer5[i] + sampleBuffer6[i] + sampleBuffer7[i];
-
+		// add up 8 individual sample buffers
+		//#pragma omp parallel for num_threads(2)
+		for (int i = 0; i < dim*steps; i++) // for each node..
+			sampleBufferB[i] = sampleBuffer0[i] + sampleBuffer1[i] + sampleBuffer2[i] + sampleBuffer3[i] + sampleBuffer4[i] + sampleBuffer5[i] + sampleBuffer6[i] + sampleBuffer7[i];
 		
 		std::fill(sampleBuffer0.begin(), sampleBuffer0.end(), 0.0);
 		std::fill(sampleBuffer1.begin(), sampleBuffer1.end(), 0.0);
