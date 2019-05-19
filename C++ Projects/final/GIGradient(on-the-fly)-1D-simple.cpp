@@ -856,31 +856,28 @@ public:
 				DoubleIterator start = std::next(sampleBufferA.begin(), index * steps);
 				DoubleIterator end = std::next(start, steps);
 
-				//read = std::vector<double>(start, end); // CAVEAT: constructor needed to extract (crop) subset of vector
-				//read =  + ;
-				/*if (read == initArray)
-					continue;*/
 				if (equal(start, end, initArray.begin()))
 					continue;
 
 				DoubleIterator readGlyphStart = std::next(readGlyph.begin(), index *steps);
 				DoubleIterator readGlyphEnd = std::next(readGlyphStart, steps);
 
-				//glyph = std::vector<double>(glyphStart, glyphEnd);
-
-				// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double iMean = std::accumulate(start, end, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 				// compute mean(T) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area	
 				double tMean = tMeans[index]; // -->tinc(dt) is a constant that can be drawn out of the integral
-				// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
-				double tiMean = std::accumulate(readGlyphStart, readGlyphEnd, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				double iMean = 0.0;
+				double tiMean = 0.0;
+				for (int t = 0; t < steps; t++) // for each node..
+				{
+					// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+					iMean += start[t];// std::accumulate(start, end, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+					// compute mean(T*I) from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+					tiMean += readGlyphStart[t];// std::accumulate(readGlyphStart, readGlyphEnd, 0.0) / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
+				}
+				iMean = iMean / steps;
+				tiMean = tiMean / steps;
 				// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 				double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
 
-				// prepare readGlyphC for whole cell
-				//readGlyphC = std::vector<double>(out.begin(), out.end()); // crop subset of sample buffer (current sample): REMEMBER, always use constructor to extract subset of vectors!!!
-
-				//std::transform( readGlyphC.begin(), readGlyphC.end(), glyphStart, readGlyphC.begin(), std::multiplies<double>()); // assumes v1,v2 of same size > 1, 
 				std::transform(readGlyphStart, readGlyphEnd, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
 				DoubleIterator outStart = outIterators[index];
@@ -899,7 +896,6 @@ public:
 
 					DoubleIterator dstStart = std::next(destinations[k], (delta)*steps);
 					std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum));// std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
-					//std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum));
 
 					//std::transform(outStart, outEnd, dstStart, dstStart, std::plus<double>());
 					//meanA += val_sum;
