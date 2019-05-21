@@ -1,4 +1,7 @@
 scp -r /export/home/sbek/Documents/TensorVis sbek@quadxeon8:/export/home/sbek -- push/put directory to quadxeon8
-pwd -- show current working directory 
+scp main.cpp sbek@quadxeon8:/export/home/sbek/TensorVis -- push new src file
+scp matrix.txt sbek@quadxeon8:/export/home/sbek/TensorVis -- push new tensor field (dataset)
+pwd -- show current remote working directory
+lpwd -- show current local working directory 
 
 rm -rf foldername -- remove non-empty dir
