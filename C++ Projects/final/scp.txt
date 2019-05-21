@@ -1,0 +1,4 @@
+scp -r /export/home/sbek/Documents/TensorVis sbek@quadxeon8:/export/home/sbek -- push/put directory to quadxeon8
+pwd -- show current working directory 
+
+rm -rf foldername -- remove non-empty dir

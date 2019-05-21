@@ -1,0 +1,12 @@
+g++ -I/usr/include/vtk-6.3 -L/usr/lib/x86_64-linux-gnu -Ofast --verbose -g -funroll-loops -Wall getopt.c main.cpp -lvtksys-6.3 -lvtkCommonCore-6.3 -lvtkImagingCore-6.3 -lvtkIOCore-6.3 -lvtkIOXML-6.3 -lvtkCommonDataModel-6.3
+
+parallel:
+g++  -I/export/home/sbek/TensorVis/include/vtk-6.3 -I/export/home/sbek/TensorVis/Eigen -L/export/home/sbek/TensorVis/lib/x86_64-linux-gnu -Ofast --verbose -g -funroll-loops -Wall getopt.c main.cpp -lvtksys-6.3 -lvtkCommonCore-6.3 -lvtkImagingCore-6.3 -lvtkIOCore-6.3 -lvtkIOXML-6.3 -lvtkCommonDataModel-6.3  -fopenmp -lpthread
+
+
+// IMPORTANT TO RUN on Compute Server (Cluster)
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/export/home/sbek/TensorVis/lib/x86_64-linux-gnu
+
+
+pgo (profile-guided optimization): -fprofile-generate/fprofile-use 
+
