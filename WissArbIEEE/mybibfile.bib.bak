@@ -1,0 +1,287 @@
+% Encoding: UTF-8
+
+@inproceedings{AliS07,
+  added-at = {2014-07-31T00:00:00.000+0200},
+  author = {Ali, Saad and Shah, Mubarak},
+  biburl = {http://www.bibsonomy.org/bibtex/2662a67b97d0ed52f4bef5d0883bd6e91/dblp},
+  booktitle = {CVPR},
+  crossref = {conf/cvpr/2007},
+  ee = {http://doi.ieeecomputersociety.org/10.1109/CVPR.2007.382977},
+  interhash = {2e5583b82c3091bafb488dbc1a6addea},
+  intrahash = {662a67b97d0ed52f4bef5d0883bd6e91},
+  isbn = {1-4244-1179-3},
+  keywords = {dblp},
+  publisher = {IEEE Computer Society},
+  timestamp = {2015-06-19T16:04:09.000+0200},
+  title = {A Lagrangian Particle Dynamics Approach for Crowd Flow Segmentation and Stability Analysis.},
+  url = {http://dblp.uni-trier.de/db/conf/cvpr/cvpr2007.html#AliS07},
+  year = 2007
+}
+
+@book{Szeliski:2010:CVA:1941882,
+ author = {Szeliski, Richard},
+ title = {Computer Vision: Algorithms and Applications},
+ year = {2010},
+ isbn = {1848829345, 9781848829343},
+ edition = {1st},
+ publisher = {Springer-Verlag New York, Inc.},
+ address = {New York, NY, USA},
+}
+
+@INPROCEEDINGS{Baker07adatabase,
+    author = {Simon Baker and Daniel Scharstein and J. P. Lewis and Stefan Roth and Michael J. Black and Richard Szeliski},
+    title = {A database and evaluation methodology for optical flow},
+    booktitle = {In Proceedings of the IEEE International Conference on Computer Vision},
+    year = {2007}
+}
+
+@MISC{Weickert05asurvey,
+    author = {Joachim Weickert and Andrés Bruhn and Thomas Brox and Nils Papenberg},
+    title = {A Survey on Variational Optic Flow Methods for Small Displacements},
+    year = {2005}
+}
+
+@book{burger2010principles,
+  title={Principles of Digital Image Processing: Core Algorithms},
+  author={Burger, W. and Burge, M.J.},
+  isbn={9781848001954},
+  lccn={2008942518},
+  series={Undergraduate Topics in Computer Science},
+  year={2010},
+  publisher={Springer London}
+}
+
+@book{wikipedia2011computer,
+  title={Computer Vision: Digital Image Processing, Image Registration, Machine Vision, Scale-invariant Feature Transform, Harris Affine Region Detector, Scale Space, Corner Detection, Ridge Detection, Structure Tensor, Hough Transform, Edge Detection},
+  author={Wikipedia, S. and Books Llc and Group, B.},
+  isbn={9781157236467},
+  year={2011},
+  publisher={General Books LLC}
+}
+
+@article{CourtyPRL2014, 
+   Author = {Courty, N. and Allain, P. and Creusot, C. and Corpetti, T.},
+   Title = {Using the {AGORASET} dataset : assessing for the quality of crowd video analysis methods},
+   Journal = {Pattern Recognition Letters, to appear},
+   Year = {2014}
+}
+
+@InProceedings{Allain2012ICPR, 
+   Author = {Allain, P. and Courty, N. and Corpetti, T.},
+   Title = {{AGORASET}: a dataset for crowd video analysis},
+   BookTitle = {1st ICPR International Workshop on Pattern Recognition and Crowd Analysis},
+   Address = {Tsukuba, Japan},
+   Month = {November},
+   Year = {2012}
+}
+
+@manual{segcourse2,
+  Title                    = {Bildsegmentierung: Übersicht},
+  Organization             = {Universität Ulm, Fakultät für Mathematik und Wirtschaftswissenschaften},
+
+  author                   = {Jens Kürbig und Martina Sauter},
+  Timestamp                = {28.11.2005},
+  Url                      = {http://www.mathematik.uni-ulm.de/stochastik/lehre/ws05_06/seminar/sauter.pdf}
+}
+
+@manual{segcourse,
+  Title                    = {Workshop "`Computertomografie und Analyseverfahren für industrielle Anwendungen''},
+  Organization             = {Fraunhofer-Institut für Techno- und Wirtschaftsmathematik},
+
+  author                   = {Oliver Wirjadi},
+  Timestamp                = {06.03.2008},
+  Url                      = {https://www.itwm.fraunhofer.de/fileadmin/ITWM-Media/Abteilungen/BV/Pdf/segmentierung.pdf}
+}
+
+@manual{cscourse,
+  Title                    = {CS 664 – Spring 2008 - Lecture 4},
+  Organization             = {Cornell University},
+
+  author                   = {Dan Huttenlocher},
+  Timestamp                = {2008.03.2003},
+  Url                      = {http://www.cs.cornell.edu/courses/cs664/2008sp/handouts/664%20corner%20detection.pdf}
+}
+
+@Manual{collinscourse,
+  title        = {Reading: T\&V Section 4.3},
+  author       = {Robert Collins},
+  organization = {Penn State University, CSE486 Computer Vision},
+  timestamp    = {01.09.2007},
+  url          = {http://www.cse.psu.edu/~rtc12/CSE486/lecture06.pdf},
+}
+
+@incollection{schiele2012kamerabasierte,
+  title={Kamerabasierte Fu{\ss}g{\"a}ngerdetektion},
+  author={Schiele, Bernt and Wojek, Christian},
+  booktitle={Handbuch Fahrerassistenzsysteme},
+  pages={223--236},
+  year={2012},
+  publisher={Springer}
+}
+
+@article{dollar2012pedestrian,
+  title={Pedestrian detection: An evaluation of the state of the art},
+  author={Dollar, Piotr and Wojek, Christian and Schiele, Bernt and Perona, Pietro},
+  journal={Pattern Analysis and Machine Intelligence, IEEE Transactions on},
+  volume={34},
+  number={4},
+  pages={743--761},
+  year={2012},
+  publisher={IEEE}
+}
+
+@inproceedings{benenson2014ten,
+  title={Ten years of pedestrian detection, what have we learned?},
+  author={Benenson, Rodrigo and Omran, Mohamed and Hosang, Jan and Schiele, Bernt},
+  booktitle={Computer Vision-ECCV 2014 Workshops},
+  pages={613--627},
+  year={2014},
+  organization={Springer}
+}
+
+
+@article{ojala1996comparative,
+  title={A comparative study of texture measures with classification based on featured distributions},
+  author={Ojala, Timo and Pietik{\"a}inen, Matti and Harwood, David},
+  journal={Pattern recognition},
+  volume={29},
+  number={1},
+  pages={51--59},
+  year={1996},
+  publisher={Elsevier}
+}
+
+@article{rittscher,
+  title={Simultaneous estimation of segmentation and shape},
+  author={J. Rittscher, P. H. Tu, and N. Krahnstoever},
+  journal={Proceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
+  volume={1},
+  number={1},
+  pages={486-493},
+  year={2005},
+  publisher={IEEE Computer Society}
+}
+
+@article{zhao,
+  title={Segmentation and tracking of multiple humans in crowded environments},
+  author={T. Zhao, R. Nevatia, and B. Wu},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume={30},
+  number={7},
+  pages={1198-1211},
+  year={2008},
+  publisher={IEEE Computer Society}
+}
+
+@article{boltes,
+  title={Automatische Erfassung präziser Trajektorien in Personenströmen hoher Dichte},
+  author={Boltes, Maik},
+  year={2014},
+  publisher={Forschungszentrum Jülich GmbH}
+}
+
+@incollection{loy2013crowd,
+  title={Crowd counting and profiling: Methodology and evaluation},
+  author={Loy, Chen Change and Chen, Ke and Gong, Shaogang and Xiang, Tao},
+  booktitle={Modeling, Simulation and Visual Analysis of Crowds},
+  pages={347--382},
+  year={2013},
+  publisher={Springer}
+}
+
+@article{Liao2010,
+  Title                    = {Modeling pixel process with scale invariant local patterns for background subtraction in complex scenes},
+  Author                   = {Liao, Shengcai and Zhao, Guoying and Kellokumpu, Vili and Pietik{\"a}inen, Matti and Li, Stan Z},
+  Year                     = {2010},
+  Pages                    = {1301--1306},
+  Booktitle                = {Computer Vision and Pattern Recognition (CVPR), 2010 IEEE Conference on},
+  Organization             = {IEEE},
+  Owner                    = {Feenland},
+  Timestamp                = {2015.08.03}
+}
+
+@article{cho,
+  title={A neural-based crowd estimation by hybrid global learning algorithm},
+  author={S.-Y. Cho, T. W. S. Chow, and C.-T. Leung},
+  journal={IEEE Transactions on Systems, Man, and Cybernetics},
+  volume={29},
+  number={4},
+  pages={535–541},
+  year={1999},
+  publisher={IEEE Computer Society}
+}
+
+@article{conte,
+  title={A Method for Counting Moving People in Video Surveillance Videos},
+  author={Conte, D., Foggia, P., Percannella, G., Tufano, F., Vento},
+  journal={EURASIP Journal on Advances in Signal Processing},
+  volume={1},
+  number={1},
+  pages={1-10},
+  year={2010},
+  publisher={EURASIP}
+}
+
+@article{brostow,
+  title={Unsupervised bayesian detection of independent motion in crowds},
+  author={G. J. Brostow and R. Cipolla},
+  journal={Proceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
+  volume={1},
+  number={1},
+  pages={594–601},
+  year={2006},
+  publisher={IEEE Computer Society}
+}
+
+@article{kong,
+  title={A viewpoint invariant approach for crowd counting},
+  author={D. Kong, D. Gray, and H. Tao},
+  journal={Proceedings of the 18th International Conference on Pattern Recognition},
+  volume={1},
+  number={1},
+  pages={1187–1190},
+  year={2006},
+  publisher={ICPR}
+}
+
+@article{marana,
+  title={Estimating crowd density with Minkowski fractal dimension},
+  author={A. N. Marana, L. DA. F. Costa, R. A. Lotufo, and S. A. Velastin},
+  journal={Proceedings of the 1999 IEEE International Conference on Acoustics, Speech, and Signal Processing},
+  volume={1},
+  number={1},
+  pages={3521–3524},
+  year={1999},
+  publisher={IEEE Computer Society}
+}
+
+@article{albiol,
+  title={Video analysis using corner motion statistics},
+  author={A. Albiol, M. J. Silla, A. Albiol, and J.M.Mossi},
+  journal={Proceedings of the IEEE International Workshop on Performance Evaluation of Tracking and Surveillance},
+  volume={1},
+  number={1},
+  pages={31–38},
+  year={2009},
+  publisher={IEEE Computer Society}
+}
+
+@PhdThesis{LK,
+  author    = {Lucas, Bruce David},
+  title     = {Generalized Image Matching by the Method of Differences},
+  year      = {1985},
+  address   = {Pittsburgh, PA, USA},
+  note      = {AAI8601180},
+  publisher = {Carnegie Mellon University},
+}
+
+@InProceedings{harris1988combined,
+  author       = {Harris, Chris and Stephens, Mike},
+  title        = {A combined corner and edge detector.},
+  year         = {1988},
+  organization = {Citeseer},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}
+
+% -----------------------------------------------------------------------------------

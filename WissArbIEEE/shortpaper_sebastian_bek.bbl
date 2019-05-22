@@ -1,0 +1,25 @@
+\begin{thebibliography}{1}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{rittscher}
+P.~H.~T. J.~Rittscher, N.~Krahnstoever, Simultaneous estimation of segmentation
+  and shape, Proceedings of the IEEE Computer Society Conference on Computer
+  Vision and Pattern Recognition 1~(1) (2005) 486--493.
+
+\bibitem{albiol}
+A.~A. A.~Albiol, M. J.~Silla, J.M.Mossi, Video analysis using corner motion
+  statistics, Proceedings of the IEEE International Workshop on Performance
+  Evaluation of Tracking and Surveillance 1~(1) (2009) 31–38.
+
+\bibitem{harris}
+C.~Harris, M.~Stephens, A combined corner and edge detector., Citeseer, 1988.
+
+\bibitem{LK}
+B.~D. Lucas, Generalized image matching by the method of differences, Ph.D.
+  thesis, Pittsburgh, PA, USA, aAI8601180 (1985).
+
+\end{thebibliography}
