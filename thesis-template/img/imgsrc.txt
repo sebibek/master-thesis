@@ -2,3 +2,4 @@ https://en.wikipedia.org/wiki/Cauchy_stress_tensor#/media/File:Components_stress
 Skript: J. Tierny - Tensor Field Visualization
 https://de.wikipedia.org/wiki/Datei:HAT-ellipse0.svg
 https://upload.wikimedia.org/wikipedia/commons/e/eb/DIFFERENT_TYPES_OF_STRESS.png
+Skript: Geometrische und Technische Optik - Erlangen N.Lindlein

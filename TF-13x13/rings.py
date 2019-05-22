@@ -49,7 +49,8 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 79# use width+50 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
+width = 117
+length = width+50# use width+50 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
 
 deg = -45
 rad = deg*(np.pi/180.0)
@@ -133,5 +134,5 @@ with open('temp.txt', 'r+') as txtfile:
                 str1 = str2 = "" # ..reset line strings
 
             i += 1 #increment line index
-
+print("line_index: " + str(i)) # print len of matrixArray: should equal length
 os.remove('temp.txt')
