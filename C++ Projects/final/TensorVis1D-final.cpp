@@ -1058,7 +1058,6 @@ int main(int argc, char* argv[])
 
 				double meanA = 0.0;
 
-
 				sampleBufferLeft = prop.propagateDist(i - 1, j, t); // propagate current lower distribution vector
 				sampleBufferRight = prop.propagateDist(i + 1, j, t); // propagate current upper distribution vector
 
