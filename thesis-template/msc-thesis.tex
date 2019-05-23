@@ -352,10 +352,10 @@ Within the scope of this work, we will develop a Global Illumination Scheme desi
     \includegraphics[width=0.8\textwidth]
     {img/strahler.png}
   }
-  \caption{Types of Emitters}
+  \caption{Types of forEmitters}
   \label{polar}
 \end{figure}\vskip 3pt
-Polar profiles map each angle $\varphi$ a magnitude $\hat{r}$ forming a function $\hat{r}(\varphi)$. They are circular axis versions of the domain $[0..2\pi]$, with negative magnitudes mirrored by 180 degrees). In the sense of interpretability, we exclude negative values (energies) from the scope of our calculations. As a start-up for the propagation, we will think of a grid cell in 2D as a center pixel within an 8-neighborhood. It has 8 (4 faces/edges and 4 diagonals) unique neighbors, which are adjacent point lights in the grid (the type of light source with theoretically no finite extend). We consider one face neighbor (top) to shortly explain the steps of the scheme. The diagonals and the others are obtained from derivation and symmetry.
+Polar profiles map each angle $\varphi$ a magnitude $r$ forming a function $r(\varphi)$. They are circular axis versions of the domain $[0..2\pi]$, with negative magnitudes mirrored by 180 degrees). In the sense of interpretability, we exclude negative values (energies) from the scope of our calculations. As a start-up for the propagation, we will think of a grid cell in 2D as a center pixel within an 8-neighborhood. It has 8 (4 faces/edges and 4 diagonals) unique neighbors, which are adjacent point lights in the grid (the type of light source with theoretically no finite extend). We consider one face neighbor (top) to shortly explain the steps of the scheme. The diagonals and the others are obtained from derivation and symmetry.
 
 Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals in a single step. Therefore, the intensity gathered in polar coordinates in areas marked in green, need to be partitioned between 2 of the 8 cone-index neighbors as follows:
 
@@ -413,9 +413,31 @@ verdeutlicht. Die Beschreibungen in diesem Kapitel sind meist
 unabhängig von einer konkreten Realisierung und Daten; diese werden im
 nachfolgenden Kapitel detailliert.
 
-\section{Transmission Profiles and Weighting}
+\section{Transmission Profiles and Weighting Functions}
 \label{sec:trans}
+To obtain a kind of footprint of the tensor field, we set up ellipsoid equations for each glyph representation, obtained from applying PCA on each cell (tensor) in the field. We map the singular values (corresponding to eigenvalues) in decreasing order to the ellipses radii $a(\lambda_1 )$ and $b(\lambda_2 )$ as follows:
 
+Ellipse Equation:
+\begin{align}
+	r(\theta) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\theta-\varphi)+b^{2}\cos^{2}(\theta-\varphi)}} =\frac{\lambda_1\lambda_2}{\sqrt{\lambda_1^2\sin^2(\theta-\varphi)+\lambda_2^2\cos^2(\theta-varphi)}}
+\end{align}
+That is, the singular values form the half-axes of the PCA ellipsoid, which yields us a symbolic definition for our transmission (transfer) function as weighting profiles. We compute the offset angle $\varphi$ by exploiting the atan2-function with 4-quadrant evaluation for the first singular vector. As a preliminary prep, this profile is precomputed (sampled) for all discrete angular steps for each cell (e.g. $360$). The weighting scheme which we apply is depicted in Fig. \ref{weighting}.
+\begin{figure}[h]
+  \centering
+  {
+    \includegraphics[width=0.6\textwidth]
+    {img/weighting.png}
+  }
+  \caption{red: Intensity Profile, cyan: Transmission Profile (Glyph Ellipsoid Eq.)}
+  \label{weighting}
+\end{figure}
+We interpret the polar functions as discrete, sampled 1D vectors with a constant angular resolution. That means, we use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity $\mathbf{I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources:
+
+\begin{align}
+	\Phi_t = \int_0^{2\pi}\mathbf{I}(\omega)\mathbf{T}(w)\mathop{d\omega}
+\end{align}
+
+Now each tensor ellipse equation has a mean transmission rate $[\%]$, which turns out to be a measure or synonym for the total transmitted rate of the incoming intensity $\mathbf{I}(\omega)$. Since there can no energy be generated from transmission profiles (only transmitting, not generating), we have to normalize every tensor ellipse equation with the highest mean transmission rate in the field. This restricts the tensor ellipse mean to a maximum of 1.0 for the one with the highest tensor magnitude. Another problem that occurs with the weighting functions is that they can yield values above 1, which would potentially generate intensity out of nothing which leads to crucially unstable behaviour. Well, but only in case energy conservation principles were not respected. However, a proper normalization can give corrective remedy
 \section{Global Illumination Gradient}
 \label{sec:ftle}
 Note that the resulting scalar field is $(n+1)$-dimensional ($x,y,z$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization. 
