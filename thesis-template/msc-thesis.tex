@@ -289,7 +289,12 @@ Note that we denote a matrix as a second order tensor interchangeably for the sa
 \end{figure}
 
 Principal Component Analysis is an algorithm which can capture the principal components (directions) in stochastic data. But it works similarly on transformations to capture the principal directions from transformations like rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (anti-)symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$ (cnf. \cite{kieburg}). Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling ($\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig. \ref{HAT} for any kind of matrix as pointed out by \cite{moler}. In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues (\cite{mroz}) ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which would allow us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step. In this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques on top to generate a flow map, which permits us to compute an FTLE-like field on the tensor fields.
-\vskip 5pt
+
+
+\section{GT Algorithms / Approaches}
+\label{sec:pca}
+
+
 \section{Related Work}
 \label{sec:related}
 
@@ -448,25 +453,29 @@ Now each tensor ellipse equation has a mean transmission rate $[\%]$, which turn
 \begin{align}
 	r_n(\omega) = \frac{1}{\mean{r}_{max}}r(\omega)
 \end{align}
-Notice, that this implements the concept of absorption implicitly, because tensors with a lower mean $\mean{r}$ than $100\%$ lose energy wheras absorption equals ${\mu} = {1}-{T}$ here. Now that we have coped with the problem of overall transmission, we are left with another problem that occurs with the weighting functions as that they can yield values above 1. This would potentially generate intensity out of nothing which leads to crucially unstable behaviour. Well, but only in case energy conservation principles were not respected.  To construct a solution, we ask for the source of the excessive energy. If the tensor mean complies with the constraint $\mean{r}\leq 1.0$, then the energy must lack in some other place (since the overall transmission fulfills the energy conservation constraint in that case). The only problem is that a normalization condition in usual style for the transmission profile ${T}(\omega)$ does not necessarily imply the same normalization for the term ${I}(\omega){T}(\omega)$. However, a proper normalization can give corrective remedy, wich reveals another subsequent normalization constraint. Hence the transmitted energy is given as:
-
-\begin{align}
-	{I}_t(\omega) &= n_f{I}(\omega){T}(\omega) \hskip 30pt w. \ n_f = \frac{\mean{T}\mean{I}}{\overline{TI}}
-\end{align}
-This transforms our equation for the radiant flux into:
-\begin{align}
-	\Phi_t &= \int_0^{2\pi}{I}_t(\omega){T}(\omega)\mathop{d\omega}
-\end{align}
-,which is now respecting energy conservation principles very conveniently as all we need is a set of means and we are done. The normalization factor is defined in 3 subsequent steps:
+Notice, that this implements the concept of absorption implicitly, because tensors with a lower mean $\mean{r}$ than $100\%$ lose energy wheras absorption equals ${\mu} = {1}-{T}$ here. Now that we have coped with the problem of overall transmission, we are left with another problem that occurs with the weighting functions as that they can yield values above 1. This would potentially generate intensity out of nothing which leads to crucially unstable behaviour. Well, but only in case energy conservation principles were not respected.  To construct a solution, we ask for the source of the excessive energy. If the tensor mean complies with the constraint $\mean{r}\leq 1.0$, then the energy must lack in some other place (since the overall transmission fulfills the energy conservation constraint in that case). The only problem is that a normalization condition in usual style for the transmission profile ${T}(\omega)$ does not necessarily imply the same normalization for the term ${I}(\omega){T}(\omega)$. However, a proper normalization can give corrective remedy, wich reveals another subsequent normalization constraint. The normalization factor is defined in 3 subsequent steps:
 \begin{enumerate}
 	\item Normalization of $TI$ to $\overline{TI}=1.0$
 	\item Subsequent scaling w. mean intensity $\mean{I}$ for energy conservation principles
 	\item Subsequent scaling w. mean tensor magnitude $\mean{T}$ for absorption principles
 \end{enumerate}
 
-This approach ensures that no energy will be generated and therefore implements the 	physical law of energy conservation or Kirchhoff's current law if you want to think of a particle's diffusion process. In fact the approach has proven to be robust w.r.t. energy losses for several iterations as depicted in chap. \ref{chap:eval} in the stochastic error graph.
+Hence the transmitted energy is given as:
 
+\begin{align}
+	{I}_t(\omega) &= n_f{I}(\omega){T}(\omega) \hskip 30pt w. \ n_f = \frac{\mean{T}\mean{I}}{\overline{TI}}
+\end{align}
 
+This transforms our equation for the radiant flux into:
+\begin{align}
+	\Phi_t &= \int_0^{2\pi}{I}_t(\omega){T}(\omega)\mathop{d\omega}
+\end{align}
+Which is now respecting energy conservation principles very conveniently, as all we need is a set of means and we are done.
+
+This approach ensures that no energy will be generated and therefore implements the 	physical law of energy conservation or Kirchhoff's current law if you want to think of a particle's diffusion process. Consequently, this allows us to assume that all sources of power (energy) are user-defined. In fact the approach has proven to be robust w.r.t. energy losses for several iterations as depicted in chap. \ref{chap:eval} in the stochastic error graph.
+
+\section{Physical Model}
+\label{sec:model}
 
 
 \section{Global Illumination Gradient}
