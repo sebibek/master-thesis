@@ -21,8 +21,8 @@
 #include <vector>
 //#include <unistd.h>
 #include <math.h>
-#include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Eigenvalues>
 //#include <array>
 #include <experimental/filesystem>
 #include <string>
@@ -1008,7 +1008,6 @@ int main(int argc, char* argv[])
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
 	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
-	//lightSrcPos = { height / 2, width / 2 }; // initialize light src position option w. center point
 
 	// parse input option file
 	parse_options(argc, argv);
@@ -1036,7 +1035,6 @@ int main(int argc, char* argv[])
 	// PROPAGATION SCHEME END //
 
 	// DELTA (Gradient) COMPUTATION START //
-
 	
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
@@ -1046,15 +1044,13 @@ int main(int argc, char* argv[])
 	{
 		cout << "before computing gradients for t: " << t << endl;
 		auto start = Clock::now();
-		
-		#pragma omp parallel for
+		std::vector<double> sampleBufferA(dim*steps, 0.0);
+		std::vector<double> sampleBufferLeft(dim*steps,0.0);
+		std::vector<double> sampleBufferRight(dim*steps,0.0);
+		propagator prop(dim, &glyphBuffer);
+		std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
+		//#pragma omp parallel for// collapse(2)
 		for (int j = 0; j < height; j++)
-		{
-			std::vector<double> sampleBufferA(dim*steps, 0.0);
-			std::vector<double> sampleBufferLeft(dim*steps,0.0);
-			std::vector<double> sampleBufferRight(dim*steps,0.0);
-			propagator prop(dim, &glyphBuffer);
-			std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 			for (int i = 0; i < width; i++)
 			{
 				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
@@ -1103,7 +1099,6 @@ int main(int argc, char* argv[])
 
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
-		}
 
 		cout << "timer: " << std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count() << " ms" << endl;
 	}
