@@ -970,10 +970,10 @@ double acc(std::vector<double>& vec)
 	double(*dabs)(double) = &std::abs; // cast abs function as type to set overload
 	std::transform(vec.begin(), vec.end(), vec.begin(), dabs); // apply abs function
 
-	double sum = 0.0;
+	/*double sum = 0.0;
 	for (int i = 0; i < vec.size(); i++)
-		sum += abs(vec.at(i));
-	return sum;// std::accumulate(vec.begin(), vec.end(), 0.0); // accumulate and return
+		sum += abs(vec.at(i));*/
+	return  std::accumulate(vec.begin(), vec.end(), 0.0); // accumulate and return
 }
 
 //template <typename T>
@@ -1031,9 +1031,7 @@ int main(int argc, char* argv[])
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
 	// create propagator object (managing propagation, reprojection, correction, central directions, apertureAngles and more...)
-	/*propagator* prop = new propagator[steps];
-	for (int t = 0; t < steps; t++)
-		prop[t] = */
+	//propagator* prop = new propagator[steps];
 
 	// PROPAGATION SCHEME END //
 
@@ -1048,14 +1046,15 @@ int main(int argc, char* argv[])
 	{
 		cout << "before computing gradients for t: " << t << endl;
 		auto start = Clock::now();
-		std::vector<double> sampleBufferA(dim*steps, 0.0);
-		std::vector<double> sampleBufferLeft(dim*steps,0.0);
-		std::vector<double> sampleBufferRight(dim*steps,0.0);
-		propagator prop(dim, &glyphBuffer);
-		std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
-
-
+		
+		#pragma omp parallel for
 		for (int j = 0; j < height; j++)
+		{
+			std::vector<double> sampleBufferA(dim*steps, 0.0);
+			std::vector<double> sampleBufferLeft(dim*steps,0.0);
+			std::vector<double> sampleBufferRight(dim*steps,0.0);
+			propagator prop(dim, &glyphBuffer);
+			std::vector<double> gradient(3, 0.0); // dim3: x,y,theta
 			for (int i = 0; i < width; i++)
 			{
 				if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
@@ -1104,6 +1103,7 @@ int main(int argc, char* argv[])
 
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
+		}
 
 		cout << "timer: " << std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count() << " ms" << endl;
 	}
