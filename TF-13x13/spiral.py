@@ -51,7 +51,7 @@ length = 117+50
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
 
 # generate normalized tensors from linear transformations (polar form)
-radrange = 200*m.pi # .. rad range WARNING: DO NOT TOUCH - experimentally derived parameter!
+radrange = 260*m.pi # .. rad range WARNING: DO NOT TOUCH - experimentally derived parameter!
 radres = m.pi/180 # 1deg/step
 steps = radrange/radres # of steps :)
 radarr = [float(i)*radres for i in range(round(steps))] # create array w. steps in rad

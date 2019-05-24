@@ -292,11 +292,25 @@ Principal Component Analysis is an algorithm which can capture the principal com
 
 
 \section{GT Algorithms / Approaches}
-\label{sec:pca}
-\subsection{Tensorfieldlines}
+\label{sec:gt}
+\subsection{Glyphs and Tensorfieldlines}
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.6\textwidth]
+    {img/tensorfieldlines.png}
+  }
+  \caption{white: Tensorfieldlines; green: Ellipsoid Glyphs}
+  \label{scheme}
+\end{figure}\vskip 3pt
+Glyphs were derived as a basis for the weighting profiles of the tensors in the following propagation scheme. They were chosen because it is an easy-to-use (understand) concept which can also be interpreted nicely. In fact, these are used for the principal component analysis of direction vectors for the Tensor Field Line extrapolation (integration) in a subsequent step.
+Tensor Field Lines (the type of tensor stream line - hyperstreamline analog that does not introduce artificial intertia) were implemented for Ground Truth (GT) data generation purposes. For example, when we design an FTLE-like field computation approach, we will need to know when tensor field lines diverge/converge.
 
-\subsection{Glyphs}
+\subsection{Test Data (Generation)}
+We used python's numpy library to generate pre-defined test cases and caught one real data example from \url{TensorVis.org}, which needed to be pre-processed through slicing and subsequent cropping to 2D samples (2x2 matrices), which can be grouped into symmetric and asymmetric ones:\\
+\textbf{Symmteric Tensor Fields}
 
+\textbf{Asymmteric Tensor Fields}
 
 \section{Related Work}
 \label{sec:related}
@@ -439,7 +453,7 @@ That is, the singular values form the half-axes of the PCA ellipsoid, which yiel
   \caption{red: Intensity Profile, cyan: Transmission Profile (Glyph Ellipsoid Eq.)}
   \label{weighting}
 \end{figure}
-We interpret the polar functions as discrete, sampled 1D vectors with a constant angular resolution. That means, we use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. The primary definition for our total accumulated incident radiant flux is denoted as:
+We interpret the polar functions as discrete, sampled 1D vectors with a constant angular resolution. That means, we use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. As a side note, the physical quantity perceived as brightness by human eyes, is the radiance (luminance), which is yielded by relating radiant intensity to a finite sensitive area ($[\frac{W}{\mathop{rad}}/m^2]$). The primary definition for our total accumulated incident radiant flux is denoted as:
 
 \begin{align}
 	\Phi_t &= \int_0^{2\pi}{I}(\omega){T}(\omega)\mathop{d\omega}\\
@@ -452,11 +466,11 @@ This enables us to scale an oriented cosine-lobe w. the total radiant flux w. re
 \end{align}
 This yields a cosine lobe, which has an overall energy of $\Phi_t$ if the point light is interpreted with a Lambert-Emitter (cnf. \cite{lindlein}) characteristic (as part or area element of a diffusely reflecting surface). 
 
-Now each tensor ellipse equation has a mean transmission rate $[\%]$, which turns out to be a measure or synonym for the total transmitted rate of the total incoming radiant intensity $\int_0^{2\pi}{I}(\omega)$. Since energy can not be generated from transmission profiles (only transmitting, not generating), we have to normalize every tensor ellipse equation with the highest mean transmission rate in the field. This restricts the tensor ellipse mean to a maximum of $100\%$ for the one with the highest tensor magnitude. We will use the definition of mean tensor magnitude $\mean{r}_{max}$ obtained from the PCA here for simplicity. Hence the tensor ellipse equations are normalized through the following step:
+Now each tensor ellipse equation has a mean transmission rate $[\%]$, which turns out to be a measure or synonym for the total transmitted rate of the total incoming radiant intensity $\int_0^{2\pi}{I}(\omega)\mathop{d\omega}$. Since energy can not be generated from transmission profiles (only transmitting, not generating), we have to normalize every tensor ellipse equation with the highest mean transmission rate in the field. This restricts the tensor ellipse mean to a maximum of $100\%$ for the one with the highest tensor magnitude. We will use the definition of mean tensor magnitude $\mean{r}_{max}$ obtained from the PCA here for simplicity. Hence the tensor ellipse equations are normalized through the following step:
 \begin{align}
 	r_n(\omega) = \frac{1}{\mean{r}_{max}}r(\omega)
 \end{align}
-Notice, that this implements the concept of absorption implicitly, because tensors with a lower mean $\mean{r}$ than $100\%$ lose energy wheras absorption equals ${\mu} = {1}-{T}$ here. Now that we have coped with the problem of overall transmission, we are left with another problem that occurs with the weighting functions as that they can yield values above 1. This would potentially generate intensity out of nothing which leads to crucially unstable behaviour. Well, but only in case energy conservation principles were not respected.  To construct a solution, we ask for the source of the excessive energy. If the tensor mean complies with the constraint $\mean{r}\leq 1.0$, then the energy must lack in some other place (since the overall transmission fulfills the energy conservation constraint in that case). The only problem is that a normalization condition in usual style for the transmission profile ${T}(\omega)$ does not necessarily imply the same normalization for the term ${I}(\omega){T}(\omega)$. However, a proper normalization can give corrective remedy, wich reveals another subsequent normalization constraint. The normalization factor is defined in 3 subsequent steps:
+Notice, that this implements the concept of absorption implicitly, because tensors with a lower mean $\mean{r}$ than $100\%$ lose energy wheras absorption equals ${\mu} = {1}-{\mean{r}}$ here. Now that we have coped with the problem of overall transmission, we are left with another problem that occurs with the weighting functions as that they can yield values above $1.0$. This would potentially generate intensity out of nothing which leads to crucially unstable behaviour. Well, but only in case energy conservation principles were not respected.  To construct a solution, we ask for the source of the excessive energy. If the tensor mean complies with the constraint $\mean{r}\leq 1.0$, then the energy must lack in some other place (since the overall transmission fulfills the energy conservation constraint in that case). The only problem is that a normalization condition in usual style for the transmission profile ${T}(\omega)$ does not necessarily imply the same normalization for the term ${I}(\omega){T}(\omega)$. However, a proper normalization can give corrective remedy, wich reveals another subsequent normalization constraint. The normalization factor is defined in 3 subsequent steps:
 \begin{enumerate}
 	\item Normalization of $TI$ to $\overline{TI}=1.0$
 	\item Subsequent scaling w. mean intensity $\mean{I}$ for energy conservation principles
