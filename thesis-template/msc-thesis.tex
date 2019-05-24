@@ -379,7 +379,7 @@ Within the scope of this work, we will develop a Global Illumination Scheme desi
 \end{figure}\vskip 3pt
 As a reminder, polar profiles map each angle $\varphi$ a magnitude $r$ forming a function $r(\varphi)$. They are circular axis versions of the domain $[0..2\pi]$, with negative magnitudes mirrored by 180 degrees). Thus, they are functions with an angular domain making them directionally dependent, which is a well suited representation for point lights, as we use them in a style of \cite{dachsbacher} et.al. For the sake of interpretability, we exclude negative values (energies) from the scope of our calculations. As a start-up thinker for the propagation scheme, we will think of a grid cell in 2D as a center pixel within an 8-neighborhood. Remember, that all considerations from now on are given concerning a single grid cell respectively. It has 8 (4 faces/edges and 4 diagonals) unique neighbors, which are adjacent point lights in the grid (the type of light source with theoretically no finite extend). We consider one face neighbor (top) to shortly explain the steps of the scheme. The diagonals and the others are obtained from derivation and symmetry.
 
-Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals in a single step. Therefore, the intensity gathered in polar coordinates in areas marked in green, need to be partitioned between 2 of the 8 cone-index neighbors with following consideration:
+Each cone (yellow and green) is an individual neighbor-dependent angular area. We optimize for distributing contributions for overlapping cones to transmit attenuated (because of the larger factor $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals in a single step. Therefore, the intensity gathered in polar coordinates in areas marked in green, need to be partitioned between 2 of the 8 cone-index neighbors with following consideration:
 
 \begin{figure}[h]
   \centering
@@ -425,7 +425,14 @@ It can be proven that the approach follows propagation attenuation principles an
 \end{figure}\vskip 3pt
 
 At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold. As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
-start all over (after reinitialization). Another reason is it yields a reasonable source-target structure. Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the energies on top of the base approach with transmission profiles obtained from the tensor fields through Principal Component Analysis and ellipsoid glyph equations in the following.
+start all over (after reinitialization). Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, which we will fill with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_n\}$  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells w. a mean intensity greater than zero (which do not contain Null samples):
+\begin{align}
+	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} | \ |\mean{I}_i| > 0\} \hskip 5pt {w.} \ i = \{1..dim\}
+\end{align}
+Note that, $dim=width\cdot height$, which equals the tensor field resolution in this case.
+
+
+Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the energies on top of the base approach with transmission profiles obtained from the tensor fields through Principal Component Analysis and ellipsoid glyph equations in the following.
 
 
 %In diesem und den nachfolgenden Abschnitten werden die Beiträge der
