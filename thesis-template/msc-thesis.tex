@@ -232,7 +232,7 @@ Now what is a Tensor? A tensor is a $o$-dimensional generalization of a matrix a
 Table 1: Tensor Shapes
  \end{center} 
  
-In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$, which is equal to the rank of the tensor for full rank (or in other words the number of elements n for a $nxn$-matrix). Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained and defined from physical transformation equations. Hence, any $o$-D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$-D number arrays (in a sense of physical interpretation), which is mostly true for component-indexed $o$D number entities following matrix multiplication and transformation rules found in physics and math. In fact, tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring e.g. the stress in that direction) to an outgoing stress vector.
+In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$ (the dimensin of the row and column vectors), which is equal to the rank of the tensor for full rank (or in other words the number of elements n for a $nxn$-matrix). Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained and defined from physical transformation equations. Hence, any $o$-D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$-D number arrays (in a sense of physical interpretation), which is mostly true for component-indexed $o$-D number entities following matrix multiplication and transformation rules found in physics and math. In fact, tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring e.g. the stress in that direction) to an outgoing stress vector.
  To be a bit more concrete, tensors represent stress distributions in solids and fluids describing strain and flow features as these entities aren't simple numbers or vectors. They occur in form of a tensor fields, and thus as entities or quantities in physics. That is, at each point in space (the grid) there is a whole distribution of e.g. stresses (elastic and viscous) which needs to be characterized and represented by a single tensor.
  \\
  \emph{Cauchy stress tensor}
@@ -272,7 +272,7 @@ These 3 stress vectors represent the orientation and magnitude of total resultin
 
 \section{Principal Component Analysis}
 \label{sec:pca}
-Note that we denote a matrix as a second order tensor interchangeably for the sake of simplicity in the following. For any state of stress in equilibrium it is possible to find $n$ (dimensionality) independent orthogonal directions with no shear stresses existent. Along these directions the principal stresses, which are normal (tensile/compressive) stresses, are exerted. The anisotropy can be represented by e.g. ellipsoid glyphs.
+Note that we denote a matrix with a second order tensor interchangeably for the sake of simplicity in the following. For any state of stress in equilibrium it is possible to find $n$ (dimensionality) independent orthogonal directions with no shear stresses existent. Along these directions the principal stresses, which are normal (tensile/compressive) stresses, are exerted. The anisotropy can be represented by e.g. ellipsoid glyphs.
 
 \begin{figure}[h]
 %\centering
@@ -284,7 +284,7 @@ Note that we denote a matrix as a second order tensor interchangeably for the sa
     \includegraphics[width=\textwidth]{img/glyphs.png}
     \label{b)}
   \end{minipage}
-\caption{a) Principal Component Analysis, b) Ellipsoid Glyphs w. anisotropy coefficient (l:linear, p:planar, s:spherical)}
+\caption{a) 2D Principal Component Analysis, b) 3D Ellipsoid Glyphs w. anisotropy coefficient (l:linear, p:planar, s:spherical)}
 \label{gradient}
 \end{figure}
 
@@ -411,25 +411,15 @@ We show a few of the first iteration steps for the propagation scheme in Fig. \r
   \caption{Impulse Response for Isotropic Stimulus (Few Iterations: 0,1,2,3,7,11)}
   \label{iter}
 \end{figure}\vskip 3pt
+Fig \ref{iter} depicts the named iteration inidices 0,1,2,3,7,11 for the propagation scheme for a circular pulse stimulus which gets turned off after 1 iteration to demonstrate raw energy spreading in the field (impulse response of algorithm). In step 1 one can observe the placing of cosine lobes scaled with the respective accumulated and weighted energy for the summed area in each of the 8 neighbor directions. In the subsequent steps, remark the evolution from an 8-neighborhood in step 1 to a circular torus shaped.
 
-It can be proven that the approach follows propagation attenuation principles and follows the inverse (square) law ($\sim\frac{1}{r}$) as observed in the graph in Fig. \ref{att}. 
-
-\begin{figure}[h]
-  \centering
- {
-    \includegraphics[width=0.8\textwidth]
-    {img/inverse_law.png}
-  }
-  \caption{Propagation Attenuation}
-  \label{att}
-\end{figure}\vskip 3pt
 
 At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold. As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
-start all over (after reinitialization). Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, which we will fill with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_n\}$  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells w. a mean intensity greater than zero (which do not contain Null samples):
+start all over (after reinitialization). Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will fill this operator with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation respectiively. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_n\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (which do not contain trivial Null samples):
 \begin{align}
-	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} | \ |\mean{I}_i| > 0\} \hskip 5pt {w.} \ i = \{1..dim\}
+	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}]
 \end{align}
-Note that, $dim=width\cdot height$, which equals the tensor field resolution in this case.
+Note that, $\mathop{dim}=width\cdot height$, which equals the tensor field resolution in this case.
 
 
 Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the energies on top of the base approach with transmission profiles obtained from the tensor fields through Principal Component Analysis and ellipsoid glyph equations in the following.
@@ -444,7 +434,7 @@ Until now, we aimed to simulate the propagation of light in empty space (vacuum)
 
 \section{Transmission Profiles and Weighting Functions}
 \label{sec:trans}
-To obtain a kind of footprint of the tensor field, we set up ellipse equations for each glyph representation, obtained from applying PCA on each cell (tensor) in the field. We map the singular values (corresponding to eigenvalues) in decreasing order to the ellipses radii (half-axes) $a(\lambda_1 )$ and $b(\lambda_2 )$ as follows:
+To obtain a kind of footprint of the tensor field, we set up ellipse equations for each glyph representation, obtained from applying PCA on each cell (tensor) in the field. Concurrently, we construct our abstract mathematical operator \textit{propagate}, previously referenced in  We map the singular values (corresponding to eigenvalues) in decreasing order to the ellipses radii (half-axes) $a(\lambda_1 )$ and $b(\lambda_2 )$ as follows:
 
 Ellipse Equation:
 \begin{align}
@@ -460,7 +450,7 @@ That is, the singular values form the half-axes of the PCA ellipsoid, which yiel
   \caption{red: Intensity Profile, cyan: Transmission Profile (Glyph Ellipsoid Eq.)}
   \label{weighting}
 \end{figure}
-We interpret the polar functions as discrete, sampled 1D vectors with a constant angular resolution. That means, we use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. As a side note, the physical quantity perceived as brightness by human eyes, is the radiance (luminance), which is yielded by relating radiant intensity to a finite sensitive area ($[\frac{W}{\mathop{rad}}/m^2]$). The primary definition for our total accumulated incident radiant flux is denoted as:
+We interpret the polar functions as discrete, sampled 1D vectors with a uniform angular resolution. That means, we use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. As a side note, the physical quantity perceived as brightness by human eyes, is the radiance (luminance), which is yielded by relating radiant intensity to a finite sensitive area ($[\frac{W}{\mathop{rad}}/m^2]$). The primary definition for our total accumulated incident radiant flux is denoted as:
 
 \begin{align}
 	\Phi_t &= \int_0^{2\pi}{I}(\omega){T}(\omega)\mathop{d\omega}\\
@@ -510,6 +500,43 @@ Usw.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Experimentelle Evaluation}
 \label{chap:eval}
+\section{Propagation Attenuation}
+\label{sec:att}
+It can be proven that the approach follows propagation attenuation principles and follows the inverse (square) law ($\sim\frac{1}{r}$) as observed in the graph in Fig. \ref{att}. For that, we plot the relative intensity $i_{rel,(r_{rel})}$ (in relation to the intensity at position (radius) $1$ to account for the inverse square law, which holds for relative distances. We evaluate the relative intensity by forming a ratio $\frac{I(r)}{I_1}$, that relates the step intensity to the src intensity at position 1.
+
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.7\textwidth]
+    {img/inverse_law.png}
+  }
+  \caption{Propagation Attenuation}
+  \label{att}
+\end{figure}\vskip 3pt
+
+\section{Behaviour for Total Anisotropy}
+We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda>0$ and the other $\lambda=0$) incorporated. For this we setp up bidirectional delta-pulses as glyphs to have the whole energz transmitted in just one, discrete direction .
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.5\textwidth]
+    {img/total_anisotropy.png}
+  }
+  \caption{Total Anisotropy Test}
+  \label{anisotropy}
+\end{figure}
+What we can observe here, is kind of a sampling drift as we use 8 discrete directions to propagate whereas the circle uses much more. Hence, the energy can never follow a perfect circle, but at best an 8-edged octagon. This means, that there is a drift of at least two cells per diagonal (one overshoot per enter/escape each) as observable in Fig. \ref{anisotropy}.
+\section{Energy Conservation Test}
+The Energy Conservation Test was done in similar manner as the Propagation Attenuation Test in sect. \ref{sec:att}. We measure the impulse response of the algorithm for about 80 iterations by summing the total energy in the grid after each iteration and comparing it to the initial energy sum in iteration 0 in absolute values. This approach yields the following graph:
+\begin{figure}[h]
+  \centering
+ {
+    \includegraphics[width=0.5\textwidth]
+    {img/sum_difference.png}
+  }
+  \caption{Sum Error}
+  \label{anisotropy}
+\end{figure}
 
 Der Aufbau dieses Kapitels oder dessen Aufteilung in zwei Kapiteln ist
 stark von dem Thema und der Bearbeitung des Themas
