@@ -415,7 +415,7 @@ Fig \ref{iter} depicts the named iteration inidices 0,1,2,3,7,11 for the propaga
 
 
 At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold. As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
-start all over (after reinitialization). Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will fill this operator with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation respectiively. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_n\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (which do not contain trivial Null samples):
+start all over (after reinitialization). Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will fill this operator with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation respectively. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_n\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (which do not contain trivial Null samples):
 \begin{align}
 	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}]
 \end{align}
@@ -531,12 +531,14 @@ The Energy Conservation Test was done in similar manner as the Propagation Atten
 \begin{figure}[h]
   \centering
  {
-    \includegraphics[width=0.5\textwidth]
+    \includegraphics[width=0.7\textwidth]
     {img/sum_difference.png}
   }
-  \caption{Sum Error}
+  \caption{Sum Error: src intensities: red: 1.0, blue 2.0, green: 5,0}
   \label{anisotropy}
 \end{figure}
+
+The approach remains stable until iteration 40, which is at the time (point) when the numbers are to small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be gained back. The error is accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e. rounding errors operate more heavily on large numbers leading to a greater absolute $\Delta E$
 
 Der Aufbau dieses Kapitels oder dessen Aufteilung in zwei Kapiteln ist
 stark von dem Thema und der Bearbeitung des Themas
