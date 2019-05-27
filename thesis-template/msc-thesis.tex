@@ -1,3 +1,4 @@
+
 % This template was initially provided by Dulip Withanage.
 % Modifications for the database systems research group
 % were made by Conny Junghans,  Jannik StrÃ¶tgen and Michael Gertz
@@ -308,6 +309,25 @@ Tensor Field Lines (the type of tensor stream line - hyperstreamline analog that
 
 \subsection{Test Data (Generation)}
 We used python's numpy library to generate pre-defined test cases and caught one real data example from \url{TensorVis.org}, which needed to be pre-processed through slicing and subsequent cropping to 2D samples (2x2 matrices), which can be grouped into symmetric and asymmetric ones:\\
+
+\begin{figure}[h]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/corner.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/spiral.png}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/drain.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) "Corner"-Testfield, b) "Spiral"-Tesfield, c) "Drain"-Tesfield}
+\label{anisotropy}
+\end{figure}
+
 \textbf{Symmteric Tensor Fields}
 
 \textbf{Asymmteric Tensor Fields}
@@ -398,7 +418,7 @@ The linear combination weights for the overlapping (green) parts ($\beta$) are o
 	\varepsilon_2 &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771
 \end{align}
 
-We place a cosine lobe scaled with the integrated (accumulated) energies in each of the 8 cone directions, whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. The contribution areas are depicted in Fig. \ref{scheme}, the cosine lobes can be observed in Fig. \ref{iter} respectively. This manner of propagation is inspired by the propagation scheme of \cite{dachsbacher} et.al. (see the paper on how to "project the flux into a point light"). The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) until convergence, which happens when the energy is spreaded throughout the grid and enters a stationary state, characterized by equal out (at grid borders) to in (at light source positions) energy-flow with no more nettings going on inside the domain. Note that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions) as depicted in Fig. \ref{iter}. This occurs, since the diagonals are more strongly attenuated by default and there is a redistribution of intensities in the long term resulting in a circular torus-shaped distribution, as observed in Fig. \ref{iter}. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). The verification of these principal requirements and specifications can be observed in the Experimental Evaluation in chap. \ref{chap:eval}.
+We place a cosine lobe scaled with the integrated (accumulated) energies in each of the 8 cone directions, whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. The contribution areas are depicted in Fig. \ref{scheme}, the cosine lobes can be observed in Fig. \ref{iter} respectively. This manner of propagation is inspired by the propagation scheme of \cite{dachsbacher} et.al. (see the paper on how to "project the flux into a point light"). The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) until convergence, which happens when the energy is spreaded throughout the grid and enters a stationary state, characterized by equal out (at grid borders) to in (at light source positions) energy-flow with no more nettings going on inside the domain. We measure the convergence criterion by setting up an overall distribution error w.r.t to the previous iteration. Note that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions) as depicted in Fig. \ref{iter}. This occurs, since the diagonals are more strongly attenuated by default and there is a redistribution of intensities in the long term resulting in a circular torus-shaped distribution, as observed in Fig. \ref{iter}. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). The verification of these principal requirements and specifications can be observed in the Experimental Evaluation in chap. \ref{chap:eval}.
 
 We show a few of the first iteration steps for the propagation scheme in Fig. \ref{iter}:
 
@@ -413,20 +433,23 @@ We show a few of the first iteration steps for the propagation scheme in Fig. \r
 \end{figure}\vskip 3pt
 Fig \ref{iter} depicts the named iteration inidices 0,1,2,3,7,11 for the propagation scheme for a circular pulse stimulus which gets turned off after 1 iteration to demonstrate raw energy spreading in the field (impulse response of algorithm). In step 1 one can observe the placing of cosine lobes scaled with the respective accumulated and weighted energy for the summed area in each of the 8 neighbor directions. In the subsequent steps, remark the evolution from an 8-neighborhood in step 1 to a circular torus shaped.
 
-
-At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold. As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
-start all over (after reinitialization). Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will fill this operator with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation respectively. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_n\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (which do not contain trivial Null samples):
+As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
+start all over (after reinitialization) until convergence. Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will fill this operator with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation respectively. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_i\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (which do not contain trivial Null samples):
 \begin{align}
 	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}]
 \end{align}
-Note that, $\mathop{dim}=width\cdot height$, which equals the tensor field resolution in this case.
+The dual buffer result $\mathcal{C'}$ denotes the set of all transformed cells after the propagation after applying the operator $\mathop{propagate}$ to each cell. This result is generated once in each iteration and gets pushed back and forth between the 2 buffers. Note that, $\mathop{dim}=width\cdot height$, which equals the tensor field resolution in this case and remark that wedenote the final buffer result $\mathbf{b}=\mathcal{C}_{final}$ in the following. At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold $\epsilon$(e.g. $0.5$) :\\
+\emph{Convergence Criterion:}
+\begin{align}
+	\Delta I_{sum} = \sum_i \Delta I_i(\omega) < \epsilon
+\end{align}
 
 
 Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the energies on top of the base approach with transmission profiles obtained from the tensor fields through Principal Component Analysis and ellipsoid glyph equations in the following.
 
 
 %In diesem und den nachfolgenden Abschnitten werden die Beiträge der
-%Arbeit motiviert, formal sauber (oft mathematisch, sprich mit
+%Arbeit motiviert, formal sauber (oft mathatisch, sprich mit
 %Definitionen etc.) beschrieben, und bei Bedarf mithilfe von Beispielen
 %verdeutlicht. Die Beschreibungen in diesem Kapitel sind meist
 %unabhängig von einer konkreten Realisierung und Daten; diese werden im
@@ -482,9 +505,16 @@ Hence the transmitted energy is given as:
 
 This transforms our equation for the radiant flux into:
 \begin{align}
-	\Phi_t &= \int_0^{2\pi}{I}_t(\omega){T}(\omega)\mathop{d\omega}
+	\Phi_{t,i} &= \int_0^{2\pi}{I}_{t,i}(\omega){T}_i(\omega)\mathop{d\omega}
 \end{align}
-Which is now respecting energy conservation principles very conveniently, as all we need is a set of means and we are done.
+Which is now respecting energy conservation principles very conveniently, as all we need is a set of means and we are done. This collapses our abstract mathematical operator $\mathop{propagate}$ applied to each cell into the following steps:
+\begin{enumerate}
+	\item Computation of normalization factor $n_f$
+	\item Direction (component)-wise weighting to account for shared part in diagonal cones
+	\item Integration (accumulation) total radiant flux weighted with transmission profiles inside the angular neighbor range
+	\item Scaling of cosine lobe corresponding to neighbor direction and subsequent placing to corresponding neighbor
+	
+\end{enumerate}
 
 This approach ensures that no energy will be generated and therefore implements the 	physical law of energy conservation or Kirchhoff's current law if you want to think of a particle's diffusion process. Consequently, this allows us to assume that all sources of power (energy) are user-defined. In fact the approach has proven to be robust w.r.t. energy losses for several iterations as depicted in chap. \ref{chap:eval} in the stochastic error graph.
 
@@ -494,11 +524,28 @@ This approach ensures that no energy will be generated and therefore implements 
 
 \section{Global Illumination Gradient}
 \label{sec:ftle}
-Note that the resulting scalar field is $(n+1)$-dimensional ($x,y,z$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization. 
-Usw.
+Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) with divergence/convergence of tensor field lines and drastic changes in anisotropy. We opt to extract ridges from this FTLE-like field to grasp the key regions separating anisotropy behavior in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They can even be observed in nature for e.g. vortices in flow fields. For that, we will use our, previously defined $\mathop{propagate}$-operator on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$:
+\begin{align}
+	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}]
+	\label{ftle}
+\end{align}
+Whereas $j$ is the index of light source position and direction representing the initialization in each iteration and $\mathop{steps}$ is the count of the discrete angular steps. The initialization is done by placing a light src (delta-impulse) with $\mean{I}_i = 1.0$ at the exact location of index $j$ realizing a light source at location $(x\mid y)$ in direction $\omega$. Eq. \ref{ftle} now denotes the set of buffers $\mathcal{B}$ containing light distributions propagated from every possible direction and location. Now, that we have measured impulse responses from every location in our long 1D sample vector, we can incorporate finite (central) differences to obtain the Gradient of the set of buffers with elements $\mathbf{b}\in\mathcal{B}$:
+\begin{align}
+	\nabla \mathbf{b}(x,y,\omega) =
+	\begin{pmatrix}
+	\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega}
+	\end{pmatrix} \approx
+	\frac{1}{2}
+	\begin{pmatrix}
+	\sum_{\mathbf{c}\in \mathbf{b}}(\lvert \mathbf{b}_{x+1,y,\omega} - \mathbf{b}_{x-1,y,\omega}\rvert) \\ \sum_{\mathbf{c}\in \mathbf{b}}(\lvert \mathbf{b}_{x,y+1,\omega} - \mathbf{b}_{x,y-1,\omega}\rvert) \\ \sum_{\mathbf{c}\in \mathbf{b}}(\lvert \mathbf{b}_{x,y,\omega+1} - \mathbf{b}_{x,y,\omega-1}\rvert)
+	\end{pmatrix}
+\end{align}
+ 
+ Next, we compute the Euclidean norm of the Global Illumination Gradient yielding a scalar field, which can be visualized directly or via extracted ridges in ParaView from VTK format.
+Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Experimentelle Evaluation}
+\chapter{Experimental Evaluation}
 \label{chap:eval}
 \section{Propagation Attenuation}
 \label{sec:att}
@@ -515,19 +562,24 @@ It can be proven that the approach follows propagation attenuation principles an
 \end{figure}\vskip 3pt
 
 \section{Behaviour for Total Anisotropy}
-We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda>0$ and the other $\lambda=0$) incorporated. For this we setp up bidirectional delta-pulses as glyphs to have the whole energz transmitted in just one, discrete direction .
+We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda>0$ and the other $\lambda=0$) incorporated. For this we setp up bidirectional delta-pulses as glyphs to have the whole energy transmitted in just one, discrete direction .
 \begin{figure}[h]
-  \centering
- {
-    \includegraphics[width=0.5\textwidth]
-    {img/total_anisotropy.png}
-  }
-  \caption{Total Anisotropy Test}
-  \label{anisotropy}
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/tensorfieldlines.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/total_anisotropy.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) Tensor Field Lines and Glyphs for "Rings"-Testfield, b) intensity propagation in grid}
+\label{anisotropy}
 \end{figure}
-What we can observe here, is kind of a sampling drift as we use 8 discrete directions to propagate whereas the circle uses much more. Hence, the energy can never follow a perfect circle, but at best an 8-edged octagon. This means, that there is a drift of at least two cells per diagonal (one overshoot per enter/escape each) as observable in Fig. \ref{anisotropy}.
+What we can observe here, is kind of a sampling drift as the approach uses 8 discrete directions to propagate whereas the circle uses much more. Hence, the energy can never follow a perfect circle, but at best an 8-edged octagon. This means, that there is a drift of at least two cells per diagonal (one overshoot per enter/escape each) as observable in Fig. \ref{anisotropy}.
 \section{Energy Conservation Test}
 The Energy Conservation Test was done in similar manner as the Propagation Attenuation Test in sect. \ref{sec:att}. We measure the impulse response of the algorithm for about 80 iterations by summing the total energy in the grid after each iteration and comparing it to the initial energy sum in iteration 0 in absolute values. This approach yields the following graph:
+
 \begin{figure}[h]
   \centering
  {
