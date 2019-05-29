@@ -46,14 +46,14 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 117
+length = 13
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
 
 # generate normalized tensors from linear transformations
 with open('temp.txt', 'wb') as f:
     for j in range(length): # rows
         for i in range(length): # cols
-            y = length - 1 - round((length-1)/2-j) # use inverted y coordinates (mirroring at x-axis in array reference frame)
+            y = length - 1 - round(j-(length-1)/2) # use inverted y coordinates (mirroring at x-axis in array reference frame)
             x = round(i-(length-1)/2) # --> center around midpoint
             matrixArray[j][i] = normalize(np.array([[1, 0], [0, 1]])) # initialization w. normed identity
             rad = m.atan2(y,x) # use vector atan2 to determine angle and quadrant of vector [x|y]

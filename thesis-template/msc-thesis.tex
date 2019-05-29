@@ -520,11 +520,16 @@ This approach ensures that no energy will be generated and therefore implements 
 
 \section{Physical Model}
 \label{sec:model}
-
+To pose a physical interpretation for the transmission of the tensor field, we imagine a melting crystal with  fibrous structures aligning with the major eigenvectors of the tensor field. This is what we call the footprint of the tensor field. This can be observed in e.g. tiger's eye's cat's eye effect, where crystal fibers align with the crystal axes respectively. The propability density function $P(\omega)$, for a photon being scattered in a particular direction $\omega$ \ref{ryder}, is then described as:
+\begin{align}
+ 	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
+ 	w. \int_0^{2\pi} P(\omega) &= 1
+\end{align}
+This propability density function (PDF) indicates whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ degrees.
 
 \section{Global Illumination Gradient}
 \label{sec:ftle}
-Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) with divergence/convergence of tensor field lines and drastic changes in anisotropy. We opt to extract ridges from this FTLE-like field to grasp the key regions separating anisotropy behavior in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They can even be observed in nature for e.g. vortices in flow fields. For that, we will use our, previously defined $\mathop{propagate}$-operator on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$:
+Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. We opt to extract ridges from this FTLE-like field to grasp the key regions separating anisotropy behavior in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They can even be observed in nature for e.g. vortices in flow fields. For that, we will use our, previously defined $\mathop{propagate}$-operator on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$:
 \begin{align}
 	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}]
 	\label{ftle}
