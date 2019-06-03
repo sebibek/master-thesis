@@ -139,9 +139,13 @@ with open('temp.txt', 'r+') as txtfile:
 
             if i % (2*length) == 0: # if one row (in matrixArray) passed.., write results
                 tensor_field.write(str1) # write row 1 (upper line)
-                tensor_field.write('\n' + str2 + '\n') # write row 2 (lower line)
+                if i == 2*length*length:
+                    tensor_field.write('\n' + str2 ) # write row 2 (lower line)
+                else:
+                    tensor_field.write('\n' + str2+ '\n') # last row reached..
                 str1 = str2 = "" # ..reset line strings
 
             i += 1 #increment line index
 
+print("line_index: " + str(i)) # print len of matrixArray: should equal length
 os.remove('temp.txt')

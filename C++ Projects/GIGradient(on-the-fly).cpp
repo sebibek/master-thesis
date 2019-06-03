@@ -201,7 +201,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 				func_literal = "100*cos(theta)";
 				positions.push_back(position);
 			}
-			
+
 			//parse other statements
 			else {
 				//grab keyword
@@ -225,7 +225,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					color = sf::Color(r, g, b);
 				}*/
 				// enter light src position
-				else if (tag == "pos") 
+				else if (tag == "pos")
 				{
 					std::stringstream s;
 					s << line.substr(pos + 1);
@@ -297,7 +297,7 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 
 		switch (c)
 		{
-		// correct option use
+			// correct option use
 		case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
@@ -422,51 +422,14 @@ std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
 //	//	result.at(i) = a * b.at(i);
 //	return result;
 //}
-MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
-{
-	int cols = 0, rows = 0;
-	//double buff[MAXBUFSIZE];
-	ifstream infile(filepath);
 
-	while (!infile.eof())
-	{
-		string line;
-		getline(infile, line);
-
-		if (line.empty())
-			break;
-
-		int temp_cols = 0;
-		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
-		while (!stream.eof())
-			stream >> buffer[cols*rows + temp_cols++];
-
-		if (temp_cols == 0) // if empty line
-			continue;
-
-		if (cols == 0) // set col count from first line
-			cols = temp_cols;
-
-		rows++;
-	}
-
-	infile.close();
-	*colsCount = cols;
-	*rowsCount = rows;
-	MatrixXd result(rows, cols);
-	for (int j = 0; j < rows; j++) // use (j, i)-index for data matrices, use (i, j) for mathematical matrices (w. apt Transpose/Transformations etc.)
-		for (int i = 0; i < cols; i++)
-			result(j, i) = buffer[cols*j + i];
-
-	return result;
-};
 
 
 template <typename T> // element-wise minus for vector of vectors
 std::vector<std::vector<T>> operator-(const std::vector<std::vector<T>>& a, const std::vector<std::vector<T>>& b)
 {
 	std::vector<std::vector<T>> result(b.size());
-	
+
 	for (int i = 0; i < b.size(); i++)
 		result.at(i) = a.at(i) - b.at(i);
 
@@ -522,11 +485,10 @@ string trim(const string& str)
 	size_t last = str.find_last_not_of(' ');
 	return str.substr(first, (last - first + 1)); // return cropped substring
 }
-
 MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
-	double buff[MAXBUFSIZE];
+	//double buff[MAXBUFSIZE];
 	ifstream infile(filepath);
 
 	while (!infile.eof())
@@ -536,10 +498,11 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 
 		if (line.empty())
 			break;
+
 		int temp_cols = 0;
 		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
 		while (!stream.eof())
-			stream >> buff[cols*rows + temp_cols++];
+			stream >> buffer[cols*rows + temp_cols++];
 
 		if (temp_cols == 0) // if empty line
 			continue;
@@ -556,7 +519,7 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	MatrixXd result(rows, cols);
 	for (int j = 0; j < rows; j++) // use (j, i)-index for data matrices, use (i, j) for mathematical matrices (w. apt Transpose/Transformations etc.)
 		for (int i = 0; i < cols; i++)
-			result(j, i) = buff[cols*j + i];
+			result(j, i) = buffer[cols*j + i];
 
 	return result;
 };
@@ -607,8 +570,8 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
 		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
 		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
-		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180Â°,180Â°]
-		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180Â°,180Â°]
+		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
+		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
 		glyphParameters.at(i).at(2) = deg1;
 
@@ -629,7 +592,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		}
 
 		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
-		// shift (normalize) degs from [-180Â°,180Â°] into the interval [0Â°,360Â°] - "circular value permutation"
+		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
 		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
@@ -661,7 +624,7 @@ void computeGlyphs(std::vector<std::vector<double>>& glyphBuffer, std::vector<st
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphBuffer.at(i).begin(), glyphBuffer.at(i).end(), glyphBuffer.at(i).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/rMean));
+		std::transform(glyphBuffer.at(i).begin(), glyphBuffer.at(i).end(), glyphBuffer.at(i).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 	}
 }
@@ -687,22 +650,22 @@ class propagator
 	int betaIndex = (beta) / radres;
 	int centralIndex = (alpha / 2) / radres;
 	int dim = width * height;
-	
+
 	double* meanA;
 	double cosine_sum = 0.0;
 	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<std::vector<double>>* sampleBufferA;
 	std::vector<std::vector<double>>* sampleBufferB;
 	std::vector<std::vector<double>>* glyphBuffer;
-	
+
 	std::vector<std::vector<double>> cosines;
-	
+
 	// create sample vector (dynamic)
 	std::vector<double> read;
 	std::vector<double> glyph;
 	std::vector<double> out;
 
-	neighborhood hood; 
+	neighborhood hood;
 	bool flag = false;
 
 	std::vector<double> initArray;
@@ -739,7 +702,7 @@ public:
 			for (int j = midIndex - shiftIndex; j <= midIndex + shiftIndex; j++) // for each step (along edge)..
 			{
 				int deltaJ = j - midIndex;
-				int j_index = j < 0 ? j+steps : j % steps;
+				int j_index = j < 0 ? j + steps : j % steps;
 
 				double res = clip(cos((j_index - midIndex) * radres), 0.0, 1.0);
 				cosine_sum += res * radres;
@@ -749,7 +712,7 @@ public:
 		}
 		cosine_sum = cosine_sum / 8.0;
 		for (int k = 0; k < 8; k++) // for each node..
-			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0/cosine_sum));
+			std::transform(cosines.at(k).begin(), cosines.at(k).end(), cosines.at(k).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / cosine_sum));
 
 		cout.precision(dbl::max_digits10);
 		cout << "cosine_sum: " << cosine_sum << endl;
@@ -765,7 +728,7 @@ public:
 		}
 
 	}
-	
+
 	void propagate()
 	{
 		// 1 propagation cycle
@@ -777,9 +740,11 @@ public:
 			glyph = glyphBuffer->at(i);
 
 			flag = false;
-			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width-1)
-				{hood.change(i / width, i%width); flag = true;}
-			
+			if (i / width == 0 || i % width == 0 || i / width == height - 1 || i % width == width - 1)
+			{
+				hood.change(i / width, i%width); flag = true;
+			}
+
 			// calculate mean and variance.. of I(phi)
 			double sum1 = std::accumulate(read.begin(), read.end(), 0.0);
 			double sum2 = std::accumulate(glyph.begin(), glyph.end(), 0.0);
@@ -806,7 +771,7 @@ public:
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 			double cFactor = 1.0;
-			if(tiMean>0.0)
+			if (tiMean > 0.0)
 				cFactor = tMean * iMean / tiMean;
 
 			// iterate through central directions array to distribute (spread) energy (intensity) to the cell neighbors
@@ -836,9 +801,9 @@ public:
 						continue;
 				}
 
-				int midIndex = k * shiftIndex/2;
+				int midIndex = k * shiftIndex / 2;
 				int index = betaIndex;
-				if (fast_mod(k,2) == 0)
+				if (fast_mod(k, 2) == 0)
 					index = shiftIndex / 2;
 
 				//double energy_sum = 0.0;
@@ -847,9 +812,9 @@ public:
 				for (int j = midIndex - index; j <= midIndex + index; j++) // for each step (along edge)..
 				{
 					int deltaJ = j - midIndex;
-					int j_index = j < 0 ? j+steps : j%steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
+					int j_index = j < 0 ? j + steps : j % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = cFactor*read.at(j_index)*glyph.at(j_index);
+					double val = cFactor * read.at(j_index)*glyph.at(j_index);
 
 					// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
 					if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
@@ -886,7 +851,7 @@ public:
 				// add up contribution of scaled (normalized) cosine cone in sample out at position index
 				std::transform(sampleBufferB->at(index).begin(), sampleBufferB->at(index).end(), out.begin(), sampleBufferB->at(index).begin(), std::plus<double>());
 			}
-		
+
 		}
 	}
 	std::vector<std::vector<double>> propagateDist(int i, int j, int t)
@@ -985,12 +950,12 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> deltaBuffer(width*height*steps, initGradient); // initialize #steps 2D-planes w. empty glyphBuffer
 
 	cout << "before compute glyphs" << endl;
-	
+
 	std::vector<std::vector<double>> glyphParameters(dim, std::vector<double>(3, 0.0));
 	std::vector<std::vector<bool>> signMap(dim, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
-	
+
 	// get defined light srcs positions and intensities...
 	//if(userFunctions.size()) // if entered by user, use cmd AND config
 	//	for (int i = 0; i < userFunctions.size(); i++)
@@ -1022,7 +987,7 @@ int main(int argc, char* argv[])
 	//int tCtr = 0;
 	//double total = 0.0;
 	//bool finished = false;
-	
+
 	//for (int t = 0; t < steps; t++)
 	//{
 	//	cout << "before propagating t: " << t << endl;
@@ -1149,7 +1114,7 @@ int main(int argc, char* argv[])
 	sampleBufferB.shrink_to_fit();
 	sampleBufferInit.shrink_to_fit();
 	glyphBuffer.shrink_to_fit();
-	
+
 	// vector norm (Gradient) COMPUTATION START //
 	std::vector<double> scalarNorm(width*height*steps, 0.0); // construct 3D Gradient Norm Vector
 
@@ -1174,9 +1139,9 @@ int main(int argc, char* argv[])
 				energy->SetValue(ctr, res);
 				ctr++;
 			}
-	
+
 	// vector norm (Gradient) COMPUTATION END //
-	
+
 	duration = ((std::clock() - startTotal)*1000.0 / (double)CLOCKS_PER_SEC);
 	cout << "..after, timer: " << duration << " ms" << endl;
 
