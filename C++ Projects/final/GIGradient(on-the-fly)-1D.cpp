@@ -942,10 +942,10 @@ public:
 		//*sampleBufferB = sampleBufferInit; // init sampleBuffer
 		double meanMem = 0.0;
 		bool finished = false;
-		lightSrc = lightSrcs.at(t);
+		//lightSrc = lightSrcs.at(t);
 		int index = (j*width + i)*steps + t; // compute 1D index
 
-		sampleBufferA.at(index) = steps;
+		sampleBufferA[index] = steps;
 
 		int ctr = 0;
 		// loop over nodes in grid and propagate until error to previous light distribution minimal <thresh
@@ -956,7 +956,7 @@ public:
 			//meanA *= (1.0 / radres) / (steps*sampleBufferA.size());
 			swap(sampleBufferA, sampleBufferB);
 			//sampleBufferA = sampleBufferB;
-			sampleBufferA.at(index) = steps; // get pre-computed light src for current direction t
+			sampleBufferA[index] = steps; // get pre-computed light src for current direction t
 
 			if (abs(meanA - meanMem) < thresh)
 				finished = true;
@@ -968,7 +968,7 @@ public:
 		}
 		//cout << "ctr: " << ctr << endl;
 
-		sampleBufferA.at(index) = 0.0; //remove light src to prevent trivial differences at light src positions ???? try comment!
+		sampleBufferA[index] = 0.0; //remove light src to prevent trivial differences at light src positions ???? try comment!
 		return sampleBufferA;
 	}
 };
