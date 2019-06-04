@@ -236,7 +236,7 @@ public:
 	//{
 	//	discretePlot = true;
 	//}
-
+	
 	//initialize muparser and graphics 
 	void init() {
 		p.DefineVar("theta", &t);
@@ -286,11 +286,11 @@ public:
 
 		if (xIndex < 0)
 			xIndex = 0;
-		if (xIndex >= wSize)
+		else if (xIndex >= wSize)
 			xIndex = wSize - 1;
 		if (yIndex < 0)
 			yIndex = 0;
-		if (yIndex >= wSize)
+		else if (yIndex >= wSize)
 			yIndex = wSize - 1;
 
 		graph.setPixel((xIndex), (yIndex), color);
@@ -731,6 +731,9 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 	{
 		string line;
 		getline(infile, line);
+		
+		if (line.empty())
+			break;
 
 		int temp_cols = 0;
 		stringstream stream(trim(line)); // parse stripped (trimmed) line w. stringstream
@@ -918,7 +921,7 @@ int main(int argc, char* argv[])
 		//vector to store functions
 
 		// set options
-	int Alpha = 100; // set opacity ("Deckung")
+	int Alpha = 255; // set opacity ("Deckung")
 	int drawSpeed = 0; // set instant drawing
 	int lineWidth = 0; // set line width = 1px
 	double thetaMax = 2 * pi;
@@ -955,6 +958,10 @@ int main(int argc, char* argv[])
 	out.create(wSize, wSize);
 	sf::RenderTexture outAll;
 	outAll.create(wSize, wSize);
+
+	window.clear(sf::Color::Black);
+	outAll.clear(sf::Color::Black);
+	out.clear(sf::Color::Black);
 
 	// create flags for blending tensors(ellipses)/light distributions(polar plots)
 	bool showOverlay{ true };
@@ -1069,7 +1076,31 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	// define ellipses: white origin dots
+	sf::ConvexShape ellipse;
+	ellipse.setPointCount(quality);
+	defineCircle(&ellipse, 1.5, 1.5, quality);
 
+	// draw polar function as graph sprite
+	for (int i = 0; i < dim; i++)
+	{
+		int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+		int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
+
+		ellipse.setPosition(offsetX, offsetY); // set ellipse position
+
+		// call animation to continously draw sampled arrays in polar space
+		glyphs.animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
+		sf::Sprite sprE = glyphs.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+		//spr.setPosition(wSize / 2, wSize / 2);
+		window.draw(ellipse);
+		out.draw(ellipse);
+		outAll.draw(ellipse);
+		if (showOverlay)
+			window.draw(sprE);
+		out.draw(sprE);
+		outAll.draw(sprE);
+	}
 	//main loop
 	while (window.isOpen())
 	{
@@ -1097,30 +1128,7 @@ int main(int argc, char* argv[])
 		out.clear(sf::Color::Black);*/
 	
 
-		// define ellipses: white origin dots
-		sf::ConvexShape ellipse;
-		ellipse.setPointCount(quality);
-		defineCircle(&ellipse, 1.5, 1.5, quality);
-
-		// draw polar function as graph sprite
-		for (int i = 0; i < dim; i++)
-		{
-			int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
-			int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
-
-			ellipse.setPosition(offsetX, offsetY); // set ellipse position
-
-			// call animation to continously draw sampled arrays in polar space
-			glyphs.animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
-			sf::Sprite sprE = glyphs.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-			//spr.setPosition(wSize / 2, wSize / 2);
-			window.draw(ellipse);
-			out.draw(ellipse);
-			outAll.draw(ellipse);
-			if (showOverlay)
-				window.draw(sprE);
-			outAll.draw(sprE);
-		}
+		
 		// window.draw(ellipse);  // TEST //
 		window.display(); // update window texture
 	}
