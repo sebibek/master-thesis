@@ -1021,7 +1021,7 @@ int main(int argc, char* argv[])
 
 	// parse input option file
 	parse_options(argc, argv);
-	cout << "width, height, steps: " << width << ", " << height << ", " << steps << endl;
+	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 
 	const std::vector<double> initArray(steps, 0.0);
 
