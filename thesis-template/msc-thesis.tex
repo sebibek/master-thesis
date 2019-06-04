@@ -177,7 +177,7 @@ Tensor Field Visualization is gaining importance as a relevant tool for the anal
     \includegraphics[width=0.6\textwidth]
     {img/DIFFERENT_TYPES_OF_STRESS.png}
   }
-  \caption{Different types of stresses}
+  \caption{Different types of stress}
   \label{Skalierung}
 \end{figure}
 
@@ -236,7 +236,7 @@ Now what is a Tensor? A tensor is a $o$-dimensional generalization of a matrix a
 \end{tabular}
 \label{tensor}
  \end{table} 
-In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$ (the dimensin of the row and column vectors), which is equal to the rank of the tensor for full rank (or in other words the number of elements n for a $n\mathop{\times}n$-matrix). Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained and defined from physical transformation equations. Hence, any $o$-D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$-D number arrays (in a sense of physical interpretation), which is mostly true for component-indexed $o$-D number entities following matrix multiplication and transformation rules found in physics and math. In fact, tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring, e.g., the stress in that direction) to an outgoing stress vector.
+In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$ (the dimensin of the row and column vectors), which is equal to the rank of the tensor for full rank (or in other words the number of elements n for a $n{\times}n$-matrix). Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained and defined from physical transformation equations. Hence, any $o$-D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$-D number arrays (in a sense of physical interpretation), which is mostly true for component-indexed $o$-D number entities following matrix multiplication and transformation rules found in physics and math. In fact, tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring, e.g., the stress in that direction) to an outgoing stress vector.
  To be a bit more concrete, tensors represent stress distributions in solids and fluids describing strain and flow features as these entities aren't simple numbers or vectors. They occur in form of a tensor fields, and thus as entities or quantities in physics. That is, at each point in space (indexed by the grid) there is a whole distribution of, e.g., stresses (elastic and viscous) which needs to be characterized and represented by a single tensor.
  \\
  \paragraph{stress tensor}
@@ -301,7 +301,7 @@ Principal Component Analysis is an algorithm which can capture the principal com
 \begin{figure}[!t]
   \centering
  {
-    \includegraphics[width=0.6\textwidth]
+    \includegraphics[width=0.5\textwidth]
     {img/tensorfieldlines.png}
   }
   \caption{white: tensorfieldlines; green: ellipsoid glyphs}
@@ -311,12 +311,12 @@ Glyphs were derived as a basis for the weighting profiles of the tensors in the 
 Tensor Field Lines (the type of tensor stream line - hyperstreamline analog that does not introduce artificial intertia) were implemented for Ground Truth (GT) data generation purposes. For example, when we design an FTLE-like field computation approach, we will need to know when tensor field lines diverge/converge.
 
 \paragraph{Test Data (Generation)}
-We used python's numpy library to generate pre-defined test cases and caught one real data example from \url{TensorVis.org}, which needed to be pre-processed through slicing and subsequent cropping to 2D samples (2x2 matrices), which can be grouped into symmetric and asymmetric ones:\\
+We used python's numpy library to generate pre-defined test cases and caught one real data example from \url{TensorVis.org}, which needed to be pre-processed through slicing and subsequent cropping to 2D samples ($2\times2$) matrices), which can be grouped into symmetric and asymmetric ones:\\
 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img/corner.png}
+    \includegraphics[width=\textwidth]{img/corner-TFL.png}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
@@ -327,7 +327,7 @@ We used python's numpy library to generate pre-defined test cases and caught one
     \includegraphics[width=\textwidth]{img/drain_old.png}
     \label{b)}
   \end{minipage}
-\caption{a) ``Corner''-Testfield, b) ``Spiral''-Tesfield, c) ``Drain''-Tesfield}
+\caption{a) ``corner''-Testfield, b) ``spiral''-Tesfield, c) ``V''-Tesfield}
 \label{anisotropy}
 \end{figure}
 
@@ -336,30 +336,93 @@ We used python's numpy library to generate pre-defined test cases and caught one
 \textbf{Asymmteric Tensor Fields}
 
 \begin{figure}[!t]
-  \centering
- {
-    \includegraphics[width=0.8\textwidth]
-    {img/drain.png}
-  }
-  \caption{``Drain''-Testfield}
-  \label{polar}
-\end{figure}\vskip 3pt
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/drain.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/drain-TFL.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) ``drain''-testfield, b) tensor field lines for a)}
+\label{anisotropy}
+\end{figure}
+
+The ``drain''-Testfield, depicted in Fig. \ref{drain} is generated to have a kind of proof-of-concept (POC) for the FTLE-related approach. It poses raw, bare diverging tensor field lines without any other feature modulated on top. Thus, it can be expected to induce a high FTLE response, since it is an interpretable ground truth test and is considered to be a basic trigger/stimulus for the approach.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/rings.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/tensorfieldlines.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) ``rings''-testfield, b) tensor field lines for a)}
+\label{drain}
+\end{figure}
 \section{Related Work}
 \label{sec:related}
 
-There has been extensive recent work on symmetric tensors but in comparison little on asymmetric ones. Since we aren't able to cover the whole scope in this work, we will focus on the most relevant works about tensor field visualization. 
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/spiral.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/spiral-TFL.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) ``spiral''-testfield, b) tensor field lines for a)}
+\label{spiral}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/inverse.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/inverse-TFL.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) ``spiral''-testfield, b) tensor field lines for a)}
+\label{spiral}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/corner.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/corner-TFL.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) ``corner''-testfield, b) tensor field lines for a)}
+\label{spiral}
+\end{figure}
+
+There has been extensive recent work on symmetric tensors but in comparison little on asymmetric ones. Since we aren't able to cover the whole scope in this work, we will focus on the most relevant works on tensor field visualization. We will talk about the publications from \cite{} and \cite{} in particular, since they pose thematically related works.\vskip 5pt
 
 \textbf{Symmetric Tensor Field Visualization}\\
-\cite{pang&zheng} et al. proposed a texture-based visualization approach called HyperLIC, which extends the concept of LIC to symmetric tensor fields by using an anisotropic 2D-filter kernel oriented along the major/minor eigenvectors. The concept of following the major/minor eigenvector along tensor field lines was invented by \cite{vilanova}. Tensorlines introduce a kind of artificial inertia (running average), making them resistent to noise. The notion of tensor field topology and the concept of Hyperstreamlines was first introduced by \cite{delmarcelle&hesselink}. The placement of tensor field lines as hyperstreamlines was recently improved by \cite{spencer} et al. for glyph packing. A good overview of seeding strategies is given by \cite{mcloughlin}. \cite{feng} et. al. used Voronoi Tesselation for placing the glyphs. Superquadric glyphs have been proposed by \cite{schultz&kindlmann} for general (non-positive definite) tensors. \cite{deleeuw&vanwijk} visualize the partial derivative gradient, the Jacobian of the tensor field to sense the local properties of the field. A diffusion tensor can also be visualized by box \cite{makris}, ellipsoid \cite{pierpaoli}, composite \cite{worth} or superquadric \cite{kindlmann} glyphs. There is also a set of scalar measures available in symmetric tensor field visualization such as: mean diffusivity, fractional anisotropy \cite{basser} and anisotropy coefficients \cite{westin}. \cite{hlawatsch} et al. obtain a coordinate (flow) map from tensor field lines following major/minor eigenvectors (fibre trajectories) and use the maximum eigenvalue of the Cauchy-Green deformation tensor to compute the FTLE-field in homogeneous regions. In a similar manner, we opt to use Global Illumination Techniques to obtain a light distribution footprinted (in form of weighting profiles obtained from ellipsoid glyphs) by the tensor field.
+\cite{pang&zheng} et al. proposed a texture-based visualization approach called HyperLIC, which extends the concept of LIC to symmetric tensor fields by using an anisotropic 2D-filter kernel oriented along the major/minor eigenvectors. The concept of following the major/minor eigenvector along tensor field lines was invented by \cite{vilanova}. Tensorlines introduce a kind of artificial inertia (running average), making them resistent to noise. The notion of tensor field topology and the concept of Hyperstreamlines was first introduced by \cite{delmarcelle&hesselink}. The placement of tensor field lines as hyperstreamlines was recently improved by \cite{spencer} et al. for glyph packing. A good overview of seeding strategies concerning glyphs is given by \cite{mcloughlin}. \cite{feng} et. al. used Voronoi Tesselation for placing the glyphs. Superquadric glyphs have been proposed by \cite{schultz&kindlmann} for general (non-positive definite) tensors. \cite{deleeuw&vanwijk} visualize the partial derivative gradient, the Jacobian of the tensor field to sense the local properties of the field. A diffusion tensor can also be visualized by box \cite{makris}, ellipsoid \cite{pierpaoli}, composite \cite{worth} or superquadric \cite{kindlmann} glyphs. There is also a set of scalar measures available in symmetric tensor field visualization such as: mean diffusivity, fractional anisotropy \cite{basser} and anisotropy coefficients \cite{westin}. \cite{hlawatsch} et al. obtain a coordinate (flow) map from tensor field lines following major/minor eigenvectors (fibre trajectories) and use the maximum eigenvalue of the Cauchy-Green deformation tensor to compute the FTLE-field in homogeneous regions. In a similar manner, we opt to use Global Illumination Techniques to obtain a light distribution footprinted (in form of weighting profiles obtained from ellipsoid glyphs) by the tensor field.
 \\
 \textbf{Asymmetric Tensor Field Visualization}\\
-\cite{pang&zheng} et al. proposed the concept of dual eigenvectors and \cite{zhang} extended it to pseudo-eigenvectors and introduced the eigenvector/eigenvalue manifolds to visualize eigenvectors in the complex domain. \cite{laramee} et al. focused on the efficient implementation and visualization of these structures and provided an interactive visualization system for asymmetric tensors applicable in fluid and solid dynamics. The concept of Tensor Magnitude has been introduced by \cite{laramee2} for means of physical interpretation. They also proposed an efficient glyph and hyperstreamline hybrid approach, which made dynamic interaction in real-time in 2D tensor fields feasible. \cite{palacios} extracted isosurfaces of tensor magnitude, mode and isotropy index. 
+\cite{pang&zheng} et al. proposed the concept of dual eigenvectors and \cite{zhang} extended it to pseudo-eigenvectors and introduced the eigenvector/eigenvalue manifolds to visualize eigenvectors in the complex domain. \cite{laramee} et al. focused on the efficient implementation and visualization of these structures and provided an interactive visualization system for asymmetric tensors applicable in fluid and solid dynamics. The concept of Tensor Magnitude has been introduced by \cite{laramee2} for means of physical interpretation. They also proposed an efficient glyph and hyperstreamline hybrid approach, which made dynamic interaction in real-time in 2D tensor fields feasible. \cite{palacios} extracted isosurfaces of tensor magnitude, mode and isotropy index. \vskip 5pt
 
-Typischerweise im letzten Abschnitt dieses Kapitels wird dann auf
-verwandte Arbeiten eingegangen. Entsprechende Arbeiten sind geeignet
-zu zitieren. Beispiel: Die wurde erstmalig in den Arbeiten von Spitz
-und Gertz \cite{Spitz2016a} gezeigt \ldots Details dazu werden in
-dem Buch von Newman zu Netzwerken \cite{Newman2010} erläutert \ldots.
+The FTLE-related approach ``global illumination gradient'' to be designed states a generalization of the light transport visualization method FTPD proposed by \cite{zirr}, since it allows a similar measure to be computed through defining a geometrical scene and setting the transmission (tensor field) to an isotropic and constant value of $100\%$. In this modus, the approach operates as a light transport visualitation technique. The work of \cite{hlawatsch} et.al. obtains similar results (an FTLE-like field) but obtains them by sampling of fiber trajectories instead of global illumination light transport methods, as in our case.
+%Typischerweise im letzten Abschnitt dieses Kapitels wird dann auf
+%verwandte Arbeiten eingegangen. Entsprechende Arbeiten sind geeignet
+%zu zitieren. Beispiel: Die wurde erstmalig in den Arbeiten von Spitz
+%und Gertz \cite{Spitz2016a} gezeigt \ldots Details dazu werden in
+%dem Buch von Newman zu Netzwerken \cite{Newman2010} erläutert \ldots.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
@@ -390,7 +453,7 @@ This chapter will summarize the main contributions of this work studied and stat
 
 \section{Requirements and Ambitions}
 \label{sec:spec} 
-Our ambition is to motivate a simple and efficient Global Illumination Propagation Scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field). That is, to provide an orientation for a grid of crystal fibre structures (cf. optical fibres) to redirect the intensities in analogy to the anisotropies of the tensor field within a glyph representation, obtained from Principal Component Analysis. Our approach should be implicitly adaptive to any kind of 2D dataset. Thus, we opt to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of the field (full-spectrum). At last, we aim to generate a new FTLE-related method for tensor field visualization by applying a Global Illumination Gradient to the resulting light distributions for every possible position and direction of the light source in the grid generated by stimulation with Delta-pulses. Thus, our motivation is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional tensor fields). Our approach should efficiently handle (relatively) large datasets. 
+Our ambition is to motivate a simple and efficient global illumination propagation scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field). That is, to provide an orientation for a grid of crystal fibre structures (cf. optical fibres) to redirect the intensities in analogy to the anisotropies of the tensor field within a glyph representation, obtained from Principal Component Analysis. Our approach should be implicitly adaptive to any kind of 2D dataset. Thus, we opt to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of the field (full-spectrum). At last, we aim to generate a new FTLE-related method for tensor field visualization by applying a Global Illumination Gradient to the resulting light distributions for every possible position and direction of the light source in the grid generated by stimulation with Delta-pulses. Thus, our motivation is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional tensor fields). Our approach should efficiently handle (relatively) large datasets. 
 %Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
 %Methoden überblicksartig beschrieben werden. Hier sollte die
 %Beschreibung ``technischer'' bzw.~``formaler'' sein als in der
@@ -448,16 +511,16 @@ Fig \ref{iter} depicts the named iteration inidices 0,1,2,3,7,11 for the propaga
 As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
 start all over (after reinitialization) until convergence. Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will fill this operator with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation respectively. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_i\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (which do not contain trivial Null samples):
 \begin{align}
-	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}]
-\end{align}.
-The dual buffer result $\mathcal{C'}$ denotes the set of all transformed cells after the propagation after applying the operator $\mathop{propagate}$ to each cell. This result is generated once in each iteration and gets pushed back and forth between the 2 buffers. Note that, $\mathop{dim}=width\cdot height$, which equals the tensor field resolution in this case and remark that wedenote the final buffer result $\mathbf{b}=\mathcal{C}_{final}$ in the following. At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold $\epsilon$(, e.g., $0.5$) :\\
+	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}].
+\end{align}
+The dual buffer result $\mathcal{C'}$ denotes the set of all transformed cells after the propagation after applying the operator $\mathop{propagate}$ to each cell. This result is generated once in each iteration and gets pushed back and forth between the 2 buffers. Note that, $\mathop{dim}=width\cdot height$, which equals the tensor field resolution in this case and remark that wedenote the final buffer result $\mathbf{b}=\mathcal{C}_{final}$ in the following. At last, we define a threshold for the minimum overall distribution error taken into account for convergence conditions, initiating a stop sequence when falling below that threshold $\epsilon$ (, e.g., $0.5$) :\\
 \paragraph{Criterion:}
 \begin{align}
-	\Delta I_{sum} = \sum_i \Delta I_i(\omega) < \epsilon
-\end{align}.
+	\Delta I_{sum} = \sum_{i\in\mathcal{C}}  \Delta I_i(\omega) \overset{!}{<} \epsilon.
+\end{align}
 
 
-Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the energies on top of the base approach with transmission profiles obtained from the tensor fields through Principal Component Analysis and ellipsoid glyph equations in the following.
+Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the intensities on top of the base approach with transmission profiles obtained from the tensor fields through principal component analysis, which yields ellipsoid glyph equations in the following.
 
 
 %In diesem und den nachfolgenden Abschnitten werden die Beiträge der
@@ -485,17 +548,18 @@ That is, the singular values form the half-axes of the PCA ellipsoid, which yiel
   \caption{red: Intensity Profile, cyan: Transmission Profile (glyph Ellipsoid Eq.)}
   \label{weighting}
 \end{figure}
-We interpret the polar functions as discrete, sampled 1D vectors with a uniform angular resolution. That means, we use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. As a side note, the physical quantity perceived as brightness by human eyes, is the radiance (luminance), which is yielded by relating radiant intensity to a finite sensitive area ($[\frac{W}{\mathop{rad}}/m^2]$). The primary definition for our total accumulated incident radiant flux is denoted as:
+We interpret the polar functions as discrete, sampled 1D vectors with a uniform angular resolution. That means, we use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. As a side note, the physical quantity perceived as brightness by human eyes, is the radiance (luminance), which is yielded by relating radiant intensity to a finite sensitive area ($[\frac{W}{\mathop{rad}}/m^2]$). The primary definition for our total accumulated incident radiant flux (presuming that the cone is given in local coordinates - i.e. centered around the origin) is then denoted as:
 
 \begin{align}
-	\Phi_t &= \int_0^{2\pi}{I}(\omega){T}(\omega)\mathop{d\omega}\\
+	\Phi_{t,\alpha} &= \int_{-\pi/4}^{\pi/4}{I}(\omega){T}(\omega)\mathop{d\omega}\\
+	\Phi_{t,\beta} &= \int_{-\beta}^{\beta}{I}(\omega){T}(\omega)\mathop{d\omega}\\
 	\sum_{\cos} &= \int_0^{2\pi}\cos(\omega)\mathop{d\omega} \approx 2
 \end{align}.
 
-This enables us to scale an oriented cosine-lobe w. the total radiant flux w. respect to its own total energy when integrated likewise. A discrete cosine lobe never reaches its theoretical sum of $2$ exactly in the interval $[0,2\pi]$. Therefore it needs to be computed to account for floating-point precision errors and normalized by following relation (, e.g., $\sum_{\cos} \approx 1.9949204635834517$).
+This permits us to scale an oriented cosine-lobe w. the total radiant flux w. respect to its own total energy when integrated likewise. A discrete cosine lobe never reaches its theoretical sum of $2$ exactly in the interval $[0,2\pi]$. Therefore it needs to be computed to account for floating-point precision errors and normalized by following relation (, e.g., $\sum_{\cos} \approx 1.9949204635834517$).
 \begin{align}
-	\cos_n(\omega) = \frac{\Phi_t}{\sum_{\cos}}cos(\omega)
-\end{align}.
+	\cos_n(\omega) = \frac{\Phi_t}{\sum_{\cos}}cos(\omega).
+\end{align}
 This yields a cosine lobe, which has an overall energy of $\Phi_t$ if the point light is interpreted with a Lambert-Emitter (cf. \cite{lindlein}) characteristic (as part or area element of a diffusely reflecting surface). 
 
 Now each tensor ellipse equation has a mean transmission rate $[\%]$, which turns out to be a measure or synonym for the total transmitted rate of the total incoming radiant intensity $\int_0^{2\pi}{I}(\omega)\mathop{d\omega}$. Since energy can not be generated from transmission profiles (only transmitting, not generating), we have to normalize every tensor ellipse equation with the highest mean transmission rate in the field. This restricts the tensor ellipse mean to a maximum of $100\%$ for the one with the highest tensor magnitude. We will use the definition of mean tensor magnitude $\mean{r}_{max}$ obtained from the PCA here for simplicity. Hence the tensor ellipse equations are normalized through the following step:
@@ -523,8 +587,8 @@ Which is now respecting energy conservation principles very conveniently, as all
 \begin{enumerate}
 	\item Computation of normalization factor $n_f$
 	\item Direction (component)-wise weighting to account for shared part in diagonal cones
-	\item Integration (accumulation) total radiant flux weighted with transmission profiles inside the angular neighbor range
-	\item Scaling of cosine lobe corresponding to neighbor direction and subsequent placing to corresponding neighbor
+	\item Integration (accumulation) total radiant flux weighted with transmission profiles inside the angular neighbor range (read-access)
+	\item Scaling of cosine lobe corresponding to neighbor direction and subsequent placing to corresponding neighbor (write-access)
 	
 \end{enumerate}
 
