@@ -15,5 +15,14 @@ scp sbek@quadxeon8:/export/home/sbek/TensorVis/test.vti /export/home/sbek/Docume
 scp sbek@quadxeon8:/export/home/sbek/TensorVis/matrix.txt /export/home/sbek/Documents/TensorVis -- get test matrix file
 scp sbek@quadxeon8:/export/home/sbek/TensorVis/config.txt /export/home/sbek/Documents/TensorVis -- get test config file
 
+
+// tmux
+tmux new -s name -- create named tmux session name
+tmux a -t name -- attach to named tmux session name
+tmux a # -- attach to last tmux session
+ctrl+b+d -- detach from current session
+ctrl+b+x -- kill current pane
+tmux ls -- list current sessions
+
 // distribute executable and config to instances
 cp config.txt a.out /export/home/sbek/TensorVis2
