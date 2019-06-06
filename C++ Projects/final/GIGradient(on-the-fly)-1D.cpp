@@ -1041,7 +1041,7 @@ int main(int argc, char* argv[])
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
 	// DELTA (Gradient) COMPUTATION START //
-
+	int deltaT = steps / 32;
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
 	
@@ -1081,12 +1081,12 @@ int main(int argc, char* argv[])
 				meanA = acc(sampleBufferA);
 				gradient.at(1) = meanA / 2.0;
 
-				sampleBufferLeft = prop.propagateDist(i, j, (t == 0 ? (steps - 1) : (t - 1))); // propagate current distribution vector
-				sampleBufferRight = prop.propagateDist(i, j, (t + 1) % steps); // propagate current distribution vector
+				sampleBufferLeft = prop.propagateDist(i, j, (t == 0 ? (steps - deltaT) : (t - deltaT))); // propagate current distribution vector
+				sampleBufferRight = prop.propagateDist(i, j, (t + deltaT) % steps); // propagate current distribution vector
 				// t-1D central differences..
 				sampleBufferA = sampleBufferRight - sampleBufferLeft;
 				meanA = acc(sampleBufferA);
-				gradient.at(2) = meanA / 2.0;//(2.0*radres) for normalization
+				gradient.at(2) = meanA / 2.0; //(2.0*radres) for normalization
 
 				// X-1D central differences.. VARIANT 2: cell by cell - spatial distribution of energies (chose because of redundancy for same spatial distribution but differing directional distribution)
 				//meanA = 0.0;
