@@ -1047,7 +1047,8 @@ int main(int argc, char* argv[])
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
 	// DELTA (Gradient) COMPUTATION START //
-	int deltaT = steps / 16;
+	double beta = 26.5651;// *M_PI / 180;
+	int deltaT = ceil(beta*steps / 360.0)+1;
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
 	

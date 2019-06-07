@@ -1044,7 +1044,7 @@ int main(int argc, char* argv[])
 
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
-	int deltaT = steps / 16;
+	int deltaT = ceil(beta*steps / 360.0)+1;
 	#pragma omp parallel for //collapse(2)
 	for (int t = 0; t < steps; t++)
 	{
