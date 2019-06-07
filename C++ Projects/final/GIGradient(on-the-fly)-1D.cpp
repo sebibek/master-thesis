@@ -1048,8 +1048,8 @@ int main(int argc, char* argv[])
 
 	// DELTA (Gradient) COMPUTATION START //
 	double beta = 26.5651;// *M_PI / 180;
-	int deltaT = ceil(beta*steps / 360.0)+1; // SLICE TESTS
-	//int deltaT = steps/16; // VOLUME TESTS -- no interruption
+	int deltaT = steps/16; // SLICE TESTS
+	//int deltaT = steps/12; // VOLUME TESTS -- exceeding beta -- no interruption 
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
 	

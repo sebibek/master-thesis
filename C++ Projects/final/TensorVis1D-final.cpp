@@ -1044,8 +1044,8 @@ int main(int argc, char* argv[])
 
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
-	int deltaT = ceil(beta*steps / 360.0)+1; // SLICE TESTS
-	//int deltaT = steps/16; // VOLUME TESTS -- no interruption
+	int deltaT = steps/16; // SLICE TESTS
+	//int deltaT = steps/12; // VOLUME TESTS -- exceeding beta -- no interruption 
 	#pragma omp parallel for //collapse(2)
 	for (int t = 0; t < steps; t++)
 	{
