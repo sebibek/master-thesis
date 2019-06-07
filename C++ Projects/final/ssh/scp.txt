@@ -1,0 +1,28 @@
+// PUSH
+scp -r /export/home/sbek/Documents/TensorVis sbek@quadxeon8:/export/home/sbek -- push/put directory to quadxeon8
+scp main.cpp sbek@quadxeon8:/export/home/sbek/TensorVis -- push new src file
+scp matrix.txt sbek@quadxeon8:/export/home/sbek/TensorVis -- push new tensor field (dataset)
+scp config.txt sbek@quadxeon8:/export/home/sbek/TensorVis -- push new config
+pwd -- show current remote working directory
+lpwd -- show current local working directory 
+ps -ef | grep '[s]shd' | grep -v ^root -- show users logged on current system
+rm -rf foldername -- remove non-empty dir
+htop - show graphical monitoring process viewer for current system
+top - show monitoring process viewer for current system
+
+// PULL
+scp sbek@quadxeon8:/export/home/sbek/TensorVis/test.vti /export/home/sbek/Documents/TensorVis -- get test vti file
+scp sbek@quadxeon8:/export/home/sbek/TensorVis/matrix.txt /export/home/sbek/Documents/TensorVis -- get test matrix file
+scp sbek@quadxeon8:/export/home/sbek/TensorVis/config.txt /export/home/sbek/Documents/TensorVis -- get test config file
+
+
+// tmux
+tmux new -s name -- create named tmux session name
+tmux a -t name -- attach to named tmux session name
+tmux a # -- attach to last tmux session
+ctrl+b+d -- detach from current session
+ctrl+b+x -- kill current pane
+tmux ls -- list current sessions
+
+// distribute executable and config to instances
+cp config.txt a.out /export/home/sbek/TensorVis2
