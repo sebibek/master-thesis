@@ -785,6 +785,16 @@ public:
 
 				double val = 1.0;
 
+				// ALTERNATIVE: WARNING extreme
+				//if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
+				//	if (abs(deltaJ) == shiftIndex / 2)
+				//		continue;// val = 0.5*0.3622909908722584*val;
+				//	else
+				//		val = 0.3622909908722584*val;
+				//else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
+				//	if (abs(deltaJ) != shiftIndex / 2)
+				//		val = 0.6377090091277417*val;
+
 				// split overlapping diagonal cones w.r.t to their relative angular area (obtained from face neighbors)..
 				if ((abs(deltaJ) > centralIndex) && fast_mod(k, 2) == 0) // for alphas, use edge overlap > centralIndex
 					if (abs(deltaJ) == shiftIndex / 2)
@@ -794,10 +804,6 @@ public:
 				else if (fast_mod(k, 2) != 0) // for betas (diagonals), use static edge overlap-
 					val = 0.6377090091277417*val;
 
-				/*if (fast_mod(k, 2) == 0)
-					faceWeights.at(k)[t_index] = val;
-				else
-					diagWeights.at(k)[t_index] = val;*/
 				weights.at(k)[t_index] = val;
 			}
 		}
@@ -1041,7 +1047,7 @@ int main(int argc, char* argv[])
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
 	// DELTA (Gradient) COMPUTATION START //
-	int deltaT = steps / 32;
+	int deltaT = steps / 16;
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
 	
