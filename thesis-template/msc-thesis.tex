@@ -137,9 +137,9 @@ Mithilfe von globalen Beleuchtungsmodellen/-techniken wird eine neue Methode ent
 \chapter*{Abstract}
 %\input{abstract}
 Many problems in science and engineering require
-tensor field representations. Tensor fields, are most commonly associated with stress distributions (cf. Cauchy-stress tensor) in 2D/3D grids, but also have some other meanings in practice in physics. By means of global illumination techniques, we motivate a new method to visualize tensor fields, which is also capable of visualizing the light transport (propagation) in a topologically defined scene geometry. As a basis, we derive a simple light propagation scheme for Cartesian grids, which satisfies propagation attenuation and energy-conservation principles and is able to approximate light distributions for given light source position(s) and direction(s) until convergence. The transmission profiles within this grid are considered as crystal fiber structures as an underlying physical model (eg. gemstones: tiger's eye's cat's eye effect). The consequent task is to model anisotropic fibre structures with the orientation and anisotropy measures of the underlying tensor field in the grid.
-For this, we derive an eigenbasis by PCA (principal component analysis) for every cell of the tensor field and form an ellipsoid equation as transmission (transfer/weighting) function for the transmitted light profiles. Hence, the resulting light distribution can be visualized via 2D scalar field or polar plots for directional information. Additionally, We measure impulse responses of the tensor field with Dirac-pulses as light sources at any (sampled) position and in any direction to generate a uniform sampled map of the global illumination distributions. This map is considered as a global illumination energy flow field.
-We gain inspiration by vector field particle tracing's FTLE approach for analyzing the gradient of the flow field of the resulting light distributions. Similar to how the FTLE detects ridges/LCS (Lagrangian coherent structures) in vector fields (flow fields), our approach captures these structures likewise, attracting/repelling/saddling tensor field lines (TFL) which frequently represent key structures in nature, in tensor fields. We denote this entity a global illumination gradient which states an FTLE-related approach for visualizing LCS in tensor fields through analysis of the global and light transport  directed by imprint/engraving in crystelline fiber structures modeled by the tensor field's ellipsoid glyhps. We evaluate our approaches for plausibility and comparability within an extensive test campaign and demonstrate its performance on several examples of datasets.
+tensor field representations. Tensor fields, are most commonly associated with stress distributions (cf. Cauchy-stress tensor) in 2D/3D grids, but also have some other meanings in practice in physics. By means of global illumination techniques, we motivate a new method to visualize tensor fields, which is also capable of visualizing the light transport (propagation) in a topologically defined scene geometry. As a basis, we derive a simple light propagation scheme for Cartesian grids, which satisfies propagation attenuation and energy-conservation principles and is able to approximate light distributions for given light source position(s) and direction(s) until convergence. The transmission profiles within this grid are considered as crystal fiber structures as an underlying physical model (, eg., gemstones: tiger's eye's cat's eye effect). The consequent task is to model anisotropic fibre structures with the orientation and anisotropy measures of the underlying tensor field in the grid.
+For this, we derive an eigenbasis by PCA (principal component analysis) for every cell of the tensor field and form an ellipsoid equation as transmission (transfer/weighting) function for the transmitted light profiles. Hence, the resulting light distribution can be visualized via 2D scalar field color coding or polar plots for directional information. Additionally, we measure impulse responses of the tensor field with Dirac-pulses as light sources at any (sampled) position and in any direction to generate a uniform sampled map of the global illumination distributions. This map is considered as a global illumination energy flow field.
+We gain inspiration by vector field particle tracing's FTLE approach for analyzing the gradient of the flow field of the resulting light distributions. Similar to how the FTLE detects ridges/LCS (Lagrangian coherent structures) in vector fields (flow fields), our approach captures these structures likewise, attracting/repelling/saddling tensor field lines (TFL) which frequently represent key structures in nature, in tensor fields. We denote this entity a light transport gradient (LTG) which states an FTLE-related approach for visualizing LCS in tensor fields through analysis of the global light transport  directed by imprint/engraving in crystelline fiber structures modeled by the tensor field's ellipsoid glyhps. We evaluate our approaches for plausibility and comparability within an extensive test campaign and demonstrate its performance on several examples of datasets.
 \newpage
 
 % MAIN PART:
@@ -280,8 +280,8 @@ The Cauchy stress tensor, which is propably the classical example of a tensor, i
 \sigma _{31} & \sigma _{32} & \sigma _{33} 
 \end{bmatrix}.
 \end{align*}
-These 3 stress vectors represent the orientation and magnitude of total resulting stress at plane ${x,y,z}$ in direction ${x,y,z}$ ($3^2=9$ individual numbers). Thus, the stress tensor poses a full valid represenation of the stress distribution at any point in space. The stress tensor itself can be interpreted as a transformation which maps an incoming normal direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$. The stresses in normal directions (diagonal elements) are directly related to the pressure, which is always isotropic and hence non-directionally dependent (kind of a Euclidean distance of the stress components). It is possible to find 2 principal stress directions in 2D through PCA (see sect. \ref{sec:pca} below), for which there are no shear stresses existent in equilibrium. These form the principal directions of deformation at a certain location and are sufficient to describe the resulting transformation/deformation behaviour. The resulting system of principal directions and absolute stresses is often called an ``eigensystem'' or ``eigenframe''. So to say, an eigensystem, consistent of the principal directions/axes, spans a principal ellipsoid depicted in Fig. \ref{HAT} in sect. \ref{sec:pca}.
-Another interpretation for the principal component ellipsoid is that it is the result of the tensor transformation applied to the unit circle. It is therefore somehow representing the distortion of an absolutely isotropic object (unit circle) by whatever the affine tensor transformation effects (e.g. stretching, shearing, mirroring, scaling, rotating).
+These 3 stress vectors represent the orientation and magnitude of total resulting stress at plane ${x,y,z}$ in direction ${x,y,z}$ ($3^2=9$ individual numbers). Thus, the stress tensor poses a full valid represenation of the stress distribution at any point in space. The stress tensor itself can be interpreted as a transformation which maps an incoming normal direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$. The stresses in normal directions (diagonal elements) are directly related to the pressure, which is always isotropic and hence non-directionally dependent (kind of a Euclidean distance of the stress components). The tensor itself is a complicated representation and needs to be projected onto its principal axes to lower its dimensionality. It is possible to find 2 principal stress directions in 2D through PCA (see sect. \ref{sec:pca} below), for which there are no shear stresses existent in equilibrium. These form the principal directions of deformation at a certain location and are sufficient to describe the resulting transformation/deformation behaviour. The resulting system of principal directions and absolute stresses is often called an ``eigensystem'' or ``eigenframe''. So to say, an eigensystem, consistent of the principal directions/axes, spans a principal ellipsoid depicted in Fig. \ref{HAT} in sect. \ref{sec:pca}.
+Another interpretation for the principal component ellipsoid is that it is the result of the tensor transformation applied to the unit circle. It is therefore somehow representing the distortion of an absolutely isotropic object (unit circle) by whatever the affine tensor transformation effects (e.g. stretching, shearing, mirroring, scaling, rotating). Let us consider it as some lower dimensional, more intuitive representation of the tensor which we were left with in the first place.
 \section{Principal Component Analysis}
 \label{sec:pca}
 Note that we denote a matrix with a second order tensor interchangeably for the sake of simplicity in the following. For any state of stress in equilibrium it is possible to find $n$ (dimensionality) independent orthogonal directions with no shear stresses existent. Along these directions the principal stresses, which are normal (tensile/compressive) stresses, are exerted. The anisotropy can be represented by, e.g., ellipsoid glyphs.
@@ -306,7 +306,7 @@ Note that we denote a matrix with a second order tensor interchangeably for the 
 \label{gradient}
 \end{figure}
 
-Principal Component Analysis is an algorithm which can capture the principal components (directions) in stochastic data. But it works similarly on transformations to capture the principal directions from transformations like rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (skew-) symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$ (cf. \cite{kieburg}). Note that the eigenvectors match the singular vectors only for symmetric matrices, which does not mean that they do not form the half-axes of the principal component ellipsoid in other cases. Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling ($\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig. \ref{HAT} for any kind of matrix as pointed out by Moler \cite{moler}. In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues (\cite{mroz}) ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which would allow us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step. In this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques on top to generate a flow map, which permits us somehow to direct the intensities which are given as pre-defined initialization values. This kind of light transport propagation scheme will also allow us to compute an FTLE-like field on the tensor fields.
+Principal Component Analysis is an algorithm which can capture the principal components (directions) in stochastic data. But it works similarly on transformations to capture the principal directions from transformations like rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (skew-) symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$ (cf. \cite{kieburg}). Note, that the eigenvectors match the singular vectors only for symmetric matrices, which does not mean that they do not form the half-axes of the principal component ellipsoid in other cases. Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling ($\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig. \ref{HAT} for any kind of matrix as pointed out by Moler \cite{moler}. In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues (\cite{mroz}) ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which would allow us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step. In this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques on top to generate a flow map, which permits us somehow to direct the intensities which are given as pre-defined initialization values. This kind of light transport propagation scheme will also allow us to compute an FTLE-like field on the tensor fields.
 
 
 \section{GT data / Approaches}
@@ -321,7 +321,7 @@ Principal Component Analysis is an algorithm which can capture the principal com
   \caption{white: bold lines; ellipsoids: ellipsoid glyphs}
   \label{scheme}
 \end{figure}\vskip 3pt
-Glyphs were derived as a basis for the weighting profiles of the tensors in the following propagation scheme. They were chosen because it is an easy-to-use (understand) concept which can also be interpreted nicely. In fact, these are used for the principal component analysis of direction vectors for the Tensor Field Line extrapolation (integration) in a subsequent step.
+Glyphs were derived as a basis for the weighting profiles of the tensors in the following propagation scheme. They were chosen because it is an easy-to-use (understand) concept which can also be interpreted nicely. In fact, these reps are used for the principal component analysis of direction vectors for the Tensor Field Line extrapolation (integration) in a subsequent step.
 Tensor Field Lines (the type of tensor stream line - hyperstreamline analog that does not introduce artificial intertia) were implemented for Ground Truth (GT) data generation purposes. For example, when we design an FTLE-like field computation approach, we will need to know when tensor field lines diverge/converge.
 
 \paragraph{Test Data (Generation)}
@@ -334,7 +334,7 @@ We used python's numpy library to generate pre-defined test cases and caught one
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img/spiral.png}
+    \includegraphics[width=\textwidth]{img/spiral-TFL.png}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
@@ -523,7 +523,7 @@ We show a few of the first iteration steps for the propagation scheme in Fig. \r
   \caption{Impulse Response for Isotropic Stimulus (few iterations: $t$)}
   \label{iter}
 \end{figure}\vskip 3pt
-Fig \ref{iter} depicts the named iteration inidices 0,1,2,3,7,11 for the propagation scheme for a circular pulse stimulus which gets turned off after 1 iteration to demonstrate raw energy spreading in the field (impulse response of algorithm). In step 1 one can observe the placing of cosine lobes scaled with the respective accumulated and weighted energy for the summed area in each of the 8 neighbor directions. In the subsequent steps, remark the evolution from an 8-neighborhood in step 1 to a circular torus shaped.
+Fig \ref{iter} depicts the named iteration inidices 0,1,2,3,7,11 for the propagation scheme for a circular pulse stimulus which gets turned off after 1 iteration to demonstrate raw energy spreading in the field (impulse response of the algorithm). In step 1 one can observe the placing of cosine lobes scaled with the respective accumulated and weighted energy for the summed area in each of the 8 neighbor directions. In the subsequent steps, remark the evolution from an 8-neighborhood in step 1 to a circular torus shaped.
 
 As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
 start all over (after reinitialization) until convergence. Another reason is it yields a reasonable source-target structure. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will fill this operator with meaning in sect. \ref{sec:trans} in form of a precise mathematical formulation respectively. Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_i\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (which do not contain trivial Null samples):
@@ -618,7 +618,7 @@ To pose a physical interpretation for the transmission of the tensor field, we i
  	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
  	w. \int_0^{2\pi} P(\omega) &= 1.
 \end{align}
-This propability density function (PDF) indicates whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$ degrees.
+This propability density function (PDF) indicates whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$) degrees.
 
 \section{Global Illumination Gradient}
 \label{sec:ftle}
@@ -671,67 +671,79 @@ It can be proven that the approach follows propagation attenuation principles an
 \end{figure}\vskip 3pt
 
 \section{Light Propagation Scheme Behaviour}
-To evaluate the plausibility of the light distribution results obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields:
+To evaluate the plausibility of the light distribution results obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields, whereas red: tensor glyphs (transmission profiles) and blue: intensity profiles are both depicted in polar coordinates:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/isotropic.png}
     \label{a)}
+    \caption*{light src in top center}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/isotropic-all-center.png}
     \label{b)}
+    \caption*{light src in center}
   \end{minipage}
 \caption{final light propagation distributions for ``isotropy''-testfield}
 \label{isotropic}
 \end{figure}
-
+One can observe here, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute groudn truth example for the light propagation scheme, which is evaluated separately in sect. \ref{sec:att} and \ref{sect:conserve}.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/rings-two-special1.png}
     \label{a)}
+    \caption*{antisymmtric light src's}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/rings-two-special2.png}
     \label{b)}
+    \caption*{symmetric light src's}
   \end{minipage}
 \caption{final light propagation distributions for ``rings''-testfield}
 \label{rings-tests}
 \end{figure}
-
+In this next example, we use the tensor field ``rings'' as input data for the approach and observe how the intensities are channeled in a circular orbit around the central origin. The anisotropy measures decide whether the transmission profile is more narrow (radical) or more wide (liberal).
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/spiral-two-dense.png}
     \label{a)}
+    \caption*{dense light src's}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/spiral-two-wide.png}
     \label{b)}
+    \caption*{symmetric light src's}
   \end{minipage}
 \caption{final light propagation distributions for ``spiral''-testfield}
 \label{spiral-tests}
 \end{figure}
-
+The results for our tensor field ``spiral'' can be interpreted in analogous fashion as the previously discussed ``rings''-testfield. The influence incorporated by the tensor field is easily noticeable in this case as well.
 
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.33\textwidth}
+  \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star-0,0.png}
     \label{a)}
+    \caption*{single light src}
   \end{minipage}
-  \begin{minipage}{0.33\textwidth}
-    \includegraphics[width=\textwidth]{img/star-two-dense.png}
-    \label{b)}
-  \end{minipage}
-   \begin{minipage}{0.33\textwidth}
+  \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star-two-wide.png}
+    \label{b)}
+    \caption*{symmetric light src's}
+  \end{minipage}
+   \begin{minipage}{0.31\textwidth}
+    \includegraphics[width=\textwidth]{img/star-two-dense.png}
     \label{c)}
+    \caption*{dual light src's}
   \end{minipage}
 \caption{final light propagation distributions for ``star''-testfield}
 \label{spiral-tests}
 \end{figure}
+The star example reveals another interesting feature of the approach: if the intensity impulsively hits an isotropic region, it gets split up into a range of the neighboring $180$ degrees of directions.
+
+Note, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g. $100x100$).
 
 \section{Behaviour for Total Anisotropy}
 We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda_1>0$ and the other $\lambda_2=0$) incorporated. For this we set up bidirectional delta-pulses as glyphs to have the whole energy transmitted in just one, discrete direction.
@@ -750,6 +762,7 @@ We also wanted to check for the limitations of the approach by having total line
 \end{figure}
 What we can observe here, is kind of a sampling drift as the approach uses 8 discrete directions to propagate averaged intensity whereas the circle uses much more (namely infinite). Hence, the energy can never follow a perfect circle, but at best an 8-edged octagon. This means, that there is a drift of at least two cells per diagonal (one overshoot per enter/escape each) as observable in Fig. \ref{anisotropy}.
 \section{Energy Conservation Test}
+\label{sect:conserve}
 The Energy Conservation Test was done in similar manner as the Propagation Attenuation Test in sect. \ref{sec:att}. We measure the impulse response of the algorithm for about 80 iterations by summing the total energy in the grid after each iteration and comparing it to the initial energy sum in iteration 0 in absolute values. This approach yields the following graph:
 
 \begin{figure}[!t]
