@@ -55,7 +55,8 @@
 
 % Choose language
 \newcommand{\setlang}[1]{\selectlanguage{#1}\nonfrenchspacing}
-\newcommand*\mean[1]{\bar{#1}}\begin{document}
+\newcommand*\mean[1]{\bar{#1}}
+\begin{document}
 
 % TITLE:
 \pagenumbering{roman} 
@@ -304,7 +305,7 @@ Principal Component Analysis is an algorithm which can capture the principal com
     \includegraphics[width=0.5\textwidth]
     {img/tensorfieldlines.png}
   }
-  \caption{white: tensorfieldlines; green: ellipsoid glyphs}
+  \caption{white: bold lines; ellipsoids: ellipsoid glyphs}
   \label{scheme}
 \end{figure}\vskip 3pt
 Glyphs were derived as a basis for the weighting profiles of the tensors in the following propagation scheme. They were chosen because it is an easy-to-use (understand) concept which can also be interpreted nicely. In fact, these are used for the principal component analysis of direction vectors for the Tensor Field Line extrapolation (integration) in a subsequent step.
@@ -642,7 +643,7 @@ Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction
 \label{chap:eval}
 \section{Propagation Attenuation}
 \label{sec:att}
-It can be proven that the approach follows propagation attenuation principles and follows the inverse (square) law ($\sim\frac{1}{r}$) as observed in the graph in Fig. \ref{att}. For that, we plot the relative intensity $i_{rel,(r_{rel})}$ (in relation to the intensity at position (radius) $1$ to account for the inverse square law, which holds for relative distances. We evaluate the relative intensity by forming a ratio $\frac{I(r)}{I_1}$, that relates the step intensity to the src intensity at position 1.
+It can be proven that the approach follows propagation attenuation principles and follows the inverse (square) law ($\sim\frac{1}{r}$) as observed in the graph in Fig. \ref{att}. For that, we plot the relative intensity $i_{rel}(r_{rel})$ (in relation to the intensity at position (radius) $1$ to account for the inverse square law, which holds for relative distances. We evaluate the relative intensity by forming a ratio $\frac{I(r)}{I_1}$, that relates the step intensity to the src intensity at position 1.
 
 \begin{figure}[!t]
   \centering
@@ -654,8 +655,24 @@ It can be proven that the approach follows propagation attenuation principles an
   \label{att}
 \end{figure}\vskip 3pt
 
+\section{Light Propagation Scheme Behaviour}
+To evaluate the plausibility of the light distribution results obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/isotropic.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/isotropic-all-center.png}
+    \label{b)}
+  \end{minipage}
+\caption{a) tensor field Lines and glyphs for ``rings''-Testfield, b) intensity propagation in grid}
+\label{anisotropy}
+\end{figure}
+
 \section{Behaviour for Total Anisotropy}
-We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda>0$ and the other $\lambda=0$) incorporated. For this we setp up bidirectional delta-pulses as glyphs to have the whole energy transmitted in just one, discrete direction .
+We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda_1>0$ and the other $\lambda_2=0$) incorporated. For this we set up bidirectional delta-pulses as glyphs to have the whole energy transmitted in just one, discrete direction.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -669,7 +686,7 @@ We also wanted to check for the limitations of the approach by having total line
 \caption{a) tensor field Lines and glyphs for ``rings''-Testfield, b) intensity propagation in grid}
 \label{anisotropy}
 \end{figure}
-What we can observe here, is kind of a sampling drift as the approach uses 8 discrete directions to propagate whereas the circle uses much more. Hence, the energy can never follow a perfect circle, but at best an 8-edged octagon. This means, that there is a drift of at least two cells per diagonal (one overshoot per enter/escape each) as observable in Fig. \ref{anisotropy}.
+What we can observe here, is kind of a sampling drift as the approach uses 8 discrete directions to propagate averaged intensity whereas the circle uses much more (namely infinite). Hence, the energy can never follow a perfect circle, but at best an 8-edged octagon. This means, that there is a drift of at least two cells per diagonal (one overshoot per enter/escape each) as observable in Fig. \ref{anisotropy}.
 \section{Energy Conservation Test}
 The Energy Conservation Test was done in similar manner as the Propagation Attenuation Test in sect. \ref{sec:att}. We measure the impulse response of the algorithm for about 80 iterations by summing the total energy in the grid after each iteration and comparing it to the initial energy sum in iteration 0 in absolute values. This approach yields the following graph:
 
@@ -701,7 +718,7 @@ As a little warmup, we will have an experiment exhibting bare, raw tensor field 
 \caption{a) tensor field lines and glyphs for ``drain''-Testfield, b) LTG for a)}
 \label{anisotropy}
 \end{figure}
-What we can observe here, is called a ``ridge'' occuring as a high value line segment (red vertical track) amplified by a gradient filter. These ridges represent ROIs with underlying Lagrangian coherent structures, which we already discussed in sect. \ref{sect:motiv}.
+What we can observe here, is called a ``ridge'' occuring as a high value line segment (red vertical track) with edges amplified by a gradient filter. These ridges represent ROIs with underlying Lagrangian coherent structures, which we already discussed in sect. \ref{sect:motiv}.
 
 \section{temp}
 Der Aufbau dieses Kapitels oder dessen Aufteilung in zwei Kapiteln ist
