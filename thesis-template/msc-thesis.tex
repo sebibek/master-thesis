@@ -42,6 +42,8 @@
 % Fuer anderthalbzeiligen Textsatz
 \usepackage{setspace}
 
+\usepackage{caption}
+
 % hyperrefs in the documents
 \usepackage[bookmarks=true,colorlinks,pdfpagelabels,pdfstartview = FitH,bookmarksopen = true,bookmarksnumbered = true,linkcolor = black,plainpages = false,hypertexnames = false,citecolor = black,urlcolor=black]{hyperref} 
 %\usepackage{hyperref}
@@ -56,6 +58,8 @@
 % Choose language
 \newcommand{\setlang}[1]{\selectlanguage{#1}\nonfrenchspacing}
 \newcommand*\mean[1]{\bar{#1}}
+\newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
+
 \begin{document}
 
 % TITLE:
@@ -132,7 +136,8 @@ Mithilfe von globalen Beleuchtungsmodellen/-techniken wird eine neue Methode ent
 
 \chapter*{Abstract}
 %\input{abstract}
-Tensor fields, are most commonly associated with stress distributions (cf. Cauchy-stress tensor) in 2D/3D grids, but also have some other meanings in practice in physics. By means of global illumination techniques, we motivate a new method to visualize tensor fields, which is also capable of visualizing the light transport (propagation) in a topologically defined scene geometry. As a basis, we derive a simple light propagation scheme for Cartesian grids, which satisfies propagation attenuation and energy-conservation principles and is able to approximate light distributions for given light source position(s) and direction(s) until convergence. The transmission profiles within this grid are considered as crystal fiber structures as an underlying physical model (eg. gemstones: tiger's eye's cat's eye effect). The consequent task is to model anisotropic fibre structures with the orientation and anisotropy measures of the underlying tensor field in the grid.
+Many problems in science and engineering require
+tensor field representations. Tensor fields, are most commonly associated with stress distributions (cf. Cauchy-stress tensor) in 2D/3D grids, but also have some other meanings in practice in physics. By means of global illumination techniques, we motivate a new method to visualize tensor fields, which is also capable of visualizing the light transport (propagation) in a topologically defined scene geometry. As a basis, we derive a simple light propagation scheme for Cartesian grids, which satisfies propagation attenuation and energy-conservation principles and is able to approximate light distributions for given light source position(s) and direction(s) until convergence. The transmission profiles within this grid are considered as crystal fiber structures as an underlying physical model (eg. gemstones: tiger's eye's cat's eye effect). The consequent task is to model anisotropic fibre structures with the orientation and anisotropy measures of the underlying tensor field in the grid.
 For this, we derive an eigenbasis by PCA (principal component analysis) for every cell of the tensor field and form an ellipsoid equation as transmission (transfer/weighting) function for the transmitted light profiles. Hence, the resulting light distribution can be visualized via 2D scalar field or polar plots for directional information. Additionally, We measure impulse responses of the tensor field with Dirac-pulses as light sources at any (sampled) position and in any direction to generate a uniform sampled map of the global illumination distributions. This map is considered as a global illumination energy flow field.
 We gain inspiration by vector field particle tracing's FTLE approach for analyzing the gradient of the flow field of the resulting light distributions. Similar to how the FTLE detects ridges/LCS (Lagrangian coherent structures) in vector fields (flow fields), our approach captures these structures likewise, attracting/repelling/saddling tensor field lines (TFL) which frequently represent key structures in nature, in tensor fields. We denote this entity a global illumination gradient which states an FTLE-related approach for visualizing LCS in tensor fields through analysis of the global and light transport  directed by imprint/engraving in crystelline fiber structures modeled by the tensor field's ellipsoid glyhps. We evaluate our approaches for plausibility and comparability within an extensive test campaign and demonstrate its performance on several examples of datasets.
 \newpage
@@ -155,13 +160,13 @@ We gain inspiration by vector field particle tracing's FTLE approach for analyzi
 
 \chapter{Introduction}\label{intro}
 
-In this work, we will discuss the advantages of tensor field analysis and motivate a new method for tensor field through a coherent light transport visualization. At first, we will shortly state the problem setting objectives and then give a quick overview about the structure of this work.
+In this work, we will discuss the advantages of tensor field analysis and motivate a new method for tensor field visualization through a coherent light transport visualization. At first, we will shortly state the problem setting, objectives and give a quick overview about the structure of this work. The main contributions of this work are listed in the bullet list below:
 
 \paragraph{Contributions of this Work}
 \begin{itemize}
-	\item Motivation of a light transport technique following basic but crucial physical principles for tensor field visualization
-	\item Design of a FTLE-related approach for visualizing key structures (ROIs) in $2D$ second-order tensor fields
-	\item Discussion of the proposed techniques in the context of other works in this field
+	\item Motivation of a light transport technique following basic but crucial physical principles for tensor field visualization using tensors as transmission profiles
+	\item Design of a FTLE-related approach called light transport gradient (LTG) for visualizing key structures (ROIs) in $2D$ second-order tensor fields
+	\item Discussion of the proposed methods in the context of other works in this field
 \end{itemize}
 %Dieses Kapitel gibt einen Überblick über die Arbeit. Gerade der
 %Abschnitt zur Motivation soll allgemein verständlich geschrieben
@@ -169,7 +174,7 @@ In this work, we will discuss the advantages of tensor field analysis and motiva
 
 \section{Motivation}
 \label{sect:motiv}
-Tensor Field Visualization is gaining importance as a relevant tool for the analysis of fluid and solid mechanics. Tensors are found most commonly in medical, scientific and engineering applications. A tensor is a $n$-D generalization of a matrix and appears, e.g., as Jacobian-Matrix in vector (Flow) field visualization or as stress tensor in solid continuum mechanics. Basically, tensors describe compressions, tensions, rotations and volume changes in both solid and fluid material. While most techniques focus on symmetric tensor field visualization (like glyphs and tensor field lines), some other recent works adress the problem of asymmetric tensor field visualization. The issue with asymmetric or antisymmetric tensors is that they do not always yield real eigenvalues, which is needed to determine an eigenbasis to set up glyphs, hyperstreamlines or tensor field lines. \cite{pang&zheng} Zheng \& Phang et al. proposed the concept of dual eigenvectors and \cite{zhang} Lin et al. extended it to pseudo-eigenvectors and introduced eigenvector and eigenvalue manifold to visualize eigenvectors in the complex domain. In this work, we will use the $\mathbf{U}$-matrix obtained from singular value decomposition (SVD) to obtain the half-axes of the PCA principal ellipsoid as suggested by Moler \cite{moler}.\\
+Tensor field visualization is gaining importance as a relevant tool for the analysis of fluid and solid mechanics. Tensors are found most commonly in medical, scientific and engineering applications. In general, a tensor is a $o$-D generalization of a matrix and appears, e.g., as Jacobian matrix in vector (flow) field visualization or as stress tensor in solid continuum mechanics. Basically, tensors describe compressions, tensions, rotations and volume changes in both solid and fluid material. While most techniques focus on symmetric tensor field visualization (like glyphs and tensor field lines), some other recent works adress the problem of asymmetric tensor field visualization. The issue with asymmetric (non-symmetric) or antisymmetric (skew-symmetric) tensors is, that they do not always yield real eigenvalues, which is needed to determine an eigenbasis to set up glyphs, hyperstreamlines or tensor field lines. Nevertheless, there has been extensive work in this domain as well. Zheng \& Phang et al. \cite{pang&zheng} proposed the concept of dual eigenvectors and Lin et al. \cite{zhang} extended it to pseudo-eigenvectors and introduced eigenvector and eigenvalue manifold to visualize eigenvectors in the complex domain. In this work, we will use the $\mathbf{U}$-matrix obtained from singular value decomposition (SVD) to obtain the half-axes of the PCA principal ellipsoid representing the tensor transformation as suggested by Moler \cite{moler} to state another alternative of handling asymmetric tensors.\\
 
 
 \begin{figure}[!t]
@@ -179,12 +184,11 @@ Tensor Field Visualization is gaining importance as a relevant tool for the anal
     {img/DIFFERENT_TYPES_OF_STRESS.png}
   }
   \caption{Different types of stress}
+  \captionsetup{font={footnotesize,bf,it}}
+  \caption*{src: \url{https://upload.wikimedia.org/wikipedia/commons/e/eb/DIFFERENT_TYPES_OF_STRESS.png}}	
   \label{Skalierung}
 \end{figure}
 
-
-Worum geht es? Beispiel(e)! Illustrationen sind hier meist sinnvoll
-zum Verständnis. Warum ist das Thema wichtig? In welchem Kontext?
 
 \section{Objectives}
 \begin{figure}[!t]
@@ -193,10 +197,12 @@ zum Verständnis. Warum ist das Thema wichtig? In welchem Kontext?
     \includegraphics[width=0.6\textwidth]
     {img/hyperstreamlines.png}
   }
-  \caption{Hyperstreamlines in Tensor Field Visualization}
+  \caption{Hyperstreamlines in tensor field visualization}
+  \captionsetup{font={footnotesize,bf,it}}
+  \caption*{src: \url{https://www-apr.lip6.fr/~tierny/stuff/teaching/tierny_visualization_tensorFields.pdf}}	
   \label{Skalierung}
 \end{figure}
-The main purpose of visualization in general is to reduce or encode some set of numbers in some readable, explorable and more intuitive representation. This implies, e.g., clustering, structuring or projection techniques. When it comes to tensor fields, this comes handy in, e.g., medical sciences such as in DT-MRI (diffusion tensor-medical resonance imaging) or in simulated (or measured) stress tensor fields from solid and fluid mechanics. The problem setting encomprises the visualization of tensor fields, i.e., mostly 2D/3D-grids consisting of mainly second-order tensors (cf. Cauchy-Stress Tensor) with the additional possibility to model light transport transport in a geometrical scene. The objective of this work is to design a simple light propagation scheme following the most basic but crucial physical principles and laws. This propagation scheme can either be used to visualize the light transport paths (separatrices) in a scene defined by geometry. Or, on the other hand, be used to visualize the anisotropy characteristics of a given tensor field. Therefore the tensor field somehow needs to be pre-processed to generate a tensor-induced footprint map of transmission profiles. Hence however, the tensors need to be decomposed to obtain a kind of transmission profile. Another aim is to implement an approach borrowed from vector-field visualization. We construct an FTLE-related approach in tensor field visualization (both symmetric and asymmetric) for detecting ridges/LCS (Lagrangian coherent structures). These structures can be classified (identified) as repelling, attracting and saddling (forming a saddle) local features, which frequently represent key structures in nature. LCS usually separate regions of different flow behavior, but in our case they separate regions/domains of varying directional distributions (w.r.t. direction/location) represented by tensors. The map responds most where tensor field lines / hyperstreamlines converge or diverge, whereas one is the same as the other because of bidirectional stress directions and since we effectively measure the FTLE with both forward and backward integration time (stimulus directions). The real part of the eigenvalues could be exploited for sign change (contractions/tensions) which leads to the concept of deformation glyphs w. attached arrows pointing inward/outward for the two types of normal stresses. Practically, in its eigenbasis there are no shear stresses existent for the symmetric stress tensor in equilibrium, just the principal normal stresses. Thus, we can even define the full set of stresses with the glyphs which are derived from the singular value decomposition and signed with the real part of the eigenvalues (in corresponding absolute order). The main goal of this work is therefore the encoding of a tensor field into certain elaborate representations and the interpretation of meaningful results comparing the proposed techniques against each other. The designed approach could e.g. be applied in medicinal sciences, engineering and physics to reveal structures which are hard to grasp through interpreting simpler glyph and tensor field line visualizations.
+The main purpose of visualization in general is to reduce or encode some set of numbers in some readable, explorable and more intuitive representation. This implies, e.g., clustering, structuring or projection techniques. When it comes to tensor fields, this comes handy in, e.g., medical sciences such as in DT-MRI (diffusion tensor-medical resonance imaging) or in simulated (or measured) stress tensor fields from solid and fluid mechanics. The problem setting encomprises the visualization of tensor fields, i.e., mostly 2D/3D-grids consisting of mainly second-order tensors (cf. Cauchy stress tensor) with the additional possibility to model light transport transport in a geometrical scene. The objective of this work is to design a simple light propagation scheme yet following the most basic but crucial physical principles and laws, like energy conservation and propagation attenuation. This propagation scheme can either be used to visualize the light transport paths (defined by separatrices) in a scene defined by geometry. Or, on the other hand, be used to visualize the anisotropy characteristics of a given tensor field. However, the tensor field somehow needs to be pre-processed to generate a tensor-induced footprint map of transmission profiles. Hence however, the tensors need to be decomposed to obtain a kind of transmission profile. Another aim is to implement an approach borrowed from vector-field visualization. We construct an FTLE-related approach in tensor field visualization (both symmetric and asymmetric) for detecting ridges/LCS (Lagrangian coherent structures). These structures can be classified (identified) as repelling, attracting and saddling (forming a saddle) local features, which frequently represent key structures in nature. LCS usually separate regions of different flow behavior, but in our case they separate regions/domains of varying directional distributions (w.r.t. direction/location) represented by tensors. The map responds most where tensor field lines / hyperstreamlines converge or diverge, whereas one is the same as the other because of bidirectional stress directions and since we effectively measure the FTLE with both forward and backward integration time (stimulus directions). The real part of the eigenvalues could be exploited for sign change (contractions/tensions) which leads to the concept of deformation glyphs w. attached arrows pointing inward/outward for the two types of normal stresses. Practically, in its eigenbasis there are no shear stresses existent for the symmetric stress tensor in equilibrium, just the principal normal stresses. Thus, we can even define the full set of stresses with the singular values which are derived from singular value decomposition and signed with the real part of the eigenvalues (in corresponding absolute order). The main goal of this work is therefore the encoding of a tensor field into certain elaborate representations and the interpretation of meaningful results comparing the proposed techniques against others. The designed approach could e.g. be applied in medicinal sciences, engineering and physics to reveal structures which are hard to grasp through interpreting simpler and sometimes confusing glyph and tensor field line visualizations.
 
 
 %In diesem Abschnitt sollen neben den Herausforderungen und der
@@ -204,7 +210,7 @@ The main purpose of visualization in general is to reduce or encode some set of 
 
 \section{Structure of this Work}
  
-For the rest of this work, we will give a quick overview on the structure and outline. Next, in chap. \ref{chap:grundlagen}, we will capture important fundamentals like Tensors and PCA in the context of singular value decomposition (generalization of eigenvalue decomposition). Also we will discuss the most relevant related work in the domain of tensor field visualization. In chap. \ref{chap:main} we will propose the main contributions of this work and document the experimental evaluation in chap. \ref{chap:eval}. A compact Summary, Conclusion and Outlook will be given in chap. \ref{chap:concl}.\\
+For the rest of this work, we will give a quick overview on the structure and outline. Next, in chap. \ref{chap:grundlagen}, we will capture important fundamentals like Tensors, PCA and GT data in the context of singular value decomposition (generalization of eigenvalue decomposition). Also we will discuss the most relevant related work in the domain of tensor field visualization. In chap. \ref{chap:main}, we will propose the main contributions of this work and document the results and evaluation in chap. \ref{chap:eval}. Subsequently, A compact Summary, Conclusion and Outlook will be given in chap. \ref{chap:concl}.\\
 
 %Dieser Abschnitt wird meist recht kurz gehalten und beschreibt im
 %Prinzip nur den Aufbau des Rests der Arbeit. Zum Beispiel: In Kapitel
@@ -218,7 +224,7 @@ For the rest of this work, we will give a quick overview on the structure and ou
 \chapter{Fundamentals and Recent Work}
 \label{chap:grundlagen}
 
-In this chapter, we will capture the prerequisites necessary to understand the contributions of this work and will capture Tensors, PCA, GT approaches and Related Work in that sense.
+In this chapter, we will capture the prerequisites necessary to understand the contributions of this work and we will capture tensor fields, PCA, GT approaches and Related Work in that sense.
 
 %Die ersten paar Abschnitte in diesem Kapitel führen in die Grundlagen
 %zur Arbeit ein. Das können beispielsweise Grundlagen zu Netzwerken
@@ -226,19 +232,18 @@ In this chapter, we will capture the prerequisites necessary to understand the c
 
 \section{Tensor Fields}
 \label{sec:tensors}
-Now what is a Tensor? A tensor is a $o$-dimensional generalization of a matrix as illustrated in Table \ref{tensor}.
+Now what is a tensor? A tensor is a $o$-dimensional generalization of a matrix as illustrated in Table \ref{tensor}.
 \begin{table}[!b]
 \centering
 \caption{Tensor Shapes}
  \begin{tabular}{c|c|c|c|c|c|c}
 \textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
 \hline 
-\textbf{shape} & scalar & vector & matrix & ``3D-matrix'' & ... & $\mathop{o}$D-matrix\\ 
+\textbf{shape} & scalar & vector & matrix & ``3D matrix'' & ... & $\mathop{o}$D matrix\\ 
 \end{tabular}
 \label{tensor}
  \end{table} 
-In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$ (the dimensin of the row and column vectors), which is equal to the rank of the tensor for full rank (or in other words the number of elements n for a $n{\times}n$-matrix). Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained and defined from physical transformation equations. Hence, any $o$-D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$-D number arrays (in a sense of physical interpretation), which is mostly true for component-indexed $o$-D number entities following matrix multiplication and transformation rules found in physics and math. In fact, tensors themselves are interpreted as a transformation which reflects an incoming direction vector (measuring, e.g., the stress in that direction) to an outgoing stress vector.
- To be a bit more concrete, tensors represent stress distributions in solids and fluids describing strain and flow features as these entities aren't simple numbers or vectors. They occur in form of a tensor fields, and thus as entities or quantities in physics. That is, at each point in space (indexed by the grid) there is a whole distribution of, e.g., stresses (elastic and viscous) which needs to be characterized and represented by a single tensor.
+In addition to that, a tensor has as many indices as its order $o$ and their run length is as long as its embedded dimension $n$ (the dimensin of the row and column vectors), which is equal to the rank of the tensor for full rank (or in other words the number of elements n for a $n{\times}n$-matrix). Tensors follow certain transformation rules which are defined for covariant/contravariant tensors. They are most commonly obtained and defined from physical transformation equations. Hence, any $o$D number array could be a tensor, but the definition holds only if the transformation rules apply to these $o$D number arrays (in a sense of mathematical/formal interpretation), which is mostly true for component-indexed $o$-D number entities following matrix multiplication and transformation rules found in physics and math manifesting in calculation rules like matrix multiplication. Thus, a tensor is a $o$D number array arranged in meaningful order to put it simple. In fact, tensors themselves are interpreted as transformations which reflect an incoming direction vector (measuring, e.g., the stress in that direction) to an outgoing (stress) vector. To be a bit more concrete, tensors represent stress distributions in solids and fluids describing strain and flow features as these entities are not simple numbers or vectors. They occur in form of a tensor fields, and thus as entities or quantities in physics. That is, at each point in space (indexed by the grid) there is a whole distribution of directions, e.g., stresses (elastic and viscous) which needs to be characterized and represented by a single tensor each.
  \\
  \paragraph{stress tensor}
  \begin{figure}[!t]
@@ -247,7 +252,9 @@ In addition to that, a tensor has as many indices as its order $o$ and their run
     \includegraphics[width=0.6\textwidth]
     {img/stress_tensor.png}
   }
-  \caption{Cauchy-Stress Tensor}
+  \caption{Cauchy stress Tensor}
+  \captionsetup{font={footnotesize,bf,it}}
+  \caption*{src: \url{https://en.wikipedia.org/wiki/Cauchy_stress_tensor\#/media/File:Components_stress_tensor_cartesian.svg}}
   \label{cauchy}
 \end{figure}
 
@@ -273,30 +280,36 @@ The Cauchy stress tensor, which is propably the classical example of a tensor, i
 \sigma _{31} & \sigma _{32} & \sigma _{33} 
 \end{bmatrix}.
 \end{align*}
-These 3 stress vectors represent the orientation and magnitude of total resulting stress at plane ${x,y,z}$ in direction ${x,y,z}$ ($3^2=9$ individual numbers). Thus, the stress tensor poses a full valid represenation of the stress distribution at any point in space. The stress tensor itself can be interpreted as a transformation which maps an incoming normal direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$. The stresses in normal directions (diagonal elements) are directly related to the pressure, which is always isotropic and hence non-directionally dependent. It is possible to find 2 principal stress directions in 2D through PCA (see sect. \ref{sec:pca} below), for which there are no shear stresses existent in equilibrium. These form the principal directions of deformation at a certain location and are sufficient to describe the resulting transformation/deformation behaviour. The resulting system of principal directions and absolute stresses is often called an ``eigensystem'' or ``eigenframe''. So to say, an eigensystem, consistent of the principal directions/axes, spans a principal ellipsoid depicted in Fig. \ref{HAT} in sect. \ref{sec:pca}.
-Another interpretation for the principal component ellipsoid is that it is the result of the tensor transformation applied to the unit circle. It is therefore somehow representing the distortion of an absolutely isotropic object (unit circle) by whatever the affine transformation effects (e.g. stretching, shearing, mirroring, scaling, rotating).
+These 3 stress vectors represent the orientation and magnitude of total resulting stress at plane ${x,y,z}$ in direction ${x,y,z}$ ($3^2=9$ individual numbers). Thus, the stress tensor poses a full valid represenation of the stress distribution at any point in space. The stress tensor itself can be interpreted as a transformation which maps an incoming normal direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$. The stresses in normal directions (diagonal elements) are directly related to the pressure, which is always isotropic and hence non-directionally dependent (kind of a Euclidean distance of the stress components). It is possible to find 2 principal stress directions in 2D through PCA (see sect. \ref{sec:pca} below), for which there are no shear stresses existent in equilibrium. These form the principal directions of deformation at a certain location and are sufficient to describe the resulting transformation/deformation behaviour. The resulting system of principal directions and absolute stresses is often called an ``eigensystem'' or ``eigenframe''. So to say, an eigensystem, consistent of the principal directions/axes, spans a principal ellipsoid depicted in Fig. \ref{HAT} in sect. \ref{sec:pca}.
+Another interpretation for the principal component ellipsoid is that it is the result of the tensor transformation applied to the unit circle. It is therefore somehow representing the distortion of an absolutely isotropic object (unit circle) by whatever the affine tensor transformation effects (e.g. stretching, shearing, mirroring, scaling, rotating).
 \section{Principal Component Analysis}
 \label{sec:pca}
 Note that we denote a matrix with a second order tensor interchangeably for the sake of simplicity in the following. For any state of stress in equilibrium it is possible to find $n$ (dimensionality) independent orthogonal directions with no shear stresses existent. Along these directions the principal stresses, which are normal (tensile/compressive) stresses, are exerted. The anisotropy can be represented by, e.g., ellipsoid glyphs.
 
 \begin{figure}[!t]
-%\centering
-  \begin{minipage}{0.5\textwidth}
+\hskip 22pt
+  \begin{minipage}[!t]{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/HAT.png}
     \label{HAT}
-  \end{minipage}
-  \begin{minipage}{0.5\textwidth}
+   \caption{2D Principal component ellipsoid (eigenframe)}
+   \captionsetup{font={footnotesize,bf,it}}
+   \caption*{src: \url{https://de.wikipedia.org/wiki/Datei:HAT-ellipse0.svg}}
+  \end{minipage} \hskip 40pt
+  %\raggedright
+  \begin{minipage}[!t]{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/glyphs.png}
-    \label{b)}
+    \caption{3D ellipsoid glyphs w. anisotropy coefficient (l:linear, p:planar, s:spherical)}
+    \label{3Dglyphs}
+    \captionsetup{font={footnotesize,bf,it}}
+   \caption*{src: \url{https://slideplayer.com/slide/5291764/}}
   \end{minipage}
-\caption{a) 2D Principal component ellipsoid (eigenframe), b) 3D ellipsoid glyphs w. anisotropy coefficient (l:linear, p:planar, s:spherical)}
 \label{gradient}
 \end{figure}
 
-Principal Component Analysis is an algorithm which can capture the principal components (directions) in stochastic data. But it works similarly on transformations to capture the principal directions from transformations like rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (skew-)symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$ (cf. \cite{kieburg}). Note that the eigenvectors match the singular vectors only for symmetric matrices, which does not mean that they do not form the half-axes of the principal component ellipsoid in other cases. Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling ($\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig. \ref{HAT} for any kind of matrix as pointed out by Moler \cite{moler}. In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues (\cite{mroz}) ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which would allow us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step. In this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques on top to generate a flow map, which permits us to compute an FTLE-like field on the tensor fields.
+Principal Component Analysis is an algorithm which can capture the principal components (directions) in stochastic data. But it works similarly on transformations to capture the principal directions from transformations like rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (skew-) symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$ (cf. \cite{kieburg}). Note that the eigenvectors match the singular vectors only for symmetric matrices, which does not mean that they do not form the half-axes of the principal component ellipsoid in other cases. Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling ($\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig. \ref{HAT} for any kind of matrix as pointed out by Moler \cite{moler}. In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues (\cite{mroz}) ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which would allow us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step. In this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques on top to generate a flow map, which permits us somehow to direct the intensities which are given as pre-defined initialization values. This kind of light transport propagation scheme will also allow us to compute an FTLE-like field on the tensor fields.
 
 
-\section{GT concepts / Approaches}
+\section{GT data / Approaches}
 \label{sec:gt}
 \paragraph{Glyphs and tensor field lines}
 \begin{figure}[!t]
@@ -417,7 +430,7 @@ There has been extensive recent work on symmetric tensors but in comparison litt
 Zheng \& and Pang \cite{pang&zheng} et al. proposed a texture-based visualization approach called HyperLIC, which extends the concept of LIC to symmetric tensor fields by using an anisotropic 2D-filter kernel oriented along the major/minor eigenvectors. The concept of following the major/minor eigenvector along tensor field lines was invented by Vilanova et al. \cite{vilanova}. Tensorlines introduce a kind of artificial inertia (running average), making them resistent to noise. The notion of tensor field topology and the concept of Hyperstreamlines was first introduced by Delmarcelle and Hesselink \cite{delmarcelle&hesselink}. The placement of tensor field lines as hyperstreamlines was recently improved by Spencer et al. \cite{spencer} for glyph packing. A good overview of seeding strategies concerning glyphs is given by McLoughlin et al. \cite{mcloughlin}. Feng et al. \cite{feng} used Voronoi Tesselation for placing the glyphs. Superquadric glyphs have been proposed by Schultz and Kindlmann \cite{schultz&kindlmann} for general (non-positive definite) tensors. De Leeuw and van Wijk \cite{deleeuw&vanwijk} visualize the partial derivative gradient, the Jacobian of the tensor field to sense the local properties of the field. A diffusion tensor can also be visualized by box \cite{makris}, ellipsoid \cite{pierpaoli}, composite \cite{westin2} or superquadric \cite{kindlmann} glyphs. There is also a set of scalar measures available in symmetric tensor field visualization such as: mean diffusivity, fractional anisotropy \cite{basser} and anisotropy coefficients \cite{westin}. Hlawatsch et al. \cite{hlawatsch} obtain a coordinate (flow) map from tensor field lines following major/minor eigenvectors (fibre trajectories) and use the maximum eigenvalue of the Cauchy-Green deformation tensor to compute the FTLE-field in homogeneous regions. In a similar manner, we aim to use light transport techniques to obtain a final light distribution through successive light propagation cycles footprinted (in form of transmission profiles obtained from ellipsoid glyphs) by the tensor field.
 \\
 \textbf{Asymmetric Tensor Field Visualization}\\
-Zheng and Pang \cite{pang&zheng} proposed the concept of dual eigenvectors and Zhang et al. \cite{zhang} extended it to pseudo-eigenvectors and introduced the eigenvector/eigenvalue manifolds to visualize eigenvectors in the complex domain. Laramee et al. \cite{laramee} focused on the efficient implementation and visualization of these structures and provided an interactive visualization system for asymmetric tensors applicable in fluid and solid dynamics. The concept of Tensor Magnitude has been introduced by \cite{laramee2} for means of physical interpretation. They also proposed an efficient glyph and hyperstreamline hybrid approach, which made dynamic interaction in real-time in 2D tensor fields feasible. Palacios et al. \cite{palacios} extracted isosurfaces of tensor magnitude, mode and isotropy index. \vskip 5pt
+Zheng and Pang \cite{pang&zheng} proposed the concept of dual eigenvectors and Zhang et al. \cite{zhang} extended it to pseudo-eigenvectors and introduced the eigenvector/eigenvalue manifolds to visualize eigenvectors in the complex domain. Laramee et al. \cite{laramee} focused on the efficient implementation and visualization of these structures and provided an interactive visualization system for asymmetric tensors applicable in fluid and solid dynamics. The concept of tensor magnitude has been introduced by \cite{laramee2} for means of physical interpretation. They also proposed an efficient glyph and hyperstreamline hybrid approach, which made dynamic interaction in real-time in 2D tensor fields feasible. Palacios et al. \cite{palacios} extracted isosurfaces of tensor magnitude, mode and isotropy index. \vskip 5pt
 
 Last, we will discuss our approach in relation to the listed publications. The FTLE-related approach ``global illumination gradient'' to be designed states a generalization of the light transport visualization method FTPD proposed by Zirr et al.\cite{zirr}, since it allows a similar measure to be computed through defining a geometrical scene and setting the transmission (tensor field) to an isotropic and constant value of $100\%$. In this modus, the approach operates as a light transport visualitation technique. The work of \cite{hlawatsch} et al. obtains similar results (an FTLE-like field) but obtains them by sampling of fiber trajectories instead of global illumination light transport methods, as in our case.
 %Typischerweise im letzten Abschnitt dieses Kapitels wird dann auf
@@ -443,7 +456,7 @@ Last, we will discuss our approach in relation to the listed publications. The F
 \chapter{Method}
 \label{chap:main}
 
-This chapter will summarize the main contributions of this work studied and state targeted aims and goals as a first step in sect. \ref{sec:overview}. Then we will have a short introduction to the implemented global illumination scheme derived and simplified from an nVidia GI approach in sect. \ref{sec:scheme}. Last, we will state the effectively implemented Visualization methods Light Transport Visualization and Global Illumination gradient proposed as innovatively invented tensor visualization techniques.
+This chapter will summarize the main contributions of this work studied and state targeted aims and goals as a first step in sect. \ref{sec:overview}. Then we will have a short introduction to the implemented global illumination scheme derived and simplified from an nVidia global illumination approach in sect. \ref{sec:scheme}. Last, we will state the effectively implemented Visualization methods Light Transport Visualization and Global Illumination gradient proposed as innovatively invented tensor visualization techniques.
 
 
 
@@ -455,16 +468,16 @@ This chapter will summarize the main contributions of this work studied and stat
 
 \section{Requirements and Ambitions}
 \label{sec:spec} 
-Our ambition is to motivate a simple and efficient global illumination propagation scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field). That is, to provide an orientation for a grid of crystal fibre structures (cf. optical fibres) to redirect the intensities in analogy to the anisotropies of the tensor field within a glyph representation, obtained from Principal Component Analysis. Our approach should be implicitly adaptive to any kind of 2D dataset. Thus, we opt to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of the field (full-spectrum). At last, we aim to generate a new FTLE-related method for tensor field visualization by applying a Global Illumination Gradient to the resulting light distributions for every possible position and direction of the light source in the grid generated by stimulation with Delta-pulses. Thus, our motivation is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional tensor fields). Our approach should efficiently handle (relatively) large datasets. 
+Our ambition is to motivate a simple and efficient global illumination propagation scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field). That is, to provide an orientation for a grid of crystal fibre structures (cf. optical fibres) to redirect the intensities in analogy to the anisotropies of the tensor field within a glyph representation, obtained from Principal Component Analysis. Our approach should be implicitly adaptive to any kind of 2D dataset. Thus, we opt to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of the field (full-spectrum). At last, our ambition is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional eigenvectors of tensors). Thus, we aim to generate a new FTLE-related method for tensor field visualization by applying a light transport gradient to the resulting light distributions for every possible position and direction of the light source in the grid generated by stimulation with Delta-pulses. Our approach should efficiently handle (relatively) large datasets with reasonable resolutions. 
 %Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
 %Methoden überblicksartig beschrieben werden. Hier sollte die
 %Beschreibung ``technischer'' bzw.~``formaler'' sein als in der
 %Einleitung, da der Leser nun mit den Grundlagen und verwandten
 %Arbeiten vertraut ist.
 
-\section{Global Illumination (Propagation) Scheme}
+\section{Light Transport (Propagation) Scheme}
 \label{sec:scheme}
-Within the scope of this work, we will motivate a Global Illumination Scheme designed to efficiently propagate the intensities stored in discrete polar coordinates given as impulses (stimuli) by the user or the config. Polar profiles for different light sources are shown in Fig. \ref{polar}:
+Within the scope of this work, we will motivate a light transport propagation scheme designed to efficiently propagate the initial intensity profiles stored in polar coordinates given as symbolic impulses (stimuli) by the user or the config. Polar profiles for different light sources are shown in Fig. \ref{polar}:
 \begin{figure}[!t]
   \centering
  {
@@ -472,6 +485,8 @@ Within the scope of this work, we will motivate a Global Illumination Scheme des
     {img/strahler.png}
   }
   \caption{Polar profiles for different types of emitters ($m=0$: spherical emitter, $m=1$: Lambert emitter, $m=2$: cone emitter}
+  \captionsetup{font={footnotesize,bf,it}}
+  \caption*{src: \url{http://www.optik.uni-erlangen.de/odem/vorlesung/ws1213/Photometrie_Geometrische_Optik.pdf}}
   \label{polar}
 \end{figure}\vskip 3pt
 As a reminder, polar profiles map each angle $\varphi$ a magnitude $r$ forming a function $r(\varphi)$. They are circular axis versions of the domain $[0..2\pi]$, with negative magnitudes mirrored by 180 degrees). Thus, they are functions with an angular domain making them directionally dependent, which is a well suited representation for point lights, as we use them in a style of Dachsbacher et al. \cite{dachsbacher}. For the sake of interpretability, we exclude negative values (energies) from the scope of our calculations. As a start-up thinker for the propagation scheme, we will think of a grid cell in 2D as a center pixel within an 8-neighborhood. Remember, that all considerations from now on are given concerning a single grid cell respectively. It has 8 (4 faces/edges and 4 diagonals) unique neighbors, which are adjacent point lights in the grid (the type of light source with theoretically no finite extend). We consider one face neighbor (top) to shortly explain the steps of the scheme. The diagonals and the others are obtained from derivation and symmetry.
@@ -505,7 +520,7 @@ We show a few of the first iteration steps for the propagation scheme in Fig. \r
     \includegraphics[width=1.0\textwidth]
     {img/steps_gallery_format_arrow_alt.png}
   }
-  \caption{Impulse Response for Isotropic Stimulus (Few Iterations: 0,1,2,3,7,11)}
+  \caption{Impulse Response for Isotropic Stimulus (few iterations: $t$)}
   \label{iter}
 \end{figure}\vskip 3pt
 Fig \ref{iter} depicts the named iteration inidices 0,1,2,3,7,11 for the propagation scheme for a circular pulse stimulus which gets turned off after 1 iteration to demonstrate raw energy spreading in the field (impulse response of algorithm). In step 1 one can observe the placing of cosine lobes scaled with the respective accumulated and weighted energy for the summed area in each of the 8 neighbor directions. In the subsequent steps, remark the evolution from an 8-neighborhood in step 1 to a circular torus shaped.
@@ -639,7 +654,7 @@ It is noticeable that the runtime increases fast with increasing resolution, whi
 Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Experimental Evaluation}
+\chapter{Results and Evaluation}
 \label{chap:eval}
 \section{Propagation Attenuation}
 \label{sec:att}
@@ -749,7 +764,7 @@ The Energy Conservation Test was done in similar manner as the Propagation Atten
 
 The approach remains stable until iteration 40, which is at the time (point) when the numbers are to small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be gained back. The error is accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers leading to a greater absolute $\Delta E$
 
-\section{Light Transport Gradient (LTG)}
+\section{Light transport gradient (LTG)}
 The light transport gradient approach, which is closely related to the FTLE approach in vector fields is evaluated from simple ground truth examples to elaborate real datasets.
 As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. one axis.
 \begin{figure}[!t]
