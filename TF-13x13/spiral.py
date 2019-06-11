@@ -47,7 +47,7 @@ def file_len(fname):
 
 # create identity
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 117+50
+length = 101+50
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
 
 # generate normalized tensors from linear transformations (polar form)
@@ -79,7 +79,7 @@ for rad in radarr:
         continue
     if xIndex < length and yIndex < length: # if indices inside range..
         if delta<curDelta[yIndex][xIndex]: # if absolute error < current error.. update
-            scaled = np.matmul(scale(4, 1), identity)  # chronological transformation order: right->left
+            scaled = np.matmul(scale(10, 1), identity)  # chronological transformation order: right->left
             rotated = rotate(scaled, rot)
             normalized = normalize(rotated) # ..->transforms
             matrixArray[yIndex][xIndex] = normalized  # update matrixArray entry

@@ -15,13 +15,13 @@ def rotate(matrix, phi):
 
     return np.matmul(rotation, matrix) ## rotation applied from the left (as last step)
 
-def mirrorX(): # mirroring at x-axis
+def mirrorX(matrix): # mirroring at x-axis
     mirror = np.array([[-1, 0], [0, 1]])
-    return mirror
+    return np.matmul(mirror, matrix)
 
 def mirrorY(matrix): # mirroring at y-axis
     mirror = np.array([[1, 0], [0, -1]])
-    return mirror
+    return np.matmul(mirror, matrix)
 
 ## begin with scaling and mirroring (in arbitrary order) to correctly interpret your results!, rotations on top...
 
@@ -53,14 +53,11 @@ matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize n
 with open('temp.txt', 'wb') as f:
     for j in range(length): # rows
         for i in range(length): # cols
-            y = round(j-(length-1)/2) # use inverted y coordinates (mirroring at x-axis in array reference frame)
-            x = round(i-(length-1)/2) # --> center around midpoint
+            y = j #length - 1 - ((length-1)/2-j) #j # use inverted y coordinates (mirroring at x-axis in array reference frame)
+            x = (length - 1 - j)/(length-1)*round(i-(length-1)/2) # --> center around midpoint
             matrixArray[j][i] = normalize(np.array([[1, 0], [0, 1]])) # initialization w. normed identity
             rad = m.atan2(y,x) # use vector atan2 to determine angle and quadrant of vector [x|y]
-            if x==0 and y==0: # if center (origin)..
-                scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling
-            else:
-                scaled = np.matmul(scale(10,1),identity) # use anisotropic scaling
+            scaled = np.matmul(scale(10,1),identity) # use anisotropic scaling
             rotated = rotate(scaled, rad)
             normalized = normalize(rotated) # ..->transforms
             matrixArray[j][i] = normalized # update matrixArray entry
@@ -82,9 +79,13 @@ with open('temp.txt', 'r+') as txtfile:
 
             if i % (2*length) == 0: # if one row (in matrixArray) passed.., write results
                 tensor_field.write(str1) # write row 1 (upper line)
-                tensor_field.write('\n' + str2 + '\n') # write row 2 (lower line)
+                if i == 2*length*length:
+                    tensor_field.write('\n' + str2 ) # write row 2 (lower line)
+                else:
+                    tensor_field.write('\n' + str2+ '\n') # last row reached..
                 str1 = str2 = "" # ..reset line strings
 
             i += 1 #increment line index
 
+print("line_index: " + str(i)) # print len of matrixArray: should equal length
 os.remove('temp.txt')

@@ -1040,12 +1040,13 @@ int main(int argc, char* argv[])
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
-	// DELTA (Gradient) COMPUTATION START //
-
+		// DELTA (Gradient) COMPUTATION START //
+	double beta = 26.5651 * pi / 180;
+	int betaIndex = ceil(beta / radres);
+	//int deltaT = steps/16; // SLICE TESTS
+	int deltaT = betaIndex;// ceil(steps / 12.0); // VOLUME TESTS -- no interruption
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
-	int deltaT = steps/16; // SLICE TESTS
-	//int deltaT = steps/12; // VOLUME TESTS -- exceeding beta -- no interruption 
 	#pragma omp parallel for //collapse(2)
 	for (int t = 0; t < steps; t++)
 	{
