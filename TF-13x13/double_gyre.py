@@ -65,7 +65,7 @@ with open('temp.txt', 'wb') as f:
             if i==(length-1)/2 and j==(length-1)/2 or i==(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 :
                 scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling
             else:
-                scaled = np.matmul(scale(4,1),identity) # chronological transformation order: right->left
+                scaled = np.matmul(scale(10,1),identity) # chronological transformation order: right->left
             rotated = rotate(scaled, rad)
             normalized = normalize(rotated)  # ..->transforms
             matrixArray[j][i] = normalized  # update matrixArray entry
