@@ -46,8 +46,8 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 101
-
+length = 13
+s = 10
 #deg = -45
 
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
@@ -62,10 +62,25 @@ with open('temp.txt', 'wb') as f:
             dy = np.pi * np.cos(np.pi * (i/(length-1))*2.0) * np.sin(np.pi * ((length-1-j)/(length-1))*2.0)
 
             rad = m.atan2(dy, dx)
-            if i==(length-1)/2 and j==(length-1)/2 or i==(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 :
+            if i==0:
+                if j==0 or j==(length-1)/2 or j==(length-1):
+                    scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling
+                else:
+                    scaled = np.matmul(scale(s, 1), identity)  # chronological transformation order: right->left
+            elif i == (length-1)/2:
+                if j==0 or j==(length-1)/2 or j==(length-1):
+                    scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling
+                else:
+                    scaled = np.matmul(scale(s, 1), identity)  # chronological transformation order: right->left
+            elif i == (length-1):
+                if j==0 or j==(length-1)/2 or j==(length-1):
+                    scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling
+                else:
+                    scaled = np.matmul(scale(s, 1), identity)  # chronological transformation order: right->left
+            elif i==(length-1)/2 and j==(length-1)/2 or i==(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 :
                 scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling
             else:
-                scaled = np.matmul(scale(10,1),identity) # chronological transformation order: right->left
+                scaled = np.matmul(scale(s,1),identity) # chronological transformation order: right->left
             rotated = rotate(scaled, rad)
             normalized = normalize(rotated)  # ..->transforms
             matrixArray[j][i] = normalized  # update matrixArray entry
