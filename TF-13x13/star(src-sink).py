@@ -49,7 +49,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 117
+length = 51
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
 
 # generate normalized tensors from linear transformations
@@ -63,7 +63,7 @@ with open('temp.txt', 'wb') as f:
             if x==0 and y==0: # if center (origin)..
                 scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling (1,1) - src; (0,0) - sink
             else:
-                scaled = np.matmul(scale(4,1),identity) # use anisotropic scaling
+                scaled = np.matmul(scale(10,1),identity) # use anisotropic scaling
             rotated = rotate(scaled, rad)
             normalized = normalize(rotated) # ..->transforms
             matrixArray[j][i] = normalized # update matrixArray entry
@@ -74,27 +74,23 @@ print("filelen: " + str(file_len('temp.txt'))) # print filelen of temp: should e
 print("matrixarray: " + str(len(matrixArray))) # print len of matrixArray: should equal length
 
 # reorder the output tensor field into a regular grid
-i = 1 # create line index starting from 1
-str1 = "" # create empty string for row 1 (in 2D)
-str2 = "" # create empty string for row 2 (in 2D)
+i = 1
+str1 = ""
+str2 = ""
 with open('temp.txt', 'r+') as txtfile:
-    for line in txtfile:
-        line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
-        if i % 2 == 0: # if even line
-            str2 += " " + line # concatenate row2 (lower line)
-        else:
-            str1 += " " + line # concatenate row1 (upper line)
+    with open('tensor_field.txt', 'w+') as tensor_field:
+        for line in txtfile:
+            line = line.rstrip() # remove newline/whitespace chars from line ends (the right)
+            if i % 2 == 0: # if even line
+                str2 += " " + line # concatenate row2 (lower line)
+            else:
+                str1 += " " + line # concatenate row1 (upper line)
 
-        if i%(2*length) == 0: # if one row (in matrixArray) passed.., write results
-            txtfile.write('\n' + str1) # write row 1 (upper line)
-            txtfile.write('\n' + str2) # write row 2 (lower line)
-            str1 = str2 = "" # ..reset line strings
+            if i % (2*length) == 0: # if one row (in matrixArray) passed.., write results
+                tensor_field.write(str1) # write row 1 (upper line)
+                tensor_field.write('\n' + str2 + '\n') # write row 2 (lower line)
+                str1 = str2 = "" # ..reset line strings
 
-        i += 1 #increment line index
+            i += 1 #increment line index
 
-with open('temp.txt', 'r') as fin:
-    data = fin.read().splitlines(True) # ..read temp.txt as line array in data
-with open('tensor_field.txt', 'w+') as fout:
-    fout.writelines(data[length**2*2+1:]) # in 2D.., use generated txt from line: length**2*2+1
-
-os.remove('temp.txt') # remove tmp file
+os.remove('temp.txt')
