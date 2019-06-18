@@ -735,7 +735,25 @@ To evaluate the plausibility of the light distribution results obtained from the
 \caption{final light propagation distributions for ``isotropy''-testfield}
 \label{isotropic}
 \end{figure}
-One can observe here, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in sect. \ref{sec:att} and \ref{sect:conserve}.
+One can observe here, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in sect. \ref{sec:att} and \ref{sect:conserve}. We can also depict the final distribution as a scalar field when using the total energy in each cell as scalar:
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/iso_scalar.png}
+    \label{a)}
+    \caption*{light src in center}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/iso_sat.png}
+    \label{b)}
+    \caption*{light src in center (rescaled)}
+  \end{minipage}
+\caption{final light distributions for ``isotropy''-test field}
+\label{rings-tests}
+\end{figure}
+Note that we skipped the top center example, since we consider it a trivial add-on example. When we observe these scalar heat map plots, we first notice the red dots, which always represent light sources (since they are captured the most energy) in these cases. Specifically, the heat maps are obtained from the same light distributions we plot as polar profiles and should hence be interpreted concurrently. Remark the propagation front indicating a circular wave (circular isolines in a)).
+In this next example, we use the tensor field ``rings'' as input data for the approach and observe how the intensities are channeled in a spiral orbit around the central origin. The anisotropy measures decide whether the transmission profile is more narrow (radical) or more wide (liberal):
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -751,7 +769,24 @@ One can observe here, how light is propagated with no directional bias leading t
 \caption{final light propagation distributions for ``rings''-test field}
 \label{rings-tests}
 \end{figure}
-In this next example, we use the tensor field ``rings'' as input data for the approach and observe how the intensities are channeled in a spiral orbit around the central origin. The anisotropy measures decide whether the transmission profile is more narrow (radical) or more wide (liberal).
+We consider Fig. \ref{rings-tests} to regard the behavior for circular tensor field lines. As expected, the intensities get directed in circular orbits by the tensor ellipsoid transmission profiles. Note the symmetry for both cases depicted. Again, we plot the final light distributions as heat maps:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/cos_parallel.png}
+    \label{a)}
+    \caption*{antisymmtric light src's}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/cos_anti.png}
+    \label{b)}
+    \caption*{symmetric light src's}
+  \end{minipage}
+\caption{final light propagation distributions for ``spiral''-test field}
+\label{spiral-tests}
+\end{figure}
+It is noticeable, that the intensities concentrate preferably on the circular tensor field lines, which proves the approach's controlling ability expressing as direction.
+The results for our tensor field ``spiral'' can be interpreted in analogous fashion as the previously discussed ``rings''-testfield. The influence incorporated by the tensor field is easily noticeable in this case as well:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -767,8 +802,24 @@ In this next example, we use the tensor field ``rings'' as input data for the ap
 \caption{final light propagation distributions for ``spiral''-test field}
 \label{spiral-tests}
 \end{figure}
-The results for our tensor field ``spiral'' can be interpreted in analogous fashion as the previously discussed ``rings''-testfield. The influence incorporated by the tensor field is easily noticeable in this case as well.
+For the ``spiral'' tensor field we observe the spiral shape literally absorbing the intensities into its spiral arms, which becomes even more clear when we again observe the heat map representation:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/spiral-temp2.png}
+    \label{a)}
+    \caption*{dense light src's}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/spiral_full.png}
+    \label{b)}
+    \caption*{4 light src's}
+  \end{minipage}
+\caption{final light propagation distributions for ``spiral''-test field}
+\label{spiral-tests}
+\end{figure}
 
+The star example reveals another interesting feature of the approach: if the intensity impulsively hits an isotropic region, it gets split up into a range of the neighboring $180$ degrees of directions:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.31\textwidth}
@@ -789,8 +840,23 @@ The results for our tensor field ``spiral'' can be interpreted in analogous fash
 \caption{final light propagation distributions for ``star''-test field}
 \label{spiral-tests}
 \end{figure}
-The star example reveals another interesting feature of the approach: if the intensity impulsively hits an isotropic region, it gets split up into a range of the neighboring $180$ degrees of directions.
-
+This gets even clearer, when we plot the heat map depiction again:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.31\textwidth}
+    \includegraphics[width=\textwidth]{img/star_wide.png}
+    \label{a)}
+    \caption*{symmetric light src's}
+  \end{minipage}
+  \begin{minipage}{0.31\textwidth}
+    \includegraphics[width=\textwidth]{img/star_close.png}
+    \label{b)}
+    \caption*{dual light src's}
+  \end{minipage}
+\caption{final light propagation distributions for ``star''-test field}
+\label{spiral-tests}
+\end{figure}
+Note that we skipped the single light source example, since we consider it a trivial add-on example. We can regard the intensities condensed inside of a narrow beam of light.
 Note, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g. $100x100$), since the propagation attenuation follows the distance to the origin inversely proportional.
 
 \section{Behaviour for Total Anisotropy}
@@ -843,7 +909,23 @@ As a little warmup, we will have an experiment exhibting bare, raw tensor field 
   \end{minipage}
 \label{anisotropy}
 \end{figure}
-What we can observe here, is called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and emphasize edges from the image as a preprocessing step for computer vision. These ridges represent ROIs with underlying Lagrangian coherent structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation.
+What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and emphasize edges from the image as a preprocessing step for computer vision, which would look like the following:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}\bigskip
+    \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
+    \label{a)}
+    \caption{a) LTG($90^\circ$) for ``drain'' test field}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/drain_alt_gradient.png}
+    \label{b)}
+    \caption{b) gradient for a)}
+  \end{minipage}
+\label{anisotropy}
+\end{figure}
+
+ These ridges represent ROIs with underlying Lagrangian coherent structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation.
 
 \begin{figure}[!t]
 \centering
