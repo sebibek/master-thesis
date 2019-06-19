@@ -819,7 +819,7 @@ For the ``spiral'' tensor field we observe the spiral shape literally absorbing 
 \label{spiral-tests}
 \end{figure}
 
-The star example reveals another interesting feature of the approach: if the intensity impulsively hits an isotropic region, it gets split up into a range of the neighboring $180$ degrees of directions:
+The star example reveals another interesting feature of the approach: if the intensity impulsively hits an isotropic region, it gets directed according to its intensity profile (neglecting the transmission profile) which implements the principle of inertia for directed light propagation present in vacuum (light never changes its direction):
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.31\textwidth}
@@ -837,10 +837,10 @@ The star example reveals another interesting feature of the approach: if the int
     \label{c)}
     \caption*{dual light src's}
   \end{minipage}
-\caption{final light propagation distributions for ``star''-test field}
+\caption{final light propagation distributions for ``star'' test field}
 \label{spiral-tests}
 \end{figure}
-This gets even clearer, when we plot the heat map depiction again:
+Remark, that the diagonal intensities are attenuated more strongly by default, which introduces a bias into the light paths which are chosen along the axes with higher propability, effectively. This gets even clearer, when we plot the heat map depiction again:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.31\textwidth}
@@ -853,14 +853,14 @@ This gets even clearer, when we plot the heat map depiction again:
     \label{b)}
     \caption*{dual light src's}
   \end{minipage}
-\caption{final light propagation distributions for ``star''-test field}
+\caption{final light propagation distributions for ``star'' test field}
 \label{spiral-tests}
 \end{figure}
 Note that we skipped the single light source example, since we consider it a trivial add-on example. We can regard the intensities condensed inside of a narrow beam of light.
 Note, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g. $100x100$), since the propagation attenuation follows the distance to the origin inversely proportional.
 
 \section{Behaviour for Total Anisotropy}
-We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda_1>0$ and the other $\lambda_2=0$) incorporated. For this we set up bidirectional delta-pulses as transmission profiles to have the whole energy transmitted in just one, discrete direction.
+We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda_1>0$ and the other $\lambda_2=0$) incorporated. For this we set up bidirectional Dirac-pulses as transmission profiles to have the whole energy transmitted in just one, discrete direction.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -909,20 +909,19 @@ As a little warmup, we will have an experiment exhibting bare, raw tensor field 
   \end{minipage}
 \label{anisotropy}
 \end{figure}
-What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and emphasize edges from the image as a preprocessing step for computer vision, which would look like the following:
+What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig. \ref{gradb)}:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}\bigskip
     \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
-    \label{a)}
+    \label{grada)}
     \caption{a) LTG($90^\circ$) for ``drain'' test field}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/drain_alt_gradient.png}
-    \label{b)}
+    \label{gradb)}
     \caption{b) gradient for a)}
   \end{minipage}
-\label{anisotropy}
 \end{figure}
 
  These ridges represent ROIs with underlying Lagrangian coherent structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation.

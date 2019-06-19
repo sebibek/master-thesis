@@ -761,6 +761,7 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 	std::vector<double>::iterator glyphEnd;
 	//std::advance(glyphEnd, steps);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
+	double rMeanMax = 0.0;
 	for (int i = 0; i < matrixList.size(); i++)
 	{
 		glyphStart = glyphBuffer.begin() + i * steps;
@@ -821,17 +822,23 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 			}
 		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		if (rMean > rMeanMax)
+			rMeanMax = rMean;
 		// write glyphParameters
 		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
 		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
+		//std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
 
 		//std::advance(glyphStart, steps);
 		//std::advance(glyphEnd, steps);
 	}
+	if (rMeanMax > 0)
+		std::transform(glyphBuffer.begin(), glyphBuffer.end(), glyphBuffer.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMeanMax));
+	else
+		cout << "NULL field encountered: no normalization possible" << endl;
 }
 
 int fast_mod(const int input, const int ceil) {
