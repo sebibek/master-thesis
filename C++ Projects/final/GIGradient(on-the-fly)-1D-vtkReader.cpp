@@ -51,6 +51,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <vtkProperty.h>
 #include <vtkXMLImageDataReader.h>
 #include <vtkXMLPolyDataWriter.h>
+#include <vtkXMLPolyDataReader.h>
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkCutter.h>
@@ -662,29 +663,29 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 int getVTKdim()
 {
 	// set file name "brain.vti"
-	std::string inputFilename = "brain.vti";
+	std::string inputFilename = "brain.vtp";
 	// Read the file
-	vtkSmartPointer<vtkXMLImageDataReader> reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
+	vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 	reader->SetFileName(inputFilename.c_str());
 	reader->Update();
-	cout << "size: " << reader->GetOutput()->GetScalarSize() << endl;
+	cout << "size: " << reader->GetOutput()->GetNumberOfPolys() << endl;
 
 	// Create a plane to cut,here it cuts in the XY direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
-	vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
-	plane->SetOrigin(0, 0, slice);
-	plane->SetNormal(0, 0, 1);
+	//vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+	//plane->SetOrigin(0, 0, slice);
+	//plane->SetNormal(0, 0, 1);
 
-	// Create cutter to SLICE a 2D PLANE
-	vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
-	cutter->SetCutFunction(plane);
-	cutter->SetInputConnection(reader->GetOutputPort());
-	cutter->Update();
+	//// Create cutter to SLICE a 2D PLANE
+	//vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
+	//cutter->SetCutFunction(plane);
+	//cutter->SetInputConnection(reader->GetOutputPort());
+	//cutter->Update();
 
 	// get polyData of SLICE
-	vtkSmartPointer<vtkPolyData> polyData = cutter->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
+	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
 
 	// create tensor array of slice and crop down to 2x2 matrices
-	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("tensors"));// cutter->get()->GetScalars();
+	vtkDataArray* tensors = polyData->GetPointData()->GetArray("tensors");// cutter->get()->GetScalars();
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
 	
 	return tensors->GetSize() / 9;
@@ -695,27 +696,27 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 	int sliceIndex = slice;
 
 	// set file name "brain.vti"
-	std::string inputFilename = "brain.vti";
+	std::string inputFilename = "brain.vtp";
 
 	// Read the file
-	vtkSmartPointer<vtkXMLImageDataReader> reader =	vtkSmartPointer<vtkXMLImageDataReader>::New();
+	vtkSmartPointer<vtkXMLPolyDataReader> reader =	vtkSmartPointer<vtkXMLPolyDataReader>::New();
 	reader->SetFileName(inputFilename.c_str());
 	reader->Update();
-	cout << "size: " << reader->GetOutput()->GetScalarSize() << endl;
+	cout << "size: " << reader->GetNumberOfPolys() << endl;
 
-	// Create a plane to cut,here it cuts in the XY direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
-	vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
-	plane->SetOrigin(0, 0, sliceIndex);
-	plane->SetNormal(0, 0, 1);
+	//// Create a plane to cut,here it cuts in the XY direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
+	//vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+	//plane->SetOrigin(0, 0, sliceIndex);
+	//plane->SetNormal(0, 0, 1);
 
-	// Create cutter to SLICE a 2D PLANE
-	vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
-	cutter->SetCutFunction(plane);
-	cutter->SetInputConnection(reader->GetOutputPort());
-	cutter->Update();
+	//// Create cutter to SLICE a 2D PLANE
+	//vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
+	//cutter->SetCutFunction(plane);
+	//cutter->SetInputConnection(reader->GetOutputPort());
+	//cutter->Update();
 
 	// get polyData of SLICE
-	vtkSmartPointer<vtkPolyData> polyData = cutter->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
+	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
 
 	// create tensor array of slice and crop down to 2x2 matrices
 	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("tensors"));// cutter->get()->GetScalars();
@@ -1234,7 +1235,6 @@ int main(int argc, char* argv[])
 		width = height = sqrt(dim);
 	}
 	
-	
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 
 	const std::vector<double> initArray(steps, 0.0);
@@ -1331,7 +1331,7 @@ int main(int argc, char* argv[])
 				cout << "half time: " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;
 		}
 
-		cout << "timer: " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " ms" << endl;
+		cout << "timer: " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;
 	}
 	// DELTA (Gradient) COMPUTATION END //
 

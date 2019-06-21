@@ -12,13 +12,10 @@
 # size 701 is default
 # size 701
 
-# slice index 36/25 -- interesting timesteps
-slice 25
-
 # threshold for propagation convergence
-thresh 0.5
+thresh 2.0
 
-# enables VTK file format: reads "brain.vti" if true, "matrix.txt" if false
+# enables VTK file format: reads "brain.vtp" if true, "matrix.txt" if false
 vtkFormat 1
 
 # set steps for angular resolution (radres)
