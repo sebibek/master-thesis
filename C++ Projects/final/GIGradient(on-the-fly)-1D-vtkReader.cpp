@@ -1265,7 +1265,7 @@ int main(int argc, char* argv[])
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
 	
-	//#pragma omp parallel for //collapse(2)
+	#pragma omp parallel for //collapse(2)
 	for (int t = 0; t < steps; t++)
 	{
 		cout << "before computing gradients for t: " << t << endl;
