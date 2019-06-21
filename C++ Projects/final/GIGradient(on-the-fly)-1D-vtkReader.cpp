@@ -1328,7 +1328,7 @@ int main(int argc, char* argv[])
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
 			if (j==height/2)
-				cout << "half time: " << std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count() << " ms" << endl;
+				cout << "half time: " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;
 		}
 
 		cout << "timer: " << std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count() << " ms" << endl;
