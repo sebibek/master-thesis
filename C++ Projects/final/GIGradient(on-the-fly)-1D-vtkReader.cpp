@@ -1169,7 +1169,9 @@ public:
 
 			std::fill(sampleBufferB.begin(), sampleBufferB.end(), 0.0);// = sampleBufferInit; // init sampleBuffer
 			//*sampleBufferB = sampleBufferInit;
-			//ctr++;
+			ctr++;
+			if (ctr > ctrLimit)
+				break;
 		}
 		//cout << "ctr: " << ctr << endl;
 
