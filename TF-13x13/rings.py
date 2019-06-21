@@ -49,7 +49,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-width = 101
+width = 29
 length = width+50# use width+50 because of subsequent cropping for 13x13 fields --> hack to prevent circular function errors
 
 deg = -45

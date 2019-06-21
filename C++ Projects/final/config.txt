@@ -22,4 +22,4 @@ vtkFormat 1
 steps 32
 
 # max iteration count
-ctrLimit 200
+ctrLimit 1000

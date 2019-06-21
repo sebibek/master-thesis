@@ -740,9 +740,31 @@ This propability density function (PDF) indicates, whether there is directed ani
 
 \section{Light Transport Gradient (LTG)}
 \label{sec:ltg}
+Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. We consider the following light distributions and their difference image to have an idea, for which kind or types of cases we obtain inherently different light distributions. 
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_left.png}
+    \label{a)}
+    \caption*{a) final light distribution for left offset}
+  \end{minipage} $-$
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_right.png}
+    \label{b)}
+    \caption*{b) final light distribution for right offset}
+  \end{minipage} $=$
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_diff.png}
+    \label{b)}
+    \caption*{difference image for a) and b)}
+  \end{minipage}
+  \caption{``drain'' test field}
+\label{anisotropy}
+\end{figure}
 Remark that we denote the final buffer result $\mathbf{b}=\mathcal{C}_{final}$ in the following.
 \subsection{Definition}
-Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. As tensor field lines are bidirectional, convergence and divergence can not reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (that is, changes in direction/tensor magnitude) in the field segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from sect. \ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
+ As tensor field lines are bidirectional, convergence and divergence can not reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (that is, changes in direction/tensor magnitude) in the field segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from sect. \ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
 \begin{align}
 	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}].
 	\label{ftle}
@@ -771,6 +793,8 @@ which is the runtime behavior in order notation considering memory consumption a
 	\lvert\nabla \mathbf{b}_{x,y,\omega}\rvert = \sqrt{(\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega})^2}.
 \end{align}
 Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. 
+
+
 \subsection{Functionality}
 We will try to show the functionality of the method in a few simple examples. As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. the $y$-axis:
 

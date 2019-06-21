@@ -1236,7 +1236,7 @@ int main(int argc, char* argv[])
 		dim = getVTKdim();
 		width = height = sqrt(dim);
 	}
-	ctrLimit = 2*width;
+	//ctrLimit = 2*width;
 	
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 
