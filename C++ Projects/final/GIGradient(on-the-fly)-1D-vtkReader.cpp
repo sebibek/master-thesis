@@ -1331,11 +1331,11 @@ int main(int argc, char* argv[])
 				cout << "half time: " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;
 		}
 
-		cout << "timer: " << std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count() << " ms" << endl;
+		cout << "timer: " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " ms" << endl;
 	}
 	// DELTA (Gradient) COMPUTATION END //
 
-	double duration = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - startTotal).count();
+	double duration = std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - startTotal).count();
 	cout << "..after propagation, total timer:" << duration << " ms" << endl;
 
 	//sampleBufferA.clear();
