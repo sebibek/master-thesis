@@ -1225,6 +1225,7 @@ int main(int argc, char* argv[])
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
 
+	
 	// parse input option file
 	parse_options(argc, argv);
 
@@ -1236,6 +1237,7 @@ int main(int argc, char* argv[])
 		dim = getVTKdim();
 		width = height = sqrt(dim);
 	}
+	ctrLimit = 2*width;
 	
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 
