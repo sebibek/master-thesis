@@ -1224,7 +1224,6 @@ int main(int argc, char* argv[])
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
-
 	
 	// parse input option file
 	parse_options(argc, argv);
