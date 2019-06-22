@@ -46,8 +46,8 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 13
-s = 10
+length = 101
+s = 4
 #deg = -45
 
 matrixArray = np.ndarray(shape=(length,length), dtype=np.ndarray) # initialize ndarray w 0
