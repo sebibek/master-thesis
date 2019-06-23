@@ -25,6 +25,9 @@
 \usepackage[ngerman,english]{babel}
 \usepackage{amsmath}
 \usepackage{upgreek}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 % Input and font encoding
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
@@ -36,6 +39,7 @@
 %\usepackage{doc}
 % Include Graphic-files:
 \usepackage{graphicx}
+\usepackage{csquotes}
 % Include doc++ generated tex-files:
 %\usepackage{docxx}
 % Include PDF links
@@ -176,7 +180,7 @@ In this work, we will discuss the advantages of tensor field analysis and motiva
 
 \section{Motivation}
 \label{sect:motiv}
-Tensor field visualization is gaining importance as a relevant tool for the analysis of fluid and solid mechanics, where tensor representations are crucially needed. This is always the case, when a directional distribution is needed for a single point in space. Tensors occur most commonly in medical, scientific and engineering applications, making them a frequently used mathematical entity in science. In general, a tensor is a $o$-D generalization of scalar, vector and matrix and appears, e.g., as Jacobian matrix (spatial gradient) in vector (flow) field visualization or as stress tensor in solid and fluid continuum mechanics. Basically, tensors describe compressions, tensions, rotations and volume changes in both solid and fluid material. While most techniques focus on symmetric tensor field visualization (like glyphs and tensor field lines), some other recent works adress the problem of asymmetric tensor field visualization. The issue with asymmetric (non-symmetric) or included antisymmetric (skew-symmetric) tensors is, that they do not always yield real eigenvalues, which is needed to determine an eigenbasis to set up glyphs, hyperstreamlines or tensor field lines (classically). Nevertheless, there has been extensive work in this domain as well. Zheng \& Phang et al. \cite{pang&zheng} proposed the concept of dual eigenvectors and Lin et al. \cite{zhang} extended it to pseudo-eigenvectors and introduced eigenvector and eigenvalue manifold to visualize eigenvectors in the complex domain. In this work, we will use the $\mathbf{U}$-matrix obtained from singular value decomposition (SVD) to obtain the half-axes of the PCA principal ellipsoid representing the tensor transformation as suggested by Moler \cite{moler} to state another alternative of processing asymmetric tensors. 2D tensor field visualization is useful for cases where only two-dimensional data is available, such as satellite remote sensing data, Particle Imagery Velocimetry (PIV) data and earthquake data \cite{laramee}. Additionally, tensor field visualization aids geologists and medical scientists in their field of work to display complicated number arrays which seem almost impossible to interpret in their raw, unprocessed form. Nevertheless, comprehensive visualization is aiding scientists in their everyday lifes understanding complex data loads such as tensor fields. We can only try to invent new methods continuously evaluating them for suitability for certain domains of science to provide our techniques at best considering them for the right applications.\\
+Tensor field visualization is gaining importance as a relevant tool for the analysis of fluid and solid mechanics, where tensor representations are crucially needed. This is always the case, when a directional distribution is needed for a single point in space. Tensors occur most commonly in medical, scientific and engineering applications, making them a frequently used mathematical entity in science. In general, a tensor is a $o$-D generalization of scalar, vector and matrix and appears, e.g., as Jacobian matrix (spatial gradient) in vector (flow) field visualization or as stress tensor in solid and fluid continuum mechanics. Basically, tensors describe compressions, tensions, rotations and volume changes in both solid and fluid material. While most techniques focus on symmetric tensor field visualization (like glyphs and tensor field lines), some other recent works adress the problem of asymmetric tensor field visualization. The issue with asymmetric (non-symmetric) or included antisymmetric (skew-symmetric) tensors is, that they do not always yield real eigenvalues, which is needed to determine an eigenbasis to set up glyphs, hyperstreamlines or tensor field lines (classically). Nevertheless, there has been extensive work in this domain as well. Zheng \& Phang et al. \cite{pang&zheng} proposed the concept of dual eigenvectors and Lin et al. \cite{zhang} extended it to pseudo-eigenvectors and introduced eigenvector and eigenvalue manifold to visualize eigenvectors in the complex domain. In this work, we will use the $\mathbf{U}$-matrix obtained from singular value decomposition (SVD) to obtain the half-axes of the PCA principal ellipsoid representing the tensor transformation as suggested by Moler \cite{moler} to state another alternative of processing asymmetric tensors. 2D tensor field visualization is useful for cases where only two-dimensional data is available, such as satellite remote sensing data, Particle Imagery Velocimetry (PIV) data and earthquake data \cite{laramee}. Additionally, tensor field visualization aids geologists and medical scientists in their field of work to display complicated number arrays which seem almost impossible to interpret in their raw, unprocessed form. Nevertheless, comprehensive visualization is aiding scientists in their everyday lifes understanding complex data loads such as tensor fields. To cope with the arising problem of tensor field visualization, we can only try to invent new methods continuously evaluating them for suitability for certain domains of science to provide our techniques at best considering them for the right applications.\\
 
 
 \begin{figure}[!t]
@@ -204,7 +208,7 @@ Tensor field visualization is gaining importance as a relevant tool for the anal
   \caption*{src: \url{http://www2.cs.uh.edu/~chengu/Teaching/Fall2018/Lecs/Lec17.pdf}}	
   \label{Skalierung}
 \end{figure}
-The main purpose of visualization in general is to reduce or encode some set of numbers in some readable, explorable and more intuitive representation. This implies, e.g., clustering, structuring or projection techniques. When it comes to tensor fields, this comes in handy in, e.g., medical sciences such as in DT-MRI (diffusion tensor-medical resonance imaging) \cite{hlawatsch}, when measuring water molecule diffusion characteristics within tissue or in simulated (or measured) stress tensor fields from solid and fluid mechanics. In these domains of science the problem arises, that tensor fields can be generated (simulated) or measured with physical/mathematical background, but not be regarded intuitively. Necessity begets ingenuity as always, which lets visualization methods and systems emerge in this context. Concurrently, the problem setting of this work encomprises the visualization of tensor fields, i.e., mostly 2D/3D-grids consisting of mainly second-order tensors (cf. Cauchy stress tensor). These grids span a spatial domain in general with sample positions indicated by vertices. Tensor fields feature a sampling grid consistent of tensors which is spaced uniformly in the commonly used Cartesian grid. A Cartesian grid, which we will utilize in this context, is a normalized uniform grid as a special case of a regular grid. We aim to use global illumination methods to model light transport directed by tensor fields within such type of grids, which we consider as light propagation volumes (LPVs). Congruently, the most basic objective of this work is to design a simple light propagation scheme yet following the most basic but crucial physical principles and laws, like energy conservation and propagation attenuation, for tensor field visualization. Furthermore, it should hold the additional possibility to model light transport in a geometrical scene. This propagation scheme should either be used to visualize the light transport paths (defined by separatrices) in a scene defined by geometry concerning no influence of any tensor field. Or, on the other hand, be used to visualize the anisotropy characteristics and tensor magnitudes of a given tensor field concerning the influence of one. However, the tensor field needs to be pre-processed somehow to generate a tensor induced footprint map of transmission profiles, which we will do via matrix decompositions. For this purpose, we will let the transmission profiles act on our simple light propagation scheme to have a kind of tensor controlled directive effect on the light transport. The transmission profiles should modulate the outgoing intensities in a sense of redirection or more appropriately, redistribution. Of course, the propagation scheme will need some kind of stimulus which can be defined through symbolic functions (eg. $r(\omega)=1$) by the user which we sample as a primary step. This way, the approach will operate as a global illumination visualization technique for light distributions in polar coordinates provided the user set an initial profile into the grid. In the sense of automization and optimzation, another consequent aim is to implement an approach borrowed from vector-field visualization to reveal structures, which are hard to graps by ordinary methods. We construct an FTLE-related approach in tensor field visualization (both symmetric and asymmetric) for detecting ridges representing LCS (Lagrangian Coherent Structures). These structures can be classified (identified) as repelling, attracting and saddling (forming a saddle) local features, which frequently represent key structures in nature such as moraines in glaciers. LCS usually separate regions of different flow behavior, but in our case they separate regions/domains of varying directional distributions (manifesting in diverging/converging tensor field lines or higher tensor magnitude) represented by tensors as we use our tensor controlled light transport method as a basis or framework to compute the FTLE field. Thus, we propose another method to compute an FTLE like field on tensor fields. The FTLE map responds most where tensor field lines / hyperstreamlines converge or diverge, whereas one is the same as the other because of bidirectional stress directions and since we effectively measure the finite-time Lyapunov exponent (FTLE) with both forward and backward integration time (stimulus directions, in our case), we will detect both cases. Both invented methods, will give new insights into the topology and anisotropy of tensor fields and provide tools for the structural analysis. The greater goal of this work is therefore the encoding of a tensor field into certain elaborate representations and the interpretation of meaningful results comparing the proposed techniques against others. The designed approach could e.g. be applied in medicinal sciences, engineering and physics to reveal structures which are hard to grasp through interpreting simpler and sometimes confusing glyph and tensor field line visualizations.
+The main purpose of visualization in general is to reduce or encode some set of numbers in some readable, explorable and more intuitive representation. This implies, e.g., clustering, structuring or projection techniques. When it comes to tensor fields, this comes in handy in, e.g., medical sciences such as in DT-MRI (diffusion tensor-medical resonance imaging) \cite{hlawatsch}, when measuring water molecule diffusion characteristics within tissue or in simulated (or measured) stress tensor fields from solid and fluid mechanics. In these domains of science the problem arises, that tensor fields can be generated (simulated) or measured with physical/mathematical background, but not be regarded intuitively. Necessity begets ingenuity as always, which lets visualization methods and systems emerge in this context. Concurrently, the problem setting of this work encomprises the visualization of tensor fields, i.e., mostly 2D/3D-grids consisting of mainly second-order tensors (cf. Cauchy stress tensor). These grids span a spatial domain in general with sample positions indicated by vertices. Tensor fields feature a sampling grid consistent of tensors which is spaced uniformly in the commonly used Cartesian grid. A Cartesian grid, which we will utilize in this context, is a normalized uniform grid as a special case of a regular grid. We aim to use global illumination methods to model light transport directed by tensor fields within such type of grids, which we consider as light propagation volumes (LPVs). Congruently, the most basic objective of this work is to design a simple light propagation scheme yet following the most basic but crucial physical principles and laws, like energy conservation and propagation attenuation, for tensor field visualization. Furthermore, it should hold the additional possibility to model light transport in a geometrical scene. This propagation scheme should either be used to visualize the light transport paths (,defined by the anisotropy of tensor fields and tensor magnitudes of a given tensor field in a $2D$ grid. Or, as a secondary purpose, be used to visualize the light transport in a defined, given geometrical scene in a $2D$ grid. However, the tensor field needs to be pre-processed somehow to generate a tensor induced footprint map of transmission profiles, which we will do via matrix decompositions. For this purpose, we will let the transmission profiles act on our simple light propagation scheme to have a kind of tensor controlled directive effect on the light transport. The transmission profiles should modulate the outgoing intensities in a sense of redirection or more appropriately, redistribution. Of course, the propagation scheme will need some kind of stimulus which can be defined through symbolic functions (eg. $r(\omega)=1$) by the user which we sample as a primary step. This way, the approach will operate as a global illumination visualization technique for light distributions in polar coordinates provided the user set an initial profile into the grid. In the sense of automization and optimzation, another consequent aim is to implement an approach borrowed from vector-field visualization to reveal structures, which are hard to graps by ordinary methods. We construct an FTLE-related approach in tensor field visualization (both symmetric and asymmetric) for detecting ridges representing LCS (Lagrangian Coherent Structures). These structures can be classified (identified) as repelling, attracting and saddling (forming a saddle) local features, which frequently represent key structures in nature such as moraines in glaciers. LCS usually separate regions of different flow behavior, but in our case they separate regions/domains of varying directional distributions (manifesting in diverging/converging tensor field lines or higher tensor magnitude) represented by tensors as we use our tensor controlled light transport method as a basis or framework to compute the FTLE field. Thus, we propose another method to compute an FTLE like field on tensor fields. The FTLE map responds most where tensor field lines / hyperstreamlines converge or diverge, whereas one is the same as the other because of bidirectional stress directions and since we effectively measure the finite-time Lyapunov exponent (FTLE) with both forward and backward integration time (stimulus directions, in our case), we will detect both cases. Both invented methods, will give new insights into the topology and anisotropy of tensor fields and provide tools for the structural analysis. The greater goal of this work is therefore the encoding of a tensor field into certain elaborate representations and the interpretation of meaningful results comparing the proposed techniques against others. The designed approach could e.g. be applied in medicinal sciences, engineering and physics to reveal structures which are hard to grasp through interpreting simpler and sometimes confusing glyph and tensor field line visualizations.
 
 
 %In diesem Abschnitt sollen neben den Herausforderungen und der
@@ -392,7 +396,7 @@ whereas $\lvert\lvert A\rvert\rvert _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spec
    \caption*{src: \url{https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/dle_incT.png}}
   \end{minipage}
 \end{figure}
-Fig \ref{diverge} and \ref{ftle_gyre} depict a scenario of diverging streamlines for a double gyre snapshot in time. Fig. \ref{ftle_gyre} features a high ridge on the margins (borders) and in particular in the center of the domain. This region of interest (ROI) is considered the one with most relative divergence for streamlines by the approach. Ridges also represent Lagrangian Coherent Structures, which are found in nature in vortices of correlating flow behavior.  We could imagine to introduce this process for a whole distribution of trajectories, which would implement an FTLE for uncertain vector fields in a sense, that whole propability distributions of trajectories could be heeded. We require that the trajectories can cross each other unaffectedly, i.e., the superposition principle is supposed to be respected for the magnitudes. But wait, isn't this behavior somehow familiar? If we elaborately think this through, we can come up with the idea that this is the behavior of light propagation in vacuum. Light paths are physically allowed to cross each other with no influence exerted on each other at all. Consequently, we choose to model the distributions of trajectories as light intensity profiles. That is, we interpret the polar profiles as propability density function (PDF) for particle trajectories heading into this direction. To put it into context, our main contribution method LTG uses the FTLE as an inspiration or template to design a similar approach for tensor field visualization. The main difference to the template FTLE is that we follow eigenvectors instead of flow vectors and that we use whole distributions of trajectories, as a tensor field suggests whole distributions of directions, accordingly.
+Fig \ref{diverge} and \ref{ftle_gyre} depict a scenario of diverging streamlines for a double gyre snapshot in time. Fig. \ref{ftle_gyre} features a high ridge on the margins (borders) and in particular in the center of the domain. This region of interest (ROI) is considered the one with most relative divergence for streamlines by the approach. Ridges also represent Lagrangian Coherent Structures, which are found in nature in vortices of correlating flow behavior.  We could imagine to introduce this process for a whole distribution of trajectories, which would implement an FTLE for uncertain vector fields in a sense, that whole propability distributions of trajectories could be heeded. An overview about existing visualization techniques for uncertain data is given by Griete \& Schuhmann \cite{griete}. We require that the trajectories can cross each other unaffectedly, i.e., the superposition principle is supposed to be respected for the magnitudes. But wait, isn't this behavior somehow familiar? If we elaborately think this through, we can come up with the idea that this is the behavior of light propagation in vacuum. Light paths are physically allowed to cross each other with no influence exerted on each other at all. Consequently, we choose to model the distributions of trajectories as light intensity profiles. That is, we interpret the polar profiles as propability density function (PDF) for particle trajectories heading into this direction. To put it into context, our main contribution method LTG uses the FTLE as an inspiration or template to design a similar approach for tensor field visualization. The main difference to the template FTLE is that we follow eigenvectors instead of flow vectors and that we use whole distributions of trajectories, as a tensor field suggests whole distributions of directions, accordingly.
 
 \section{GT Datasets / Methods}
 \label{sec:gt}
@@ -430,7 +434,7 @@ We used python's numpy library to generate pre-defined test cases and caught one
     \label{b)}
   \end{minipage}
 %\caption{a) , b) , c) }
-\label{anisotropy}
+\label{test-fields}
 \end{figure}
 
 \textbf{Symmteric Tensor Fields}
@@ -532,15 +536,18 @@ The test field ``corner'' constitutes a sustained turn over the grid representin
 \section{Related Work}
 \label{sec:related}
 
-There has been extensive recent work on symmetric tensors but in comparison little on asymmetric ones. Since we aren't able to cover the whole scope in this work, we will focus on the most relevant works on tensor field visualization. We will talk about the publications from Hlawatsch et al. \cite{hlawatsch} and Zirr et al. \cite{zirr} in particular, since they constitute thematically close related works.\vskip 5pt
+There has been extensive recent work on symmetric tensors but in comparison little on asymmetric ones. Since we aren't able to cover the whole scope in this work, we will focus on the most relevant works on tensor field visualization. We will talk about the publications from Hlawatsch et al. \cite{hlawatsch} and Zirr et al. \cite{zirr} in particular, since they constitute thematically close related works. But first, we will cover related works on global illumination methods, as these forms a basis or prerequisite for our work. Note that they do not focus on tensor field visualization at all. We will inventively employ global illumination methods for tensor field visualization as an innovative step. \vskip 5pt
 
-\textbf{Symmetric Tensor Field Visualization}\\
+\paragraph{Global Illumination Methods}
+Since we use a specific category of Global Illumination methods as a basis, we decide to only discuss lattice based methods which work, corresponding to their name, on a grid. Remark, that Global Illumination methods classicaly focus on realistic indirect lighting. Thus, they aim on producing a most realistic image, what in our case turns out to be a most informative image in correspondece. The most early work in this field is propably the Discrete Ordinates Method (DOM) by Chandrasekhar \cite{Chandras} which is used specifically for computing radiative transfer in participating media. The radiative transfer equation is discretized spatially and in the angular domain. The radiance distribution (PDF) is stored in a grid and light is distributed and exchanged between neighboring volume elements which reduces the overall effort to local and independent computations. Furthermore, there has been more recent work on describing the light propagation as a diffusion process within a simple photon transport model based the Lattice-Boltzmann method \cite{geist}. DOMs were recently revisited by Fattal \cite{fattal}. This work adresses artifacts stemming from spatial discretization, which are called \enquote{ray effects}, and due to successive interpolation called \enquote{light smearing}. These methods are considered to be too slow to \enquote{run at interactive framerates} by Dachsbacher, though \enquote{efficient and potentially highly parallel}. Our work is inspired by Lattice-Boltzmann methods (volume grid radiosity) and the discrete ordinate methods concerning the light propagation scheme.
+
+\paragraph{Symmetric Tensor Field Visualization}
 Zheng \& and Pang \cite{pang&zheng} et al. proposed a texture-based visualization approach called Hyper LIC, which extends the concept of LIC to symmetric tensor fields by using an anisotropic 2D-filter kernel oriented along the major/minor eigenvectors. The concept of following the major/minor eigenvector along tensor field lines was invented by Vilanova et al. \cite{vilanova}. Tensorlines \cite{weinstein} introduce a kind of artificial inertia (running average), making them resistent to noise. The notion of tensor field topology (critical, degenerate points, separatrices) and the concept of Hyperstreamlines was first introduced by Delmarcelle and Hesselink \cite{delmarcelle&hesselink}. The topology in $3D$ tensor fields was first analyzed by \cite{zheng}. The placement of tensor field lines as hyperstreamlines was recently improved by Spencer et al. \cite{spencer} for glyph packing. A good overview of seeding strategies concerning glyphs is given by McLoughlin et al. \cite{mcloughlin}. Feng et al. \cite{feng} used Voronoi Tesselation for placing the glyphs. Superquadric glyphs have been proposed by Schultz and Kindlmann \cite{schultz&kindlmann} for general (non-positive definite) tensors. De Leeuw and van Wijk \cite{deleeuw&vanwijk} visualize the partial derivative gradient, the Jacobian of the tensor field to sense the local properties of the field. A diffusion tensor can also be visualized by box \cite{makris}, ellipsoid \cite{pierpaoli}, composite \cite{westin2} or superquadric \cite{kindlmann} glyphs. There is also a set of scalar measures available in symmetric tensor field visualization such as: mean diffusivity, fractional anisotropy \cite{basser} and anisotropy coefficients \cite{westin}. These coefficients can also be visualized by direct volume rendering \cite{kindlmann2}. Hlawatsch et al. \cite{hlawatsch} obtain a coordinate (flow) map from tensor field lines following major/minor eigenvectors (fibre trajectories) and use the maximum eigenvalue of the Cauchy-Green deformation tensor to compute the FTLE-field in homogeneous regions. In a similar manner, we aim to use light transport techniques to obtain a final light distribution through successive light propagation cycles footprinted (in form of transmission profiles obtained from ellipsoid glyphs) by the tensor field. DT-MRI diffusion tensor imaging can help to reveal the functional \cite{denis} or topological \cite{wakana} structure of the brain and muscles by analysing celebral and muscle tissue tractography which yields a tensor field of the anisotropy of the brain's white matter. An overview about DT-MRI visualization techniques is given by \cite{vilanova}. Tricoche et al. \cite{xavier} use invariant manifolds to extract topological features from tensor fields. Other, feature extraction based approaches extract general features as: edges \cite{hancock}, tensor shape\/ orientation \cite{gordon}, interfaces \cite{donnel}, creases \cite{tricochet}.
 \\
-\textbf{Asymmetric Tensor Field Visualization}\\
+\paragraph{Asymmetric Tensor Field Visualization}
 Zheng and Pang \cite{pang&zheng} proposed the concept of dual eigenvectors and Zhang et al. \cite{zhang} extended it to pseudo-eigenvectors and introduced the eigenvector/eigenvalue manifolds to visualize eigenvectors in the complex domain. Laramee et al. \cite{laramee} focused on the efficient implementation and visualization of these structures and provided an interactive visualization system for asymmetric tensors applicable in fluid and solid dynamics. The concept of tensor magnitude has been introduced by \cite{laramee} for means of physical interpretation. They also proposed an efficient glyph and hyperstreamline hybrid approach, which made dynamic interaction in real-time in 2D tensor fields feasible. Palacios et al. \cite{palacios} extracted isosurfaces of tensor magnitude, mode and isotropy index. \vskip 5pt
 
-Last, we will discuss our work in relation to other publications. While these previously mentioned works use classical approaches like tensor field lines and glyphs, we will also introduce the concept of Lagrangian coherent structures into our framework contribution of tensor field analysis. LCS have been defined as time-dependent analog of separatrices \cite{haller} which are concerned to be robust under noisy conditions \cite{haller2}. Hlawatsch et al. \cite{hlawatsch} obtain similar results (an FTLE-like field) but obtain them by sampling of fiber trajectories instead of global illumination light distributions, as it is the case for this work. Our work shares the same basic idea, deriving and computing a FTLE field for tensor field visualization generalizing FTLE from vectors to tensors, yet using a light propagation scheme and hence using whole distributions of trajectories employing polar profiles. We will detect LCS with an FTLE-derived method considering differences in final light transport distributions. The FTLE-related approach named ``light transport gradient'' to be designed also states a generalization of the light transport visualization method FTPD proposed by Zirr et al. \cite{zirr}, since it allows a similar measure to be computed through defining a geometrical scene and setting the transmission (tensor field) to an isotropic and constant value of $100\%$. In this operating mode, the approach operates as a light transport visualization technique neglecting any tensor field transmission profiles. 
+Last, we will discuss our work in relation to other publications. While these previously mentioned works use classical approaches like tensor field lines and glyphs, we will also introduce the concept of Lagrangian coherent structures into our framework contribution of tensor field analysis. LCS have been defined as time-dependent analog of separatrices \cite{haller} which are concerned to be robust under noisy conditions \cite{haller2}. Hlawatsch et al. \cite{hlawatsch} obtain similar results (an FTLE-like field) but obtain them by sampling of fiber trajectories instead of global illumination light distributions, as it is the case for this work. Our work shares the same basic idea, deriving and computing a FTLE field for tensor field visualization generalizing FTLE from vectors to tensors, yet using a light propagation scheme and hence using whole distributions of trajectories incorporating polar profiles. It is based on FTLE, and principal component analysis concerning the tensor field visualization method (LTG). We will detect LCS with an FTLE-derived method considering differences in final light transport distributions. The FTLE-related approach named ``light transport gradient'' to be designed also states a generalization of the light transport visualization method FTPD proposed by Zirr et al. \cite{zirr}, since it allows a similar measure to be computed through defining a geometrical scene and setting the transmission (tensor field) to an isotropic and constant value of $100\%$. In this operating mode, the approach operates as a light transport visualization technique neglecting any tensor field transmission profiles. 
 %Typischerweise im letzten Abschnitt dieses Kapitels wird dann auf
 %verwandte Arbeiten eingegangen. Entsprechende Arbeiten sind geeignet
 %zu zitieren. Beispiel: Die wurde erstmalig in den Arbeiten von Spitz
@@ -574,7 +581,7 @@ This chapter will summarize the main contributions of this work studied and stat
 %nachfolgenden Abschnitt \ref{sec:overview} wir ein Überblick über die Anforderungen an
 %das Modell gegeben. 
 
-\section{Requirements and Ambitions}
+\section{Motivation}
 \label{sec:spec} 
 Our ambition is to motivate a simple and efficient global illumination propagation scheme able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We then generate transmission profiles from the eigensystems (principal component frames) of the tensors for each cell in the domain (field). This step is done, to provide an orientation for a lattice of crystal fibre structures (cf. optical fibres) to redirect the intensities in analogy to the anisotropies of the tensor field within a glyph representation, obtained from Principal Component Analysis. Our approach should be implicitly adaptive to any kind of 2D dataset or slices of 3D datasets. Thus, we require it to be compatible to handle any kind of matrix (symm./anti-symm.) and any kind of resolution of the field (fully-adaptive). At last, our ambition is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional eigenvectors/singular vectors of tensors). Thus, we aim to generate a new FTLE-related method for tensor field visualization by applying a light transport gradient to the resulting light distributions for every possible position and direction of the light source in the grid (lattice) generated by stimulation with Dirac-pulses. Our approach should efficiently handle (relatively) large datasets with reasonable resolutions, which turns out to be possible with additional computing power empowered by a cluster. 
 %Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
@@ -585,7 +592,7 @@ Our ambition is to motivate a simple and efficient global illumination propagati
 
 \section{Light Transport (Propagation) Scheme}
 \label{sec:scheme}
-As already discussed, we will motivate a light transport propagation scheme designed to efficiently propagate initial intensity profiles stored in polar coordinates given as symbolic impulses (stimuli) by the user defined in the configuration file. This polar profiles are first sampled into a vector with elements ranging over the interval $[0,2\pi]$. Polar profiles for different light sources are shown in Fig. \ref{polar}.
+As already discussed, we will design a new method for visualizing tensor fields, which is based on the physical nature of light propagation. For this purpose, we motivate a light transport propagation scheme designed to efficiently propagate initial intensity profiles stored in polar coordinates given as symbolic impulses (stimuli) by the user defined in the configuration file. This polar profiles are first sampled into a vector with elements ranging over the interval $[0,2\pi]$. Polar profiles for different light sources are shown in Fig. \ref{polar}.
 \begin{figure}[!t]
   \centering
  {
@@ -738,189 +745,6 @@ To constitute a physical interpretation for the transmission of the tensor field
 \end{align}
 This propability density function (PDF) indicates, whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$) degrees and how likely the spontaneuos scattering of a photon in this particular direction will happen. Each tensor is then a unique footprint which can be precomputed for convenience and described as polar profile just as our previously mentioned intensity profiles. We apply these polar profiles in a sense of transmission profiles as discussed in sect. \ref{sec:trans}.
 
-\section{Light Transport Gradient (LTG)}
-\label{sec:ltg}
-Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. We consider the following light distributions and their difference image to have an idea, for which kind or types of cases we obtain inherently different light distributions. 
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img/ftle_left.png}
-    \label{a)}
-    \caption*{a) final light distribution for left offset}
-  \end{minipage} $-$
-  \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img/ftle_right.png}
-    \label{b)}
-    \caption*{b) final light distribution for right offset}
-  \end{minipage} $=$
-   \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img/ftle_diff.png}
-    \label{b)}
-    \caption*{difference image for a) and b)}
-  \end{minipage}
-  \caption{``drain'' test field}
-\label{anisotropy}
-\end{figure}
-Remark that we denote the final buffer result $\mathbf{b}=\mathcal{C}_{final}$ in the following.
-\subsection{Definition}
- As tensor field lines are bidirectional, convergence and divergence can not reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (that is, changes in direction/tensor magnitude) in the field segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from sect. \ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
-\begin{align}
-	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}].
-	\label{ftle}
-\end{align}
-Whereas $j$ is the index of light source position and direction representing the initialization in each iteration and $\mathop{steps}$ is the count of the discrete angular steps. The initialization is done by placing a light src (delta-impulse) with $\mean{I}_i = 1.0$ at the exact location of index $j$ realizing a light source at location $(x\mid y)$ in direction $\omega$. Eq. \ref{ftle} now denotes the set of buffers $\mathcal{B}$ containing light distributions propagated from, i.e., computed for every possible direction and location. Now, that we have measured impulse responses from every location in our long 1D sample vector, we can incorporate finite (central) differences to obtain the gradient of the set of final buffers with final light distributions as elements $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$. Note that we interpret a finite set $\mathcal{C}_{final}$ as a vector of cells $\mathbf{b}$ with concurrent indices here:
-\begin{align}
-	\nabla \mathbf{b}_{x,y,\omega} =
-	\begin{pmatrix}
-	\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega}
-	\end{pmatrix} \approx
-	\frac{1}{2}
-	\begin{pmatrix}
-	\sum_{\mathbf{c}}\lvert \mathbf{b}_{x+1,y,\omega} - \mathbf{b}_{x-1,y,\omega}\rvert \\ \sum_{\mathbf{c}}\lvert \mathbf{b}_{x,y+1,\omega} - \mathbf{b}_{x,y-1,\omega}\rvert \\ \sum_{\mathbf{c}}\lvert \mathbf{b}_{x,y,\omega+\pi/6} - \mathbf{b}_{x,y,\omega-\pi/6}\rvert
-	\end{pmatrix} =
-	\frac{1}{2}
-	\begin{pmatrix}
-	\sum_{\mathbf{c}\in \mathbf{b_x}}\lvert \mathbf{b_x}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_y}}\lvert\mathbf{b_{y}}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_{\omega}}}\lvert \mathbf{b_{\omega}}\rvert
-	\end{pmatrix}.
-\end{align}
- We choose to use a constant offset of $\frac{\pi}{6}\mathop{rad}$ for the angle because we want to prevent from generating results with content implicitly depending on the angular resolution and also since we need to exceed $\beta$ to have a uniform and consistent placing of cosine lobes (inside diagonal cones) concerning neighbor indices. Remark that the results do not depend on the spatial resolution implicitly, because increasement acts as a domain extension for and does effectively not increase the sampling rate of the propagation scheme. Also note that this step is very expensive considering runtime-costs since it follows the following runtime observation. We have $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ numbers in the grid and on top $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ buffers in total, which need to be processed. Also we remark the convergence criterion, which introduces another heuristic factor $\mathop{width}$, because the propagation cycle count rises until the state of equilibrium is reached, and set $\mathop{height}=\mathop{width}$ here for simplicity, which yields:
-\begin{align}
-	\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2}),
-\end{align}
-which is the runtime behavior in order notation considering memory consumption and iteration step count. It is noticeable that the runtime increases fast with increasing resolution, which makes parallelization algorithms a crucial tool necessary to compute the results in reasonable time with additional computing power provided by a computer cluster. Next, we compute the Euclidean norm of the light transport gradient yielding a scalar field, which can be visualized directly or via extracted ridges in a visualization framework like ParaView from VTK format:
-\begin{align}
-	\lvert\nabla \mathbf{b}_{x,y,\omega}\rvert = \sqrt{(\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega})^2}.
-\end{align}
-Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. 
-
-
-\subsection{Functionality}
-We will try to show the functionality of the method in a few simple examples. As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. the $y$-axis:
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}\bigskip
-    \includegraphics[width=\textwidth]{img/drain(alt)-TFL.png}
-    \label{a)}
-    \caption*{a) TFLs and glyphs}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
-    \label{b)}
-    \caption*{b) LTG($90^\circ$) for a)}
-  \end{minipage}
-  \caption{``drain'' test field}
-\label{anisotropy}
-\end{figure}
-What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig. \ref{gradb)}:
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
-    \label{grada)}
-    \caption*{a) LTG($90^\circ$) }
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=\textwidth]{img/drain_alt_gradient.png}
-    \label{gradb)}
-    \caption*{b) gradient for a)}
-  \end{minipage}
-  \caption{``drain'' test field}
-\end{figure}
-
- These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation.
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=\textwidth]{img/inverse-TFL.png}
-    \label{a)}
-    \caption*{a) TFLs and glyphs }
-  \end{minipage}
-  \begin{minipage}[!t]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{img/inverse-FTLE-raw.png}
-    \label{b)}
-    \caption*{b) LTG($90^\circ$) for a)}
-  \end{minipage}
-  \caption{``inverse''-test field}
-\label{anisotropy}
-\end{figure}
-
-We also evaluated the approach for the ``inverse'' test field, whereas we can observe height ridges for the $90^\circ$ slice in any position with diverging tensor field lines w.r.t. the light source direction. This is certainly not the case for the upper (missing) ridge whereas tensor field lines converge with respect to the UP ($90^\circ$) direction. This proves that the method is capable of detecting ridges orthogonal to the light source direction, but not in antiparallel directions, which exhibit converging tensor field lines as bidirectional counterpart. Luckily, we measured the gradient for every possible sampled light source direction which complements this information into another slice (and the resulting volume of stacked slices). As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=3$-dimensional grid which results from our FTLE computation. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. We consider extracted subsets of the volume grid as $3D$ height ridges in the domain of $\omega$. That is, the slices we observed are stacked along the $z$-axis in the following:
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse_isovolum2.png}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse_isovolume.png}
-    \label{b)}
-  \end{minipage}
-   \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse_contour.png}
-    \label{b)}
-  \end{minipage}
-    \caption{IsoVolume Filter on LTG volume representation: ``inverse'' test field}
-\label{inverse_contour}
-\end{figure}
-Note that the $z$-axis represents the light source direction angle $\omega$ in this case. The contour filter reveals the star-shaped structure of the tensor field which rotates along the angle axis. This is the effect we already captured for the single slice: For each axis direction we can detect ridges in parallel and orthogonal to our predefined stimulus (light source) direction, but not in antiparallel direction. This causes the star shape to miss one branch or ray which is in turn the antiparallel direction missing for each light source direction emphasizing the impression of rotation. We can also try to segment height ridges represented as surfaces from the resulting volume grids as depicted in Fig \ref{inverse_surface}:
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse_surface.png}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse-wireframe.PNG}
-    \label{b)}
-  \end{minipage}
-    \caption{LTG stacked slice surface representations: ``inverse'' test field}
-\label{inverse_surface}
-\end{figure}
-
-For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel or orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig. \ref{inverse_surface}. Next, we will analyze the ``drain'' test field in similar fashion:
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=\textwidth]{img/drain_top.PNG}\vskip 10pt
-    \includegraphics[width=\textwidth]{img/drain_alt-profile.PNG}
-    \caption{Cross section on LTG volume representation}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=\textwidth]{img/drain_alt_isovolume.PNG}
-     \caption{Contour filter on LTG volume representation}
-    \label{b)}
-  \end{minipage}
-\label{drain_contour}
-\end{figure}
-For the ``drain'' test field we consider the central channel which produces a clear line in the cross section. The light transport gradient responds most inside of the channel region and on the top T-arms independently of the stimulus direction.
-
-\chapter{Implementation}
-\label{chap:imp}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Results and Evaluation}
-\label{chap:eval}
-\section{Propagation Attenuation}
-\label{sec:att}
-It can be proven that the approach follows propagation attenuation principles and follows the inverse (square in $3D$) law ($\sim\frac{1}{r}$) as observed in the graph in Fig. \ref{att}. For that, we plot the relative intensity $i_{rel}(r_{rel})$ (in relation to the intensity at position (radius) $1$ to account for the inverse square law, which holds for relative distances. We evaluate the relative intensity by forming a ratio $\frac{I(r)}{I_1}$, that relates the step intensity to the src intensity at position 1.
-
-\begin{figure}[!t]
-  \centering
- {
-    \includegraphics[width=0.6\textwidth]
-    {img/inverse_law.pdf}
-  }
-  \caption{Propagation Attenuation}
-  \label{att}
-\end{figure}\vskip 3pt
-
 \section{Light Propagation Scheme Behaviour}
 To evaluate the plausibility of the light distribution results obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields, whereas red: tensor glyphs (transmission profiles) and blue: intensity profiles are both depicted in polar coordinates:
 \begin{figure}[!t]
@@ -1016,7 +840,7 @@ For the ``spiral'' tensor field we observe the spiral shape literally absorbing 
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/spiral_full.png}
     \label{b)}
-    \caption*{4 light src's}
+    \caption*{four light src's}
   \end{minipage}
 \caption{final light propagation distributions for ``spiral''-test field}
 \label{spiral-tests}
@@ -1060,21 +884,317 @@ Remark, that the diagonal intensities are attenuated more strongly by default, w
 \label{spiral-tests}
 \end{figure}
 Note that we skipped the single light source example, since we consider it a trivial add-on example. We can regard the intensities condensed inside of a narrow beam of light.
-Note, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g. $100x100$), since the propagation attenuation follows the distance to the origin inversely proportional.
+Note, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g. $101\times 101$), since the propagation attenuation follows the distance to the origin inversely proportional.
+
+\section{Light Transport Gradient (LTG)}
+\label{sec:ltg}
+Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. For that we imagine kind of a local and spatial gradient, as we place light sources in two close-by positions and eventually in two close-by directions and analyze the resulting final light distribution. We consider the light distributions and their difference image for the drain test field (cf. Fig. \ref{drain} in sect. \ref{chap:grundlagen}) to have an idea, for which kind or types of cases/configurations we obtain inherently different light distributions in particular. We choose to use this test case, because it constitutes an absolutely pure example par excellence for a FTLE computation exposing raw tensor field lines diverging.  Fig. \ref{evolution} depicts final light distributions (cf. sect. \ref{sec:ltg} Fig. \ref{rings-tests}) for placing the light source one step to the left and one to the right from the central axis. We can observe the light cones cancelling out each other in the center of the difference image. That is, per default, light distributions cancel each other out for the same light source position and direction (or for continous overlaps). In this case, for the \enquote{drain} test field, we have tensor field lines diverging leading to a strong difference for light sources in finite distance, which form these curves.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_left.png}
+    \label{a)}
+    \caption*{a) final light distribution for left spatial offset}
+  \end{minipage} $-$
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_right.png}
+    \label{b)}
+    \caption*{b) final light distribution for right spatial offset}
+  \end{minipage} $=$
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_diff.png}
+    \label{b)}
+    \caption*{difference image for a) and b)}
+  \end{minipage}
+  \caption{``drain'' test field}
+\label{evolution}
+\end{figure}
+
+The complementing idea for the angular domain would be placing the light source at the same position but pointing in differing directions:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_leftangle.png}
+    \label{a)}
+    \caption*{a) final light distribution for left angular offset}
+  \end{minipage} $-$
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_rightangle.png}
+    \label{b)}
+    \caption*{b) final light distribution for right angular offset}
+  \end{minipage} $=$
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_anglediff.png}
+    \label{b)}
+    \caption*{difference image for a) and b)}
+  \end{minipage}
+  \caption{``drain'' test field}
+\label{evolution}
+\end{figure}
+
+Now imagine we would accumulate the differences and assign each position a gradient magnitude in form of a scalar value with the summed difference of the final light distributions in the neighborhood. Well, we would obtain another scalar field considered to be the gradient image of the light distributions. We could very well extend this process for every light source direction discretized (sampled) and obtain a $3D$ volume representing the topological structure of the tensor field for every direction. All we need, is a formal definition for a central differences gradient approximation for light distributions given in polar profiles.
+
+Remark that we denote the final buffer result $\mathbf{b}=\mathcal{C}_{final}$ in the following.
+\subsection{Definition}
+ As tensor field lines are bidirectional, convergence and divergence can not reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (that is, changes in direction/tensor magnitude) in the field segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from sect. \ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
+\begin{align}
+	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}].
+	\label{ftle}
+\end{align}
+Whereas $j$ is the index of light source position and direction representing the initialization in each iteration and $\mathop{steps}$ is the count of the discrete angular steps. The initialization is done by placing a light src (delta-impulse) with $\mean{I}_i = 1.0$ at the exact location of index $j$ realizing a light source at location $(x\mid y)$ in direction $\omega$. Eq. \ref{ftle} now denotes the set of buffers $\mathcal{B}$ containing light distributions propagated from, i.e., computed for every possible direction and location. Now, that we have measured impulse responses from every location in our long 1D sample vector, we can incorporate finite (central) differences to obtain the gradient of the set of final buffers with final light distributions as elements $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$. Note that we interpret a finite set $\mathcal{C}_{final}$ as a vector of cells $\mathbf{b}$ with concurrent indices here:
+\begin{align}
+	\nabla \mathbf{b}_{x,y,\omega} =
+	\begin{pmatrix}
+	\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega}
+	\end{pmatrix} \approx
+	\frac{1}{2}
+	\begin{pmatrix}
+	\sum_{\mathbf{c}}\lvert \mathbf{b}_{x+1,y,\omega} - \mathbf{b}_{x-1,y,\omega}\rvert \\ \sum_{\mathbf{c}}\lvert \mathbf{b}_{x,y+1,\omega} - \mathbf{b}_{x,y-1,\omega}\rvert \\ \sum_{\mathbf{c}}\lvert \mathbf{b}_{x,y,\omega+\pi/6} - \mathbf{b}_{x,y,\omega-\pi/6}\rvert
+	\end{pmatrix} =
+	\frac{1}{2}
+	\begin{pmatrix}
+	\sum_{\mathbf{c}\in \mathbf{b_x}}\lvert \mathbf{b_x}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_y}}\lvert\mathbf{b_{y}}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_{\omega}}}\lvert \mathbf{b_{\omega}}\rvert
+	\end{pmatrix}.
+\end{align}
+ We choose to use a constant offset of $\frac{\pi}{6}\mathop{rad}$ for the angle because we want to prevent from generating results with content implicitly depending on the angular resolution and also since we need to exceed $\beta$ to have a uniform and consistent placing of cosine lobes (inside diagonal cones) concerning neighbor indices. Remark that the results do not depend on the spatial resolution implicitly, because increasement acts as a domain extension for and does effectively not increase the sampling rate of the propagation scheme. Also note that this step is very expensive considering runtime-costs since it follows the following runtime observation. We have $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ numbers in the grid and on top $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ buffers in total, which need to be processed. Also we remark the convergence criterion, which introduces another heuristic factor $\mathop{width}$, because the propagation cycle count rises until the state of equilibrium is reached, and set $\mathop{height}=\mathop{width}$ here for simplicity, which yields:
+\begin{align}
+	\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2}),
+\end{align}
+which is the runtime behavior in order notation considering memory consumption and iteration step count. It is noticeable that the runtime increases fast with increasing resolution, which makes parallelization algorithms a crucial tool necessary to compute the results in reasonable time with additional computing power provided by a computer cluster. Next, we compute the Euclidean norm of the light transport gradient yielding a scalar field, which can be visualized directly or via extracted ridges in a visualization framework like ParaView from VTK format:
+\begin{align}
+	\lvert\nabla \mathbf{b}_{x,y,\omega}\rvert = \sqrt{(\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega})^2}.
+\end{align}
+Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. 
+
+
+\subsection{Functionality}
+We will try to show the functionality of the method in a few simple examples. As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. the $y$-axis:
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}\bigskip
+    \includegraphics[width=\textwidth]{img/drain(alt)-TFL.png}
+    \label{a)}
+    \caption*{a) TFLs and glyphs}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
+    \label{b)}
+    \caption*{b) LTG($90^\circ$) for a)}
+  \end{minipage}
+  \caption{``drain'' test field}
+\label{ftle_base}
+\end{figure}
+What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig. \ref{gradb)}:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
+    \label{grada)}
+    \caption*{a) LTG($90^\circ$) }
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/drain_alt_gradient.png}
+    \label{gradb)}
+    \caption*{b) gradient for a)}
+  \end{minipage}
+  \caption{``drain'' test field}
+\end{figure}
+
+ These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/inverse-TFL.png}
+    \label{a)}
+    \caption*{a) TFLs and glyphs }
+  \end{minipage}
+  \begin{minipage}[!t]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/inverse-FTLE-raw.png}
+    \label{b)}
+    \caption*{b) LTG($90^\circ$) for a)}
+  \end{minipage}
+  \caption{``inverse''-test field}
+\label{inverse-ftle}
+\end{figure}
+
+We also evaluated the approach for the ``inverse'' test field, whereas we can observe height ridges for the $90^\circ$ slice in any position with diverging tensor field lines w.r.t. the light source direction. This is certainly not the case for the upper (missing) ridge whereas tensor field lines converge with respect to the UP ($90^\circ$) direction. This proves that the method is capable of detecting ridges orthogonal to the light source direction, but not in antiparallel directions, which exhibit converging tensor field lines as bidirectional counterpart. Luckily, we measured the gradient for every possible sampled light source direction which complements this information into another slice (and the resulting volume of stacked slices). As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=3$-dimensional grid which results from our FTLE computation. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. We consider extracted subsets of the volume grid as $3D$ height ridges in the domain of $\omega$. That is, the slices we observed are stacked along the $z$-axis in the following:
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/inverse_isovolum2.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/inverse_isovolume.png}
+    \label{b)}
+  \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/inverse_contour.png}
+    \label{b)}
+  \end{minipage}
+    \caption{IsoVolume Filter on LTG volume representation: ``inverse'' test field}
+\label{inverse_contour}
+\end{figure}
+Note that the $z$-axis represents the light source direction angle $\omega$ in this case. The contour filter reveals the star-shaped structure of the tensor field which rotates along the angle axis. This is the effect we already captured for the single slice: For each axis direction we can detect ridges in parallel and orthogonal to our predefined stimulus (light source) direction, but not in antiparallel direction. This causes the star shape to miss one branch or ray which is in turn the antiparallel direction missing for each light source direction emphasizing the impression of rotation. We can also try to segment height ridges represented as surfaces from the resulting volume grids as depicted in Fig \ref{inverse_surface}:
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/inverse_surface.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/inverse-wireframe.PNG}
+    \label{b)}
+  \end{minipage}
+    \caption{LTG stacked slice surface representations: ``inverse'' test field}
+\label{inverse_surface}
+\end{figure}
+
+For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel or orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig. \ref{inverse_surface}. Next, we will analyze the ``drain'' test field in similar fashion:
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/drain_top.PNG}\vskip 10pt
+    \includegraphics[width=\textwidth]{img/drain_alt-profile.PNG}
+    \caption{Cross section on LTG volume representation}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/drain_alt_isovolume.PNG}
+     \caption{Contour filter on LTG volume representation}
+    \label{b)}
+  \end{minipage}
+\label{drain_contour}
+\end{figure}
+For the ``drain'' test field we consider the central channel which produces a clear line in the cross section. The light transport gradient responds most inside of the channel region and on the top T-arms independently of the stimulus direction.
+
+\chapter{Implementation}
+\label{chap:imp}
+In this chapter, we will describe the implementation process from top to bottom following runtime chronology. At first, we will load a configuration file setting angular resolution in (discrete) steps, which are spaced uniformly over the interval $[0,2\pi]$. The threshold for the convergence criterion was empirically determined and set in the range $[0.5,2.0]$. Since it is an energetic threshold, it is only dependent on the light source magnitude and not on any type of resolutions. An iteration limit is set to $\mathop{limit}=10\mathop{width}$ (e.g. for $\mathop{width}=10\cdot 100=1000$)  to prevent the approach from eventual oscillation behavior for intensities and hence overpropagation (propagating for too many timesteps). The spatial resolution is inferred by the tensor field reader method from the tensor field (see Propagation below). The light source profile can be defined for the \enquote{non-FTLE} mode where the user sets position and polar profile of single or multiple light sources as a symbolic term: ,e.g., \texttt{clip(cos(theta-pi/2))} for a Lambert-emitter pointing upwards. After the configuration read process is finished, we allocate memory for certain buffers holding glyph and intensity information with a dimension of $\mathop{dim}=\mathop{width}\mathop{height}\mathop{steps}$. This $1D$ buffer is interpreted like this:
+
+% TODO Figure steps,steps,steps,steps,steps
+\begin{figure}[!t]
+  \centering
+ {
+    \includegraphics[width=0.5\textwidth]
+    {img/grid.pdf}
+  }
+  \caption{Indices and Dimensions in Grid}
+  \label{indices}
+\end{figure}\vskip 3pt
+Fig. \ref{indices} depicts the \textit{deltaIndex}-map for computing the destination index for the scaled cosine lobes for cell $c$. The size of each cell is $\mathit{size}=\mathit{steps}$ in a $1D$ buffer arrangement, respectively.
+We then initialize energetic sums and thresholds and run a while loop until the convergence criterion is met. We compute the difference $\Delta\Phi_{total}$ of the energetic sum in this iteration with the one from the last. If it falls short of this threshold, we initiate a stop sequence and leave the loop. To compute the FTLE, we use multiple stimuli in parallel (,e.g., Dirac-pulses within the scope of this work), and just compute the differences in light distributions for close-by light source positions and directions
+
+
+\begin{algorithm}
+\caption{Propagate Light Distribution}\label{PLD}
+\begin{algorithmic}[1]
+\Procedure{propagateDist}{i,j,$\omega$}\Comment{Input position $j,i$ and direction $\omega$}
+\State \Call{fill}{\textit{bufferA}, $0.0$} \Comment{Reset and Initialize}
+\State \Call{fill}{\textit{bufferB}, $0.0$}
+\State $\mathit{sumMem} \gets 0.0$
+\State $\mathit{finished} \gets \mathit{false}$
+\State $\mathit{index} \gets (j\cdot\mathit{width}+i)\cdot steps$ \Comment{compute $1D$ (cell) index}
+\State $\mathit{bufferA(index,\omega)} \gets steps$ \Comment{write light src }
+\While{$\Delta\Phi_{total} < \mathit{\epsilon }$ } \Comment{while convergence criterion not met..}
+\State $\mathit{sumA} \gets 0.0$ \Comment{reset sum}
+\State \Call{propagate}{\null} \Comment{propagate \textit{bufferA} (src) in \textit{bufferB} (tar)}
+\State $\mathit{sumA} \gets$\Call{sum}{\textit{bufferB}}  \Comment{sum up energies}
+\State $\Delta\Phi_{total} \gets \lvert\mathit{sumA}-\mathit{sumMem}\rvert $\Comment{compute difference to prev. iter.}
+\State $\mathit{sumMem} \gets \mathit{sumA}$\Comment{save sum for next iter.}
+\State \Call{swap}{\textit{bufferA}, \textit{bufferB}} \Comment{swap buffers for restart}
+\State $\mathit{bufferA(index,\omega)} \gets steps$ \Comment{re-write light src}
+\State \Call{fill}{\textit{bufferB}, $0.0$}
+\If {$\mathit{ctr}>\mathit{limit}$}\Comment{stop on iteration limit}
+\State break
+\EndIf
+\EndWhile\label{euclidendwhile} \Comment{final light distribution stored in bufferA..}
+\State return \textit{bufferA}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+Note that we set the light source intensity to constant value $\mathit{steps}$ to require a mean intensity of $\mu_I=1.0$ comparable to the one of a unit circle independently of the angular resolution.
+
+\paragraph{Propagation}
+The method performing the light propagation, was implemented in a separate class called propagator, which we can initialize once for each programming thread (, which we can in turn provide with its own buffer memory). As an initialization we fill the buffers with zeros to have a blank buffer initially to fill up with meaningful intensity profiles. The transmission profiles are generated by loading the tensor field in memory, performing PCA on each of them and exploiting the thin $\mathbf{U}$-matrix for the first (greater) singular vector. The resulting principal component ellipsoid equation is precomputed, sampled and stored for reuse once for each cell.  We again sample cosines into each direction, average out their integrals (sums) and normalize each of them with the mean to have the integral energy scaled to $1$ (identity element for multiplication, as it is the case for \enquote{scaling the cosine lobes} here). Thus we ensure, that the transmitted energy is approximately $1.0=100\%$ for each lobe and account for angular sampling errors.  Now we need to precompute and store the linear combinations used for the \enquote{shared part} in diagonal cones. When hitting border cells, we propagate the intensities only to the present neighbor directions still located on the grid. Remark, that we can not just ignore the edges of the grid because it would lead to large trivial intensity differences on grid borders for the FTLE-similar approach LTG.
+
+\begin{algorithm}
+\caption{Propagate BufferA to BufferB}\label{PB}
+\begin{algorithmic}[1]
+\Procedure{propagate}{}
+ \For{each cell $c$ in bufferA}
+\State $\mu_{I_c}\gets mean(I_c)$ \Comment{Compute Mean Intensity}
+\If {$\mu_{I_c}=0.0$}\Comment{break on trivial null sample}
+\State break
+\EndIf
+\State $\mu_{T_c}\gets mean(T_c)$ \Comment{Comp. Mean Transmission}
+\State $\mu_{\mathit{T_cI_c}}\gets mean(T_c\cdot I_c)$ \Comment{Comp. Mean Transmitted Intensity}
+\State $n_c \gets \frac{\mu_{T_c}\mu_{I_c}}{\mu_{T_cI_c}}$\Comment{Comp. normalization factor for cur. cell}
+ \For{each direction $k$ in $[0,7]$}\Comment{For all neighbors, do..}
+ 	\State $\gamma \gets k\frac{\pi}{4}$\Comment{Offset to compute cone center angle}
+ 	\If {$k\bmod 2 = 0$}\Comment{if even (face) neighbor..}
+	\State $\mathit{energy} = \int_{\gamma-\pi/4}^{\gamma+\pi/4}n_c\epsilon_\alpha T_c(\omega)I_c(\omega)\mathop{d\omega}$
+	\Else\Comment{if odd (diagonal) neighbor..}
+	\State $\mathit{energy} = \int_{\gamma-\beta}^{\gamma+\beta}n_c\epsilon_\beta T_c(\omega)I_c(\omega)\mathop{d\omega}$
+	\EndIf
+	\State $\mathit{index} \gets c+\mathit{deltaIndex}(k)$\Comment{assign neighbor destination index}
+	\State $\mathit{bufferB(index}\cdot\mathit{steps)}\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index}\cdot\mathit{steps)}$
+	\State\Comment{Scale cosine lobe with summed energy and accumulate $y=a*x+y\rightarrow$ daxpy-OP}
+ \EndFor
+ \EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+\paragraph{Languages and Libraries}
+At first, we needed to generate convenient test cases, which we design using Mathematicas VectorPlot, used to visualize vector fields. To output a pre-defined test case, we need to define a little code, which we do using python scripts which do output VTK appended or ASCII format files. To implement the method we used C++'s STL for every dynamic memory (buffer), SFML to plot polar profiles, Eigen to perform matrix decompositions and VTK to in- and output VTK format files, which can in turn be visualized and explored interactively with the visualization framework ParaView. The user functions defined in the configuration file are read-in by a string parser (muParser Library), which is used just once for sampling the polar profile and storing the precomputed result. This causes a convenient input mechanism for stimuli, in case they should be predefined.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Results and Evaluation}
+\label{chap:eval}
+\section{Propagation Attenuation}
+\label{sec:att}
+It can be proven that the approach follows propagation attenuation principles and follows the inverse (square in $3D$) law ($\sim\frac{1}{r}$) as observed in the graph in Fig. \ref{att}. For that, we plot the relative intensity $i_{rel}(r_{rel})$ (in relation to the intensity at position (radius) $1$ to account for the inverse square law, which holds for relative distances. We evaluate the relative intensity by forming a ratio $\frac{I(r)}{I_1}$, that relates the step intensity to the src intensity at position 1.
+
+\begin{figure}[!t]
+  \centering
+ {
+    \includegraphics[width=0.6\textwidth]
+    {img/inverse_law.pdf}
+  }
+  \caption{Propagation Attenuation}
+  \label{att}
+\end{figure}\vskip 3pt
+
+
 
 \section{Behaviour for Total Anisotropy}
 We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda_1>0$ and the other $\lambda_2=0$) incorporated. For this we set up bidirectional Dirac-pulses as transmission profiles to have the whole energy transmitted in just one, discrete direction.
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.4\textwidth}
+  \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/tensorfieldlines.png}
+    \caption*{TFLs and glyphs}
     \label{a)}
   \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=\textwidth]{img/total_anisotropy.png}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/total_anisotropy1.png}
+    \caption*{iteration $50$}
     \label{b)}
   \end{minipage}
-\caption{a) tensor field Lines and glyphs for ``rings''-Testfield, b) intensity propagation in grid}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/total_anisotropy2.png}
+    \caption*{iteration $103$}
+    \label{c)}
+  \end{minipage}
+\caption{intensity propagation in grid for total anisotropy}
 \label{anisotropy}
 \end{figure}
 What we can observe here, is kind of a sampling drift as the approach uses 8 discrete directions to propagate averaged intensity whereas the circle uses much more (namely infinite if presumed as perfect circle). Hence, the energy can never follow a perfect circle, but at best an 8-edged octagon. This means, that there is a drift of at least two cells per diagonal (one overshoot per enter and escape each) as observable in Fig. \ref{anisotropy}. Nonetheless, the energies are transmitted in circular orbits around the circle center.	
@@ -1085,7 +1205,7 @@ The energy conservation test was done in similar manner as thepropagation attenu
 \begin{figure}[!t]
   \centering
  {
-    \includegraphics[width=0.7\textwidth]
+    \includegraphics[width=0.6\textwidth]
     {img/sum_difference.pdf}
   }
   \caption{Sum Error: src intensities: red: 1.0, blue 2.0, green: 5.0}
@@ -1095,7 +1215,7 @@ The energy conservation test was done in similar manner as thepropagation attenu
 The approach remains stable until iteration 40, which is at the time (point) when the numbers are to small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be gained back. The error is accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers since it is a constant relative loss leading to a greater absolute $\Delta E$.
 
 \section{Light transport gradient (LTG)}
-The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated from simple ground truth examples to elaborate real datasets.
+The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for real datasets in this section. Now, that it passed the textbook examples, we push it forward to be applied in real (measured) data to show its performance in discerning and segmenting ROIs from a brain and a break lever.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1103,6 +1223,7 @@ The light transport gradient approach, which is closely related to the FTLE appr
 \label{chap:concl}
 We have presented a presented a technique to extract meaningful structures from tensor fields, which can in turn also be used to visualize meaningful structures in $2D$ virtual geometrical scenes. To put it into context, we discussed its relations to vector field visualization techniques and other tensor field and light transport visualization methods. The visualization is derived from global light transport methods propagating intensities inside of a given Cartesian grid consisting of cells with given polar profiles respectively. Based on this propagation algorithm, we can compute a FTLE-like field on the tensor field.
 
+One of the most relevant problems in visualization is incorporating uncertainty \cite{johnson}. Measurement or simulation errors, boundary conditions or turbulences may introduce local uncertainty, which turns into global uncertainty by moving with the flow. This introduces propability density functions (PDFs) instead of certain single trajectories into the flow field. The analogy to certain vector
 
 Hier werden noch einmal die wichtigsten Ergebnisse und Erkenntnisse
 der Arbeit zusammengefasst (nicht einfach eine Wiederholung des

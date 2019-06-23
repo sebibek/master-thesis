@@ -1,0 +1,77 @@
+\documentclass[enabledeprecatedfontcommands,
+     12pt,         % font size
+     a4paper,      % paper format
+     BCOR10mm,     % binding correction
+     DIV14,        % stripe size for margin calculation
+%     liststotoc,   % table listing in toc
+%     bibtotoc,     % bibliography in toc
+%     idxtotoc,     % index in toc
+%     parskip       % paragraph skip instad of paragraph indent
+     ]{scrreprt}
+
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{algorithm}
+\caption{Propagate Light Distribution}\label{PLD}
+\begin{algorithmic}[1]
+\Procedure{propagateDist}{}
+\State \Call{fill}{\textit{bufferA}, $0.0$} \Comment{Reset and Initialize}
+\State \Call{fill}{\textit{bufferB}, $0.0$}
+\State $\mathit{sumMem} \gets 0.0$
+\State $\mathit{finished} \gets \mathit{false}$
+\State $\mathit{index} \gets (j*width+i)*steps + t$ \Comment{compute $1D$ index}
+\State $\mathit{bufferA(index)} \gets steps$ \Comment{write light src }
+\While{$\Delta\Phi_{total} < \mathit{\epsilon }$ } \Comment{while convergence criterion not met..}
+\State $\mathit{sumA} \gets 0.0$ \Comment{reset sum}
+\State \Call{propagate}{\null} \Comment{propagate \textit{bufferA} (src) in \textit{bufferB} (tar)}
+\State $\mathit{sumA} \gets$\Call{sum}{\textit{bufferB}}  \Comment{sum up energies}
+\State $\Delta\Phi_{total} \gets \lvert\mathit{sumA}-\mathit{sumMem}\rvert $\Comment{compute difference to prev. iter.}
+\State $\mathit{sumMem} \gets \mathit{sumA}$\Comment{save sum for next iter.}
+\State \Call{swap}{\textit{bufferA}, \textit{bufferB}} \Comment{swap buffers for restart}
+\State $\mathit{bufferA(index)} \gets steps$ \Comment{re-write light src}
+\State \Call{fill}{\textit{bufferB}, $0.0$}
+\If {$\mathit{ctr}>\mathit{limit}$}\Comment{stop on iteration limit}
+\State break
+\EndIf
+\EndWhile\label{euclidendwhile} \Comment{final light distribution stored in bufferA..}
+\State return \textit{bufferA}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Propagate BufferA to BufferB}\label{PB}
+\begin{algorithmic}[1]
+\Procedure{propagate}{}
+ \For{each cell $c$ in bufferA}
+\State $\mu_{I_c}\gets mean(I_c)$ \Comment{Compute Mean Intensity}
+\If {$\mu_{I_c}=0.0$}\Comment{break on trivial null sample}
+\State break
+\EndIf
+\State $\mu_{T_c}\gets mean(T_c)$ \Comment{Comp. Mean Transmission}
+\State $\mu_{\mathit{T_cI_c}}\gets mean(T_c\cdot I_c)$ \Comment{Comp. Mean Transmitted Intensity}
+\State $n_c \gets \frac{\mu_{T_c}\mu_{I_c}}{\mu_{T_cI_c}}$\Comment{Comp. normalization factor for cur. cell}
+ \For{each direction $k$ in $[0,7]$}\Comment{For all neighbors, do..}
+ 	\State $\gamma \gets k\frac{\pi}{4}$\Comment{Offset to compute cone center angle}
+ 	\If {$k\bmod 2 = 0$}\Comment{if even (face) neighbor..}
+	\State $\mathit{energy} = \int_{\gamma-\pi/4}^{\gamma+\pi/4}n_c\epsilon_\alpha T_c(\omega)I_c(\omega)\mathop{d\omega}$
+	\Else\Comment{if odd (diagonal) neighbor..}
+	\State $\mathit{energy} = \int_{\gamma-\beta}^{\gamma+\beta}n_c\epsilon_\beta T_c(\omega)I_c(\omega)\mathop{d\omega}$
+	\EndIf
+	\State $\mathit{index} \gets c+\mathit{deltaIndex}(k)$\Comment{assign neighbor destination index}
+	\State \textit{bufferB(index)}$\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index)}$ \Comment{Comp. y=a*x+y}
+	\State\Comment{Scale cosine lobe with summed energy and accumulate $\rightarrow$ daxpy-OP}
+ \EndFor
+ \EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\end{document}
