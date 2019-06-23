@@ -660,7 +660,7 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 	}
 }
 
-int getVTKdim()
+int getVTKdim(int& width, int& height)
 {
 	// set file name "brain.vti"
 	std::string inputFilename = "brain.vtp";
@@ -668,8 +668,7 @@ int getVTKdim()
 	vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 	reader->SetFileName(inputFilename.c_str());
 	reader->Update();
-	cout << "size: " << reader->GetOutput()->GetNumberOfPolys() << endl;
-
+	
 	// Create a plane to cut,here it cuts in the XY direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
 	//vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
 	//plane->SetOrigin(0, 0, slice);
@@ -680,14 +679,15 @@ int getVTKdim()
 	//cutter->SetCutFunction(plane);
 	//cutter->SetInputConnection(reader->GetOutputPort());
 	//cutter->Update();
-
+	
 	// get polyData of SLICE
 	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
-
+	
 	// create tensor array of slice and crop down to 2x2 matrices
 	vtkDataArray* tensors = polyData->GetPointData()->GetArray("tensors");// cutter->get()->GetScalars();
+	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
-	
+
 	return tensors->GetSize() / 9;
 }
 void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
@@ -699,10 +699,9 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 	std::string inputFilename = "brain.vtp";
 
 	// Read the file
-	vtkSmartPointer<vtkXMLPolyDataReader> reader =	vtkSmartPointer<vtkXMLPolyDataReader>::New();
+	vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
 	reader->SetFileName(inputFilename.c_str());
 	reader->Update();
-	cout << "size: " << reader->GetNumberOfPolys() << endl;
 
 	//// Create a plane to cut,here it cuts in the XY direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
 	//vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
@@ -720,6 +719,7 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 
 	// create tensor array of slice and crop down to 2x2 matrices
 	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("tensors"));// cutter->get()->GetScalars();
+	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
 	cout << "array width: " << sqrt(tensors->GetSize() / 9) << endl;
 	double tensor[9];
@@ -1015,20 +1015,20 @@ public:
 		//for (int j = 1; j < width - 1; j++)
 		//	for (int i = 1; i < width - 1; i++) // for each node..
 		//	{
-			for (int i = 0; i < width*height; i++) // for each node..
-			{
-				//int index = i + j * width; // compute 1D grid index
-				DoubleIterator glyphStart = std::next(glyphBuffer.begin(), i *steps);
-				DoubleIterator glyphEnd = std::next(glyphStart, steps);
+		for (int i = 0; i < width*height; i++) // for each node..
+		{
+			//int index = i + j * width; // compute 1D grid index
+			DoubleIterator glyphStart = std::next(glyphBuffer.begin(), i *steps);
+			DoubleIterator glyphEnd = std::next(glyphStart, steps);
 
-				tMeans[i] = std::accumulate(glyphStart, glyphEnd, 0.0) / steps;
+			tMeans[i] = std::accumulate(glyphStart, glyphEnd, 0.0) / steps;
 
-			}
+		}
 	}
 
 	void propagate()
 	{
-		
+
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
@@ -1056,7 +1056,7 @@ public:
 			{
 				sum1 += start[t];
 				sum2 += glyphStart[t];
-				sum3 += start[t]*glyphStart[t];
+				sum3 += start[t] * glyphStart[t];
 			}
 
 			// compute iMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
@@ -1067,7 +1067,7 @@ public:
 			double tiMean = sum3 / steps; // -->tinc(dt) is a constant that can be drawn out of the integral
 			// compute correction factor (scaling to mean=1, subsequent scaling to mean(I)), which follows energy conservation principles
 			double cFactor = tiMean > 0.0 ? tMean * iMean / tiMean : 1.0;
-				
+
 			std::transform(start, end, glyphStart, start, std::multiplies<double>());
 			std::transform(start, end, start, std::bind(std::multiplies<double>(), std::placeholders::_1, cFactor));
 
@@ -1104,38 +1104,38 @@ public:
 					int deltaJ = t - midIndex;
 					int t_index = t < 0 ? t + steps : t % steps; // cyclic value permutation in case i exceeds the full circle degree 2pi
 
-					double val = start[t_index]*weights.at(k).at(t_index);
+					double val = start[t_index] * weights.at(k).at(t_index);
 
 					val_sum += val; // val*radres
 				}
-				
+
 				int index = i + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 				DoubleIterator dstStart = std::next(sampleBufferB.begin(), (index)*steps);
 
 				// add up contribution of scaled (normalized) cosine cone in sample out at position index
-				std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum*=radres));
+				std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum *= radres));
 				meanA += val_sum;
 			}
 		}
 
-			//	int delta;
-			//	double val_sum;
-			//	//#pragma omp for
-			//	for (int k = 0; k < 8; k++) // for each adjacent edge...
-			//	{
-			//		delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
+		//	int delta;
+		//	double val_sum;
+		//	//#pragma omp for
+		//	for (int k = 0; k < 8; k++) // for each adjacent edge...
+		//	{
+		//		delta = index + deltaIndex.at(k); // compute index from deltaIndexMap (stores relative neighbor indices for all 8 directions)
 
-			//		std::transform(start, end, weights.at(k).begin(), out.begin(), std::multiplies<double>());
-			//		val_sum = std::accumulate(out.begin(), out.end(), 0.0)*radres;
-			//		//out = cosines.at(k);
+		//		std::transform(start, end, weights.at(k).begin(), out.begin(), std::multiplies<double>());
+		//		val_sum = std::accumulate(out.begin(), out.end(), 0.0)*radres;
+		//		//out = cosines.at(k);
 
-			//		DoubleIterator dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
-			//		//std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum));// std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
-			//		std::transform(cosines.at(k).begin(), cosines.at(k).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
+		//		DoubleIterator dstStart = std::next(sampleBufferB.begin(), (delta)*steps);
+		//		//std::transform(cosines.at(k).begin(), cosines.at(k).end(), dstStart, dstStart, saxpy_functor(val_sum));// std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
+		//		std::transform(cosines.at(k).begin(), cosines.at(k).end(), out.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, val_sum));
 
-			//		std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
-			//		meanA += val_sum;
-			//	}
+		//		std::transform(out.begin(), out.end(), dstStart, dstStart, std::plus<double>());
+		//		meanA += val_sum;
+		//	}
 
 
 	}
@@ -1224,7 +1224,7 @@ int main(int argc, char* argv[])
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
-	
+
 	// parse input option file
 	parse_options(argc, argv);
 
@@ -1233,11 +1233,11 @@ int main(int argc, char* argv[])
 		dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
 	else
 	{
-		dim = getVTKdim();
+		dim = getVTKdim(width, height);
 		width = height = sqrt(dim);
 	}
 	//ctrLimit = 2*width;
-	
+
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 
 	const std::vector<double> initArray(steps, 0.0);
@@ -1261,19 +1261,19 @@ int main(int argc, char* argv[])
 		computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
 	// DELTA (Gradient) COMPUTATION START //
-	double beta = 26.5651 * pi/ 180;
-	int betaIndex = beta/radres;
+	double beta = 26.5651 * pi / 180;
+	int betaIndex = beta / radres;
 	//int deltaT = steps/16; // SLICE TESTS
 	int deltaT = ceil(steps / 12.0); // VOLUME TESTS -- no interruption // floor(beta/radres)+1
 	cout << "before constructing gradient vector.." << endl;
 	auto startTotal = Clock::now();
-	
-	#pragma omp parallel for //collapse(2)
+
+#pragma omp parallel for //collapse(2)
 	for (int t = 0; t < steps; t++)
 	{
 		cout << "before computing gradients for t: " << t << endl;
 		auto start = Clock::now();
-		
+
 		std::vector<double> sampleBufferA(dim*steps, 0.0);
 		std::vector<double> sampleBufferLeft(dim*steps, 0.0);
 		std::vector<double> sampleBufferRight(dim*steps, 0.0);
@@ -1330,10 +1330,10 @@ int main(int argc, char* argv[])
 
 				deltaBuffer.at(j*width + i + t * dim) = gradient;
 			}
-			if (j==height/2)
+			if (j == height / 2)
 				cout << "half time (elapsed): " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;
-			if (j==1)
-				cout << "est. time left: " << (height-1)*std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;
+			if (j == 1)
+				cout << "est. time left: " << (height - 1)*std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;
 		}
 
 		cout << "timer: " << std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - start).count() << " s" << endl;

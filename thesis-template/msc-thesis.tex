@@ -170,7 +170,7 @@ In this work, we will discuss the advantages of tensor field analysis and motiva
 
 \paragraph{Contributions of this Work}
 \begin{itemize}
-	\item light transport method (progation scheme) following basic but crucial physical principles for tensor field visualization using tensors as transmission profiles
+	\item light transport model (propagation scheme) following basic but crucial physical principles for tensor field visualization using tensors as transmission profiles
 	\item visualization of the propagation results in $2D$ polar profiles and scalar fields
 	\item a FTLE-related approach called light transport gradient (LTG) for visualizing key structures (ROIs) namely LCS in $2D$ second-order tensor fields
 \end{itemize}
@@ -200,7 +200,7 @@ Tensor field visualization is gaining importance as a relevant tool for the anal
 \begin{figure}[!t]
   \centering
  {
-    \includegraphics[width=0.6\textwidth]
+    \includegraphics[width=0.5\textwidth]
     {img/hyperstreamlines.png}
   }
   \caption{Hyperstreamlines in tensor field visualization}
@@ -1129,12 +1129,12 @@ The method performing the light propagation, was implemented in a separate class
 \begin{algorithmic}[1]
 \Procedure{propagate}{}
  \For{each cell $c$ in bufferA}
-\State $\mu_{I_c}\gets mean(I_c)$ \Comment{Compute Mean Intensity}
+\State $\mu_{I_c}\gets mean(I_c(\omega))$ \Comment{Compute Mean Intensity}
 \If {$\mu_{I_c}=0.0$}\Comment{break on trivial null sample}
 \State break
 \EndIf
-\State $\mu_{T_c}\gets mean(T_c)$ \Comment{Comp. Mean Transmission}
-\State $\mu_{\mathit{T_cI_c}}\gets mean(T_c\cdot I_c)$ \Comment{Comp. Mean Transmitted Intensity}
+\State $\mu_{T_c}\gets mean(T_c(\omega))$ \Comment{Comp. Mean Transmission}
+\State $\mu_{\mathit{T_cI_c}}\gets mean(T_c(\omega)\cdot I_c(\omega))$ \Comment{Comp. Mean Transmitted Intensity}
 \State $n_c \gets \frac{\mu_{T_c}\mu_{I_c}}{\mu_{T_cI_c}}$\Comment{Comp. normalization factor for cur. cell}
  \For{each direction $k$ in $[0,7]$}\Comment{For all neighbors, do..}
  	\State $\gamma \gets k\frac{\pi}{4}$\Comment{Offset to compute cone center angle}
@@ -1144,8 +1144,9 @@ The method performing the light propagation, was implemented in a separate class
 	\State $\mathit{energy} = \int_{\gamma-\beta}^{\gamma+\beta}n_c\epsilon_\beta T_c(\omega)I_c(\omega)\mathop{d\omega}$
 	\EndIf
 	\State $\mathit{index} \gets c+\mathit{deltaIndex}(k)$\Comment{assign neighbor destination index}
-	\State $\mathit{bufferB(index}\cdot\mathit{steps)}\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index}\cdot\mathit{steps)}$
-	\State\Comment{Scale cosine lobe with summed energy and accumulate $y=a*x+y\rightarrow$ daxpy-OP}
+	\State $\mathit{bufferB(index}\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index}\cdot\mathit{steps)}$\\
+	\Comment{Scale cosine lobe with summed energy and accumulate}\\
+	\Comment{$y=a*x+y\rightarrow$ daxpy-OP}
  \EndFor
  \EndFor
 \EndProcedure
@@ -1223,15 +1224,15 @@ The light transport gradient approach, which is closely related to the FTLE appr
 \label{chap:concl}
 We have presented a presented a technique to extract meaningful structures from tensor fields, which can in turn also be used to visualize meaningful structures in $2D$ virtual geometrical scenes. To put it into context, we discussed its relations to vector field visualization techniques and other tensor field and light transport visualization methods. The visualization is derived from global light transport methods propagating intensities inside of a given Cartesian grid consisting of cells with given polar profiles respectively. Based on this propagation algorithm, we can compute a FTLE-like field on the tensor field.
 
-One of the most relevant problems in visualization is incorporating uncertainty \cite{johnson}. Measurement or simulation errors, boundary conditions or turbulences may introduce local uncertainty, which turns into global uncertainty by moving with the flow. This introduces propability density functions (PDFs) instead of certain single trajectories into the flow field. The analogy to certain vector
+One of the most relevant problems in visualization is incorporating uncertainty \cite{johnson}. Measurement, simulation or systematic (model) errors, boundary conditions or turbulences may introduce local uncertainty, which turns into global uncertainty through moving with the flow. This introduces propability density functions (PDFs) instead of certain single trajectories into the flow field. A real world example for uncertain vector fields is the measurement of blood flow and tissue velocity by phase contrast MRI, which yields an uncertain vector field due to the inherent noise in MRI scans. This uncertain vector field could be eventually visualized with our proposed technique. We just need to put it into the right context. The analogy to certain vector fields would be, that we could interpret our principal component ellipsoid as a propability density function and even replace it with such. The trajectories would be represented as propability distributions which themselves are in turn propagated.
 
-Hier werden noch einmal die wichtigsten Ergebnisse und Erkenntnisse
-der Arbeit zusammengefasst (nicht einfach eine Wiederholung des
-Aufbaus der vorherigen Kapitel!), welche neuen Konzepte, Methoden und
-Werkzeuge Neues entwickelt wurden, welche Probleme nun (effizienter)
-gelöst werden können, und es wird ein Ausblick auf weiterführende
-Arbeiten gegeben (z.B.~was Sie machen würden, wenn Sie noch 6 Monate
-mehr Zeit hätten).
+%Hier werden noch einmal die wichtigsten Ergebnisse und Erkenntnisse
+%der Arbeit zusammengefasst (nicht einfach eine Wiederholung des
+%Aufbaus der vorherigen Kapitel!), welche neuen Konzepte, Methoden und
+%Werkzeuge Neues entwickelt wurden, welche Probleme nun (effizienter)
+%gelöst werden können, und es wird ein Ausblick auf weiterführende
+%Arbeiten gegeben (z.B.~was Sie machen würden, wenn Sie noch 6 Monate
+%mehr Zeit hätten).
 
 
 % References (Literaturverzeichnis):
