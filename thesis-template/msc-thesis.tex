@@ -888,7 +888,7 @@ Note, that a logarithmic scale needs to be incorporated to produce results on a 
 
 \section{Light Transport Gradient (LTG)}
 \label{sec:ltg}
-Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. For that we imagine kind of a local and spatial gradient, as we place light sources in two close-by positions and eventually in two close-by directions and analyze the resulting final light distribution. We consider the light distributions and their difference image for the drain test field (cf. Fig. \ref{drain} in sect. \ref{chap:grundlagen}) to have an idea, for which kind or types of cases/configurations we obtain inherently different light distributions in particular. We choose to use this test case, because it constitutes an absolutely pure example par excellence for a FTLE computation exposing raw tensor field lines diverging.  Fig. \ref{evolution} depicts final light distributions (cf. sect. \ref{sec:ltg} Fig. \ref{rings-tests}) for placing the light source one step to the left and one to the right from the central axis. We can observe the light cones cancelling out each other in the center of the difference image. That is, per default, light distributions cancel each other out for the same light source position and direction (or for continous overlaps). In this case, for the \enquote{drain} test field, we have tensor field lines diverging leading to a strong difference for light sources in finite distance, which form these curves.
+Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs (regions of interest) characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. For this purpose, we imagine kind of a local and spatial gradient, as we place light sources in two close-by positions and eventually in two close-by directions and analyze the resulting final light distribution. We consider the light distributions and their difference image for the drain test field (cf. Fig. \ref{drain} in sect. \ref{chap:grundlagen}) to have an idea, for which kind or types of cases/configurations we obtain inherently different light distributions in particular. We choose to use this test case, because it constitutes an absolutely pure example par excellence for a FTLE computation exposing raw tensor field lines diverging.  Fig. \ref{evolution} depicts final light distributions (cf. sect. \ref{sec:ltg} Fig. \ref{rings-tests}) for placing the light source one step to the left and one to the right from the central axis. We can observe the light cones cancelling out each other in the center of the difference image. That is, per default, light distributions cancel each other out for two close-by light source positions or directions (or more specifically: for continous overlaps in their distributions). In this case, for the \enquote{drain} test field, we have tensor field lines diverging leading to a strong difference for light sources in finite distance, which ín turn form these curves depicted in Fig. \ref{evolution}.
 
 \begin{figure}[!t]
 \centering
@@ -911,7 +911,7 @@ Now, that we are able to propagate intensity in grid, directed by the eigenvecto
 \label{evolution}
 \end{figure}
 
-The complementing idea for the angular domain would be placing the light source at the same position but pointing in differing directions:
+The complementing idea for the angular domain would be: placing the light source at the same position but pointing in differing directions.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1100,7 +1100,7 @@ We then initialize energetic sums and thresholds and run a while loop until the 
 \State \Call{fill}{\textit{bufferB}, $0.0$}
 \State $\mathit{sumMem} \gets 0.0$
 \State $\mathit{finished} \gets \mathit{false}$
-\State $\mathit{index} \gets (j\cdot\mathit{width}+i)\cdot steps$ \Comment{compute $1D$ (cell) index}
+\State $\mathit{index} \gets (j\cdot\mathit{width}+i)$ \Comment{compute $1D$ (cell) index}
 \State $\mathit{bufferA(index,\omega)} \gets steps$ \Comment{write light src }
 \While{$\Delta\Phi_{total} < \mathit{\epsilon }$ } \Comment{while convergence criterion not met..}
 \State $\mathit{sumA} \gets 0.0$ \Comment{reset sum}
@@ -1144,7 +1144,7 @@ The method performing the light propagation, was implemented in a separate class
 	\State $\mathit{energy} = \int_{\gamma-\beta}^{\gamma+\beta}n_c\epsilon_\beta T_c(\omega)I_c(\omega)\mathop{d\omega}$
 	\EndIf
 	\State $\mathit{index} \gets c+\mathit{deltaIndex}(k)$\Comment{assign neighbor destination index}
-	\State $\mathit{bufferB(index}\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index}\cdot\mathit{steps)}$\\
+	\State $\mathit{bufferB(index)}\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index}$\\
 	\Comment{Scale cosine lobe with summed energy and accumulate}\\
 	\Comment{$y=a*x+y\rightarrow$ daxpy-OP}
  \EndFor
@@ -1215,8 +1215,8 @@ The energy conservation test was done in similar manner as thepropagation attenu
 
 The approach remains stable until iteration 40, which is at the time (point) when the numbers are to small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be gained back. The error is accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers since it is a constant relative loss leading to a greater absolute $\Delta E$.
 
-\section{Light transport gradient (LTG)}
-The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section. We first evaluate a classic textbook example the \enquote{Double Gyre}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
+\section{Light Transport Gradient (LTG)}
+The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section. We first evaluate a classic textbook example called the \enquote{Double Gyre} \cite{shawn}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -1231,7 +1231,7 @@ The light transport gradient approach, which is closely related to the FTLE appr
   \end{minipage}
 \label{drain_contour}
 \end{figure}
-We can observe the method segmenting ridges in local ROIs exhibiting diverging tensor field lines w.r.t. the $x$-axis ($0^\circ$). Note that even regions in antiparallel directions ridgres are detected to (literally) some degree: Remark the ridges being contiguos lines at the level of the gyre centers where converging turns into diverging. We again depict volume representations for this example:
+We can observe the method segmenting ridges in local ROIs exhibiting diverging tensor field lines w.r.t. the $x$-axis ($0^\circ$). Note that even regions in antiparallel directions ridgres are detected to (literally) some degree: Remark the ridges being contiguos lines at the level of the gyre centers where converging turns into diverging. Also remember, that the resulting ridges are not to be concerned sharp ones, since we measure the separation of whole light distributions, which should be considered a continous response or measure. We again depict volume representations for this example:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -1248,7 +1248,22 @@ We can observe the method segmenting ridges in local ROIs exhibiting diverging t
 \end{figure}
 When we consider the volumes for the \enquote{gyre} test field, we can remark the holes, which represent the gyres in the centers of the volume for a low and a high threshold, whereby we extract (filter out) the previously observed ridges in $3D$ for all directions $\omega$ simultaneously.
 
-Now, that it passed the textbook examples, we push it forward to be applied in real (measured) data to show its performance in discerning and segmenting ROIs from a human brain. The approach will detect LCS in the brain's tissue from MRI-measured diffusion tensors of a male subject at the age of 27. We compare t
+Now, that it passed the textbook examples, we push it forward to be applied in real (measured) data to show its performance in discerning and segmenting ROIs from a human brain. The approach will detect LCS in the brain's tissue from MRI-measured diffusion tensors of a male subject at the age of 27. We compare ParaView's glyph representation to the FTLE method LTG for the test field \enquote{brain}:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/brain_ellipsoid_glyphs.PNG}
+    \caption{\enquote{Brain} test field glyph representation}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/brain_ftle.PNG}
+     \caption{LTG on \enquote{Brain} test field}
+    \label{b)}
+  \end{minipage}
+\label{gyre_volume}
+\end{figure}
+Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
