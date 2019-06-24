@@ -1076,7 +1076,7 @@ For the ``drain'' test field we consider the central channel which produces a cl
 
 \chapter{Implementation}
 \label{chap:imp}
-In this chapter, we will describe the implementation process from top to bottom following runtime chronology. At first, we will load a configuration file setting angular resolution in (discrete) steps, which are spaced uniformly over the interval $[0,2\pi]$. The threshold for the convergence criterion was empirically determined and set in the range $[0.5,2.0]$. Since it is an energetic threshold, it is only dependent on the light source magnitude and not on any type of resolutions. An iteration limit is set to $\mathop{limit}=10\mathop{width}$ (e.g. for $\mathop{width}=10\cdot 100=1000$)  to prevent the approach from eventual oscillation behavior for intensities and hence overpropagation (propagating for too many timesteps). The spatial resolution is inferred by the tensor field reader method from the tensor field (see Propagation below). The light source profile can be defined for the \enquote{non-FTLE} mode where the user sets position and polar profile of single or multiple light sources as a symbolic term: ,e.g., \texttt{clip(cos(theta-pi/2))} for a Lambert-emitter pointing upwards. After the configuration read process is finished, we allocate memory for certain buffers holding glyph and intensity information with a dimension of $\mathop{dim}=\mathop{width}\mathop{height}\mathop{steps}$. This $1D$ buffer is interpreted like this:
+In this chapter, we will describe the implementation process from top to bottom following runtime chronology. At first, we will load a configuration file setting angular resolution in (discrete) steps, which are spaced uniformly over the interval $[0,2\pi]$. The threshold for the convergence criterion was empirically determined and set in the range $[0.5,2.0]$. Since it is an energetic threshold, it is only dependent on the light source magnitude and not on any type of resolutions. An iteration limit is set to $\mathop{limit}=10\mathop{width}$ (e.g. for $\mathop{width}=10\cdot 100=1000$)  to prevent the approach from eventual oscillation behavior for intensities and hence overpropagation (propagating for too many timesteps). The spatial resolution is inferred by the tensor field reader method from the tensor field (see Propagation below). The light source profile can be defined for the \enquote{non-FTLE} mode where the user sets position and polar profile of single or multiple light sources as a symbolic term: ,e.g. , \texttt{clip(cos(theta-pi/2))} for a Lambert-emitter pointing upwards. After the configuration read process is finished, we allocate memory for certain buffers holding glyph and intensity information with a dimension of $\mathop{dim}=\mathop{width}\mathop{height}\mathop{steps}$. This $1D$ buffer is interpreted like this:
 
 % TODO Figure steps,steps,steps,steps,steps
 \begin{figure}[!t]
@@ -1216,7 +1216,39 @@ The energy conservation test was done in similar manner as thepropagation attenu
 The approach remains stable until iteration 40, which is at the time (point) when the numbers are to small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be gained back. The error is accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers since it is a constant relative loss leading to a greater absolute $\Delta E$.
 
 \section{Light transport gradient (LTG)}
-The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for real datasets in this section. Now, that it passed the textbook examples, we push it forward to be applied in real (measured) data to show its performance in discerning and segmenting ROIs from a brain and a break lever.
+The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section. We first evaluate a classic textbook example the \enquote{Double Gyre}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/gyre.png}
+    \caption{\enquote{Gyre} test field}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/gyre_ftle.PNG}
+     \caption{LTG on \enquote{Gyre}($0^\circ$)}
+    \label{b)}
+  \end{minipage}
+\label{drain_contour}
+\end{figure}
+We can observe the method segmenting ridges in local ROIs exhibiting diverging tensor field lines w.r.t. the $x$-axis ($0^\circ$). Note that even regions in antiparallel directions ridgres are detected to (literally) some degree: Remark the ridges being contiguos lines at the level of the gyre centers where converging turns into diverging. We again depict volume representations for this example:
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/gyre_volume.png}
+    \caption{IsoVolume on \enquote{Gyre} test field (low thresh)}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/gyre_ftle-highvolume.PNG}
+     \caption{IsoVolume on \enquote{Gyre}(high thresh)}
+    \label{b)}
+  \end{minipage}
+\label{gyre_volume}
+\end{figure}
+When we consider the volumes for the \enquote{gyre} test field, we can remark the holes, which represent the gyres in the centers of the volume for a low and a high threshold, whereby we extract (filter out) the previously observed ridges in $3D$ for all directions $\omega$ simultaneously.
+
+Now, that it passed the textbook examples, we push it forward to be applied in real (measured) data to show its performance in discerning and segmenting ROIs from a human brain. The approach will detect LCS in the brain's tissue from MRI-measured diffusion tensors of a male subject at the age of 27. We compare t
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
