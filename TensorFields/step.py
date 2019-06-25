@@ -67,7 +67,7 @@ with open('temp.txt', 'wb') as f:
             rotated = normalize(identity) # initialization w. zeros
             iInverse = length-1-i  # use inverted x coordinates (mirroring at y-axis in array reference frame)
             if j >= round((length-1)/2):
-                scaled = np.matmul(scale(4, 1), identity)  # use isotropic scaling (1,1) - src; (0,0) - sink
+                scaled = np.matmul(scale(10, 1), identity)  # use isotropic scaling (1,1) - src; (0,0) - sink
             else:
                 scaled = np.matmul(scale(1, 1), identity)  # chronological transformation order: right->left
 
