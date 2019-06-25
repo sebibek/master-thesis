@@ -20,7 +20,8 @@
 
 % fix bitmap fonts
 \usepackage{lmodern}
-
+\usepackage{tabularx}
+\usepackage{booktabs}
 % Use German :
 \usepackage[ngerman,english]{babel}
 \usepackage{amsmath}
@@ -957,23 +958,23 @@ Whereas $j$ is the index of light source position and direction representing the
 	\sum_{\mathbf{c}\in \mathbf{b_x}}\lvert \mathbf{b_x}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_y}}\lvert\mathbf{b_{y}}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_{\omega}}}\lvert \mathbf{b_{\omega}}\rvert
 	\end{pmatrix}.
 \end{align}
- We choose to use a constant offset of $\frac{\pi}{6}\mathop{rad}$ for the angle because we want to prevent from generating results with content implicitly depending on the angular resolution and also since we need to exceed $\beta$ to have a uniform and consistent placing of cosine lobes (inside diagonal cones) concerning neighbor indices. Remark that the results do not depend on the spatial resolution implicitly, because increasement acts as a domain extension for and does effectively not increase the sampling rate of the propagation scheme. Also note that this step is very expensive considering runtime-costs since it follows the following runtime observation. We have $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ numbers in the grid and on top $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ buffers in total, which need to be processed. Also we remark the convergence criterion, which introduces another heuristic factor $\mathop{width}$, because the propagation cycle count rises until the state of equilibrium is reached, and set $\mathop{height}=\mathop{width}$ here for simplicity, which yields:
+ We choose to use a constant offset of $\frac{\pi}{6}\mathop{rad}$ for the angle because we want to prevent from generating results with content implicitly depending on the angular resolution and also since we need to exceed $\beta$ to have a uniform and consistent placing of cosine lobes (inside diagonal cones) concerning neighbor indices. Remark that the results do not depend on the spatial resolution implicitly, because increasement acts as a domain extension for and does effectively not increase the sampling rate of the propagation scheme. Also note that this step is very expensive considering runtime-costs since it follows the following runtime observation. We have $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ numbers in the grid and on top $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ buffers in total, which need to be processed. Also we remark the convergence criterion, which introduces another heuristic factor $\mathop{width}$, because the straight line distance to the field edges is a measure for eventual compliance, and increases with $d\sim width$ for any location in the grid. We set $\mathop{height}=\mathop{width}$ here for simplicity, which yields:
 \begin{align}
-	\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2}),
+	T(n)=\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2}),
 \end{align}
 which is the runtime behavior in order notation considering memory consumption and iteration step count. It is noticeable that the runtime increases fast with increasing resolution, which makes parallelization algorithms a crucial tool necessary to compute the results in reasonable time with additional computing power provided by a computer cluster. Next, we compute the Euclidean norm of the light transport gradient yielding a scalar field, which can be visualized directly or via extracted ridges in a visualization framework like ParaView from VTK format:
 \begin{align}
 	\lvert\nabla \mathbf{b}_{x,y,\omega}\rvert = \sqrt{(\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega})^2}.
 \end{align}
-Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\theta$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. 
+Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\omega\mapsto  z$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. 
 
 
 \subsection{Functionality}
-We will try to show the functionality of the method in a few simple examples. As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. the $y$-axis:
+Remark, that the $z$-axis represents the $\omega$-axis for each test and example. We will try to show the functionality of the method in a few simple examples. As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. the $y$-axis:
 
-\begin{figure}[!t]
+\begin{figure}[t]
 \centering
-  \begin{minipage}{0.4\textwidth}\bigskip
+  \begin{minipage}{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/drain(alt)-TFL.png}
     \label{a)}
     \caption*{a) TFLs and glyphs}
@@ -986,7 +987,7 @@ We will try to show the functionality of the method in a few simple examples. As
   \caption{``drain'' test field}
 \label{ftle_base}
 \end{figure}
-What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig. \ref{gradb)}:
+What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig. \ref{grad)}:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -1000,6 +1001,7 @@ What we can observe here, is a feature called a ``ridge'' occuring as a high val
     \caption*{b) gradient for a)}
   \end{minipage}
   \caption{``drain'' test field}
+  \label{grad)}
 \end{figure}
 
  These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation.
@@ -1119,7 +1121,7 @@ We then initialize energetic sums and thresholds and run a while loop until the 
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-Note that we set the light source intensity to constant value $\mathit{steps}$ to require a mean intensity of $\mu_I=1.0$ comparable to the one of a unit circle independently of the angular resolution.
+Note that we set the light source intensity to constant value $\mathit{steps}$ to require a mean intensity of $\mu_I=1.0$ comparable to the one of a unit circle independently on the angular resolution.
 
 \paragraph{Propagation}
 The method performing the light propagation, was implemented in a separate class called propagator, which we can initialize once for each programming thread (, which we can in turn provide with its own buffer memory). As an initialization we fill the buffers with zeros to have a blank buffer initially to fill up with meaningful intensity profiles. The transmission profiles are generated by loading the tensor field in memory, performing PCA on each of them and exploiting the thin $\mathbf{U}$-matrix for the first (greater) singular vector. The resulting principal component ellipsoid equation is precomputed, sampled and stored for reuse once for each cell.  We again sample cosines into each direction, average out their integrals (sums) and normalize each of them with the mean to have the integral energy scaled to $1$ (identity element for multiplication, as it is the case for \enquote{scaling the cosine lobes} here). Thus we ensure, that the transmitted energy is approximately $1.0=100\%$ for each lobe and account for angular sampling errors.  Now we need to precompute and store the linear combinations used for the \enquote{shared part} in diagonal cones. When hitting border cells, we propagate the intensities only to the present neighbor directions still located on the grid. Remark, that we can not just ignore the edges of the grid because it would lead to large trivial intensity differences on grid borders for the FTLE-similar approach LTG.
@@ -1216,7 +1218,33 @@ The energy conservation test was done in similar manner as thepropagation attenu
 The approach remains stable until iteration 40, which is at the time (point) when the numbers are to small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be gained back. The error is accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers since it is a constant relative loss leading to a greater absolute $\Delta E$.
 
 \section{Light Transport Gradient (LTG)}
-The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section. We first evaluate a classic textbook example called the \enquote{Double Gyre} \cite{shawn}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
+The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section.  We will start off with the star dataset revealing tensor field lines diverging in any direction from the center.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.29\textwidth}
+  \includegraphics[width=\textwidth]{img/star.png}
+    \caption*{\enquote{Star} test field}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.29\textwidth}
+    \includegraphics[height=\textwidth]{img/star_ftle.PNG}
+     \caption*{LTG slice($0^\circ$)}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.35\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{img/star_volume_alt.PNG}
+     \caption*{IsoVolume on LTG volume}
+    \label{b)}
+  \end{minipage}
+  \caption{LTG on \enquote{Star} test field}
+\label{star_ftle}
+\end{figure}
+When we look at the example depicted in Fig. \ref{star_ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the knot point of tensor field lines diverging in any direction. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped wings of the volume, evenly spaced in $90^\circ$ offsets. But wouldn't we expect a cylinder shape for a symmetric testcase? These can be interpreted nicely, since the diagonal direction serves a factor $\times\sqrt{2}$ longer mean straight line distance (SLD), leading to $\times\sqrt{2}$ more visited cells on average. The energy distribution will be more complete (concerning the occupation of energy in the grid) and hence we will obtain larger differences for our light transport gradient for the diagonal direction, which should be seen gradually and continously as we observe Gaussian-plates in the volume instead of sharp, contrasted ridges. A possible correction would be, to normalize each slice with a factor $\frac{1}{1+(\sqrt{2}-1)\lvert\cos2\omega-\frac{\pi}{4}\rvert}$ to get a uniform response over all directions. This shows a limitation of the approach, as diagonal ridges are detected predominantly over ridges in axis directions in case both existent, as this test example states.
+
+
+Now, we will evaluate a classic textbook example called the \enquote{Double Gyre} \cite{shawn}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -1253,18 +1281,47 @@ Now, that it passed the textbook examples, we push it forward to be applied in r
 \centering
   \begin{minipage}{0.4\textwidth}
   \includegraphics[width=\textwidth]{img/brain_ellipsoid_glyphs.PNG}
-    \caption{\enquote{Brain} test field glyph representation}
+    \caption*{glyph representation}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[height=\textwidth]{img/brain_ftle.PNG}
-     \caption{LTG on \enquote{Brain} test field}
+     \caption*{LTG}
     \label{b)}
   \end{minipage}
+  \caption{\enquote{brain} test field}
 \label{gyre_volume}
 \end{figure}
 Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response.
 
+\begin{table}
+\small
+\centering
+\caption{Test Table:}
+\begin{tabularx}{\columnwidth}{X|X|X|X}
+\hline\hline
+test name - Fig. \# & resolution & runtime $[s]$ & memory consumption\\
+\toprule
+\enquote{drain} & $101\times101\times64=652864$ & $179878$ & $4\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx20.99\mathop{MB}$\\ 
+\hline 
+ &  &  & \\ 
+\hline 
+ &  &  & \\ 
+\hline 
+ &  &  & \\ 
+\hline 
+ &  &  & \\ 
+\hline 
+ &  &  & \\ 
+\hline 
+ &  &  & \\ 
+\hline 
+ &  &  & \\ 
+
+\hline 
+\end{tabularx}
+   \vskip 1pt
+\end{table} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conclusion and Future Work}

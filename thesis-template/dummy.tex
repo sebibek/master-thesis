@@ -1,0 +1,29 @@
+\documentclass{scrartcl}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{csquotes}
+% Include Graphic-files:
+\usepackage{graphicx}
+\usepackage{caption}
+
+\newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
+
+\begin{document}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
+    \label{grada)}
+    \caption*{a) LTG($90^\circ$) }
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/drain_alt_gradient.png}
+    \label{gradb)}
+    \caption*{b) gradient for a)}
+  \end{minipage}
+  \caption{``drain'' test field}
+  \label{grad)}
+\end{figure}
+
+\end{document}
