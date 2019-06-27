@@ -587,6 +587,7 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 	std::vector<double>::iterator glyphEnd;
 	//std::advance(glyphEnd, steps);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
+	double rMeanMax = 0.0;
 	for (int i = 0; i < matrixList.size(); i++)
 	{
 		glyphStart = glyphBuffer.begin() + i * steps;
@@ -647,6 +648,8 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 			}
 		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		if (rMean > rMeanMax)
+			rMeanMax = rMean;
 		// write glyphParameters
 		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
@@ -658,6 +661,10 @@ void computeGlyphs(std::vector<double>& glyphBuffer, std::vector<std::vector<boo
 		//std::advance(glyphStart, steps);
 		//std::advance(glyphEnd, steps);
 	}
+	if (rMeanMax > 0)
+		std::transform(glyphBuffer.begin(), glyphBuffer.end(), glyphBuffer.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMeanMax));
+	else
+		cout << "NULL field encountered: no normalization possible" << endl;
 }
 
 int getVTKdim(int& width, int& height)
@@ -685,7 +692,7 @@ int getVTKdim(int& width, int& height)
 	 //= imgData->GetDimensions();
 	
 	// create tensor array of slice and crop down to 2x2 matrices
-	vtkDataArray* tensors = polyData->GetPointData()->GetArray("nrrd70723");// cutter->get()->GetScalars();
+	vtkDataArray* tensors = polyData->GetPointData()->GetArray("nrrd83047");// cutter->get()->GetScalars();
 	
 	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
@@ -723,7 +730,7 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
 
 	// create tensor array of slice and crop down to 2x2 matrices
-	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("nrrd70723"));// cutter->get()->GetScalars();
+	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("nrrd83047"));// cutter->get()->GetScalars();
 	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
 	cout << "array width: " << sqrt(tensors->GetSize() / 9) << endl;
