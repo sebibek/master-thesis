@@ -682,12 +682,17 @@ int getVTKdim(int& width, int& height)
 	
 	// get polyData of SLICE
 	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
+	 //= imgData->GetDimensions();
 	
 	// create tensor array of slice and crop down to 2x2 matrices
-	vtkDataArray* tensors = polyData->GetPointData()->GetArray("tensors");// cutter->get()->GetScalars();
+	vtkDataArray* tensors = polyData->GetPointData()->GetArray("nrrd70723");// cutter->get()->GetScalars();
+	
 	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
-
+	//vtkImageData* imgData = vtkImageData::SafeDownCast(polyData-> GetPointData()->getD);
+	//double* dimL = polyData->GetBounds();
+	//cout << "bounds: " << dimL[1] << endl;
+	//cout << "dim1: " << dim[1] << endl;
 	return tensors->GetSize() / 9;
 }
 void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
@@ -718,12 +723,12 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
 
 	// create tensor array of slice and crop down to 2x2 matrices
-	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("tensors"));// cutter->get()->GetScalars();
+	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("nrrd70723"));// cutter->get()->GetScalars();
 	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
 	cout << "array width: " << sqrt(tensors->GetSize() / 9) << endl;
 	double tensor[9];
-	int dim = 128 * 128;
+	int dim = width*height;
 	Eigen::MatrixXd matrix(2, 2);
 	std::vector<MatrixXd> matrixList;
 	for (int i = 0; i < dim; i++)
@@ -1173,7 +1178,7 @@ public:
 			if (ctr > ctrLimit)
 				break;
 		}
-		//cout << "ctr: " << ctr << endl;
+		cout << "ctr: " << ctr << endl;
 
 		sampleBufferA[index] = 0.0; //remove light src to prevent trivial differences at light src positions ???? try comment!
 		return sampleBufferA;
@@ -1234,7 +1239,8 @@ int main(int argc, char* argv[])
 	else
 	{
 		dim = getVTKdim(width, height);
-		width = height = sqrt(dim);
+		width = height = floor(sqrt(dim));
+		dim = width * height;
 	}
 	//ctrLimit = 2*width;
 
@@ -1357,7 +1363,7 @@ int main(int argc, char* argv[])
 	vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
 
 	imageData->SetDimensions(width, height, steps);
-
+	
 	vtkSmartPointer<vtkDoubleArray> energy = vtkSmartPointer<vtkDoubleArray>::New();
 
 	energy->SetNumberOfComponents(1);

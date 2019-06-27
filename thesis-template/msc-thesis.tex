@@ -570,7 +570,7 @@ Last, we will discuss our work in relation to other publications. While these pr
 \newpage
 
 \chapter{Method}
-\label{chap:main}
+\label{chap:meth}
 
 This chapter will summarize the main contributions of this work studied and state targeted aims and goals as a first step in sect. \ref{sec:overview}. Then we will have a short introduction to the implemented global illumination scheme derived and simplified from an nVidia global illumination approach in sect. \ref{sec:scheme}. Last, we will state the effectively implemented Visualization methods light transport visualization (propagation scheme) and light transport gradient proposed as the main innovatively invented tensor visualization techniques.
 
@@ -938,7 +938,7 @@ Now imagine we would accumulate the differences and assign each position a gradi
 
 Remark that we denote the final buffer result $\mathbf{b}=\mathcal{C}_{final}$ in the following.
 \subsection{Definition}
- As tensor field lines are bidirectional, convergence and divergence can not reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (that is, changes in direction/tensor magnitude) in the field segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from sect. \ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
+ As tensor field lines are bidirectional, convergence and divergence can not be reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (, i.e., changes in direction/tensor magnitude) in the field segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from sect. \ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
 \begin{align}
 	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}].
 	\label{ftle}
@@ -1004,7 +1004,23 @@ What we can observe here, is a feature called a ``ridge'' occuring as a high val
   \label{grad)}
 \end{figure}
 
- These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation.
+ These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation. As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=3$-dimensional grid which results from our FTLE computation. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. That is, the slices we observe are stacked along the $\omega\mapsto z$-axis in the following. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid.
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/drain_top.PNG}\vskip 10pt
+    \includegraphics[width=\textwidth]{img/drain_alt-profile.PNG}
+    \caption{Cross section on LTG volume representation}	
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/drain_alt_isovolume.PNG}
+     \caption{Contour filter on LTG volume representation}
+    \label{b)}
+  \end{minipage}
+\label{drain_contour}
+\end{figure}
+For the ``drain'' test field we consider the central channel which produces a clear line in the cross section. The light transport gradient responds most inside of the channel region and on the top T-arms independently of the stimulus direction. Next, we will analyze the \enquote{inverse} test field in similar fashion:
 
 \begin{figure}[!t]
 \centering
@@ -1022,59 +1038,39 @@ What we can observe here, is a feature called a ``ridge'' occuring as a high val
 \label{inverse-ftle}
 \end{figure}
 
-We also evaluated the approach for the ``inverse'' test field, whereas we can observe height ridges for the $90^\circ$ slice in any position with diverging tensor field lines w.r.t. the light source direction. This is certainly not the case for the upper (missing) ridge whereas tensor field lines converge with respect to the UP ($90^\circ$) direction. This proves that the method is capable of detecting ridges orthogonal to the light source direction, but not in antiparallel directions, which exhibit converging tensor field lines as bidirectional counterpart. Luckily, we measured the gradient for every possible sampled light source direction which complements this information into another slice (and the resulting volume of stacked slices). As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=3$-dimensional grid which results from our FTLE computation. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. We consider extracted subsets of the volume grid as $3D$ height ridges in the domain of $\omega$. That is, the slices we observed are stacked along the $z$-axis in the following:
+We also evaluated the approach for the ``inverse'' test field, whereas we can observe height ridges for the $90^\circ$ slice in any position with diverging tensor field lines w.r.t. the light source direction. This is certainly not the case for the upper (missing) ridge whereas tensor field lines converge with respect to the UP ($90^\circ$) direction. This proves that the method is capable of detecting ridges from parallel up to orthogonal to the light source direction, but not in antiparallel directions, which exhibit converging tensor field lines as bidirectional counterpart. Luckily, we measured the gradient for every possible sampled light source direction which complements this information into another slice (and the resulting volume of stacked slices). 
 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse_isovolum2.png}
-    \label{a)}
+    \includegraphics[height=\textwidth]{img/inverse_isovolume.png}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse_isovolume.png}
-    \label{b)}
+    \includegraphics[height=\textwidth]{img/inverse_surface.png}
   \end{minipage}
    \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/inverse_contour.png}
-    \label{b)}
   \end{minipage}
     \caption{IsoVolume Filter on LTG volume representation: ``inverse'' test field}
 \label{inverse_contour}
 \end{figure}
-Note that the $z$-axis represents the light source direction angle $\omega$ in this case. The contour filter reveals the star-shaped structure of the tensor field which rotates along the angle axis. This is the effect we already captured for the single slice: For each axis direction we can detect ridges in parallel and orthogonal to our predefined stimulus (light source) direction, but not in antiparallel direction. This causes the star shape to miss one branch or ray which is in turn the antiparallel direction missing for each light source direction emphasizing the impression of rotation. We can also try to segment height ridges represented as surfaces from the resulting volume grids as depicted in Fig \ref{inverse_surface}:
+Note that the $z$-axis represents the light source direction angle $\omega$ in this case. The contour filter reveals the star-shaped structure of the tensor field which rotates along the angle axis. This is the effect we already captured for the single slice: For each axis direction we can detect ridges from parallel up to orthogonal to our predefined stimulus (light source) direction, but not in antiparallel direction. This causes the star shape to miss one branch or ray which is in turn the antiparallel direction missing for each light source direction, emphasizing the impression of rotation. We can also try to segment height ridges represented as surfaces from the resulting volume grids as depicted in Fig \ref{inverse_contour}. The orthogonal ridges in this example reach out to the edges because they are gaining a bias by never offsetting the light source in a transmission direction (greater eigenvector) for orthogonals. This turns out to be a general feature of the method, as we will later verify in Fig. \ref{res_ftle_volume} and \ref{star_ftle}.
 
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse_surface.png}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=\textwidth]{img/inverse-wireframe.PNG}
-    \label{b)}
-  \end{minipage}
-    \caption{LTG stacked slice surface representations: ``inverse'' test field}
-\label{inverse_surface}
-\end{figure}
+%\begin{figure}[!t]
+%\centering
+%  \begin{minipage}{0.4\textwidth}
+%    \includegraphics[height=\textwidth]{img/inverse_surface.png}
+%    \label{a)}
+%  \end{minipage}
+%  \begin{minipage}{0.4\textwidth}
+%    \includegraphics[height=\textwidth]{img/inverse-wireframe.PNG}
+%    \label{b)}
+%  \end{minipage}
+%    \caption{LTG stacked slice surface representations: ``inverse'' test field}
+%\label{inverse_surface}
+%\end{figure}
 
-For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel or orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig. \ref{inverse_surface}. Next, we will analyze the ``drain'' test field in similar fashion:
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=\textwidth]{img/drain_top.PNG}\vskip 10pt
-    \includegraphics[width=\textwidth]{img/drain_alt-profile.PNG}
-    \caption{Cross section on LTG volume representation}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=\textwidth]{img/drain_alt_isovolume.PNG}
-     \caption{Contour filter on LTG volume representation}
-    \label{b)}
-  \end{minipage}
-\label{drain_contour}
-\end{figure}
-For the ``drain'' test field we consider the central channel which produces a clear line in the cross section. The light transport gradient responds most inside of the channel region and on the top T-arms independently of the stimulus direction.
+For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel up to orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig. \ref{inverse_surface}. 
 
 \chapter{Implementation}
 \label{chap:imp}
@@ -1215,7 +1211,7 @@ The energy conservation test was done in similar manner as thepropagation attenu
   \label{energy}
 \end{figure}
 
-The approach remains stable until iteration 40, which is at the time (point) when the numbers are to small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be gained back. The error is accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers since it is a constant relative loss leading to a greater absolute $\Delta E$.
+The approach remains stable until iteration 40, which is at the time (point) when the numbers are too small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be regained. The error is thus accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers since it is a constant relative loss $\sim\frac{1}{r}$ leading to a greater absolute $\Delta E$.
 
 \section{Light Transport Gradient (LTG)}
 The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section.  We will start off with the star dataset revealing tensor field lines diverging in any direction from the center.
@@ -1223,7 +1219,7 @@ The light transport gradient approach, which is closely related to the FTLE appr
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.29\textwidth}
-  \includegraphics[width=\textwidth]{img/star.png}
+  \includegraphics[height=\textwidth]{img/star.png}
     \caption*{\enquote{Star} test field}
     \label{a)}
   \end{minipage}
@@ -1241,7 +1237,7 @@ The light transport gradient approach, which is closely related to the FTLE appr
   \caption{LTG on \enquote{Star} test field}
 \label{star_ftle}
 \end{figure}
-When we look at the example depicted in Fig. \ref{star_ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the knot point of tensor field lines diverging in any direction. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped wings of the volume, evenly spaced in $90^\circ$ offsets. But wouldn't we expect a cylinder shape for a symmetric testcase? These can be interpreted nicely, since the diagonal direction serves a factor $\times\sqrt{2}$ longer mean straight line distance (SLD), leading to $\times\sqrt{2}$ more visited cells on average. The energy distribution will be more complete (concerning the occupation of energy in the grid) and hence we will obtain larger differences for our light transport gradient for the diagonal direction, which should be seen gradually and continously as we observe Gaussian-plates in the volume instead of sharp, contrasted ridges. A possible correction would be, to normalize each slice with a factor $\frac{1}{1+(\sqrt{2}-1)\lvert\cos2\omega-\frac{\pi}{4}\rvert}$ to get a uniform response over all directions. This shows a limitation of the approach, as diagonal ridges are detected predominantly over ridges in axis directions in case both existent, as this test example states.
+When we look at the example depicted in Fig. \ref{star_ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the knot point of tensor field lines diverging in any direction. Remark, that there is a light V-shaped ridge on the left on blue background which is outshined by the center spot because of its orders larger magnitude. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped plates in the thresholded volume, evenly spaced in $90^\circ$ shifts with $45^\circ$ (quarter volume) offset. These can be interpreted nicely, since the diagonal direction serves a factor $\times\sqrt{2}$ longer mean straight line distance (SLD), leading to $\times\sqrt{2}$ more visited cells on average. The resulting energy distribution will hence be more complete (concerning the occupation of energy in the grid) and hence we will obtain larger differences for our light transport gradient for the diagonal direction, which should be seen gradually and continously as we observe Gaussian-plates in the volume instead of sharp, contrasted ridges. A possible correction would be, to normalize each slice with a factor $\frac{1}{1+(\sqrt{2}-1)\lvert\cos2\omega-\frac{\pi}{4}\rvert}$ to get a uniform response over all directions and account for the longer diagonal run lengths (SLDs). This shows a limitation of the approach, as diagonal ridges are detected predominantly over ridges in axis directions in case both existent, as this test example states. But wouldn't we expect a ridges only in parallel directions? Well, in this case, we could imagine not only tensor field lines diverge or converge, but also they could cross each other unaffectedly (just as with light paths), which could be the case when shifting away from the diagonal directions. For better imagination, offset the light source vertically or horizontally from the diagonals and observe the light paths hitting the axes (which in fact do cross each other).
 
 
 Now, we will evaluate a classic textbook example called the \enquote{Double Gyre} \cite{shawn}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
@@ -1294,6 +1290,57 @@ Now, that it passed the textbook examples, we push it forward to be applied in r
 \end{figure}
 Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response.
 
+\paragraph{Documentation}\vskip 3pt
+\textit{Spatial resolution pyramid}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \includegraphics[height=\textwidth]{img/inverse29.png}
+    \caption*{$\mathop{res}=29\times29\times16$}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/inverse51.PNG}
+     \caption*{$\mathop{res}=51\times51\times16$}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{img/inverse101.PNG}
+     \caption*{$\mathop{res}=101\times101\times16$}
+    \label{b)}
+  \end{minipage}
+  \caption{LTG on \enquote{inverse} test field - slice}
+\label{res_ftle}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+ % \centering
+  \includegraphics[height=\textwidth]{img/inverse29_volume.png}
+    \caption*{$\mathop{res}=29\times29\times16$}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  %\centering
+    \includegraphics[height=\textwidth]{img/inverse51_volume.PNG}
+     \caption*{$\mathop{res}=51\times51\times16$}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+ % \centering
+    \includegraphics[height=\textwidth]{img/inverse101_volume.PNG}
+     \caption*{$\mathop{res}=101\times101\times16$}
+    \label{b)}
+  \end{minipage}
+  \caption{LTG on \enquote{inverse} test field - volume}
+\label{res_ftle_volume}
+\end{figure}
+When observing these (decomposed) spatial resolution pyramids shown, we can observe the slice image becoming more and more continous with increasing resolution to the right. The right image on the top, shows a result fulfilling the Nyquist-Shannon sampling theorem, as it appears with no jaggies or pixelation and thus successfully deceiving the human mind in being continous. The volumes on the other hand, exhibit a slight difference, which is due to the revealing of new discretized directions implicitly in the tensor field, as shifts in angle become more gradual and continuously for a more dense sampling of the same implicitly content-based field. This effects a more precise behavior, which now indicates the orthogonal ridges from each of the $2$ directions in parallel to the light source direction (axis-parallel) on each side of the volume. They are evenly spaced in a shift of half the volume height which represents the angle $180^\circ$ (2 antiparallel directions in axis directions). The blue span (hole), we perceive in the middle of the cross-section, is representing the antiparallel direction, which in turn is missing, since we only can detect divergence of tensor field lines in axis-parallel up to -orthogonal directions. Note that we already discussed this feature in section \ref{chap:meth}.
+
+\textit{Angular resolution pyramid}
+
 \begin{table}
 \small
 \centering
@@ -1302,7 +1349,7 @@ Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundari
 \hline\hline
 test name - Fig. \# & resolution & runtime $[s]$ & memory consumption\\
 \toprule
-\enquote{drain} & $101\times101\times64=652864$ & $179878$ & $4\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx20.99\mathop{MB}$\\ 
+\enquote{drain} - \ref{ftle_base} & $101\times101\times64=652864$ & $179878$ & $4\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx20.99\mathop{MB}$\\ 
 \hline 
  &  &  & \\ 
 \hline 
@@ -1321,7 +1368,8 @@ test name - Fig. \# & resolution & runtime $[s]$ & memory consumption\\
 \hline 
 \end{tabularx}
    \vskip 1pt
-\end{table} 
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Conclusion and Future Work}
