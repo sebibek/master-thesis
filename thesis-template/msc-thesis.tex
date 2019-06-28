@@ -1237,8 +1237,9 @@ The light transport gradient approach, which is closely related to the FTLE appr
   \caption{LTG on \enquote{Star} test field}
 \label{star_ftle}
 \end{figure}
-When we look at the example depicted in Fig. \ref{star_ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the knot point of tensor field lines diverging in any direction. Remark, that there is a light V-shaped ridge on the left on blue background which is outshined by the center spot because of its orders larger magnitude. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped plates in the thresholded volume, evenly spaced in $90^\circ$ shifts with $45^\circ$ (quarter volume) offset. These can be interpreted nicely, since the diagonal direction serves a factor $\times\sqrt{2}$ longer mean straight line distance (SLD), leading to $\times\sqrt{2}$ more visited cells on average. The resulting energy distribution will hence be more complete (concerning the occupation of energy in the grid) and hence we will obtain larger differences for our light transport gradient for the diagonal direction, which should be seen gradually and continously as we observe Gaussian-plates in the volume instead of sharp, contrasted ridges. A possible correction would be, to normalize each slice with a heuristic factor $\frac{1}{1+(\sqrt{2}-1)\lvert\cos2\omega-\frac{\pi}{4}\rvert}$ to get a uniform response over all directions and account for the longer diagonal run lengths (SLDs). This shows a limitation of the approach, as diagonal ridges are detected predominantly over ridges in axis directions in case both existent, as this test example states. But wouldn't we expect a ridges only in parallel directions? Well, in this case, we could imagine not only tensor field lines diverge or converge, but also they could cross each other unaffectedly (just as with light paths), which could be the case when shifting away from the diagonal directions. For better imagination, offset the light source vertically or horizontally from the diagonals and observe the light paths hitting the axes (which in fact do cross each other).
+When we look at the example depicted in Fig. \ref{star_ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the knot point of tensor field lines diverging in any direction. Remark, that there is a light V-shaped ridge on the left on blue background which is outshined by the center spot because of its orders larger magnitude. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped plates in the thresholded volume, evenly spaced in $90^\circ$ shifts with $45^\circ$ (quarter volume) offset. These can be interpreted nicely, since the diagonal direction serves a factor $\times\sqrt{2}$ longer mean straight line distance (SLD), leading to $\times\sqrt{2}$ longer ridges. The resulting energy distribution will hence be more complete (concerning the occupation of energy in the grid) and hence we will obtain larger differences for our light transport gradient for the diagonal direction, which should be seen gradually and continously as we observe Gaussian-plates in the volume instead of sharp, contrasted ridges. But wouldn't we expect a ridges only in parallel directions? Well, in this case, we could imagine not only tensor field lines diverge or converge, but also they could cross each other unaffectedly (just as with light paths), which could be the case when shifting away from the diagonal directions. For better imagination, offset the light source vertically or horizontally from the diagonals and observe the light paths hitting the axes (which in fact do cross each other).
 
+%A possible correction would be, to normalize each slice with a heuristic factor $\frac{1}{1+(\sqrt{2}-1)\lvert\cos2\omega-\frac{\pi}{4}\rvert}$ to get a uniform response over all directions and account for the longer diagonal run lengths (SLDs). 
 
 Now, we will evaluate a classic textbook example called the \enquote{Double Gyre} \cite{shawn}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
 \begin{figure}[!t]
@@ -1340,6 +1341,53 @@ Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundari
 When observing these (decomposed) spatial resolution pyramids shown, we can observe the slice image becoming more and more continous with increasing resolution to the right. The right image on the top, shows a result fulfilling the Nyquist-Shannon sampling theorem, as it appears with no jaggies or pixelation and thus successfully deceiving the human mind in being continous. The volumes on the other hand, exhibit a slight difference, which is due to the revealing of new discretized directions implicitly in the tensor field, as shifts in angle become more gradual and continuously for a more dense sampling of the same implicitly content-based field. This effects a more precise behavior, which now indicates the orthogonal ridges from each of the $2$ directions in parallel to the light source direction (axis-parallel) on each side of the volume. They are evenly spaced in a shift of half the volume height which represents the angle $180^\circ$ (2 antiparallel directions in axis directions). The blue span (hole), we perceive in the middle of the cross-section, is representing the antiparallel direction, which in turn is missing, since we only can detect divergence of tensor field lines in axis-parallel up to -orthogonal directions. Note that we already discussed this feature in section \ref{chap:meth}.
 
 \textit{Angular resolution pyramid}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \includegraphics[height=\textwidth]{img/slice16.png}
+    \caption*{$\mathop{res}=29\times29\times16$}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/slice32.PNG}
+     \caption*{$\mathop{res}=51\times51\times16$}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{img/slice64.PNG}
+     \caption*{$\mathop{res}=101\times101\times16$}
+    \label{b)}
+  \end{minipage}
+  \caption{LTG on \enquote{inverse} test field - slice}
+\label{resA_ftle}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+ 	\centering
+  \includegraphics[height=\textwidth]{img/vol16.png}
+    \caption*{$\mathop{res}=29\times29\times16$}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{img/vol32.PNG}
+     \caption*{$\mathop{res}=51\times51\times16$}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{img/vol64.PNG}
+     \caption*{$\mathop{res}=101\times101\times16$}
+    \label{b)}
+  \end{minipage}
+  \caption{LTG on \enquote{inverse} test field - volume}
+\label{resA_ftle_volume}
+\end{figure}
+
 
 \begin{table}
 \small
