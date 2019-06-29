@@ -1016,7 +1016,7 @@ Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction
 
 
 \subsection{Functionality}
-Remark, that the $z$-axis represents the $\omega$-axis for each test and example. We will try to show the functionality of the method in a few simple examples. At first, we will have a NULL example to show the offset response of the approach induced by total spherical anisotropy and no absorption in the field. We consider the example \enquote{isotropic}, concerned to have no influence on the light propagation, as it models homogeneous identity matrices inducing absolutely isotropic transmission (every incident distribution is transmitted as is). This corresponds to the \enquote{non - tensor field} mode of the propagation scheme having no influence of any tensor fields incorporated. In this configuration, we could eventually visualize light transport paths in a $2D$ topological scene.
+Remark, that the $z$-axis represents the $\omega$-axis for each test and example and that each data range is rescaled to its interval for proper color coding in heat maps of the resulting $3D$ volume. We will try to show the functionality of the method in a few simple examples. At first, we will have a null example to show the offset response of the approach induced by total spherical anisotropy and no absorption in the field. We consider the example \enquote{isotropic}, concerned to have no influence on the light propagation, as it models homogeneous identity matrices inducing absolutely isotropic transmission (every incident distribution is transmitted as is). This corresponds to the \enquote{non - tensor field} mode of the propagation scheme having no influence of any tensor field incorporated. In this configuration, we could eventually visualize light transport paths in a $2D$ topological scene.
 
 \begin{figure}[t]
 \centering
@@ -1034,7 +1034,7 @@ Remark, that the $z$-axis represents the $\omega$-axis for each test and example
 \label{ftle_iso}
 \end{figure}
 
-When we look at the FTLE field, on the top right in Fig. \ref{ftle_iso}, we determine that we obtain a more or less uniform reponse (, if we would neglect the edges) just as expected. Because the divergence of TFLs is distributed uniformly in this test field, we get approximately the same response for any position, but yet introducing systematic a bias towards the light source direction. This is explained by the fact, that the energy will leave the grid sooner on light source positions at the edges for light source directions pointing toward the edges leading to inherently decreased differences and hence gradient magnitudes (responses). Note, that this also causes a shift of the FTLE field to the left, as the light source points to the right ($0^\circ$ slice). As noticeable, no height ridges are detected in this case as expected, since the test field does not pose any specific regions exhibiting diverging tensor field lines. We consider this result the absolute offset response, which we could subtract as a preliminary step. As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=3$-dimensional grid which results from our FTLE computation. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. That is, the slices we observe are stacked along the $\omega\mapsto z$-axis in the following. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid.
+When we look at the FTLE field, on the top right in Fig. \ref{ftle_iso}, we determine that we obtain a more or less uniform reponse (, if we would neglect the edges) just as expected. Because the divergence of TFLs is distributed uniformly in this test field, we get approximately the same response for any position, but yet introducing a systematic bias against the light source direction. This is explained by the fact, that the energy will leave the grid sooner on light source positions at the edges for light source directions pointing toward the edges leading to inherently decreased differences and hence gradient magnitudes (responses). Note, that this also causes a shift of the FTLE field to the left, as the light source points to the right ($0^\circ$ slice). As noticeable, no height ridges are detected in this case as expected, since the test field does not pose any specific regions exhibiting diverging tensor field lines. We consider this result the absolute offset response, whereas energies are redistributed and separated more strictly for introducing local features into the grid (field), leading to greater differences, which are in turn emphasized by local regions of interest displayed in deep red at their corresponding positions. Imagine this process comparable with ink absorbed by dry paper. As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=3$-dimensional grid which results from our FTLE computation. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. That is, the slices we observe are stacked along the $\omega\mapsto z$-axis in the following. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid.
 
 \begin{figure}[t]
 \centering
@@ -1092,14 +1092,15 @@ What we can observe here, is a feature called a ``ridge'' occuring as a high val
   \begin{minipage}{0.4\textwidth}
   \includegraphics[width=\textwidth]{img/drain_top.PNG}\vskip 10pt
     \includegraphics[width=\textwidth]{img/drain_alt-profile.PNG}
-    \caption{Cross section on LTG volume representation}	
+    \caption*{Cross section on LTG volume representation}	
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[height=\textwidth]{img/drain_alt_isovolume.PNG}
-     \caption{Contour filter on LTG volume representation}
+     \caption*{IsoVolume filter on }
     \label{b)}
   \end{minipage}
+  \caption{LTG volume representation: \enquote{drain} test field}
 \label{drain_contour}
 \end{figure}
 For the ``drain'' test field we consider the central channel which produces a clear line in the cross section. The light transport gradient responds most inside of the channel region and on the top T-arms independently of the stimulus direction. Next, we will analyze the \enquote{inverse} test field in similar fashion:
@@ -1152,7 +1153,43 @@ Note that the $z$-axis represents the light source direction angle $\omega$ in t
 %\label{inverse_surface}
 %\end{figure}
 
-For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel up to orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig. \ref{inverse_surface}. 
+For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel up to orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig. \ref{inverse_surface}. Subsequently, we will analyze the \enquote{rings} test field to show its performance on circular ridges.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/tensorfieldlines.png}
+    \label{a)}
+    \caption*{a) TFLs and glyphs }
+  \end{minipage}
+  \begin{minipage}[!t]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/rings_ftle.png}
+    \label{b)}
+    \caption*{b) LTG($0^\circ$) for a)}
+  \end{minipage}
+  \caption{``rings''-test field}
+\label{rings-ftle}
+\end{figure}
+What we can observe in Fig. \ref{rings-ftle}, is called an inside-outside test producing the ridge on the circumference of the circle with maximized radius fitting into the minimum bounding box. If one would place a light source on the circumference of this circle offsetting it spatially and in the angular domain, one would obtain one incomplete final light distribution (outside) and one complete final light distribution (inside), as this is the maximum radius at which the intensities can follow a circle. This hence leads to large differential light distributions and thus to a higher LTG magnitude. ROIs pointing outside the field respond the same for varying light source directions and positions yielding the blue areas in the corners. Regions introducing linear anisotropy respond uniformly inside of the circle in contrary to the center point, which is again not responding because of circular overlaps of the offset light distributions computed for the light transport gradient.
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/rings_contour.png}
+    \caption*{Contour}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/rings_isovolume.png}
+    \caption*{IsoVolume}
+  \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/rings_volume.png}
+    \caption*{Volume}
+  \end{minipage}
+    \caption{LTG volume representations: ``rings'' test field}
+\label{rings_contour}
+\end{figure}
+The volumes, we examine here in Fig. \ref{rings_contour}, show that the field is symmetric, as we do not notice a change along the $\omega\mapsto z$-axis except for the natural shift of the field against the light source direction, which we discussed already in this subsection. Along the $z$-axis, the light source is rotated in all directions which causes the shift to form a full cycle from bottom to top ($[0^\circ,360^\circ]$).
+ 
 
 \chapter{Implementation}
 \label{chap:imp}
@@ -1169,7 +1206,7 @@ In this chapter, we will describe the implementation process from top to bottom 
   \label{indices}
 \end{figure}\vskip 3pt
 Fig. \ref{indices} depicts the \textit{deltaIndex}-map for computing the destination index for the scaled cosine lobes for cell $c$. The size of each cell is $\mathit{size}=\mathit{steps}$ in a $1D$ buffer arrangement, respectively.
-We then initialize energetic sums and thresholds and run a while loop until the convergence criterion is met. We compute the difference $\Delta\Phi_{total}$ of the energetic sum in this iteration with the one from the last. If it falls short of this threshold, we initiate a stop sequence and leave the loop. To compute the FTLE, we use multiple stimuli in parallel (,e.g., Dirac-pulses within the scope of this work), and just compute the differences in light distributions for close-by light source positions and directions
+We then initialize energetic sums and thresholds and run a while loop until the convergence criterion is met. We compute the difference $\Delta\Phi_{total}$ of the energetic sum in this iteration with the one from the last. If it falls short of this threshold, we initiate a stop sequence and leave the loop. To compute the FTLE, we use multiple stimuli in parallel (,e.g., Dirac-pulses within the scope of this work), and just compute the differences in final light distributions for two close-by light source positions and directions to accumulate them in a total energy sum (capacity), which in turn forms one component of the light transport gradient. A Euclidean norm yields a scalar field from the gradient at each position. 
 
 
 \begin{algorithm}
@@ -1224,9 +1261,9 @@ The method performing the light propagation, was implemented in a separate class
 	\State $\mathit{energy} = \int_{\gamma-\beta}^{\gamma+\beta}n_c\epsilon_\beta T_c(\omega)I_c(\omega)\mathop{d\omega}$
 	\EndIf
 	\State $\mathit{index} \gets c+\mathit{deltaIndex}(k)$\Comment{assign neighbor destination index}
-	\State $\mathit{bufferB(index)}\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index}$\\
+	\State $\mathit{bufferB(index,\omega)}\gets \mathit{energy}\cdot cos_k(\omega)+\mathit{bufferB(index,\omega)}$\\
 	\Comment{Scale cosine lobe with summed energy and accumulate}\\
-	\Comment{$y=a*x+y\rightarrow$ daxpy-OP}
+	\Comment{$y=a*x+y\rightarrow$ axpy-OP}
  \EndFor
  \EndFor
 \EndProcedure
@@ -1316,10 +1353,10 @@ The light transport gradient approach, which is closely related to the FTLE appr
      \caption*{IsoVolume on LTG volume}
     \label{b)}
   \end{minipage}
-  \caption{LTG on \enquote{Star} test field}
+  \caption{LTG on \enquote{star} test field}
 \label{star_ftle}
 \end{figure}
-When we look at the example depicted in Fig. \ref{star_ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the knot point of tensor field lines diverging in any direction. Remark, that there is a light V-shaped ridge on the left on blue background which is outshined by the center spot because of its orders larger magnitude. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped plates in the thresholded volume, evenly spaced in $90^\circ$ shifts with $45^\circ$ (quarter volume) offset. These can be interpreted nicely, since the diagonal direction serves a factor $\times\sqrt{2}$ longer mean straight line distance (SLD), leading to $\times\sqrt{2}$ longer ridges. The resulting energy distribution will hence be more complete (concerning the occupation of energy in the grid) and hence we will obtain larger differences for our light transport gradient for the diagonal direction, which should be seen gradually and continously as we observe Gaussian-plates in the volume instead of sharp, contrasted ridges. But wouldn't we expect a ridges only in parallel directions? Well, in this case, we could imagine not only tensor field lines diverge or converge, but also they could cross each other unaffectedly (just as with light paths), which could be the case when shifting away from the diagonal directions. For better imagination, offset the light source vertically or horizontally from the diagonals and observe the light paths hitting the axes (which in fact do cross each other).
+When we look at the example depicted in Fig. \ref{star_ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the knot point of tensor field lines diverging in any direction. Remark, that there is a light V-shaped ridge on the left on blue background which is outshined by the center spot because of its orders larger magnitude. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped plates in the thresholded volume, evenly spaced in $90^\circ$ shifts with $45^\circ$ (quarter volume) offset. These can be interpreted nicely, since the diagonal direction serves a factor $\times\sqrt{2}$ longer mean straight line distance (SLD), leading to $\times\sqrt{2}$ longer ridges. The resulting energy distribution will hence be more complete (concerning the occupation of energy in the grid) and hence we will obtain larger differences for our light transport gradient for the diagonal direction, which should be seen gradually and continously, as we observe Gaussian-plates in the volume instead of sharp, contrasted ridges. But wouldn't we expect a ridges only in parallel directions? Well, in this case, we could imagine not only tensor field lines diverge or converge, but also they could cross each other unaffectedly (just as with light paths), which could be the case when shifting away from the diagonal directions. For better imagination, offset the light source vertically or horizontally from the diagonals and observe the light paths hitting the axes (which in fact do cross each other).
 
 %A possible correction would be, to normalize each slice with a heuristic factor $\frac{1}{1+(\sqrt{2}-1)\lvert\cos2\omega-\frac{\pi}{4}\rvert}$ to get a uniform response over all directions and account for the longer diagonal run lengths (SLDs). 
 
@@ -1371,7 +1408,23 @@ Now, that it passed the textbook examples, we push it forward to be applied in r
   \caption{\enquote{brain} test field}
 \label{gyre_volume}
 \end{figure}
-Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response.
+Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response. Note that we do not show the volume representation in this case, since all directions (slices) look approximately the same because of the tensor field only introduces changes in tensor magnitude not in anisotropy as inferred from the glyph representation.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/heart_org.PNG}
+    \caption*{glyph representation}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/heart_org.PNG}
+     \caption*{LTG}
+    \label{b)}
+  \end{minipage}
+  \caption{\enquote{heart} test field}
+\label{gyre_volume}
+\end{figure}
 
 \paragraph{Documentation}\vskip 3pt
 \textit{Spatial resolution pyramid}
