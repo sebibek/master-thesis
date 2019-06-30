@@ -5,33 +5,41 @@
 
 \begin{document}
 
+Please note that all values in the test table where measured on following system:
+\texttt{4 x 16-Core Gold 6142M 2.60GHz, 3072 GB RAM}.
 \begin{table}
-%\tiny
+\small
 \centering
 \caption{Test Table:}
 \begin{tabularx}{\columnwidth}{X|X|X|X}
 \hline\hline
-test name - Fig. \# & resolution & runtime & memory consump.\\
+test name - Fig. \# & resolution ($x\times y\times\omega$) & runtime $[s]$ & memory consumption\\
 \toprule
-\enquote{drain} & dummy & dummy & dummy\\ 
+\enquote{drain} - \ref{ftle_base} & $101\times101\times64=652864$ & $179878$ & $4\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx20.99\mathop{MB}$\\ 
+\hline 
+\enquote{inverse} - \ref{inverse-ftle} & $101\times101\times64=652864$ & $68787$ & $4\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx20.99\mathop{MB}$\\
 \hline 
  &  &  & \\ 
 \hline 
- &  &  & \\ 
+\enquote{isotropic} - \ref{bow-ftle} & $51\times51\times32=163216$ & $1357$ & $4\times163216\times 8\mathop{byte} +(51\times51 + 19\times32)\times8\mathop{byte}\approx3.33414\mathop{MB}$\\ 
+\hline
+\enquote{rings} - \ref{bow-ftle} & $51\times51\times32=163216$ & $5761$ & $4\times163216\times 8\mathop{byte} +(51\times51 + 19\times32)\times8\mathop{byte}\approx3.33414\mathop{MB}$\\ 
 \hline 
- &  &  & \\ 
+\enquote{bow} - \ref{bow-ftle} & $51\times51\times32=163216$ & $6128$ & $4\times163216\times 8\mathop{byte} +(51\times51 + 19\times32)\times8\mathop{byte}\approx3.33414\mathop{MB}$\\ 
 \hline 
- &  &  & \\ 
+\enquote{star} - \ref{star-ftle} & $51\times51\times32=163216$ & $5815$ & $4\times163216\times 8\mathop{byte} +(51\times51 + 19\times32)\times8\mathop{byte}\approx3.33414\mathop{MB}$\\ 
 \hline 
- &  &  & \\ 
+\enquote{inverse} - \ref{inverse-ftle} & $101\times101\times16=163216$ & $12308$ & $4\times163216\times 8\mathop{byte} +(101\times101 + 19\times16)\times8\mathop{byte}\approx6.53107\mathop{MB}$\\ 
 \hline 
- &  &  & \\ 
+\enquote{inverse} - \ref{inverse-ftle} & $101\times101\times32=326432$ & $24571$ & $4\times326432\times 8\mathop{byte} +(101\times101 + 19\times32)\times8\mathop{byte}\approx13.0621\mathop{MB}$\\ 
 \hline 
- &  &  & \\ 
-
+\enquote{inverse} - \ref{inverse-ftle} & $51\times51\times64=166464$ & $11657$ & $4\times166464\times 8\mathop{byte} +(51\times51 + 19\times64)\times8\mathop{byte}\approx6.66829\mathop{MB}$\\
+\hline
+\enquote{brain} - \ref{brain-ftle} & $128\times128\times64=1048576$ & $2427$ & $4\times166464\times 8\mathop{byte} +(128\times128 + 19\times64)\times8\mathop{byte}\approx41.9528\mathop{MB}$\\
+\hline
+\enquote{heart} - \ref{heart-ftle} & $256\times256\times32=2097152$ & TODO & $4\times2097152\times 8\mathop{byte} +(256\times256 + 19\times64)\times8\mathop{byte}\approx83.8909\mathop{MB}$\\
 \hline 
 \end{tabularx}
    \vskip 1pt
-\end{table} 
-
+\end{table}
 \end{document}
