@@ -21,6 +21,15 @@
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkDoubleArray.h>
+#include <vtkSmartPointer.h>
+#include <vtkProperty.h>
+#include <vtkXMLImageDataReader.h>
+#include <vtkXMLPolyDataWriter.h>
+#include <vtkXMLPolyDataReader.h>
+#include <vtkImageData.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
+
 typedef boost::iostreams::tee_device<std::ostream, std::ofstream> Tee;
 typedef boost::iostreams::stream<Tee> TeeStream;
 
@@ -423,6 +432,7 @@ Pair lightSrcPos{ height / 2, width / 2 };
 bool fullscreen = false; //fullscreen flag
 std::string record_folder = "frames";//directory to write images to, must exist
 int record_frameskip = 0; // --> disables recording //recording frameskip
+bool vtkFormat = false;
 double intensity = 2.1; // --> initial intensity val
 std::string workDir;
 double thresh = 0.001;
@@ -430,7 +440,7 @@ bool total_anisotropy = false;
 int ctrLimit = 0;
 
 // parse files
-void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pair>& positions) {
+void parse_file(char* filename) {
 
 	std::ifstream f(filename);
 
@@ -449,12 +459,12 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 			if (line[0] == '#')
 				continue;
 			//write function to vector
-			else if (line == "end") {
-				funcs.push_back(func_literal);
-				//reset default values
-				func_literal = "100*cos(theta)";
-				positions.push_back(position);
-			}
+			//else if (line == "end") {
+			//	funcs.push_back(func_literal);
+			//	//reset default values
+			//	func_literal = "100*cos(theta)";
+			//	positions.push_back(position);
+			//}
 
 			//parse other statements
 			else {
@@ -492,6 +502,12 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 					std::stringstream s;
 					s << line.substr(pos + 1);
 					s >> thresh;
+				}
+				// vtkReader enabled, reading in "brain.vti" if true, "matrix.txt" if false..
+				else if (tag == "vtkFormat") {
+					std::stringstream s;
+					s << line.substr(pos + 1);
+					s >> vtkFormat;
 				}
 				// total anisotropy permission
 				else if (tag == "total_anisotropy") {
@@ -532,7 +548,7 @@ void parse_file(char* filename, std::vector<std::string>& funcs, std::vector<Pai
 		std::cerr << filename << " is not a valid filename.\n";
 }
 
-void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std::vector<Pair>& positions) {
+void parse_options(int argc, char* argv[]) {
 
 	int c;
 	std::string frameskip_opt = "-1";
@@ -552,13 +568,13 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 		switch (c)
 		{
 			// correct option use
-		case 'l': {
+		/*case 'l': {
 			light_opt.assign(optarg);
 			std::istringstream(light_opt) >> lightSrcPos;
 			positions.push_back(lightSrcPos);
 			funcs.push_back(std::to_string(intensity));
 			break;
-		}
+		}*/
 		case 'i': {
 			intensity_opt.assign(optarg);
 			std::istringstream(intensity_opt) >> intensity;
@@ -618,13 +634,13 @@ void parse_options(int argc, char* argv[], std::vector<std::string>& funcs, std:
 	}
 	int optmem = optind; // set up option index memory variable
 	for (int i = optind; i < argc; i++)
-		parse_file(argv[i], funcs, positions); // parse "filename.txt" passed as LAST cmd line arg
+		parse_file(argv[i]); // parse "filename.txt" passed as LAST cmd line arg
 	if (optind == optmem) // if optind did not change.., use standard config.txt in workDir for configuration
 	{
 		std::string str = workDir + "/config.txt";
 		char* cstr = new char[str.length() + 1];
 		strcpy_s(cstr, str.length() + 1, str.c_str());
-		parse_file(cstr, funcs, positions); // parse config.txt in workDir
+		parse_file(cstr); // parse config.txt in workDir
 		free(cstr);
 	}
 }
@@ -902,6 +918,191 @@ void defineCircle(sf::ConvexShape* ellipse, double radius_x, double radius_y, un
 	}
 }
 
+int getVTKdim(int& width, int& height)
+{
+	// set file name "brain.vti"
+	std::string inputFilename = "brain.vtp";
+	// Read the file
+	vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+	reader->SetFileName(inputFilename.c_str());
+	reader->Update();
+
+	// Create a plane to cut,here it cuts in the XY direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
+	//vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+	//plane->SetOrigin(0, 0, slice);
+	//plane->SetNormal(0, 0, 1);
+
+	//// Create cutter to SLICE a 2D PLANE
+	//vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
+	//cutter->SetCutFunction(plane);
+	//cutter->SetInputConnection(reader->GetOutputPort());
+	//cutter->Update();
+
+	// get polyData of SLICE
+	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
+	 //= imgData->GetDimensions();
+
+	// create tensor array of slice and crop down to 2x2 matrices
+	vtkDataArray* tensors = polyData->GetPointData()->GetArray("nrrd70723");// cutter->get()->GetScalars();
+
+	cout << "size: " << tensors->GetNumberOfComponents() << endl;
+	cout << "array size: " << tensors->GetSize() / 9 << endl;
+	//vtkImageData* imgData = vtkImageData::SafeDownCast(polyData-> GetPointData()->getD);
+	//double* dimL = polyData->GetBounds();
+	//cout << "bounds: " << dimL[1] << endl;
+	//cout << "dim1: " << dim[1] << endl;
+	return tensors->GetSize() / 9;
+}
+void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
+{
+
+	// set file name "brain.vti"
+	std::string inputFilename = "brain.vtp";
+
+	// Read the file
+	vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+	reader->SetFileName(inputFilename.c_str());
+	reader->Update();
+
+	//// Create a plane to cut,here it cuts in the XY direction (xz normal=(1,0,0);XY =(0,0,1),YZ =(0,1,0)
+	//vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+	//plane->SetOrigin(0, 0, sliceIndex);
+	//plane->SetNormal(0, 0, 1);
+
+	//// Create cutter to SLICE a 2D PLANE
+	//vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
+	//cutter->SetCutFunction(plane);
+	//cutter->SetInputConnection(reader->GetOutputPort());
+	//cutter->Update();
+
+	// get polyData of SLICE
+	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
+
+	// create tensor array of slice and crop down to 2x2 matrices
+	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("nrrd70723"));// cutter->get()->GetScalars();
+	cout << "size: " << tensors->GetNumberOfComponents() << endl;
+	cout << "array size: " << tensors->GetSize() / 9 << endl;
+	cout << "array width: " << sqrt(tensors->GetSize() / 9) << endl;
+	double tensor[9];
+	int dim = width * height;
+	Eigen::MatrixXd matrix(2, 2);
+	std::vector<MatrixXd> matrixList;
+	for (int i = 0; i < dim; i++)
+	{
+		int pointId = i;
+		tensors->GetTuple(pointId, tensor);
+		// CROP //
+		matrix.row(0) << tensor[0], tensor[1]; // tensor[2]
+		matrix.row(1) << tensor[3], tensor[4]; // tensor[5]
+					  // tensor[6], tensor[7], // tensor[8]
+		// APPEND //
+		matrixList.push_back(matrix);
+	}
+
+	cout << "list size: " << matrixList.size() << endl;
+
+	// compute the SVD (singular value decomposition)of all matrices in matrixList into svdList
+	std::vector<JacobiSVD<MatrixXd>> svdList(dim, JacobiSVD<MatrixXd>(matrixList.at(0), ComputeThinU | ComputeThinV));
+	for (int i = 0; i < dim; i++)
+	{
+		// SVD-based
+		JacobiSVD<MatrixXd> svd(matrixList.at(i), ComputeThinU | ComputeThinV);
+		svdList.at(i) = svd;
+	}
+
+	// define parameters
+	double radres = (2 * pi) / steps;
+
+	std::complex<double> sigma1(0, 0);
+	std::complex<double> sigma2(0, 0);
+	std::vector<bool> signs(2, false);
+
+	//std::vector<double>::iterator glyphStart = glyphBuffer.begin();
+	//std::vector<double>::iterator glyphEnd = glyphBuffer.begin();
+	std::vector<double>::iterator glyphStart;
+	std::vector<double>::iterator glyphEnd;
+	//std::advance(glyphEnd, steps);
+	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
+	double rMeanMax = 0.0;
+	for (int i = 0; i < matrixList.size(); i++)
+	{
+		glyphStart = glyphBuffer.begin() + i * steps;
+		glyphEnd = std::next(glyphStart, steps);
+		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-vector
+		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes
+		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes -- Get RIGHT U-vector
+		double x2 = svdList.at(i).matrixU().col(1)[0]; // use x - coordinate of both semi-axes
+		double xx = matrixList.at(i).row(0)[0]; // "sigma_xx"
+		double xy = matrixList.at(i).row(0)[1]; // "sigma_xy"
+		double yx = matrixList.at(i).row(1)[1]; // "sigma_yx"
+		double yy = matrixList.at(i).row(1)[1]; // "sigma_yy"
+		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
+		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
+
+		glyphParameters.at(i).at(2) = deg1;
+
+		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
+		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
+		sigma2 = std::complex<double>(0.5*(xx + yy), 0) - 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
+
+		// crop sign of real part.. https://www.cg.tuwien.ac.at/research/vis/seminar9596/2-topo/evinter.html (rotational (complex) part already present in transformation)
+		if (abs(sigma1 - sigma2) < 0) // check order of principal stresses sigma to match corresponding singular values/vectors
+		{
+			signs.at(0) = sigma2.real() < 0 ? true : false;
+			signs.at(1) = sigma1.real() < 0 ? true : false;
+		}
+		else
+		{
+			signs.at(0) = sigma1.real() < 0 ? true : false;
+			signs.at(1) = sigma2.real() < 0 ? true : false;
+		}
+
+		signMap.at(i) = signs; // assign singular value signs in sign map in decreasing order at position i
+		// shift (normalize) degs from [-180°,180°] into the interval [0°,360°] - "circular value permutation"
+		deg1 = deg1 < 0 ? 360 + deg1 : deg1;
+		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
+
+		// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
+		double sv1 = svdList.at(i).singularValues()[0];
+		double sv2 = svdList.at(i).singularValues()[1];
+		double dot = sv2 * sv1;
+
+		double sum = 0.0;
+		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // if total anisotropy, needed to hit (match) the indices corresponding to glyph orientation
+		{
+			glyphStart[round(deg1*steps / 360)] = sv1;
+			glyphStart[static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			sum += 2 * sv1;
+		}
+		else
+		{
+			for (int j = 0; j < steps; j++) // sample ellipse equation for all steps
+			{
+				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
+				sum += val;
+				glyphStart[j] = val;
+			}
+		}
+		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
+		if (rMean > rMeanMax)
+			rMeanMax = rMean;
+		// write glyphParameters
+		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
+		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
+
+		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
+		//std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
+		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
+
+		//std::advance(glyphStart, steps);
+		//std::advance(glyphEnd, steps);
+	}
+	if (rMeanMax > 0)
+		std::transform(glyphBuffer.begin(), glyphBuffer.end(), glyphBuffer.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMeanMax));
+	else
+		cout << "NULL field encountered: no normalization possible" << endl;
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -915,13 +1116,20 @@ int main(int argc, char* argv[])
 	MatrixXd m = readMatrix(workDir + "/matrix.txt", &cols, &rows); // call countMatrix to determine rows/cols count #
 	width = cols / 2; // determine width of grid for correct indexing
 	height = rows / 2;
-	const int dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
-	
-	// create vector for light src's symbolic user-input functions in convenient string format
-	std::vector<std::string> userFunctions;
-	std::vector<Pair> userPositions;
+
 	// parse input option file
-	parse_options(argc, argv, userFunctions, userPositions);
+	parse_options(argc, argv);
+
+	int dim;
+	if (!vtkFormat)
+		dim = width * height; // determine # of dimensions of grid for buffer (string/coefficient etc..) vectors
+	else
+	{
+		dim = getVTKdim(width, height);
+		width = height = floor(sqrt(dim));
+		dim = width * height;
+	}
+	
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 
 	std::vector<double> initArray(steps, 0.0);
@@ -943,13 +1151,6 @@ int main(int argc, char* argv[])
 	double rotSpeed = 0.0; // set rotation speed
 	sf::Color red = sf::Color(255, 0, 0);
 	sf::Color green = sf::Color(0, 255, 0, Alpha);
-
-	// add pre-computed function as string
-	/*for (int i = 0; i < dim; i++)
-	{
-		funcs.push_back(polarPlot(sampleBufferA.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, red));
-		funcsEllipses.push_back(polarPlot(glyphBuffer.at(i), drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green));
-	}*/
 
 	polarPlot glyphs(glyphBuffer, drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green);
 
@@ -1087,7 +1288,6 @@ int main(int argc, char* argv[])
 					defineConvexEllipse(&tensorFieldLinePos, 1.0, 1.0, quality, degPos);
 				window.draw(tensorFieldLinePos);
 				out.draw(tensorFieldLinePos);
-
 
 				//convert polar to cartesian
 				double dx = 2.0 * cos(degPos * pi / 180.0);
