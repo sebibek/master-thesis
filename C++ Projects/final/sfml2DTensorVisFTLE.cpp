@@ -1140,47 +1140,46 @@ int main(int argc, char* argv[])
 	computeGlyphs(glyphBuffer, signMap, glyphParameters);
 
 	// POLAR GRAPHER START //
-		//vector to store functions
 
-		// set options
-	int Alpha = 255; // set opacity ("Deckung")
-	int drawSpeed = 0; // set instant drawing
-	int lineWidth = 0; // set line width = 1px
-	double thetaMax = 2 * pi;
-	double thetaInc = (2 * pi) / steps; // set theta increment
-	double rotSpeed = 0.0; // set rotation speed
-	sf::Color red = sf::Color(255, 0, 0);
-	sf::Color green = sf::Color(0, 255, 0, Alpha);
+	// set options
+	//int Alpha = 255; // set opacity ("Deckung")
+	//int drawSpeed = 0; // set instant drawing
+	//int lineWidth = 0; // set line width = 1px
+	//double thetaMax = 2 * pi;
+	//double thetaInc = (2 * pi) / steps; // set theta increment
+	//double rotSpeed = 0.0; // set rotation speed
+	//sf::Color red = sf::Color(255, 0, 0);
+	//sf::Color green = sf::Color(0, 255, 0, Alpha);
 
-	polarPlot glyphs(glyphBuffer, drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green);
+	//polarPlot glyphs(glyphBuffer, drawSpeed, lineWidth, steps, thetaMax, radres, rotSpeed, green);
 
-	//declare renderwindow
-	sf::RenderWindow window;
-	if (fullscreen == false)
-		window.create(sf::VideoMode(wSize, wSize, 32), "Polar Grapher", sf::Style::Default);
-	else
-		window.create(sf::VideoMode::getDesktopMode(), "Polar Grapher", sf::Style::Fullscreen);
-	window.setFramerateLimit(60);
-	windowsize.x = window.getSize().x;
-	windowsize.y = window.getSize().y;
+	////declare renderwindow
+	//sf::RenderWindow window;
+	//if (fullscreen == false)
+	//	window.create(sf::VideoMode(wSize, wSize, 32), "Polar Grapher", sf::Style::Default);
+	//else
+	//	window.create(sf::VideoMode::getDesktopMode(), "Polar Grapher", sf::Style::Fullscreen);
+	//window.setFramerateLimit(60);
+	//windowsize.x = window.getSize().x;
+	//windowsize.y = window.getSize().y;
 
-	//initialize function graphics
-	//for (int i = 0; i < funcs.size(); i++)
-	glyphs.init();
+	////initialize function graphics
+	////for (int i = 0; i < funcs.size(); i++)
+	//glyphs.init();
 
-	//initialize rendertexture for output image
-	sf::RenderTexture out;
-	out.create(wSize, wSize);
-	sf::RenderTexture outAll;
-	outAll.create(wSize, wSize);
+	////initialize rendertexture for output image
+	//sf::RenderTexture out;
+	//out.create(wSize, wSize);
+	//sf::RenderTexture outAll;
+	//outAll.create(wSize, wSize);
 
-	window.clear(sf::Color::Black);
-	outAll.clear(sf::Color::Black);
-	out.clear(sf::Color::Black);
+	//window.clear(sf::Color::Black);
+	//outAll.clear(sf::Color::Black);
+	//out.clear(sf::Color::Black);
 
-	// create flags for blending tensors(ellipses)/light distributions(polar plots)
-	bool showOverlay{ true };
-	bool showBase{ true };
+	//// create flags for blending tensors(ellipses)/light distributions(polar plots)
+	//bool showOverlay{ true };
+	//bool showBase{ true };
 	// ellipse parameters
 	unsigned short quality = 90;
 
@@ -1286,8 +1285,8 @@ int main(int argc, char* argv[])
 					defineConvexEllipse(&tensorFieldLinePos, 3.0*sv1 / (sv1 + sv2), sv2 / (sv1 + sv2) + 1.0, quality, degPos);
 				else
 					defineConvexEllipse(&tensorFieldLinePos, 1.0, 1.0, quality, degPos);
-				window.draw(tensorFieldLinePos);
-				out.draw(tensorFieldLinePos);
+				//window.draw(tensorFieldLinePos);
+				//out.draw(tensorFieldLinePos);
 
 				//convert polar to cartesian
 				double dx = 2.0 * cos(degPos * pi / 180.0);
@@ -1358,73 +1357,73 @@ int main(int argc, char* argv[])
 	// POLAR GRAPHER END //
 
 	// define ellipses: white origin dots
-	sf::ConvexShape ellipse;
-	ellipse.setPointCount(quality);
-	defineCircle(&ellipse, 1.5, 1.5, quality);
+	//sf::ConvexShape ellipse;
+	//ellipse.setPointCount(quality);
+	//defineCircle(&ellipse, 1.5, 1.5, quality);
 
-	// draw polar function as graph sprite
-	for (int i = 0; i < dim; i++)
-	{
-		int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
-		int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
+	//// draw polar function as graph sprite
+	//for (int i = 0; i < dim; i++)
+	//{
+	//	int offsetX = (i % width)*(wSize / width) + (wSize / (2 * width)); // check rest (modulo) for x-offset
+	//	int offsetY = (i / width)*(wSize / width) + (wSize / (2 * width)); // check division for y offset
 
-		ellipse.setPosition(offsetX, offsetY); // set ellipse position
+	//	ellipse.setPosition(offsetX, offsetY); // set ellipse position
 
-		// call animation to continously draw sampled arrays in polar space
-		glyphs.animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
-		sf::Sprite sprE = glyphs.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
-		//spr.setPosition(wSize / 2, wSize / 2);
-		window.draw(ellipse);
-		out.draw(ellipse);
-		outAll.draw(ellipse);
-		if (showOverlay)
-			window.draw(sprE);
-		out.draw(sprE);
-		outAll.draw(sprE);
-	}
-	//main loop
-	while (window.isOpen())
-	{
-		sf::Event event;
-		// query window poll events
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-				window.close();
-			if (event.type == sf::Event::KeyPressed)
-			{
-				if (event.key.code == sf::Keyboard::Num1) // press 1 to toggle base/clip image
-					showBase = !showBase;
-				else if (event.key.code == sf::Keyboard::Num2) // press 2 to toggle overlay image
-					showOverlay = !showOverlay;
-			}
-		}
+	//	// call animation to continously draw sampled arrays in polar space
+	//	glyphs.animation(i, 1, glyphBuffer); // mode 1 for suppressed test outputs
+	//	sf::Sprite sprE = glyphs.update(); // draw sprites[Kobolde/Elfen] (composited bitmaps/images - general term for objects drawn in the framebuffer)
+	//	//spr.setPosition(wSize / 2, wSize / 2);
+	//	window.draw(ellipse);
+	//	out.draw(ellipse);
+	//	outAll.draw(ellipse);
+	//	if (showOverlay)
+	//		window.draw(sprE);
+	//	out.draw(sprE);
+	//	outAll.draw(sprE);
+	//}
+	////main loop
+	//while (window.isOpen())
+	//{
+	//	sf::Event event;
+	//	// query window poll events
+	//	while (window.pollEvent(event))
+	//	{
+	//		if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+	//			window.close();
+	//		if (event.type == sf::Event::KeyPressed)
+	//		{
+	//			if (event.key.code == sf::Keyboard::Num1) // press 1 to toggle base/clip image
+	//				showBase = !showBase;
+	//			else if (event.key.code == sf::Keyboard::Num2) // press 2 to toggle overlay image
+	//				showOverlay = !showOverlay;
+	//		}
+	//	}
 
-		// query opened winow, to break from loop to prevent from overwriting the framebuffer w. black (0,0,0)
-		if (!window.isOpen())
-			break;
+	//	// query opened winow, to break from loop to prevent from overwriting the framebuffer w. black (0,0,0)
+	//	if (!window.isOpen())
+	//		break;
 
-		/*window.clear(sf::Color::Black);
-		outAll.clear(sf::Color::Black);
-		out.clear(sf::Color::Black);*/
+	//	/*window.clear(sf::Color::Black);
+	//	outAll.clear(sf::Color::Black);
+	//	out.clear(sf::Color::Black);*/
 
 
 
-		// window.draw(ellipse);  // TEST //
-		window.display(); // update window texture
-	}
-	window.display(); // update window texture
+	//	// window.draw(ellipse);  // TEST //
+	//	window.display(); // update window texture
+	//}
+	//window.display(); // update window texture
 
-	//write to image file
-	out.display(); // update output texture
-	outAll.display(); // update output texture
-	sf::Texture outTx = out.getTexture();
-	sf::Texture outTxAll = outAll.getTexture();
-	sf::Image outImg = outTx.copyToImage();
-	sf::Image outImgAll = outTxAll.copyToImage();
+	////write to image file
+	//out.display(); // update output texture
+	//outAll.display(); // update output texture
+	//sf::Texture outTx = out.getTexture();
+	//sf::Texture outTxAll = outAll.getTexture();
+	//sf::Image outImg = outTx.copyToImage();
+	//sf::Image outImgAll = outTxAll.copyToImage();
 
-	outImgAll.saveToFile("all-" + std::to_string(lightSrcPos.jIndex) + "," + std::to_string(lightSrcPos.iIndex) + ".png");
-	outImg.saveToFile("intensity-" + std::to_string(lightSrcPos.jIndex) + "," + std::to_string(lightSrcPos.iIndex) + ".png");
+	//outImgAll.saveToFile("all-" + std::to_string(lightSrcPos.jIndex) + "," + std::to_string(lightSrcPos.iIndex) + ".png");
+	//outImg.saveToFile("intensity-" + std::to_string(lightSrcPos.jIndex) + "," + std::to_string(lightSrcPos.iIndex) + ".png");
 
 	// POLAR GRAPHER END //
 

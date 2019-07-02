@@ -526,22 +526,41 @@ With the \enquote{inverse} test field we want to demonstrate the directive separ
 \caption{a) ``corner''-test field, b) tensor field lines for a)}
 \label{corner}
 \end{figure}
-The test field ``corner'', depicted in Fig \ref{corner}, constitutes a sustained turn over the grid representing the redirection or forwarding along domain corners. To have some real examples involved, we apply the invented technique to both DTI-MRI \enquote{brain} and \enquote{heart} scans, which can be observed in Fig. \ref{real}.
+The test field ``corner'', depicted in Fig \ref{corner}, constitutes a sustained turn over the grid representing the redirection or forwarding along domain corners. To have some real examples involved, we apply the invented technique to both DTI-MRI \enquote{brain} and \enquote{heart} scans, which can be observed in Fig. \ref{real1}.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.35\textwidth}
     \includegraphics[width=\textwidth]{img/brain_ellipsoid_glyphs.png}
     \label{a)}
-    \caption{\enquote{brain} dataset}
+    \caption*{sphere glyphs}
   \end{minipage}
   \begin{minipage}{0.35\textwidth}
-    \includegraphics[width=\textwidth]{img/heart_org.png}
+    \includegraphics[width=\textwidth]{img/brain_cyl_glyphs.png}
     \label{b)}
-    \caption{\enquote{heart} dataset}
+    \caption*{cyclinder glyphs}
   \end{minipage}
-\caption{Real data examples}
-\label{real}
+\caption{Real data examples: \enquote{brain} dataset}
+\label{real1}
 \end{figure}
+Observing the \enquote{brain} dataset in Fig \ref{real1}, one may notice that it introduces a lot of variances to tensor magnitude and linear anisotropy. We choose this DTI-MRI scan as an example-par-excellence for real application data given in a reasonable resolution.
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.35\textwidth}
+    \includegraphics[width=\textwidth]{img/heart_org.png}
+    \label{a)}
+    \caption*{tensor magnitude}
+  \end{minipage}
+  \begin{minipage}{0.35\textwidth}
+      \includegraphics[width=\textwidth]{img/heart_cyl_glyphs.png}
+    \label{b)}
+    \caption*{cyclinder glyphs}
+  \end{minipage}
+\caption{Real data examples \enquote{heart} dataset}
+\label{real2}
+\end{figure}
+When we look at this DT-MRI scan of a human heart we can notice the elongated shape, which we consider to represent the aorta and a part of the rest of the heart. If we consider the glyph representation, we again infer, that we incorporate lots of anisotropic regions with varying tensor magnitudes here.
+
+
 
 
 \chapter{Related Work}
@@ -1335,6 +1354,7 @@ It can be proven that the approach follows propagation attenuation principles an
 
 
 \section{Behaviour for Total Anisotropy}
+\label{sect:total}
 We also wanted to check for the limitations of the approach by having total linear anisotropy (the case whereas one eigenvalue $\lambda_1>0$ and the other $\lambda_2=0$) incorporated. For this we set up bidirectional Dirac-pulses as transmission profiles to have the whole energy transmitted in just one, discrete direction.
 \begin{figure}[!t]
 \centering
@@ -1374,7 +1394,41 @@ The energy conservation test was done in similar manner as thepropagation attenu
 The approach remains stable until iteration 40, which is at the time (point) when the numbers are too small and get rounded down under the double machine epsilon. You can see heavy fluctuations because the numbers get rounded upwards likewise. But what is lost, is lost and can not be regained. The error is thus accumulating gradually and with faster slope for higher source intensities, since floting point precision, i.e., rounding errors operate more heavily on large numbers since it is a constant relative loss $\sim\frac{1}{r}$ leading to a greater absolute $\Delta E$.
 
 \section{Light Transport Gradient (LTG)}
-The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section.  We will start off with the star dataset revealing tensor field lines diverging in any direction from the center.
+The light transport gradient approach, which is closely related to the FTLE approach in vector fields, is evaluated for some more synthetic and real datasets in this section. We will start off with the comparison of our FTLE-based approach to the one invented by Hlawatsch et al. \cite{hlawatsch}, which we reimplemented for verification purposes.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[height=\textwidth]{img/ftle_drain_alt.png}
+    \caption*{LTG($0^\circ$)}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/drain_ftle_org.PNG}
+     \caption*{FTLE: Hlawatsch's approach}
+    \label{b)}
+  \end{minipage}
+\caption{\enquote{drain} test field}
+\label{drain_ftle_comp}
+\end{figure}
+We can observe the comparison between our invented FTLE-like approach and the one of Hlawatsch et al. in the depiction in Fig. \ref{drain_ftle_comp}. Note, that a sharper but weaker ridge is detected on the right side of the image, which shines similar to a cone shape from the top. We interpret the missing spot in the top center as an artifact stemming from the way we handle our light propagation, as we allow whole distributions of trajectories to be propagated (with a scalar attribute interpretable as propability). This causes a sampling drift, we already discussed in sect. \ref{sect:total}, leading to an energy distribution ending up outside of the field, in this case. The directive effect turns out to be not too strict and delayed compared to the classic FTLE. The crucial difference is that the compared work of Hlawatsch et al. obtains the FTLE field from the gradient $\nabla\mathbf{\upvarphi}(\mathbf{x})$ of the flow map, which is in turn obtained from sampling of trajectories following tensor field lines. We will now capture the same comparison for the textbook example \enquote{double gyre}.
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[height=\textwidth]{img/gyre_ftle.png}
+    \caption*{LTG($0^\circ$)}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[height=\textwidth]{img/gyre_ftle_org.PNG}
+     \caption*{FTLE: Hlawatsch's approach}
+    \label{b)}
+  \end{minipage}
+\caption{\enquote{gyre} test field}
+\label{gyre_ftle_comp}
+\end{figure}
+
+ We will now capture the star dataset revealing tensor field lines diverging in any direction from the center.
 
 \begin{figure}[!t]
 \centering
@@ -1385,7 +1439,7 @@ The light transport gradient approach, which is closely related to the FTLE appr
   \end{minipage}
   \begin{minipage}{0.29\textwidth}
     \includegraphics[height=\textwidth]{img/star_ftle.PNG}
-     \caption*{LTG slice($0^\circ$)}
+     \caption*{LTG slice($90^\circ$)}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.35\textwidth}
@@ -1419,16 +1473,22 @@ Now, we will evaluate a classic textbook example called the \enquote{Double Gyre
 We can observe the method segmenting ridges in local ROIs exhibiting diverging tensor field lines w.r.t. the $x$-axis ($0^\circ$). Note that even regions in antiparallel directions ridgres are detected to (literally) some degree: Remark the ridges being contiguos lines at the level of the gyre centers where converging turns into diverging. Also remember, that the resulting ridges are not to be concerned sharp ones, since we measure the separation of whole light distributions, which should be considered a continous response or measure. We again depict volume representations for this example:
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=\textwidth]{img/gyre_volume.png}
-    \caption{IsoVolume on \enquote{Gyre} test field (low thresh)}
+  \begin{minipage}{0.3\textwidth}
+  \includegraphics[height=\textwidth]{img/gyre_volume2.png}
+    \caption*{IsoVolume)}
     \label{a)}
   \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=\textwidth]{img/gyre_ftle-highvolume.PNG}
-     \caption{IsoVolume on \enquote{Gyre}(high thresh)}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/gyre_gauss_contour.PNG}
+     \caption*{Contour}
     \label{b)}
   \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/gyre_volume4.PNG}
+     \caption*{GaussContour}
+    \label{b)}
+  \end{minipage}
+  \caption{\enquote{Gyre} test field}
 \label{gyre_volume}
 \end{figure}
 When we consider the volumes for the \enquote{gyre} test field, we can remark the holes, which represent the gyres in the centers of the volume for a low and a high threshold, whereby we extract (filter out) the previously observed ridges in $3D$ for all directions $\omega$ simultaneously.
@@ -1437,7 +1497,7 @@ Now, that it passed the textbook examples, we push it forward to be applied in r
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=\textwidth]{img/brain_ellipsoid_glyphs.PNG}
+  \includegraphics[width=\textwidth]{img/brain_cyl_glyphs.PNG}
     \caption*{glyph representation}
     \label{a)}
   \end{minipage}
@@ -1449,7 +1509,7 @@ Now, that it passed the textbook examples, we push it forward to be applied in r
   \caption{\enquote{brain} test field}
 \label{brain-ftle}
 \end{figure}
-Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response. Note that we do not show the volume representation in this case, since all directions (slices) look approximately the same because the tensor field is only introducing changes in tensor magnitude not in anisotropy as inferred from the glyph representation. The regions with a tensor magnitude higher than zero restrict the light propagation to certain areas with the constraint, that not all of the energy is absorbed by sorrounding cells in the local neighborhood.
+Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response. The regions highlighted in red, are caused by high linear anisotropy measures, as we can infer from the glyph representation. Note that we do not show the volume representation in this case, since all directions (slices) look approximately the same because the tensor field is only introducing changes in tensor magnitude not in anisotropy as inferred from the glyph representation. The regions with a tensor magnitude higher than zero restrict the light propagation to certain areas with the constraint, that not all of the energy is absorbed by sorrounding cells in the local neighborhood.
 
 \begin{figure}[!t]
 \centering
@@ -1459,7 +1519,7 @@ Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundari
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
-    %\includegraphics[height=\textwidth]{img/heart_org.PNG}
+    \includegraphics[height=\textwidth]{img/heart.PNG}
      \caption*{LTG}
     \label{b)}
   \end{minipage}
@@ -1467,7 +1527,9 @@ Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundari
 \label{heart-ftle}
 \end{figure}
 
-\paragraph{Documentation}\vskip 3pt
+After applying the LTG approach on the heart dataset, we observe the resulting FTLE-field, which is again not changing w.r.t. direction, which is why we do not show the volumes. The approach highlights the regions with diverging tensor field lines resulting from linear anisotropy or increased tensor magnitude, emerging as ridges. These ridges could now represent blood vessels and such. The red spot emphasized in the left of the image could, e.g., represent the highest diffusion velocity in tissue.\newpage
+
+\paragraph{Documentation}\vskip 1pt
 \textit{Spatial resolution pyramid}
 \begin{figure}[!t]
 \centering
@@ -1476,7 +1538,7 @@ Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundari
     \caption*{$\mathop{res}=29\times29\times16$}
     \label{a)}
   \end{minipage}
-  \begin{minipage}{0.3\textwidth}
+  \begin{minipage}{0.3\textwidth} 
     \includegraphics[height=\textwidth]{img/inverse51.PNG}
      \caption*{$\mathop{res}=51\times51\times16$}
     \label{b)}
@@ -1595,7 +1657,7 @@ test name - Fig. \# & resolution ($x\times y\times\omega$) & runtime $[s]$ & mem
 \hline
 \enquote{brain} - \ref{brain-ftle} & $128\times128\times64=1048576$ & $2427$ & $8\times1048576\times 8\mathop{byte} +(128\times128 + 19\times64)\times8\mathop{byte}\approx75.5\mathop{MB}$\\
 \hline
-\enquote{heart} - \ref{heart-ftle} & $256\times256\times32=2097152$ & TODO & $8\times2097152\times 8\mathop{byte} +(256\times256 + 19\times32)\times8\mathop{byte}\approx151.0\mathop{MB}$\\
+\enquote{heart} - \ref{heart-ftle} & $256\times256\times32=2097152$ & $117199$ & $8\times2097152\times 8\mathop{byte} +(256\times256 + 19\times32)\times8\mathop{byte}\approx151.0\mathop{MB}$\\
 \hline 
 \end{tabularx}
    \vskip 1pt
