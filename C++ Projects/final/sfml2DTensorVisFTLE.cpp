@@ -250,7 +250,7 @@ public:
 	//{
 	//	discretePlot = true;
 	//}
-	
+
 	//initialize muparser and graphics 
 	void init() {
 		p.DefineVar("theta", &t);
@@ -647,7 +647,7 @@ void parse_options(int argc, char* argv[]) {
 // mathematical functions
 double circleFunction(double x)
 {
-	double os = 1.0/sqrt(M_PI);
+	double os = 1.0 / sqrt(M_PI);
 	return os;
 }
 
@@ -670,13 +670,13 @@ double circleFunction(double x)
 //}
 
 
-double integral(double(*f)(double x), double a, double b, int r) 
+double integral(double(*f)(double x), double a, double b, int r)
 {
 	double step = (b - a) / r;  // width of each small rectangle
 	double area = 0.0;  // signed area
 	for (int i = 0; i < r; i++)
 		area += f(a + (i + 0.5) * step) * step; // sum up each small rectangle
-	
+
 	return area;
 }
 
@@ -684,10 +684,10 @@ double aIntegral(double(*f)(double x), double a, double b, int r, int n)
 {
 	double step = (b - a) / r;  // width of each small rectangle
 	double area = 0.0;  // signed area
-	
-	for (int i = 0; i < r; i++) 
+
+	for (int i = 0; i < r; i++)
 		area += f(a + (i + 0.5) * step)*cos(n*(a + (i + 0.5) * step)) * step; // sum up each small rectangle
-	
+
 	return area;
 }
 
@@ -697,13 +697,13 @@ double bIntegral(double(*f)(double x), double a, double b, int r, int n)
 	double area = 0.0;  // signed area
 	for (int i = 0; i < r; i++)
 		area += f(a + (i + 0.5) * step)*sin(n*(a + (i + 0.5) * step)) * step; // sum up each small rectangle
-	
+
 	return area;
 }
 
 std::vector<std::vector<double>> calcCoeff(double(*f)(double x)) // for 2Pi periodic functions
 {
-	double a0 = 1 /(2*M_PI) * integral(f, 0, 2*M_PI, 50);
+	double a0 = 1 / (2 * M_PI) * integral(f, 0, 2 * M_PI, 50);
 	cout << "a0: " << a0 << endl;
 	bool finish = false;
 	std::vector<double> an(21, 0.0);
@@ -715,9 +715,9 @@ std::vector<std::vector<double>> calcCoeff(double(*f)(double x)) // for 2Pi peri
 	bn.at(0) = a0; // push a0 in both lists on frequency 0 (offset)
 	for (int i = 1; i < an.size(); i++)
 	{
-		an.at(i) = 1/M_PI * aIntegral(f, 0, 2*M_PI, 50, i); // calculate Integrals for the coeff
-		bn.at(i) = 1/M_PI * bIntegral(f, 0, 2*M_PI, 50, i); // calculate Integrals for the coeff
-	
+		an.at(i) = 1 / M_PI * aIntegral(f, 0, 2 * M_PI, 50, i); // calculate Integrals for the coeff
+		bn.at(i) = 1 / M_PI * bIntegral(f, 0, 2 * M_PI, 50, i); // calculate Integrals for the coeff
+
 		cout << "an: " << an.at(i) << endl;
 		cout << "bn: " << bn.at(i) << endl;
 		if ((bn.back() < thresh && an.back() < thresh && an.at(an.size() - 2) < thresh && bn.at(bn.size() - 2) < thresh)) // if coeff < thresh or #>20, abort (finish) series expansion!
@@ -745,14 +745,14 @@ MatrixXd readMatrix(std::string filepath, int* colsCount, int* rowsCount)
 {
 	int cols = 0, rows = 0;
 	//std::vector<double> buff(MAXBUFSIZE);
-	
+
 	ifstream infile(filepath);
-	
+
 	while (!infile.eof())
 	{
 		string line;
 		getline(infile, line);
-		
+
 		if (line.empty())
 			break;
 
@@ -898,9 +898,9 @@ void defineConvexEllipse(sf::ConvexShape* ellipse, double radius_x, double radiu
 	for (int i = 0; i < quality; ++i)
 	{
 		double rad = (360 / quality * i) / (360 / M_PI / 2);
-		double val = radius_x*radius_y / sqrt(radius_y*radius_y*cos(i*radres - rot * (pi / 180.0))*cos(i*radres - rot * (pi / 180.0)) + radius_x * radius_x*sin(i*radres - rot * (pi / 180.0))*sin(i*radres - rot * (pi / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
-		double x = val* cos(rad);
-		double y = -val* sin(rad)*radius_y;
+		double val = radius_x * radius_y / sqrt(radius_y*radius_y*cos(i*radres - rot * (pi / 180.0))*cos(i*radres - rot * (pi / 180.0)) + radius_x * radius_x*sin(i*radres - rot * (pi / 180.0))*sin(i*radres - rot * (pi / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
+		double x = val * cos(rad);
+		double y = -val * sin(rad)*radius_y;
 
 		ellipse[0].setPoint(i, sf::Vector2f(x, y));
 	}
@@ -943,7 +943,7 @@ int getVTKdim(int& width, int& height)
 	 //= imgData->GetDimensions();
 
 	// create tensor array of slice and crop down to 2x2 matrices
-	vtkDataArray* tensors = polyData->GetPointData()->GetArray("nrrd70723");// cutter->get()->GetScalars();
+	vtkDataArray* tensors = polyData->GetPointData()->GetArray("tensors");// cutter->get()->GetScalars();
 
 	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
@@ -953,7 +953,7 @@ int getVTKdim(int& width, int& height)
 	//cout << "dim1: " << dim[1] << endl;
 	return tensors->GetSize() / 9;
 }
-void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
+void computeGlyphsFromVTK(std::vector<std::vector<double>>& glyphBuffer, std::vector<std::vector<bool>>& signMap, std::vector<std::vector<double>>& glyphParameters)
 {
 
 	// set file name "brain.vti"
@@ -979,7 +979,7 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 	vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput(); //vtkSmartPointer<vtkImageData>::New();
 
 	// create tensor array of slice and crop down to 2x2 matrices
-	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("nrrd70723"));// cutter->get()->GetScalars();
+	vtkSmartPointer < vtkDataArray> tensors = vtkDataArray::SafeDownCast(polyData->GetPointData()->GetArray("tensors"));// cutter->get()->GetScalars();
 	cout << "size: " << tensors->GetNumberOfComponents() << endl;
 	cout << "array size: " << tensors->GetSize() / 9 << endl;
 	cout << "array width: " << sqrt(tensors->GetSize() / 9) << endl;
@@ -1023,11 +1023,10 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 	std::vector<double>::iterator glyphEnd;
 	//std::advance(glyphEnd, steps);
 	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
+	// iterate through the matrixList/svdList (grid) and construct (scaled) ellipses in polar form (function) from the repsective singular values/vectors
 	double rMeanMax = 0.0;
 	for (int i = 0; i < matrixList.size(); i++)
 	{
-		glyphStart = glyphBuffer.begin() + i * steps;
-		glyphEnd = std::next(glyphStart, steps);
 		double y1 = svdList.at(i).matrixU().col(0)[1]; // use x - coordinate of both semi-axes -- Get LEFT U-vector
 		double x1 = svdList.at(i).matrixU().col(0)[0]; // use x - coordinate of both semi-axes
 		double y2 = svdList.at(i).matrixU().col(1)[1]; // use x - coordinate of both semi-axes -- Get RIGHT U-vector
@@ -1039,7 +1038,8 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 		double deg1 = atan2(y1, x1) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors in [-180°,180°]
 		double deg2 = atan2(y2, x2) * 180.0 / M_PI; // use vector atan2 to get rotational angle (phase) of both basis vectors [-180°,180°]
 
-		glyphParameters.at(i).at(2) = deg1;
+		glyphParameters.at(i).at(2) = deg1;// < -90 ? deg1 + 180 : deg1;
+		glyphParameters.at(i).at(2) = deg1;// > 90 ? deg1 - 180 : deg1;
 
 		// calculate principal stresses w. formula.. https://vergleichsspannung.de/vergleichsspannungen/normalspannungshypothese-nh/herleitung-der-hauptspannungen/
 		sigma1 = std::complex<double>(0.5*(xx + yy), 0) + 0.5*sqrt(std::complex<double>((xx - yy)*(xx - yy) + 4 * xy*yx, 0));
@@ -1068,37 +1068,33 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<std::vec
 		double dot = sv2 * sv1;
 
 		double sum = 0.0;
-		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0) // if total anisotropy, needed to hit (match) the indices corresponding to glyph orientation
+		if (sv1 == 0 || sv2 == 0 || sv1 / sv2 > 20.0)
 		{
-			glyphStart[round(deg1*steps / 360)] = sv1;
-			glyphStart[static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps] = sv1;
+			glyphBuffer.at(i).at(static_cast<int>(round(deg1*steps / 360))%steps) = sv1;
+			glyphBuffer.at(i).at(static_cast<int>(round(deg1*steps / 360 + steps / 2)) % steps) = sv1;
 			sum += 2 * sv1;
 		}
 		else
 		{
+
 			for (int j = 0; j < steps; j++) // sample ellipse equation for all steps
 			{
 				double val = dot / sqrt(sv2*sv2*cos(j*radres - deg1 * (M_PI / 180.0))*cos(j*radres - deg1 * (M_PI / 180.0)) + sv1 * sv1*sin(j*radres - deg1 * (M_PI / 180.0))*sin(j*radres - deg1 * (M_PI / 180.0))); //--> ellipse equation, evaluate for tMean (sum2)
 				sum += val;
-				glyphStart[j] = val;
+				glyphBuffer.at(i).at(j) = val;
 			}
 		}
 		double rMean = sum / steps; // compute rMean from cartesian (rectangular) energy-based integral as opposed to the polar integral relevant to the geometrical (triangular/circular) area
 		if (rMean > rMeanMax)
 			rMeanMax = rMean;
-		// write glyphParameters
 		glyphParameters.at(i).at(0) = 1.0 / rMean * sv1;
 		glyphParameters.at(i).at(1) = 1.0 / rMean * sv2;
 
-		// multiply respective cosine cone by valsum*=radres, because of energy normalization to cosine_sum (pre-computed in constructor)
-		//std::transform(glyphStart, glyphEnd, glyphStart, std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
-		//glyphBuffer.at(i) = 1.0 / rMean * glyphBuffer.at(i);
-
-		//std::advance(glyphStart, steps);
-		//std::advance(glyphEnd, steps);
+		//std::transform(glyphBuffer.at(i).begin(), glyphBuffer.at(i).end(), glyphBuffer.at(i).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMean));
 	}
 	if (rMeanMax > 0)
-		std::transform(glyphBuffer.begin(), glyphBuffer.end(), glyphBuffer.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMeanMax));
+		for (int i = 0; i < matrixList.size(); i++)
+			std::transform(glyphBuffer.at(i).begin(), glyphBuffer.at(i).end(), glyphBuffer.at(i).begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, 1.0 / rMeanMax));
 	else
 		cout << "NULL field encountered: no normalization possible" << endl;
 }
@@ -1129,7 +1125,7 @@ int main(int argc, char* argv[])
 		width = height = floor(sqrt(dim));
 		dim = width * height;
 	}
-	
+
 	cout << "width|height|steps: " << width << "|" << height << "|" << steps << endl;
 
 	std::vector<double> initArray(steps, 0.0);
@@ -1137,7 +1133,10 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<double>> glyphParameters(width*height, std::vector<double>(3, 0.0));
 	std::vector<std::vector<bool>> signMap(width*height, std::vector<bool>(2, false)); // create a signMap relating normal force signs to singular values (sign_xx, sign_yy, dominant_shear)
 	// compute Eigenframes/Superquadrics/Ellipses/Glyphs by calling computeGlyphs w. respective args
-	computeGlyphs(glyphBuffer, signMap, glyphParameters);
+	if(!vtkFormat)
+		computeGlyphs(glyphBuffer, signMap, glyphParameters);
+	else
+		computeGlyphsFromVTK(glyphBuffer, signMap, glyphParameters);
 
 	// POLAR GRAPHER START //
 
@@ -1215,7 +1214,7 @@ int main(int argc, char* argv[])
 			double degMem = 0.0;
 			std::vector<double> flow{ seedPosXIndex, seedPosYIndex }; // construct 3D Gradient
 
-			for (int k = 0; k < 50; k++)
+			for (int k = 0; k < 250; k++)
 			{
 				if (seedPosXIndex > width - 1 || seedPosYIndex > height - 1 || (seedPosXIndex) < 0 || (seedPosYIndex) < 0)
 					break;
@@ -1276,7 +1275,7 @@ int main(int argc, char* argv[])
 				degPos = degPos - degMem >= 90 ? degPos - 180 : degPos;
 				degPos = degPos - degMem <= -90 ? degPos + 180 : degPos;
 
-				if(k > 0)
+				if (k > 0)
 					degPos = abs(degPos - degMem) > 30 ? degMem : degPos; // run straight in case steep curve
 
 				degMem = degPos;

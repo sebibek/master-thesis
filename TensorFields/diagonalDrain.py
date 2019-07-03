@@ -46,7 +46,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 101
+length = 13
 
 #deg = -45
 
@@ -63,9 +63,9 @@ with open('temp.txt', 'wb') as f:
 
             rad = m.atan2(dy, dx)
             if i==0 and j==length-1:
-                rotated = rotate(scale(10,1), m.pi/4)
+                rotated = rotate(scale(4,1), m.pi/4)
             else:
-                rotated = rotate(scale(10,1), rad)
+                rotated = rotate(scale(4,1), rad)
             # if i==(length-1)/2 and j==(length-1)/2 or i==(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2/2 or i==(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 or i==(length-1)/2+(length-1)/2/2 and j==(length-1)/2+(length-1)/2/2 :
             #     scaled = np.matmul(scale(1, 1), identity)  # use isotropic scaling
             # else:
