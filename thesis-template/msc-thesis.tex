@@ -1056,7 +1056,7 @@ which is the runtime behavior in order notation considering memory consumption a
 \begin{align}
 	\lvert\nabla \mathbf{b}_{x,y,\omega}\rvert = \sqrt{(\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega})^2}.
 \end{align}
-Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\omega\mapsto  z$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. 
+Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\omega\mapsto  z$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. We note, that our invented technique stands out compared to the already existent FTLE on tensor fields invented by Hlawatsch et al. \cite{hlawatsch}, as we use whole distributions of directions instead of following the major eigenvector strictly. These directional distributions allow for a complete analysis of the tensor field accounting for the incoming direction, as well.
 
 
 \subsection{Functionality}
@@ -1142,7 +1142,7 @@ We observe the clear straight ridge in the example in Fig. \ref{ftle_absorb}. As
 What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig. \ref{ftle_base} c).
 
 These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in sect. \ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation. 
-\begin{figure}[!t]
+\begin{figure}[ht]
 \centering
   \begin{minipage}{0.4\textwidth}
   \centering
@@ -1179,9 +1179,9 @@ For the ``drain'' test field we consider the central channel which produces a cl
   \caption{``diagonal drain'' test field}
 \label{diag-ftle}
 \end{figure}
+Regarding the ridge for the \enquote{drain} test field, we note that it is a little smoothed compared to the axis-aligned ridges, as they obtain a larger propagation attenuation (because of the larger distance) leading to a stronger separation of trajectories in general and hence to a smoothed FTLE response. Also we note that the divergence of the tensor field lines is reduced compared to the classic \enquote{drain} example of the FTLE.
 
-
-\begin{figure}[!t]
+\begin{figure}[ht]
 \centering
   \begin{minipage}{0.4\textwidth}
   \centering
@@ -1305,7 +1305,9 @@ One may observe here, that the ridges located against the direction of the light
     \caption{LTG volume representations: ``bow'' test field}
 \label{bow_contour}
 \end{figure}
-Considering the volumes depicted in Fig. \ref{bow_contour} one may notice, that we obtain a riffled structure reminding of ground plates. On half the volume height ($180^\circ$) the structure is turned by $180^\circ$ as expected as this light source configuration lights up the mirror image to the one on the surface. The bow is literally shaped from the volume representation if one applies a threshold.
+Considering the volumes depicted in Fig. \ref{bow_contour} one may notice, that we obtain a riffled structure reminding of ground plates. On half the volume height ($180^\circ$) the structure is turned by $180^\circ$ as expected as this light source configuration lights up the mirror image to the one on the surface. The bow is literally shaped from the volume representation if one applies a threshold. 
+
+If we relate the resulting FTLE volume to the work of Hlawatsch et al. \cite{hlawatsch}, we find that their FTLE field is contained in our volume in form of a manifold, since they use the same basic idea, but consider only a single direction (of the major eigenvector), instead of taking all directions into account, as we do here. The resulting manifold included, is constrained to a height field (not self-overlapping or self-intersecting), because each position can only represent one individual direction, as there is only one direction for the major eigenvector at each position to be covered (, since it is obviously a definite, distinct measure). This direction emerges as a single scalar height (FTLE) value on each position corresponding to a height (direction) slice in our volume. That is, each position in their $2D$ scalar field is assigned a height in our $3D$ scalar field. We cover their results as a subset of our volume, which could be, e.g., a spiral plane in case all directions are given in circular arrangement in the underlying tensor field (cf. \enquote{rings} test field). If we would vary the angle of the major eigenvector with a uniform distribution along the tensor field's width, we would obtain a primitive diagonal plane w.r.t. the $xy$-plane reaching out in $z$-direction as contained subset. Therefore, we claim and consider our invented technique to be more generalized (to all directions) resulting in a topological $n+1$-D volume.
 \chapter{Implementation}
 \label{chap:imp}
 In this chapter, we will describe the implementation process from top to bottom following runtime chronology. At first, we will load a configuration file setting angular resolution in (discrete) steps, which are spaced uniformly over the interval $[0,2\pi]$. The threshold for the convergence criterion was empirically determined and set in the range $[0.5,2.0]$. Since it is an energetic threshold, it is only dependent on the light source magnitude and not on any type of resolutions. An iteration limit is set to $\mathop{limit}=10\mathop{width}$ (e.g. for $\mathop{width}=10\cdot 100=1000$)  to prevent the approach from eventual oscillation behavior for intensities and hence overpropagation (propagating for too many timesteps). The spatial resolution is inferred by the tensor field reader method from the tensor field (see Propagation below). The light source profile can be defined for the \enquote{non-FTLE} mode where the user sets position and polar profile of single or multiple light sources as a symbolic term: ,e.g. , \texttt{clip(cos(theta-pi/2))} for a Lambert-emitter pointing upwards. After the configuration read process is finished, we allocate memory for certain buffers holding glyph and intensity information with a dimension of $\mathop{dim}=\mathop{width}\mathop{height}\mathop{steps}$. This $1D$ buffer is interpreted like this:
@@ -1513,14 +1515,19 @@ When we look at the example depicted in Fig. \ref{star-ftle}, we can see the FTL
 Now, we will evaluate a classic textbook example called the \enquote{double gyre} \cite{shawn}, which is a quadruple gyre in our case for formatting reasons, yet yielding the same conceptual results. We compare the glyph representation to the LTG magnitude for a single slice ($0^\circ$) again:
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=0.9\textwidth]{img/gyre.png}
+  \begin{minipage}{0.3\textwidth}
+  \includegraphics[width=\textwidth]{img/gyre.png}
     \caption{\enquote{Gyre} test field}
     \label{a)}
   \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[height=0.9\textwidth]{img/gyre_ftle.PNG}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/gyre_ftle.PNG}
      \caption{LTG on \enquote{Gyre}($0^\circ$)}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/gyre_ftle.PNG}
+     \caption{FTLE: Hlawatsch's approach}
     \label{b)}
   \end{minipage}
 \label{gyre-ftle}
@@ -1551,38 +1558,83 @@ When we consider the volumes for the \enquote{gyre} test field, we can remark th
 Now, that the approach has passed the textbook examples, we push it forward to be applied in real (measured) data to show its performance in discerning and segmenting ROIs from a human brain. The approach will detect LCS in the brain's tissue from MRI-measured diffusion tensors of a male subject at the age of 27. We compare ParaView's glyph representation to the FTLE method LTG for the test field \enquote{brain}:
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=0.9\textwidth]{img/brain_cyl_glyphs.PNG}
+  \begin{minipage}{0.3\textwidth}
+  \includegraphics[width=\textwidth]{img/brain_cyl_glyphs.PNG}
     \caption*{glyph representation}
     \label{a)}
   \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=0.9\textwidth]{img/brain_ftle.PNG}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/brain_ftle.PNG}
      \caption*{LTG}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{img/brain_ftle_org.PNG}
+     \caption*{FTLE: Hlawatsch's approach}
     \label{b)}
   \end{minipage}
   \caption{\enquote{Brain} test field}
 \label{brain-ftle}
 \end{figure}
-Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response. The regions highlighted in red, are caused by high linear anisotropy measures, as we can infer from the glyph representation. Note that we do not show the volume representation in this case, since all directions (slices) look approximately the same because the tensor field is only introducing changes in tensor magnitude not in anisotropy as inferred from the glyph representation. The regions with a tensor magnitude higher than zero restrict the light propagation to certain areas with the constraint, that not all of the energy is absorbed by sorrounding cells in the local neighborhood.
+Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundaries of concavities (lat.: Gyri) in the brain, forming the lobus cerebri (commonly known a lobes). The invented method could thus ,e.g. , aid to compute $3D$ models of a subject in medical sciences. It emphasizes regions with much flow-rate (throughput), because in this areas the anisotropy and/or tensor magnitude is increased, preventing the intensities from being absorbed, hence yielding to a high FTLE-response. The regions highlighted in red, are caused by high linear anisotropy measures, as we can infer from the glyph representation. Note that we do not show the volume representation in this case, since all directions (slices) look approximately the same because the tensor field is only introducing changes in tensor magnitude not in anisotropy as inferred from the glyph representation. The regions with a tensor magnitude higher than zero restrict the light propagation to certain areas with the constraint, that not all of the energy is absorbed by sorrounding cells in the local neighborhood. Again comparing the results to the classical FTLE on tensor field, we notice that the FTLE response is chaotic, since this MRI scan is subject to inherent MRI noise filling the background regions in the image. This noise produces random trajectories, leading to an increased gradient of the flow map and thus to a high FTLE response, as inferred from Fig. \ref{brain_ftle_comp}, which reveals trajectories running in random directions in background regions. Only in foreground regions, the trajectories are directed in definite manner, which is why the flow map's gradient is minimized along the brain structure (foreground, depicted in blue). Our approach uses absorption to get rid of noise present in the tensor field. Hence, we do not yield a noisy representation but a FG-BG segmented image, with red highlights in positions, where the tensor magnitude is maximized (and thus absorption is minimized). Remark, that the resulting volume does not inherently depend on the direction, because the test field does not introduce any strong linear anisotropy, as visible from the glyph representation. If no linear anisotropy was incorporated, the FTLE respons will also be independent on the direction to the greatest extent. The slices we obtain as our volume are, with reasonable explanation, more or less identical comparing them against each other for certain directions.
 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=0.9\textwidth]{img/heart_org.PNG}
-    \caption*{tensor magnitude}
+  \includegraphics[width=0.9\textwidth]{img/brainDwnsmpl.png}
+    \caption*{Glyphs}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=0.9\textwidth]{img/heart.PNG}
+    \includegraphics[width=0.9\textwidth]{img/brainDwnsmpl-TFL.PNG}
+     \caption*{Hlawatsch's app.: TFLs}
+    \label{b)}
+  \end{minipage}
+\caption{\enquote{brain} test field}
+\label{brain_ftle_comp}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \includegraphics[width=\textwidth]{img/heart_org.PNG}
+    \caption*{tensor magnitude}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/heart.PNG}
      \caption*{LTG}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{img/heart_ftle_org.PNG}
+     \caption*{Hlawatsch's app.}
     \label{b)}
   \end{minipage}
   \caption{\enquote{heart} test field}
 \label{heart-ftle}
 \end{figure}
+After applying the LTG approach on the heart dataset, we observe the resulting FTLE-field, which is again not changing w.r.t. direction, which is why we do not show the volumes. The approach highlights the regions with diverging tensor field lines resulting from linear anisotropy or increased tensor magnitude, emerging as ridges. These ridges could now represent blood vessels and such. The red spot emphasized in the left of the image could, e.g., represent the highest diffusion velocity in tissue.
+When considering the FTLE for the heart dataset depicted in Fig. \ref{heart-ftle}, we find that the trajectories exhibit strong correlations amongst them. This results from the low noise rate present in this dataset. The inital value for our angle is given by $0$ degree, which is why the trajectories follow this angle strictly in case of a zero matrix (corresponding to a noise free cell in background regions). In this case, we obtain the same results as the approach from Hlawatsch et al., whereas our global min-max normalization (due to noise) is becoming a redundant step for noiseless input data. A proof of this elaboration can be found in Fig. \ref{heart-ftle-comp}.
 
-After applying the LTG approach on the heart dataset, we observe the resulting FTLE-field, which is again not changing w.r.t. direction, which is why we do not show the volumes. The approach highlights the regions with diverging tensor field lines resulting from linear anisotropy or increased tensor magnitude, emerging as ridges. These ridges could now represent blood vessels and such. The red spot emphasized in the left of the image could, e.g., represent the highest diffusion velocity in tissue.\newpage
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=0.9\textwidth]{img/heartDwnsmpl.png}
+    \caption*{Glyphs}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=0.9\textwidth]{img/heartDwnsmpl-TFL.PNG}
+     \caption*{Hlawatsch's app.: TFLs}
+    \label{b)}
+  \end{minipage}
+\caption{\enquote{heart} test field}
+\label{heart-ftle-comp}
+\end{figure}
+Again considering the trajectories for the heart test field, we note that they all correlate in background regions, which causes the gradient of the flow map to equal zero. This occurs, since we do not have any MRI noise incorporated into the background of the field. Consequently, we obtain results corresponding to Hlawatsch's approach, which is in general susceptive to noise, but not in case the noise was removed or is not present at all initially. From observing Hlawatsch's approach detecting the heart edges, we can infer that the flow is also congruent inside of the heart, inducing a gradient response only to the edges. In our case, we have an offset response incorporated which happens even for total spherical isotropy, wherefore we will obtain a response even if the flow does not change locally (presumed it is not absorbed by low tensor magnitudes). This in turn stems from the fact, that we use a energetic flood-fill difference, which inherently introduces an offset response.
+
+
 
 \paragraph{Documentation}\vskip 1pt
 \textit{Spatial resolution pyramid}
