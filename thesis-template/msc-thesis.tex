@@ -102,7 +102,7 @@
 \begin{tabular}[l]{ll}
 Sebastian Bek\\
 Student ID: & 3481802\\
-Supervisors: & Prof. Filip Sadlo, Dr. Susanne Kr?mker\\
+Supervisors: & Prof. Filip Sadlo, Dr. Susanne Krömker\\
 Submission date: & 07.07.2019
 \end{tabular}
 }
@@ -1480,7 +1480,7 @@ We can observe the comparison between our invented FTLE-like approach and the on
   \end{minipage}
   \begin{minipage}{0.29\textwidth}
     \includegraphics[height=\textwidth]{img/star_ftle.PNG}
-     \caption*{LTG slice($90^\circ$)}
+     \caption*{LTG slice($0^\circ$)}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.35\textwidth}
@@ -1507,7 +1507,7 @@ Now, we will evaluate a classic textbook example called the \enquote{double gyre
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/gyre_ftle.PNG}
-     \caption*{b) LTG}
+     \caption*{b) LTG($0^\circ$)}
     \label{b)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
@@ -1551,7 +1551,7 @@ Now, that the approach has passed the textbook examples, we push it forward to b
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/brain_ftle.PNG}
-     \caption*{b) LTG}
+     \caption*{b) LTG($0^\circ$)}
     \label{b)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
@@ -1641,14 +1641,14 @@ The volumes depicted in Fig. \ref{heart-ftle} now show variation in $z$-directio
 \centering
   \begin{minipage}{0.3\textwidth}
   \centering
-  \includegraphics[height=\textwidth]{img/heart_org.PNG}
-    \caption*{a) tensor magnitude}
+  \includegraphics[height=\textwidth]{img/heart.PNG}
+    \caption*{a) LTG($0^\circ$): global}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[height=\textwidth]{img/heart.PNG}
-     \caption*{b) LTG}
+    \includegraphics[height=\textwidth]{img_new/heart_slice0.PNG}
+     \caption*{b) LTG($0^\circ$): local}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
@@ -1721,25 +1721,25 @@ We also introduced random numbers in to the our tensor field generation process.
 \caption{\enquote{Random} test field}
 \label{random}
 \end{figure}
-Observing the generated random test field both with global and local normalization in Fig. \ref{random}a)\& b) respectively, we remark that the propability for small numbers to have a high ratio in combination is increased, as linear anisotropy occurs mainly in BG regions (low tensor magnitudes). In case we use global normalization, we will again obtain a FTLE field independent on the direction, since tensor magnitudes outshine the changes in anisotropy in this test case.
+Observing the generated random test field both with global and local normalization in Fig. \ref{random}a)\& b) respectively, we remark that the propability for small numbers to have a high ratio in combination is increased, as linear anisotropy occurs mainly in BG regions (low tensor magnitudes). In case we use global normalization in Fig. \ref{random_FTLE}a), we will again obtain a FTLE field independent on the direction, since tensor magnitudes outshine the changes in anisotropy in this test case. The LTG approach works as expected, as we see the tensor magnitude weighted into the left image, yielding a high response for the tensor magnitude weighted FTLE response.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
    \centering
   \includegraphics[width=\textwidth]{img_new/random_global.png}
-    \caption*{Global normalization}
+    \caption*{LTG: Global normalization}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
    \centering
     \includegraphics[width=\textwidth]{img_new/random_local_slice0.PNG}
-     \caption*{Local normalization}
+     \caption*{LTG: Local normalization}
     \label{b)}
   \end{minipage}
 \caption{\enquote{Random} test field}
-\label{random}
+\label{random_FTLE}
 \end{figure}
-In case we use local normalization, we could interpret the contributions revealing low tensor magnitudes as a result from white noise, which shows the inherent problem with local normalization. 
+In case we use local normalization in Fig. \ref{random_FTLE}b), we could interpret the contributions revealing low tensor magnitudes as a result from white noise, which shows the inherent problem with local normalization. If we would just locally normalize the whole tensor field with the mean tensor magnitude of each cell, we would enhance noisy contributions, which turn out to be in general more propable to be anisotropic than FG data. Keeping this consideration in mind, we observe the approach detecting raw changes in anisotropy. Note, that this test field does not introduce clearly defined ridges with tensor field lines diverging w.r.t. to a middle axis. We just introduce rapid random variations in anisotropy along the spatial domain, which is why the FTLE response is independent on the direction in this case, as well. This example emphasizes, that ridges can also be yielded from rapid changes in anisotropy and are hence in this case, not directed and thus non directionally dependent. Also we take home from this example, that the thresholding is in fact necessary to form a reasonable local normalization as a posteriori verification.
 
 
 \paragraph{Documentation}\vskip 1pt
@@ -1848,13 +1848,13 @@ Please note that all values in the test table where measured on following system
 \caption{Test Table LTG:}
 \begin{tabularx}{\columnwidth}{X|X|X|X}
 \hline\hline
-test name - Fig. \# & resolution ($x\times y\times\omega$) & runtime $[s]$ & memory consumption\\
+test name - Fig. \# & resolution ($x\times y\times\omega$) & runtime $[s]$ & memory consumption (dynamic)\\
 \toprule
 \enquote{drain} - \ref{ftle_base} & $101\times101\times64=652864$ & $179878$ & $8\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx47.02\mathop{MB}$\\ 
 \hline 
 \enquote{inverse} - \ref{inverse-ftle} & $101\times101\times64=652864$ & $68787$ & $8\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx47.02\mathop{MB}$\\
 \hline 
- &  &  & \\ 
+\enquote{random} &  &  & \\ 
 \hline 
 \enquote{isotropic} - \ref{bow-ftle} & $51\times51\times3283232$ & $1357$ & $8\times83232\times 8\mathop{byte} +(51\times51 + 19\times32)\times8\mathop{byte}\approx5.998\mathop{MB}$\\ 
 \hline
