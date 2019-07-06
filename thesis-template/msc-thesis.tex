@@ -1567,11 +1567,13 @@ Regarding Fig. \ref{gyre_volume}, we find that the approach detects the boundari
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
+   \centering
   \includegraphics[width=0.9\textwidth]{img/brainDwnsmpl.png}
     \caption*{a) Glyphs}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
+   \centering
     \includegraphics[width=0.9\textwidth]{img/brainDwnsmpl-TFL.PNG}
      \caption*{b) Hlawatsch's app.: TFLs}
     \label{b)}
@@ -1586,7 +1588,7 @@ We note that this real data example incorporates noise into the BG regions as ob
 \begin{align*}
 r_i(\omega) = 
 \begin{cases}
-   r_i(\omega) = r_i(\omega),& \text{if } \mean{r}_i > \theta,\\
+    \frac{1}{\mean{r}_i}r_i(\omega),& \text{if } \mean{r}_i > \theta,\\
      r_i(\omega),              & \text{otherwise}.
 \end{cases}
 \end{align*}
@@ -1596,11 +1598,13 @@ This normalization correction will ensure, that any mean tensor magnitude below 
 \begin{figure}[!t]
 \centering
   \begin{minipage}[t]{0.4\textwidth}
+   \centering
   \includegraphics[width=0.9\textwidth]{img_new/brain-TFL.png}
     \caption*{a) Glyphs}
     \label{a)}
   \end{minipage}
   \begin{minipage}[t]{0.4\textwidth}
+   \centering
     \includegraphics[width=0.9\textwidth]{img/brain_ftle_surf_noisereduction.PNG}
      \caption*{b) H.'s app.: TFLs (noise correction)}
     \label{b)}
@@ -1613,17 +1617,17 @@ Again observing the results for the tensor field lines, we now remark their prop
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
-  \includegraphics[width=\textwidth]{img_new/brain_cross-section.PNG}
+  \includegraphics[height=\textwidth]{img_new/brain_cross-section.PNG}
     \caption*{a) tensor magnitude}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img_new/brain_volume.PNG}
+    \includegraphics[height=\textwidth]{img_new/brain_volume.PNG}
      \caption*{b) LTG}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img_new/brain_volume2.PNG}
+    \includegraphics[height=\textwidth]{img_new/brain_volume2.PNG}
      \caption*{c) FTLE H.'s approach}
     \label{b)}
   \end{minipage}
@@ -1636,35 +1640,20 @@ The volumes depicted in Fig. \ref{heart-ftle} now show variation in $z$-directio
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+  \centering
   \includegraphics[height=\textwidth]{img/heart_org.PNG}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/heart.PNG}
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/heart_ftle_org.PNG}
-    \label{b)}
-  \end{minipage}
-  \caption{\enquote{Brain} test field: volumes}
-\label{heart-ftle}
-\end{figure}
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.3\textwidth}
-  \includegraphics[width=\textwidth]{img/heart_org.PNG}
     \caption*{a) tensor magnitude}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img/heart.PNG}
+  \centering
+    \includegraphics[height=\textwidth]{img/heart.PNG}
      \caption*{b) LTG}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[width=\textwidth]{img/heart_ftle_org.PNG}
+  \centering
+    \includegraphics[height=\textwidth]{img/heart_ftle_org.PNG}
      \caption*{c) Hlawatsch's approach}
     \label{b)}
   \end{minipage}
@@ -1674,12 +1663,15 @@ The volumes depicted in Fig. \ref{heart-ftle} now show variation in $z$-directio
 After applying the LTG approach on the heart dataset, we observe the resulting tensor magnitude weighted FTLE-field, which is again not changing w.r.t. direction, which is why we do not show the volumes. The approach highlights the regions with diverging tensor field lines resulting from linear anisotropy or increased tensor magnitude, emerging as ridges. These ridges could now represent blood vessels and such. The red spot emphasized in the left of the image could, e.g., represent the highest diffusion velocity in tissue. When considering the FTLE for the heart dataset depicted in Fig. \ref{heart-ftle-comp}, we find that the trajectories exhibit strong correlations amongst them. This results from the low noise rate inherently present in this dataset. The inital value for our angle is given by $0$ degree, which is why the trajectories follow this angle strictly in case of a zero matrix (corresponding to a noise free cell in background regions). In this case, we obtain the same results as the approach from Hlawatsch et al., whereas our global min-max normalization (due to noise) is becoming a redundant step for noiseless input data. A proof of this elaboration can be found in Fig. \ref{heart-ftle-comp}.
 
 \begin{figure}[!t]
+\centering
   \begin{minipage}{0.4\textwidth}
+   \centering
   \includegraphics[width=\textwidth]{img/heartDwnsmpl.png}
     \caption*{Glyphs}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
+   \centering
     \includegraphics[width=\textwidth]{img/heartDwnsmpl-TFL.PNG}
      \caption*{Hlawatsch's approach: TFLs}
     \label{b)}
@@ -1687,24 +1679,67 @@ After applying the LTG approach on the heart dataset, we observe the resulting t
 \caption{\enquote{heart} test field}
 \label{heart-ftle-comp}
 \end{figure}
-Again considering the trajectories for the heart test field, we note that they all correlate in background regions, which causes the gradient of the flow map to equal zero. This occurs, since we do not have any MRI noise incorporated into the background of the field. Consequently, we obtain results corresponding to Hlawatsch's approach, which is in general susceptive to noise, but not in case the noise was removed or is not present at all initially. From observing Hlawatsch's approach detecting the heart edges, we can infer that the flow is also congruent inside of the heart, inducing a gradient response only to the edges. In our case, we have an offset response incorporated which happens even for total spherical isotropy, wherefore we will obtain a response even if the flow does not change locally (presumed it is not absorbed by low tensor magnitudes). This in turn stems from the fact, that we use a energetic flood-fill difference, which inherently introduces an offset response.
+Again considering the trajectories for the heart test field, we note that they all correlate in background regions, which causes the gradient of the flow map to equal zero. This occurs, since we do not have any MRI noise incorporated into the background of the field. Consequently, we obtain results corresponding to Hlawatsch's approach, which is in general susceptive to noise, but not in case the noise was removed or is not present at all initially. From observing Hlawatsch's approach detecting the heart edges, we can infer that the flow is also congruent inside of the heart, inducing a gradient response only to the edges. In our case, we have an offset response incorporated which happens even for total spherical isotropy, wherefore we will obtain a response even if the flow does not change locally (presumed it is not absorbed by low tensor magnitudes). This in turn stems from the fact, that we use a energetic flood-fill difference, which inherently introduces an offset response. We can again apply a threshold for the normalization to obtain a result non-dependent on the noise to visualize raw changes in anisotropy and thus to obtain a variation in $z$-direction, ie., along the light source direction.
 \begin{figure}[!t]
+\centering
  \begin{minipage}{0.3\textwidth}
- \includegraphics[width=\textwidth]{img_new/heart_volume.PNG}
+ \centering
+ \includegraphics[height=\textwidth]{img_new/heart_volume.PNG}
    \label{a)}
  \end{minipage}
  \begin{minipage}{0.3\textwidth}
-   \includegraphics[width=\textwidth]{img_new/heart_volume3.PNG}
+ \centering
+   \includegraphics[height=\textwidth]{img_new/heart_volume3.PNG}
    \label{b)}
  \end{minipage}
  \begin{minipage}{0.3\textwidth}
-   \includegraphics[width=\textwidth]{img_new/heart_volume5.PNG}
+ \centering
+   \includegraphics[height=\textwidth]{img_new/heart_volume5.PNG}
    \label{b)}
  \end{minipage}
  \caption{\enquote{heart} test field: LTG volumes}
 \label{heart-ftle}
 \end{figure}
-Fig. \ref{heart-ftle} depicts the volumes for the heart test field, we can observe a 3D ridge running in spiral along the $z$-direction.
+Fig. \ref{heart-ftle} depicts the volumes for the heart test field, whereas we can observe a 3D ridge running in spiral along the $z$-direction. The FTLE responses are shifted w.r.t. varying directions along the $z$-axis.
+
+We also introduced random numbers in to the our tensor field generation process. Therefore, we define a uniform grid with low resolution ($9\times9$) and interpolate bilinearly to obtain a tensor field with higher resolution exhibiting continous changes in anisotropy and tensor magnitude.
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+   \centering
+  \includegraphics[width=\textwidth]{img_new/random-global.png}
+    \caption*{Global normalization}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+   \centering
+    \includegraphics[width=\textwidth]{img_new/random-local.PNG}
+     \caption*{Local normalization}
+    \label{b)}
+  \end{minipage}
+\caption{\enquote{Random} test field}
+\label{random}
+\end{figure}
+Observing the generated random test field both with global and local normalization in Fig. \ref{random}a)\& b) respectively, we remark that the propability for small numbers to have a high ratio in combination is increased, as linear anisotropy occurs mainly in BG regions (low tensor magnitudes). In case we use global normalization, we will again obtain a FTLE field independent on the direction, since tensor magnitudes outshine the changes in anisotropy in this test case.
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+   \centering
+  \includegraphics[width=\textwidth]{img_new/random_global.png}
+    \caption*{Global normalization}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+   \centering
+    \includegraphics[width=\textwidth]{img_new/random_local_slice0.PNG}
+     \caption*{Local normalization}
+    \label{b)}
+  \end{minipage}
+\caption{\enquote{Random} test field}
+\label{random}
+\end{figure}
+In case we use local normalization, we could interpret the contributions revealing low tensor magnitudes as a result from white noise, which shows the inherent problem with local normalization. 
 
 
 \paragraph{Documentation}\vskip 1pt
