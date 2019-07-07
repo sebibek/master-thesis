@@ -108,9 +108,7 @@ Submission date: & 07.07.2019
 }
 
 \end{titlepage}
-\newpage
-\thispagestyle{plain} % empty
-\mbox{}
+\newpage\null\thispagestyle{empty}\newpage
 
 \onehalfspacing
 
@@ -120,12 +118,11 @@ Submission date: & 07.07.2019
 \noindent
 \emph{dt.:}
 Ich versichere, dass ich diese Master-Arbeit selbstständig verfasst und nur die angegebenen
-Quellen und Hilfsmittel verwendet habe und die Grundsätze und
-,Empfehlungen ``Verantwortung in der Wissenschaft'' der Universität Heidelberg beachtet wurden. 
+Quellen und Hilfsmittel verwendet habe und die Grundsätze und Empfehlungen ``Verantwortung in der Wissenschaft'' der Universität Heidelberg beachtet wurden. 
 \bigskip
 \\
 \emph{eng.:}
-I hereby assure, that I drafted this thesis independently and only used the sources and materials labeled as references and that the conventions/principles and recommendations ``Verantwortung in der Wissenschaft'' of the Heidelberg University have been regarded. 
+I hereby assure, that I drafted this thesis independently and only used the sources and materials labeled as references and that the conventions, principles and recommendations ``Verantwortung in der Wissenschaft'' of the Heidelberg University have been regarded. 
 \vspace*{50pt}
 \noindent
 
@@ -218,7 +215,7 @@ The main purpose of visualization in general, is to reduce or encode some set of
 %Problemstellung insbesondere die Ziele der Arbeit beschrieben werden. 
 \section{Structure of this Work}
  
-For the rest of this work, we will give a quick overview on the structure and outline. Next, in Chap.~\ref{chap:grundlagen}, we will capture important fundamentals like tensors, polar coordinates, PCA in the context of singular value decomposition (generalization of eigenvalue decomposition), FTLE and GT (ground truth) datasets. Also we will discuss the most relevant related work in the domain of tensor field visualization and also in the domain of global illumination (indirect illumination rendering). Subsequently, in Chap.~\ref{chap:main}, we will propose the main contributions and methods of this work and document the results and evaluation in Chap.~\ref{chap:eval}. At last, a compact summary, conclusion and outlook will be given in Chap.~\ref{chap:concl}.\\
+For the rest of this work, we will give a quick overview on the structure and outline. Next, in Chap.~\ref{chap:grundlagen}, we will capture important fundamentals like tensors, polar coordinates, PCA in the context of singular value decomposition (generalization of eigenvalue decomposition), FTLE and GT (ground truth) datasets. Also we will discuss the most relevant related work in the domain of tensor field visualization and also in the domain of global illumination (indirect illumination rendering). Subsequently, in Chap.~\ref{chap:meth}, we will propose the main contributions and methods of this work and document the results and evaluation in Chap.~\ref{chap:eval}. At last, a compact summary, conclusion and outlook will be given in Chap.~\ref{chap:concl}.\\
 
 %Dieser Abschnitt wird meist recht kurz gehalten und beschreibt im
 %Prinzip nur den Aufbau des Rests der Arbeit. Zum Beispiel: In Kapitel
@@ -331,7 +328,7 @@ These 3 stress vectors represent the orientation and magnitude of total resultin
   \captionsetup{font={footnotesize,bf,it}}
    \caption*{source: \url{https://de.wikipedia.org/wiki/Datei:Ebene_polarkoordinaten.PNG}}
   \label{polar}
-\end{figure}\vskip 3pt
+\end{figure}
 Mathematically speaking, a polar space is a system, which maps each angle $\omega$ a magnitude $r(\omega)$ through a symbolic function. The conversion formula from polar (given a radius $r$ and angle $\omega$) to Cartesian coordinates is depicted in Fig.~\ref{polar} and is given by:
 \begin{align*}
 	x &= r \cos \omega, \\
@@ -353,14 +350,14 @@ Note, that we denote a matrix with a second order tensor interchangeably for the
   \begin{minipage}[!t]{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/HAT.png}
    \caption{2D principal component ellipsoid\/ glyph (eigenframe)}
-   \label{hat}
+   \label{HAT}
    \captionsetup{font={footnotesize,bf,it}}
    \caption*{source: \url{https://de.wikipedia.org/wiki/Datei:HAT-ellipse0.svg}}
   \end{minipage} \hskip 40pt
   %\raggedright
   \begin{minipage}[!t]{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/glyphs.png}
-    \caption{3D ellipsoid glyphs w. anisotropy coefficient (l:linear, p:planar, s:spherical)}
+    \caption{3D ellipsoid glyphs (l:linear, p:planar, s:spherical)}
     \label{3Dglyphs}
     \captionsetup{font={footnotesize,bf,it}}
    \caption*{source: \url{https://slideplayer.com/slide/5291764/}}
@@ -411,21 +408,22 @@ whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix 
 \hskip 22pt
   \begin{minipage}[!t]{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/diverge.png}
-   \caption{diverging streamlines for double gyre}
+	a)
    \label{diverge}
    \captionsetup{font={footnotesize,bf,it}}
-   \caption*{source: \url{https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/dg_3traj.png}}
-  \end{minipage} \hskip 40pt
+  \end{minipage} \hskip 30pt
   %\raggedright
   \begin{minipage}[!t]{0.4\textwidth}
     \includegraphics[width=\textwidth]{img/ftle_gyre.png}
-    \caption{FTLE field for double gyre}
-    \label{ftle_gyre}
+	b)
     \captionsetup{font={footnotesize,bf,it}}
    \caption*{source: \url{https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/dle_incT.png}}
   \end{minipage}
+  \caption{double gyre: a) diverging streamlines, b) FTLE field}
+  \label{ftle_gyre}
+  \caption*{source: \url{https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/}}
 \end{figure}
-Fig \ref{diverge} and \ref{ftle_gyre} depict a scenario of diverging streamlines for a double gyre snapshot in time (yielding a time-independent dynamical system). Fig.~\ref{ftle_gyre} features a high ridge on the margins (borders) and in particular at the center of the domain. This region of interest (ROI) is considered to indicate the maximum relative local divergence of tensor field lines, by the approach. Ridges also represent Lagrangian Coherent Structures, which are found in nature in vortices of correlating flow behavior.  We could imagine to introduce this process for a whole distribution of trajectories, which would implement an FTLE for uncertain vector fields in a sense, that whole propability distributions of trajectories could be heeded. An overview about existing visualization techniques for uncertain data is given by Griete \& Schuhmann \cite{griete}. We require that the trajectories can cross each other unaffectedly, i.e., the superposition principle is supposed to be respected for the magnitudes. But behold, is this behavior not somehow familiar? If we elaborately think this through, we can come up with the idea that this is the behavior of light propagation in vacuum. Light paths are physically allowed to cross each other with no influence exerted on each other at all. Consequently, we choose to model the distributions of trajectories as light intensity profiles. That is, we interpret the polar profiles as a propability density function (PDF) for particle trajectories heading into this direction. To put it into context, our main contribution method LTG uses the FTLE as an inspiration or template to design a similar approach for tensor field visualization. The main difference to the template FTLE is that we follow eigenvectors instead of flow vectors and that we use whole distributions of trajectories, as a tensor field suggests whole distributions of directions, accordingly.
+Fig.~\ref{ftle_gyre}a) depicts a scenario of diverging streamlines for a double gyre snapshot in time (yielding a time-independent dynamical system). Fig.~\ref{ftle_gyre}b) features a high ridge on the margins (borders) and in particular at the center of the domain. This region of interest (ROI) is considered to indicate the maximum relative local divergence of tensor field lines, by the approach. Ridges also represent Lagrangian Coherent Structures, which are found in nature in vortices of correlating flow behavior.  We could imagine to introduce this process for a whole distribution of trajectories, which would implement an FTLE for uncertain vector fields in a sense, that whole propability distributions of trajectories could be heeded. An overview about existing visualization techniques for uncertain data is given by Griete \& Schuhmann \cite{griethe}. We require that the trajectories can cross each other unaffectedly, i.e., the superposition principle is supposed to be respected for the magnitudes. But behold, is this behavior not somehow familiar? If we elaborately think this through, we can come up with the idea that this is the behavior of light propagation in vacuum. Light paths are physically allowed to cross each other with no influence exerted on each other at all. Consequently, we choose to model the distributions of trajectories as light intensity profiles. That is, we interpret the polar profiles as a propability density function (PDF) for particle trajectories heading into this direction. To put it into context, our main contribution method LTG uses the FTLE as an inspiration or template to design a similar approach for tensor field visualization. The main difference to the template FTLE is that we follow eigenvectors instead of flow vectors and that we use whole distributions of trajectories, as a tensor field suggests whole distributions of directions, accordingly.
 
 \section{GT Datasets / Methods}
 \label{sec:gt}
@@ -442,7 +440,7 @@ Fig \ref{diverge} and \ref{ftle_gyre} depict a scenario of diverging streamlines
 Glyphs are derived as a basis for the weighting profiles of the tensors in the following propagation scheme. They were chosen because it is an easy-to-use (understand) concept, which can also be interpreted nicely. In fact, these representations are used for the principal component analysis of direction vectors for the tensor field line extrapolation (integration) and also as transmission profiles for the light propagation scheme in a subsequent step. We can again emphasize glyphs as a crucial, central concept within this work. Tensor field lines (the type of tensor streamline analog that does not introduce artificial intertia) were implemented for ground truth (GT) data generation purposes. For example, when designing a FTLE-like field computation technique, we will need to know when tensor field lines diverge/converge. Examples for glyphs (ellipsoids) and tensor field lines (thin lines) are depicted in Fig.~\ref{test-fields}.
 
 \subsection{Test Data (Generation)}
-We used python's numpy library to generate predefined, synthetic test cases and caught two real data example from \url{TensorVis.org} and \url{https://www.cs.purdue.edu/homes/cs530/projects/project5.html}, which needed to be pre-processed through slicing and subsequent cropping to obtain $2D$ samples ($2\times2$) matrices). These test fields can be grouped into symmetric and asymmetric ones:\\
+We used python's numpy library to generate predefined, synthetic test cases and caught two real data example from \url{TensorVis.org} and \url{https://www.cs.purdue.edu/homes/cs530/projects/project5.html}, which needed to be pre-processed through slicing and subsequent cropping to obtain 2D samples ($2\times2$) matrices). These test fields can be grouped into symmetric and asymmetric ones:\\
 
 \begin{figure}[!t]
 \centering
@@ -461,27 +459,27 @@ We used python's numpy library to generate predefined, synthetic test cases and 
     \caption*{``V''}
     \label{b)}
   \end{minipage}
-\caption{Named test fields}
+\caption{Several test fields}
 \label{test-fields}
 \end{figure}
 
-\subsubsection{Tensor Fields}
+\subsubsection{Asymmetric Tensor Fields}
 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=0.8\textwidth]{img/drain(alt).png}
-    \caption*{a) glyphs}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.8\textwidth]{img/drain(alt)-TFL.png}
-    \caption*{b) tensor field lines for a)}
+	b)
     \label{b)}
   \end{minipage}
-\caption{``drain'' test field}
+\caption{``drain'' test field: a) glyphs, b) tensor field lines for a)}
 \label{drain}
 \end{figure}
 
@@ -492,16 +490,16 @@ The ``drain''-Testfield, depicted in Fig.~\ref{drain} is generated to have a kin
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=0.8\textwidth]{img/rings.png}
-    \caption*{a) glyphs}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
    \centering
     \includegraphics[width=0.8\textwidth]{img/tensorfieldlines.png}
-	\caption*{b) tensor field lines for a)}
+	b)
     \label{b)}
   \end{minipage}
-\caption{``rings'' test field}
+\caption{``rings'' test field: a) glyphs, b) tensor field lines for a)}
 \label{rings}
 \end{figure}
 The ``rings'' test field, depicted in Fig.~\ref{rings} should be used to demonstrate the directive ability of the approach transmitting energy in circular orbits.
@@ -510,16 +508,16 @@ The ``rings'' test field, depicted in Fig.~\ref{rings} should be used to demonst
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.8\textwidth]{img/spiral.png}
-    \caption*{a) glyphs}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.8\textwidth]{img/spiral-TFL.png}
-    \caption*{b) tensor field lines for a)}
+	b)
     \label{b)}
   \end{minipage}
-\caption{``spiral''-test field}
+\caption{``spiral''-test field: a) glyphs, b) tensor field lines for a)}
 \label{spiral}
 \end{figure}
 The ``spiral'' test field, depicted in Fig.~\ref{spiral} should be used to demonstrate the directive ability of the approach transmitting energy in archimedian spiral orbits.
@@ -528,16 +526,16 @@ The ``spiral'' test field, depicted in Fig.~\ref{spiral} should be used to demon
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.8\textwidth]{img/inverse.png}
-    \caption*{a) glyphs}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.8\textwidth]{img/inverse-TFL.png}
-    \caption*{b) tensor field lines for a)}
+	b)
     \label{b)}
   \end{minipage}
-\caption{``inverse'' test field}
+\caption{``inverse'' test field: a) glyphs, b) tensor field lines for a)}
 \label{inverse}
 \end{figure}
 With the \enquote{inverse} test field we want to demonstrate the directive separation of intensities into four quadrants.
@@ -548,38 +546,38 @@ With the \enquote{inverse} test field we want to demonstrate the directive separ
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.8\textwidth]{img/gyre.png}
-    \caption*{a) glyphs}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.8\textwidth]{img/gyre-TFL.png}
-    \caption*{b) tensor field lines for a)}
+	b)
     \label{b)}
   \end{minipage}
-\caption{a) ``gyre''-test field, b) tensor field lines for a)}
+\caption{``gyre'' test field: a) glyphs, b) tensor field lines for a)}
 \label{gyre}
 \end{figure}
 The test field ``gyre'', depicted in Fig \ref{gyre}, constitutes a sustained turn over the grid representing the redirection or forwarding along domain corners. 
 
 
-\subsubsection{Symmteric Tensor Fields}
-We also aim to use a real data example of the $3D$ DTI-MRI diffusion tensor of the brain for a male subject at the age of 27 and another one featuring a human heart. As we visualize 2D symmetric second order tensor fields, we need to slice the dataset and crop the $2{\times}2$ matrices omitting the $z$-component of the original $3{\times}3$ matrices. Fig.~\ref{brainglyphs} depicts the glyph representation of the test dataset for slice index $15$. To have some real examples involved, we apply the invented technique to both DTI-MRI \enquote{brain} and \enquote{heart} scans, which can be observed in Figs.~\ref{real1} and \ref{real2}.
+\subsubsection{Symmetric Tensor Fields}
+We also aim to use a real data example of the 3D DTI-MRI diffusion tensor of the brain for a male subject at the age of 27 and another one featuring a human heart. As we visualize 2D symmetric second order tensor fields, we need to slice the dataset and crop the $2{\times}2$ matrices omitting the $z$-component of the original $3{\times}3$ matrices. Fig.~\ref{real1} depicts the glyph representation of the test dataset for slice index $15$. To have some real examples involved, we apply the invented technique to both DTI-MRI \enquote{brain} and \enquote{heart} scans, which can be observed in Figs.~\ref{real1} and \ref{real2}.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=0.8\textwidth]{img/brain_org.png}
     \label{a)}
-    \caption*{tensor magnitude}
+	a)
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=0.8\textwidth]{img/brain_cyl_glyphs.png}
     \label{b)}
-    \caption*{cyclinder glyphs}
+    b)
   \end{minipage}
-\caption{Real data examples: \enquote{brain} dataset}
+\caption{\enquote{Brain} dataset: a) tensor magnitude, b) cyclinder glyphs}
 \label{real1}
 \end{figure}
 Observing the \enquote{brain} dataset in Figs. \ref{real1}, one may notice that it introduces a lot of variances to tensor magnitude and linear anisotropy. We choose this DTI-MRI scan as an example-par-excellence for real application data given in a reasonable resolution.
@@ -589,15 +587,15 @@ Observing the \enquote{brain} dataset in Figs. \ref{real1}, one may notice that 
     \centering
     \includegraphics[width=0.8\textwidth]{img/heart_org.png}
     \label{a)}
-    \caption*{tensor magnitude}
+	a)
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
       \includegraphics[width=0.8\textwidth]{img/heart_cyl_glyphs.png}
     \label{b)}
-    \caption*{cyclinder glyphs}
+	b)
   \end{minipage}
-\caption{Real data examples \enquote{heart} dataset}
+\caption{\enquote{Heart} dataset: a) tensor magnitude, b) cyclinder glyphs}
 \label{real2}
 \end{figure}
 When we look at this DT-MRI scan of a human heart we can notice the elongated shape, which we consider to represent the aorta and a part of the rest of the heart. If we consider the glyph representation, we again infer, that we incorporate lots of anisotropic regions with varying tensor magnitudes here.
@@ -724,7 +722,7 @@ That is, the singular values form the half-axes of the PCA ellipsoid, which yiel
     \includegraphics[width=0.5\textwidth]
     {img/polarplot.pdf}
   }
-  \caption{Red: Intensity Profile, cyan: Transmission Profile (glyph Ellipsoid Eq.)}
+  \caption{Red: Intensity Profile, cyan: Transmission Profile (glyph ellipsoid eq.)}
   \label{weighting}
 \end{figure}
 We interpret the polar functions as discrete, sampled 1D vectors with a uniform angular resolution. That means, we can use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. As a side note, the physical quantity perceived as brightness by human eyes, is the radiance (luminance), which is yielded by relating radiant intensity to a finite sensitive area ($[\frac{W}{\mathop{rad}}/m^2]$). The primary definition for our total accumulated incident radiant flux (again presuming that the cone is given in local coordinates - i.e. centered around the origin) is then denoted as:
@@ -778,12 +776,12 @@ Remember that this operator needs to applied once to each cell to form a whole p
 
 \section{Physical Model}
 \label{sec:model}
-To constitute a physical interpretation for the transmission of the tensor field, we imagine a melting crystal with  fibrous structures aligning with the major eigenvectors of the tensor field. This is what we call the footprint of the tensor field. In that sense of imagination, we would virtually imprint every tensor field into a crystalline structure as a preliminary initialization step. For an every day example, this can be observed in, e.g., the gemstone tiger's eyes' cat's eye effect, where crystal fibers align with the crystal axes respectively and effect a brightened line which never changes position or orientation when rotating the crystal. These oriented crysal fibers are then representing the biased propagation directions of light inside of the crystal lattice. The propability density function $P(\omega)$, for a photon being scattered in a particular direction $\omega$ \ref{ryder}, is then described as:
+To constitute a physical interpretation for the transmission of the tensor field, we imagine a melting crystal with  fibrous structures aligning with the major eigenvectors of the tensor field. This is what we call the footprint of the tensor field. In that sense of imagination, we would virtually imprint every tensor field into a crystalline structure as a preliminary initialization step. For an every day example, this can be observed in, e.g., the gemstone tiger's eyes' cat's eye effect, where crystal fibers align with the crystal axes respectively and effect a brightened line which never changes position or orientation when rotating the crystal. These oriented crysal fibers are then representing the biased propagation directions of light inside of the crystal lattice. The propability density function $P(\omega)$, for a photon being scattered in a particular direction $\omega$ \cite{ryder}, is then described as:
 \begin{align}
  	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
  	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
 \end{align}
-This propability density function (PDF) indicates, whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$) degrees and how likely the spontaneuos scattering of a photon in this particular direction will happen. Each tensor is then a unique footprint which can be precomputed for convenience and described as polar profile just as our previously mentioned intensity profiles. We apply these polar profiles in a sense of transmission profiles as discussed in Sect.~\ref{sec:trans}.
+This propability density function (PDF) indicates, whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$) degrees and how likely the spontaneuos scattering of a photon in this particular direction will happen. Each tensor is then a unique footprint which can be precomputed for convenience and described as polar profile just as our previously mentioned intensity profiles. We apply these polar profiles in a sense of transmission profiles as discussed in Sect.~\ref{sec:polar}.
 
 \section{Light Propagation Scheme}
 To evaluate the plausibility of the light distribution results obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields, whereas red: tensor glyphs (transmission profiles) and blue: intensity profiles are both depicted in polar coordinates:
@@ -792,17 +790,17 @@ To evaluate the plausibility of the light distribution results obtained from the
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=0.8\textwidth]{img/isotropic.png}
     \label{a)}
-    \caption*{light source in top center}
+	a) light source in top center
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=0.8\textwidth]{img/isotropic-all-center.png}
     \label{b)}
-    \caption*{light source in center}
+	b) light source in center
   \end{minipage}
 \caption{final light propagation distributions for ``isotropy''-testfield}
 \label{isotropic}
 \end{figure}
-One can observe here, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in Sect.~\ref{sec:att} and \ref{sect:conserve}. We can also depict the final distribution as a scalar field when using the total energy in each cell as scalar:
+One can observe here, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in Sects.~\ref{sec:att} and \ref{sect:conserve}. We can also depict the final distribution as a scalar field when using the total energy in each cell as scalar:
 
 \begin{figure}[!t]
 \centering
@@ -810,13 +808,13 @@ One can observe here, how light is propagated with no directional bias leading t
     \centering
     \includegraphics[width=0.9\textwidth]{img/iso_scalar.png}
     \label{a)}
-    \caption*{light source in center}
+	a) light source in center
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/iso_sat.png}
     \label{b)}
-    \caption*{light source in center (rescaled)}
+	b) light source in center (rescaled)
   \end{minipage}
 \caption{final light distributions for ``isotropy''-test field}
 \label{rings-tests}
@@ -829,13 +827,13 @@ In this next example, we use the tensor field ``rings'' as input data for the ap
     \centering
     \includegraphics[width=0.9\textwidth]{img/rings-two-special1.png}
     \label{a)}
-    \caption*{antisymmtric light sources}
+	a) antisymmtric light sources
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/rings-two-special2.png}
     \label{b)}
-    \caption*{symmetric light sources}
+	b) symmetric light sources
   \end{minipage}
 \caption{final light propagation distributions for ``rings''-test field}
 \label{rings-tests}
@@ -847,13 +845,13 @@ We consider Fig.~\ref{rings-tests} to regard the behavior for circular tensor fi
     \centering
     \includegraphics[width=0.9\textwidth]{img/cos_parallel.png}
     \label{a)}
-    \caption*{antisymmtric light sources}
+	a) antisymmtric light sources
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/cos_anti.png}
     \label{b)}
-    \caption*{symmetric light sources}
+	b) symmetric light sources
   \end{minipage}
 \caption{final light propagation distributions for ``spiral''-test field}
 \label{spiral-tests}
@@ -866,13 +864,13 @@ The results for our tensor field ``spiral'' can be interpreted in analogous fash
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral-two-dense.png}
     \label{a)}
-    \caption*{dense light sources}
+	a) dense light sources
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral-two-wide.png}
     \label{b)}
-    \caption*{symmetric light sources}
+	b) symmetric light sources
   \end{minipage}
 \caption{final light propagation distributions for ``spiral''-test field}
 \label{spiral-tests}
@@ -884,13 +882,13 @@ For the ``spiral'' tensor field we observe the spiral shape literally absorbing 
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral-temp2.png}
     \label{a)}
-    \caption*{dense light sources}
+	a) two light sources
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral_full.png}
     \label{b)}
-    \caption*{four light sources}
+	b) four light sources
   \end{minipage}
 \caption{final light propagation distributions for ``spiral''-test field}
 \label{spiral-tests}
@@ -902,17 +900,17 @@ The star example reveals another interesting feature of the approach: if the int
   \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star-0,0.png}
     \label{a)}
-    \caption*{single light source}
+	a) single light source
   \end{minipage}
   \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star-two-wide.png}
     \label{b)}
-    \caption*{symmetric light sources}
+	b) symmetric light sources
   \end{minipage}
    \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star-two-dense.png}
     \label{c)}
-    \caption*{dual light sources}
+	c) dual light sources
   \end{minipage}
 \caption{final light propagation distributions for ``star'' test field}
 \label{spiral-tests}
@@ -923,12 +921,12 @@ Remark, that the diagonal intensities are attenuated more strongly by default, w
   \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star_wide.png}
     \label{a)}
-    \caption*{symmetric light sources}
+	a) symmetric light sources
   \end{minipage}
   \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star_close.png}
     \label{b)}
-    \caption*{dual light sources}
+	b) dual light sources
   \end{minipage}
 \caption{final light propagation distributions for ``star'' test field}
 \label{spiral-tests}
@@ -947,17 +945,17 @@ Now, that we are able to propagate intensity in grid, directed by the eigenvecto
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/scalar_iso_left.png}
     \label{a)}
-    \caption*{a) final light distribution for left spatial offset}
+	a) final light distribution for left spatial offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/scalar_iso_right.png}
     \label{b)}
-    \caption*{b) final light distribution for right spatial offset}
+	b) final light distribution for right spatial offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/scalar_iso_diff.png}
     \label{b)}
-    \caption*{difference image for a) and b)}
+	difference image for a) and b)
   \end{minipage}
   \caption{``isotropic'' test field}
 \label{analysis1}
@@ -969,17 +967,17 @@ The complementing idea for the angular domain would be: placing the light source
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/scalar_iso_leftangle.png}
     \label{a)}
-    \caption*{a) final light distribution for left angular offset}
+	a) final light distribution for left angular offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/scalar_iso_rightangle.png}
     \label{b)}
-    \caption*{b) final light distribution for right angular offset}
+	b) final light distribution for right angular offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/scalar_iso_anglediff.png}
     \label{b)}
-    \caption*{difference image for a) and b)}
+	difference image for a) and b)
   \end{minipage}
   \caption{``isotropic'' test field}
 \label{analysis2}
@@ -991,17 +989,17 @@ For the angular offset, we can again observe the light distributions cancelling 
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/ftle_left.png}
     \label{a)}
-    \caption*{a) final light distribution for left spatial offset}
+	a) final light distribution for left spatial offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/ftle_right.png}
     \label{b)}
-    \caption*{b) final light distribution for right spatial offset}
+	b) final light distribution for right spatial offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/ftle_diff.png}
     \label{b)}
-    \caption*{difference image for a) and b)}
+	difference image for a) and b)
   \end{minipage}
   \caption{``drain'' test field}
 \label{evolution1}
@@ -1014,19 +1012,19 @@ We can see the light distributions diverge following tensor field lines, which i
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/ftle_leftangle.png}
     \label{a)}
-    \caption*{a) final light distribution for left angular offset}
+	a) final light distribution for left angular offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/ftle_rightangle.png}
     \label{b)}
-    \caption*{b) final light distribution for right angular offset}
+	b) final light distribution for right angular offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
     \includegraphics[width=\textwidth]{img/ftle_anglediff.png}
     \label{b)}
-    \caption*{difference image for a) and b)}
+	difference image for a) and b)
   \end{minipage}
-  \caption{``drain'' test field}
+  \caption{``drain'' test field: }
 \label{evolution2}
 \end{figure}
 For the angle difference in Fig.~\ref{evolution2}, we can observe that the difference is again increased, because it does not overlap leading to a maximized difference. Imagine accumulating each pixel in the images to obtain the cumulative total energy in the (difference) grid, which could now be compared for each light source position and direction in terms of proper min-max scaling. Now imagine we would accumulate these differences and assign each position a gradient magnitude in form of a scalar value with the summed difference of the final light distributions in the neighborhood. What would we eventually be yielded with. Well, we would obtain another scalar field considered to be the gradient image of the light distributions. We could very well extend this process for every light source direction discretized (sampled) and obtain a $3D$ volume representing the topological structure of the tensor field for every direction. All we need, is a formal definition for a central differences gradient approximation for light distributions given in polar profiles. The main difference to FTLE in vector field visualization is, that we use whole distributions of trajectories and hence need to use a starting direction for the distribution of trajectories, instead of just moving with the flow, as a tensor introduces a whole distribution of directions and does not only depend on the inital position, but also on the direction. This corresponding to the volume emerging from the FTLE plane image, as we introduce a new dimension $\omega$. Remark that we denote the final buffer result as $\mathbf{b}=\mathcal{C}_{final}$ in the following.
@@ -1071,15 +1069,15 @@ Remark, that the $z$-axis represents the $\omega$-axis for each test and example
   \centering
     \includegraphics[height=\textwidth]{img/isotropic2.png}
     \label{a)}
-    \caption*{a) Glyphs}
+	a)
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[height=\textwidth]{img/iso_ftle.png}
     \label{b)}
-    \caption*{b) LTG($0^\circ$) for a)}
+	b)
   \end{minipage}
-  \caption{\enquote{isotropic} test field}
+  \caption{\enquote{isotropic} test field: a) glyphs, b) LTG($0^\circ$) for a)}
 \label{ftle_iso}
 \end{figure}
 
@@ -1091,14 +1089,14 @@ When we look at the FTLE field, on the top right in Fig.~\ref{ftle_iso}, we dete
     \centering
     \includegraphics[width=0.8\textwidth]{img/iso_volume.png}
     \label{a)}
-    \caption*{a) Volume}
+	a)
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=0.8\textwidth]{img/iso_isovolume.png}
     \label{b)}
-    \caption*{b) IsoVolume Filter for a)}
+	b)
   \end{minipage}
-  \caption{\enquote{isotropic} test field}
+  \caption{\enquote{isotropic} test field: a) volume, b) IsoVolume for a)}
 \label{ftle_iso}
 \end{figure}
 To verify the concept of absorption implicitly, we incorporate absorption into test field \enquote{absorb}, whereas all cells are absorbing energy except the vertical center line, which is assumed to produce a clear ridge. 
@@ -1108,14 +1106,14 @@ To verify the concept of absorption implicitly, we incorporate absorption into t
   \centering
     \includegraphics[width=0.9\textwidth]{img/absorb.png}
     \label{a)}
-    \caption*{a) Glyphs}
+	a)
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \includegraphics[width=0.9\textwidth]{img/absorb_ftle.png}
     \label{b)}
-    \caption*{b) LTG($90^\circ$) for a)}
+	b)
   \end{minipage}
-  \caption{\enquote{absorb} test field}
+  \caption{\enquote{absorb} test field: a) glyphs, b) LTG($90^\circ$) for a)}
 \label{ftle_absorb}
 \end{figure}
 
@@ -1124,22 +1122,24 @@ We observe the clear straight ridge in the example in Fig.~\ref{ftle_absorb}. As
 \begin{figure}[t]
 \centering
   \begin{minipage}{0.3\textwidth}
-\centering
+	\centering
     \includegraphics[width=\textwidth]{img/drain(alt)-TFL.png}
     \label{a)}
-    \caption*{a) TFLs and glyphs}
+	a)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
+  \centering
     \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
     \label{b)}
-    \caption*{b) LTG($90^\circ$) for a)}
+	b)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
+  \centering
     \includegraphics[width=\textwidth]{img/drain_alt_gradient.png}
     \label{b)}
-    \caption*{c) gradient for b)}
+	c)
   \end{minipage}
-  \caption{``drain'' test field}
+  \caption{``drain'' test field: a) TFLs and glyphs, b) LTG($90^\circ$) for a), c) gradient for b)}
 \label{ftle_base}
 \end{figure}
 What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig.~\ref{ftle_base} c).
@@ -1151,16 +1151,16 @@ These ridges represent ROIs with underlying Lagrangian Coherent Structures, whic
   \centering
   \includegraphics[width=0.9\textwidth]{img/drain_top.PNG}\vskip 10pt
     \includegraphics[width=0.9\textwidth]{img/drain_alt-profile.PNG}
-    \caption*{Cross section on LTG volume}	
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=0.9\textwidth]{img/drain_alt_isovolume.PNG}
-     \caption*{IsoVolume Filter}
+	b)
     \label{b)}
   \end{minipage}
-  \caption{LTG volume representation: \enquote{drain} test field}
+  \caption{LTG volumes: \enquote{drain} test field a) cross-section, b) IsoVolume}
 \label{drain_contour}
 \end{figure}
 For the ``drain'' test field we consider the central channel which produces a clear line in the cross section. The light transport gradient responds most inside of the channel region and on the top T-arms independently of the stimulus direction. For the sake of completeness, we show that the approach's functionality also for diagonal directions in Fig.~\ref{diag-ftle}. 
@@ -1171,34 +1171,34 @@ For the ``drain'' test field we consider the central channel which produces a cl
   \centering
     \includegraphics[width=0.9\textwidth]{img/diagDrain.png}
     \label{a)}
-    \caption*{a) TFLs and glyphs}
+	a)
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=0.9\textwidth]{img/diagDrain-ftle.png}
     \label{b)}
-    \caption*{b) LTG($225^\circ$) for a)}
+	b)
   \end{minipage}
-  \caption{``diagonal drain'' test field}
+  \caption{``diagonal drain'' test field: a) TFLs and glyphs, b) LTG($225^\circ$) for a)}
 \label{diag-ftle}
 \end{figure}
 Regarding the ridge for the \enquote{drain} test field, we note that it is a little smoothed compared to the axis-aligned ridges, as they obtain a larger propagation attenuation (because of the larger distance) leading to a stronger separation of trajectories in general and hence to a smoothed FTLE response. Also we note that the divergence of the tensor field lines is reduced compared to the classic \enquote{drain} example of the FTLE.
 
-\begin{figure}[ht]
+\begin{figure}[h]
 \centering
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=0.9\textwidth]{img/inverse-TFL.png}
     \label{a)}
-    \caption*{a) TFLs and glyphs }
+	a)
   \end{minipage}
   \begin{minipage}[!t]{0.4\textwidth}
   \centering
     \includegraphics[width=0.9\textwidth]{img/inverse-FTLE-raw.png}
     \label{b)}
-    \caption*{b) LTG($90^\circ$) for a)}
+	b)
   \end{minipage}
-  \caption{``inverse''-test field}
+  \caption{``Inverse''-test field: a) TFLs and glyphs, b) LTG($90^\circ$) for a)}
 \label{inverse-ftle}
 \end{figure}
 
@@ -1208,15 +1208,18 @@ We also evaluated the approach for the ``inverse'' test field, depicted in Fig.~
 \centering
   \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/inverse_isovolume.png}
+    a)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/inverse_surface.png}
+    b)
   \end{minipage}
    \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/inverse_contour.png}
+    c)
   \end{minipage}
-    \caption{IsoVolume Filter on LTG volume representation: ``inverse'' test field}
-\label{inverse_contour}
+    \caption{LTG volumes: ``inverse'' test field: a) IsoVolume, b) Surface, c) Contour}
+\label{inverse_volume}
 \end{figure}
 Note that the $z$-axis represents the light source direction angle $\omega$ in this case. The contour filter reveals the star-shaped structure of the tensor field which rotates along the angle axis. This is the effect we already captured for the single slice: For each axis direction we can detect ridges from parallel up to orthogonal to our predefined stimulus (light source) direction, but not in antiparallel direction. This causes the star shape to miss one branch or ray which is in turn the antiparallel direction missing for each light source direction, emphasizing the impression of rotation. We can also try to segment height ridges represented as surfaces from the resulting volume grids as depicted in Fig \ref{inverse_contour}. The orthogonal ridges in this example reach out to the edges because they are gaining a bias by never offsetting the light source in a transmission direction (ellipsoid orientation) for orthogonals. This turns out to be a general feature of the method, as we will later verify in Figs. \ref{res_ftle_volume} and \ref{star-ftle}.
 
@@ -1234,7 +1237,7 @@ Note that the $z$-axis represents the light source direction angle $\omega$ in t
 %\label{inverse_surface}
 %\end{figure}
 
-For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel up to orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig.~\ref{inverse_surface}. Subsequently, we will analyze the \enquote{rings} test field to show its performance on circular ridges.
+For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the ridges which are in parallel up to orthogonal to the current light source (slice) direction. This rotor can be obtained by applying a contour filter, but it can also be visualized by applying a simple thresholding on the surface representation of the volume, as depicted in Fig.~\ref{inverse_volume}. Subsequently, we will analyze the \enquote{rings} test field to show its performance on circular ridges.
 
 \begin{figure}[!t]
 \centering
@@ -1242,15 +1245,15 @@ For the ``inverse'' test field, we can observe a 3 part ``rotor'' indicating the
   \centering
     \includegraphics[width=0.9\textwidth]{img/tensorfieldlines.png}
     \label{a)}
-    \caption*{a) TFLs and glyphs }
+	a)
   \end{minipage}
   \begin{minipage}[!t]{0.4\textwidth}
   \centering
     \includegraphics[width=0.9\textwidth]{img/rings_ftle.png}
     \label{b)}
-    \caption*{b) LTG($0^\circ$) for a)}
+	b)
   \end{minipage}
-  \caption{``rings''-test field}
+  \caption{``Rings''-test field: a) TFLs and glyphs, b) LTG($0^\circ$) for a)}
 \label{rings-ftle}
 \end{figure}
 What we can observe in Fig.~\ref{rings-ftle}, is called an inside-outside test producing the ridge on the circumference of the circle with maximized radius fitting into the minimum bounding box. If one would place a light source on the circumference of this circle offsetting it spatially and in the angular domain, one would obtain one incomplete final light distribution (outside) and one complete final light distribution (inside), as this is the maximum radius at which the intensities can follow a circle. This hence leads to large differential light distributions and thus to a higher LTG magnitude. ROIs pointing outside the field respond the same for varying light source directions and positions yielding the blue areas in the corners. Regions introducing linear anisotropy respond uniformly inside of the circle in contrary to the center point, which is again not responding because of circular overlaps of the offset light distributions computed for the light transport gradient. The contour filter reveals these two edge locations in the field, concerning tensor field line divergence.
@@ -1258,17 +1261,17 @@ What we can observe in Fig.~\ref{rings-ftle}, is called an inside-outside test p
 \centering
   \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/rings_contour.png}
-    \caption*{Contour}
+	a)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/rings_isovolume.png}
-    \caption*{IsoVolume}
+	b)
   \end{minipage}
    \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/rings_volume.png}
-    \caption*{Volume}
+	c)
   \end{minipage}
-    \caption{LTG volume representations: ``rings'' test field}
+    \caption{LTG volumes: ``rings'' test field: a) Contour, b) IsoVolume, c) Volume}
 \label{rings_contour}
 \end{figure}
 The volumes, we examine here in Fig.~\ref{rings_contour}, show that the field is symmetric, as we do not notice a change along the $\omega\mapsto z$-axis except for the natural shift of the field against the light source direction, which we discussed already in this subsection. Along the $z$-axis, the light source is rotated in all directions which causes the shift to form a full cycle from bottom to top ($[0^\circ,360^\circ]$).
@@ -1280,15 +1283,15 @@ At last, we will analyze the bow test field, which is now considered as a more c
   \centering
     \includegraphics[width=\textwidth]{img/bow-TFL.png}
     \label{a)}
-    \caption*{a) TFLs and glyphs }
+	a)
   \end{minipage}
   \begin{minipage}[!t]{0.4\textwidth}
   \centering
     \includegraphics[width=\textwidth]{img/bow_ftle.png}
     \label{b)}
-    \caption*{b) LTG($0^\circ$) for a)}
+	b)
   \end{minipage}
-  \caption{``bow''-test field}
+  \caption{``bow''-test field: a) TFLs and glyphs, b) LTG($0^\circ$) for a)}
 \label{bow-ftle}
 \end{figure}
 One may observe here, that the ridges located against the direction of the light source are again visible more clearly for the $0^\circ$ slice (directed bias). These ridges represent regions revealing most diverging tensor field lines in the original field. The ridges on the left side are detected because they are in the range up to orthogonal to the light source direction (if we consider them pointing into the diverging direction).
@@ -1298,14 +1301,14 @@ One may observe here, that the ridges located against the direction of the light
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=\textwidth]{img/bow_contour.png}
-    \caption*{Contour}
+	a)
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
   \centering
     \includegraphics[width=\textwidth]{img/bow_volume.png}
-    \caption*{IsoVolume}
+	b)
   \end{minipage}
-    \caption{LTG volume representations: ``bow'' test field}
+    \caption{LTG volumes: ``bow'' test field : a) Contour, b) IsoVolume}
 \label{bow_contour}
 \end{figure}
 Considering the volumes depicted in Fig.~\ref{bow_contour} one may notice, that we obtain a riffled structure reminding of ground plates. On half the volume height ($180^\circ$) the structure is turned by $180^\circ$ as expected as this light source configuration lights up the mirror image to the one on the surface. The bow is literally shaped from the volume representation if one applies a threshold. 
@@ -1420,18 +1423,21 @@ We also wanted to check for the limitations of the approach by having total line
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+  \centering
     \includegraphics[width=\textwidth]{img/tensorfieldlines.png}
-    \caption*{TFLs and glyphs}
+	a) TFLs and glyphs
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
+  \centering
     \includegraphics[width=\textwidth]{img/total_anisotropy1.png}
-    \caption*{iteration $50$}
+    b) iteration $50$
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
+  \centering
     \includegraphics[width=\textwidth]{img/total_anisotropy2.png}
-    \caption*{iteration $103$}
+	c) iteration $103$
     \label{c)}
   \end{minipage}
 \caption{intensity propagation in grid for total anisotropy}
@@ -1461,20 +1467,20 @@ The light transport gradient approach, which is closely related to the FTLE appr
 \centering
   \begin{minipage}[t]{0.3\textwidth}
   \includegraphics[height=\textwidth]{img/drain(alt)-TFL.png}
-    \caption*{a) Glyphs}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/ftle_drain_alt.PNG}
-     \caption*{b) LTG($0^\circ$)}
+	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/drain_ftle_org_real.PNG}
-     \caption*{c) FTLE: Hlawatsch's approach}
+	c)
     \label{b)}
   \end{minipage}
-  \caption{\enquote{drain} test field}
+  \caption{\enquote{Drain} test field: a) Glyphs, b) LTG($0^\circ$), c) FTLE: Hlawatsch's approach}
 \label{drain_ftle_comp}
 \end{figure}
 
@@ -1484,21 +1490,21 @@ We can observe the comparison between our invented FTLE-like approach and the on
 \centering
   \begin{minipage}{0.29\textwidth}
   \includegraphics[height=\textwidth]{img/star.png}
-    \caption*{\enquote{Star} test field}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.29\textwidth}
     \includegraphics[height=\textwidth]{img/star_ftle.PNG}
-     \caption*{LTG slice($0^\circ$)}
+	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.35\textwidth}
   \centering
     \includegraphics[height=\textwidth]{img/star_volume_alt.PNG}
-     \caption*{IsoVolume on LTG volume}
+	c)
     \label{b)}
   \end{minipage}
-  \caption{LTG on \enquote{star} test field}
+  \caption{\enquote{Star} test field: a) field, b) LTG slice($0^\circ$), c) IsoVolume on LTG volume}
 \label{star-ftle}
 \end{figure}
 When we look at the example depicted in Fig.~\ref{star-ftle}, we can see the FTLE approach LTG responding most in the center of the field, which is the nodal point of tensor field lines diverging in any direction. Remark, that in the middle image there is a light V-shaped ridge on the left on blue background which is outshined by the center spot because of its orders of larger magnitude. The volume illustrated on the right even shows a spiked structure for the volume representing all directions at once. The approach detects more ridges in diagonal directions stochastically as we can infer from the Gaussian-shaped plates in the thresholded volume, evenly spaced in $90^\circ$ shifts with $45^\circ$ (quarter volume) offset. These can be interpreted nicely, since the diagonal direction is never offset into its transmission direction leading to a trivial (none) difference for axis-parallel directions for the offset direction orthogonal to the light source direction. Hence, the differences will be factor $2$ at worst for the diagonals, since we measure differences in both offset directions, in case ridges in both axis-parallel and -diagonal directions are present. Accordingly, we observe Gaussian-plates in the volume instead of sharp, contrasted ridges for the \enquote{star} example. But wouldn't we expect a ridges only in parallel directions? Well, in this case, we could imagine not only tensor field lines diverge or converge, but also they could cross each other unaffectedly (just as with light paths), which could be the case when shifting away from the diagonal directions. For better imagination, offset the light source vertically or horizontally from the diagonals and observe the light paths hitting the axes (, which in fact do cross each other).
@@ -1511,41 +1517,41 @@ Now, we will evaluate a classic textbook example called the \enquote{double gyre
 \centering
   \begin{minipage}[t]{0.3\textwidth}
   \includegraphics[height=\textwidth]{img/gyre.png}
-    \caption*{a) Glyphs}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/gyre_ftle.PNG}
-     \caption*{b) LTG($0^\circ$)}
+	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/gyre_ftle_org.PNG}
-     \caption*{c) FTLE: Hlawatsch's approach}
+	c)
     \label{b)}
   \end{minipage}
-  \caption{Gyre test field}
+  \caption{\enquote{Gyre} test field: a) Glyphs, b) LTG($0^\circ$), c) FTLE: Hlawatsch's approach}
 \label{gyre-ftle}
 \end{figure}
-In Fig.~\ref{gyre-ftle, we can observe the method segmenting ridges in local ROIs exhibiting diverging tensor field lines w.r.t. the $x$-axis ($0^\circ$). Note that even regions in antiparallel directions ridges are detected to (literally) some degree: Remark the ridges being contiguos lines at the level of the gyre centers where converging turns into diverging. Again, it is noticeable, that the result of Hlawatsch correspond to our result to a certain degree. It is noticeable, that Hlawatsch's approach does not consider the initial direction and hence will detect ridges also in antiparallel directions (gradient of the flow map). This yields symmetric ridges w.r.t. central axes, whereas we detect ridges only up to orthogonally to the initial light source direction as visible in Fig.~\ref{gyre-ftle}b)\& c), respectively. In the center location of each gyre, we interpolate the sorrounding ring with an isotropic cell in the middle, leading to chaotic trajectories leaving the gyre and thus leading to an increased gradient of the flow map for Hlawatsch's result. This causes the FTLE field to respond in the center of the gyres in Fig.~\ref{gyre-ftle}c). We interpret this behavior within the scope of interpolated trajectories, which are in general more likely to escape the gyre, since their angle is interpolated (by PCA), which is susceptive to rapid changes and hence leads to unstable behavior. What Hlawatsch et al. detect, could be called local ridges (in terms rather short), what our method detects could rather be called global ridges (in terms rather long). This implies, that we obtained reasonable results generated by our method, but the classical tensor field line FTLE is susceptive to instability concerning its directive abilities and does not do things by halves (like we do with our partitioned light distributions), which causes sharper ridges in general.  When we  Also remember, that the resulting ridges are not to be concerned sharp ones, since we measure the separation of whole light distributions, which should be considered a continous response or measure. We again depict volume representations for this example:
+In Fig.~\ref{gyre-ftle}, we can observe the method segmenting ridges in local ROIs exhibiting diverging tensor field lines w.r.t. the $x$-axis ($0^\circ$). Note that even regions in antiparallel directions ridges are detected to (literally) some degree: Remark the ridges being contiguos lines at the level of the gyre centers where converging turns into diverging. Again, it is noticeable, that the result of Hlawatsch correspond to our result to a certain degree. It is noticeable, that Hlawatsch's approach does not consider the initial direction and hence will detect ridges also in antiparallel directions (gradient of the flow map). This yields symmetric ridges w.r.t. central axes, whereas we detect ridges only up to orthogonally to the initial light source direction as visible in Fig.~\ref{gyre-ftle}b)\& c), respectively. In the center location of each gyre, we interpolate the sorrounding ring with an isotropic cell in the middle, leading to chaotic trajectories leaving the gyre and thus leading to an increased gradient of the flow map for Hlawatsch's result. This causes the FTLE field to respond in the center of the gyres in Fig.~\ref{gyre-ftle}c). We interpret this behavior within the scope of interpolated trajectories, which are in general more likely to escape the gyre, since their angle is interpolated (by PCA), which is susceptive to rapid changes and hence leads to unstable behavior. What Hlawatsch et al. detect, could be called local ridges (in terms rather short), what our method detects could rather be called global ridges (in terms rather long). This implies, that we obtained reasonable results generated by our method, but the classical tensor field line FTLE is susceptive to instability concerning its directive abilities and does not do things by halves (like we do with our partitioned light distributions), which causes sharper ridges in general. Also remember, that the resulting ridges are not to be concerned sharp ones, since we measure the separation of whole light distributions, which should be considered a continous response or measure. We again depict volume representations for this example:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
   \includegraphics[height=\textwidth]{img/gyre_volume2.png}
-    \caption*{a) IsoVolume}
+	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/gyre_gauss_contour.PNG}
-     \caption*{b) Contour}
+	b)
     \label{b)}
   \end{minipage}
    \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/gyre_volume4.PNG}
-     \caption*{c) GaussContour}
+	c)
     \label{b)}
   \end{minipage}
-  \caption{\enquote{Gyre} test field}
+  \caption{\enquote{Gyre} test field LTG volumes: a) IsoVolume, b) Contour, c) GaussContour}
 \label{gyre_volume}
 \end{figure}
 When we consider the volumes for the \enquote{gyre} test field, we can remark the holes, which represent the gyres in the centers of the volume for a low and a high threshold, whereby we extract (filter out) the previously observed ridges in $3D$ for all directions $\omega$ simultaneously.
@@ -1587,7 +1593,7 @@ Regarding Fig.~\ref{gyre_volume}, we find that the approach detects the boundari
      \caption*{b) Hlawatsch's app.: TFLs}
     \label{b)}
   \end{minipage}
-\caption{\enquote{brain} test field}
+\caption{\enquote{Brain} test field}
 \label{brain_ftle_comp}
 \end{figure}
 We note that this real data example incorporates noise into the BG regions as observable from the chaotic trajectories in Fig.~\ref{brain_ftle_comp}. We propose the following threshold correction to prevent noisy FTLE results: 
@@ -1609,16 +1615,16 @@ This normalization correction will ensure, that any mean tensor magnitude below 
   \begin{minipage}[t]{0.4\textwidth}
    \centering
   \includegraphics[width=0.9\textwidth]{img_new/brain-TFL.png}
-    \caption*{a) Glyphs}
+	a) TFLs: noise correction
     \label{a)}
   \end{minipage}
   \begin{minipage}[t]{0.4\textwidth}
    \centering
     \includegraphics[width=0.9\textwidth]{img/brain_ftle_surf_noisereduction.PNG}
-     \caption*{b) H.'s app.: TFLs (noise correction)}
+	b) Hlawatsch's approach: noise correction
     \label{b)}
   \end{minipage}
-\caption{\enquote{brain} test field}
+\caption{\enquote{Brain} test field}
 \label{brain_ftle_noise}
 \end{figure}
 Again observing the results for the tensor field lines, we now remark their proper correlation in BG regions (cf.~straight lines in the background in Fig.~\ref{brain_ftle_noise} a)). This yields a gradient of the flow map exactly equal to zero, which avoids any noisy FTLE responses, as visible in Fig.~\ref{brain_ftle_noise} b) for Hlawatsch's approach. 
@@ -1643,7 +1649,7 @@ Again observing the results for the tensor field lines, we now remark their prop
     c)
     \label{b)}
   \end{minipage}
-  \caption{\enquote{brain} test field LTG: a) LTG($0^\circ$), b) LTG volume, c) cross-section}
+  \caption{\enquote{Brain} test field LTG: a) LTG($0^\circ$), b) LTG volume, c) cross-section}
 \label{heart-ftle}
 \end{figure}
 
@@ -1669,7 +1675,7 @@ The volumes depicted in Fig.~\ref{heart-ftle} now show variation in $z$-directio
 	c)
     \label{b)}
   \end{minipage}
-  \caption{\enquote{heart} test field LTG: a) global, b) local, c) Hlawatsch's approach}
+  \caption{\enquote{Heart} test field: a) LTG global, b) LTG local, c) Hlawatsch's approach}
 \label{heart-ftle}
 \end{figure}
 After applying the LTG approach on the heart dataset, we observe the resulting tensor magnitude weighted FTLE-field (global) and the locally normalized (local) in Figs. \ref{heart-ftle}a)\& b). Note that the FTLE response for the globally normalized tensor field is again not changing w.r.t. direction, which is why we do not show the volumes for the global noramlization. The approach highlights the regions with diverging tensor field lines resulting from linear anisotropy or increased tensor magnitude, emerging as ridges. In Fig.~\ref{heart-ftle}a) we observe the tensor magnitude weighted mode for an inital global normalization, whereas anisotropy characteristics get outshined by tensor magnitude influences. On the other hand, in Fig.~\ref{heart-ftle}b) we remark the typical edge artifacts for FG regions known from the classical FTLE. Also, we notice the approach detecting changes in anisotropy in lack of any directed ridges, which reveal diverging tensor field lines w.r.t. a central axis. The results seem to correspond to the ones of Hlawatsch et al. certainly only in parts of the domain, because we unrolled all the FTLE responses distributed over all discrete directions, which is why some of the FTLE ridges are missing. Note that these ridges are not that sharp compared to Hlawatsch's approach, as we use whole distributions of trajectories which should be interpreted in a more continous way (changing w.r.t. direction). These ridges could now represent blood vessels and such. The red spot emphasized in the left of the image could, e.g., represent the highest diffusion velocity in tissue. When considering the FTLE for the heart dataset depicted in Fig.~\ref{heart-ftle-comp}, we find that the trajectories exhibit strong correlations amongst them. This results from the low noise rate inherently present in this dataset. The inital value for our angle is given by $0$ degree, which is why the trajectories follow this angle strictly in case of a zero matrix (corresponding to a noise free cell in background regions). In this case, we obtain the same results as the approach from Hlawatsch et al., whereas our global min-max normalization (due to noise) is becoming a redundant step for noiseless input data. A proof of this elaboration can be found in Fig.~\ref{heart-ftle-comp}.
@@ -1688,7 +1694,7 @@ After applying the LTG approach on the heart dataset, we observe the resulting t
 	b)
     \label{b)}
   \end{minipage}
-\caption{\enquote{heart} test field: a) glyphs, b) TFLs}
+\caption{\enquote{Heart} test field: a) glyphs, b) TFLs}
 \label{heart-ftle-comp}
 \end{figure}
 Again considering the trajectories for the heart test field, we note that they all correlate in background regions, which causes the gradient of the flow map to equal zero. This occurs, since we do not have any MRI noise incorporated into the background of the field. Consequently, we obtain results corresponding to Hlawatsch's approach, which is in general susceptive to noise, but not in case the noise was removed or is not present at all initially. From observing Hlawatsch's approach detecting the heart edges, we can infer that the flow is also congruent inside of the heart, inducing a gradient response only to the edges. In our case, we have an offset response incorporated which happens even for total spherical isotropy, wherefore we will obtain a response even if the flow does not change locally (presumed it is not absorbed by low tensor magnitudes). This in turn stems from the fact, that we use a energetic flood-fill difference, which inherently introduces an offset response. We can again apply a threshold for the normalization to obtain a result non-dependent on the noise to visualize raw changes in anisotropy and thus to obtain a variation in $z$-direction, ie., along the light source direction.
@@ -1698,10 +1704,10 @@ Again considering the trajectories for the heart test field, we note that they a
  \centering
  \includegraphics[height=\textwidth]{img_new/heart_volume.PNG}
    \label{a)}
- \end{minipage}
+ \end{minipage}\hskip 12pt
  \begin{minipage}{0.3\textwidth}
  \centering
-   \includegraphics[height=\textwidth]{img_new/heart_volume3.PNG}
+   \includegraphics[width=\textwidth]{img_new/heart_volume3.PNG}
    \label{b)}
  \end{minipage}
  \begin{minipage}{0.3\textwidth}
@@ -1709,7 +1715,7 @@ Again considering the trajectories for the heart test field, we note that they a
    \includegraphics[height=\textwidth]{img_new/heart_volume5.PNG}
    \label{b)}
  \end{minipage}
- \caption{\enquote{heart} test field: LTG volumes}
+ \caption{\enquote{Heart} test field: LTG volumes}
 \label{heart-ftle}
 \end{figure}
 Fig.~\ref{heart-ftle} depicts the volumes for the heart test field, whereas we can observe a 3D ridge running in spiral along the $z$-direction. The FTLE responses are shifted w.r.t. varying directions along the $z$-axis.
@@ -1759,11 +1765,13 @@ In case we use local normalization in Fig.~\ref{random_FTLE}b), we could interpr
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+    \centering
   \includegraphics[height=\textwidth]{img/inverse29.png}
     a) $\mathop{res}=29\times29\times16$
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth} 
+    \centering
     \includegraphics[height=\textwidth]{img/inverse51.PNG}
 	b) $\mathop{res}=51\times51\times16$
     \label{b)}
@@ -1781,21 +1789,21 @@ In case we use local normalization in Fig.~\ref{random_FTLE}b), we could interpr
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
- % \centering
+	\centering
   \includegraphics[height=\textwidth]{img/inverse29_volume.png}
-	a) $\mathop{res}=29\times29\times16$
+	a)~$\mathop{res}=29\times29\times16$
     \label{a)}
-  \end{minipage}
+  \end{minipage}%\hskip 17pt
   \begin{minipage}{0.3\textwidth}
-  %\centering
+	\centering
     \includegraphics[height=\textwidth]{img/inverse51_volume.PNG}
-	b) $\mathop{res}=51\times51\times16$
+	b)~$\mathop{res}=51\times51\times16$
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
- % \centering
+	\centering
     \includegraphics[height=\textwidth]{img/inverse101_volume.PNG}
-	c) $\mathop{res}=101\times101\times16$
+	c)~$\mathop{res}=101\times101\times16$
     \label{b)}
   \end{minipage}
   \caption{Spatial resolution pyramid of \enquote{inverse} test field - volume}
@@ -1808,11 +1816,13 @@ Also remark, that the ridges get sharper with increasing spatial test field (inp
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+  \centering
   \includegraphics[height=\textwidth]{img/slice16.png}
 	a) $\mathop{res}=101\times101\times16$
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[height=\textwidth]{img/slice32.PNG}
 	b) $\mathop{res}=101\times101\times32$
     \label{b)}
@@ -1832,19 +1842,19 @@ Also remark, that the ridges get sharper with increasing spatial test field (inp
   \begin{minipage}{0.3\textwidth}
  	\centering
   \includegraphics[height=\textwidth]{img/vol16.png}
-	a) $\mathop{res}=101\times101\times16$
+	a)~$\mathop{res}=101\times101\times16$
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
     \includegraphics[height=\textwidth]{img/vol32.PNG}
-	b) $\mathop{res}=101\times101\times32$
+	b)~$\mathop{res}=101\times101\times32$
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
     \includegraphics[height=\textwidth]{img/vol64.PNG}
-	c) $\mathop{res}=101\times101\times64$
+	c)~$\mathop{res}=101\times101\times64$
     \label{b)}
   \end{minipage}
   \caption{Angular resolution pyramid of \enquote{inverse} test field - volume}
@@ -1870,9 +1880,9 @@ test name - Fig.~\# & resolution ($x\times y\times\omega$) & runtime $[s]$ & mem
 \hline 
 \enquote{inverse} - \ref{inverse-ftle} & $101\times101\times64=652864$ & $68787$ & $47.02\mathop{MB}$\\
 \hline 
-\enquote{random-local} & $101\times101\times32=326432$ & $59896$ & $23.5\mathop{MB}$\\ 
+\enquote{random-local} - \ref{random_FTLE} & $101\times101\times32=326432$ & $59896$ & $23.5\mathop{MB}$\\ 
 \hline
-\enquote{random-global} & $101\times101\times32=326432$ & $757$ & $23.5\mathop{MB}$\\ 
+\enquote{random-global} - \ref{random_FTLE} & $101\times101\times32=326432$ & $757$ & $23.5\mathop{MB}$\\ 
 \hline 
 \enquote{isotropic} - \ref{bow-ftle} & $51\times51\times3283232$ & $1357$ & $5.998\mathop{MB}$\\ 
 \hline

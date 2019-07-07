@@ -1,4 +1,4 @@
-import numpy as np
+import numpy
 import math as m
 import os
 
@@ -46,7 +46,7 @@ def file_len(fname):
     return i + 1
 
 identity = np.array([[1, 0],[0, 1]]) ## row-major ordering: row-by-row
-length = 101
+length = 29
 s = 4
 #deg = -45
 
