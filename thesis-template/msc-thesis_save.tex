@@ -1796,13 +1796,13 @@ Please note that all values in the test table where measured on following system
 \caption{Test Table LTG:}
 \begin{tabularx}{\columnwidth}{X|X|X|X}
 \hline\hline
-test name - Fig. \# & resolution ($x\times y\times\omega$) & runtime $[s]$ & memory consumption\\
+test name - Fig. \# & resolution ($x\times y\times\omega$) & runtime $[s]$ & memory consumption (dynamic)$\approx$\\
 \toprule
-\enquote{drain} - \ref{ftle_base} & $101\times101\times64=652864$ & $179878$ & $8\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx47.02\mathop{MB}$\\ 
+\enquote{drain} - \ref{ftle_base} & $101\times101\times64=652864$ & $179878$ & $8\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}47.02\mathop{MB}$\\ 
 \hline 
 \enquote{inverse} - \ref{inverse-ftle} & $101\times101\times64=652864$ & $68787$ & $8\times652864\times 8\mathop{byte} +(101\times101 + 19\times64)\times8\mathop{byte}\approx47.02\mathop{MB}$\\
 \hline 
- &  &  & \\ 
+\enquote{random} & $101\times101\times32=326432$ & $757$/$59896$ & $8\times326432\times 8\mathop{byte} +(101\times101 + 19\times32)\times8\mathop{byte}\approx23.5\mathop{MB}$\\ 
 \hline 
 \enquote{isotropic} - \ref{bow-ftle} & $51\times51\times3283232$ & $1357$ & $8\times83232\times 8\mathop{byte} +(51\times51 + 19\times32)\times8\mathop{byte}\approx5.998\mathop{MB}$\\ 
 \hline

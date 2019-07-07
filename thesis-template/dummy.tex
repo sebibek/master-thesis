@@ -5,26 +5,60 @@
 % Include Graphic-files:
 \usepackage{graphicx}
 \usepackage{caption}
-
+\usepackage{subfig}
+%\usepackage{subfig}
+\newsubfloat{figure}
 \newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
 
 \begin{document}
 
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{img_new/brain_surf.PNG}
+     \label{a)}
+      a)
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{img_new/brain_volume2.PNG}
+    \label{b)}
+    b)
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{img_new/brain_cross-section.PNG}
+    c)
+    \label{b)}
+  \end{minipage}
+  \caption{\enquote{brain} test field: a) LTG($0^\circ$), b) LTG volume, c) cross-section}
+\label{heart-ftle}
+\end{figure}
 
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.4\textwidth}
-  \includegraphics[width=0.9\textwidth]{img/heartDwnsmpl.png}
-    \caption*{Glyphs}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[height=\textwidth]{img/inverse29.png}\label{1a}
+    a)
     \label{a)}
   \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=0.9\textwidth]{img/heartDwnsmpl-TFL.PNG}
-     \caption*{Hlawatsch's approach: TFLs}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{img/inverse51.PNG}\label{2a}
+	b)
     \label{b)}
   \end{minipage}
-\caption{\enquote{heart} test field}
-\label{heart-ftle-comp}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{img/inverse101.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+  \caption{ \protect a) some text 
+  \protect b) some other text}
+\label{res_ftle}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
