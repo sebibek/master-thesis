@@ -1651,42 +1651,42 @@ The volumes depicted in Fig. \ref{heart-ftle} now show variation in $z$-directio
 \label{heart-ftle}
 \end{figure}
 After applying the LTG approach on the heart dataset, we observe the resulting tensor magnitude weighted FTLE-field, which is again not changing w.r.t. direction, which is why we do not show the volumes. The approach highlights the regions with diverging tensor field lines resulting from linear anisotropy or increased tensor magnitude, emerging as ridges. These ridges could now represent blood vessels and such. The red spot emphasized in the left of the image could, e.g., represent the highest diffusion velocity in tissue. When considering the FTLE for the heart dataset depicted in Fig. \ref{heart-ftle-comp}, we find that the trajectories exhibit strong correlations amongst them. This results from the low noise rate inherently present in this dataset. The inital value for our angle is given by $0$ degree, which is why the trajectories follow this angle strictly in case of a zero matrix (corresponding to a noise free cell in background regions). In this case, we obtain the same results as the approach from Hlawatsch et al., whereas our global min-max normalization (due to noise) is becoming a redundant step for noiseless input data. A proof of this elaboration can be found in Fig. \ref{heart-ftle-comp}.
-% \begin{figure}[H]
-%   \begin{minipage}{0.4\textwidth}
-%   \includegraphics[width=\textwidth]{img/heartDwnsmpl.png}
-%     \caption*{Glyphs}
-%     \label{a)}
-%   \end{minipage}
-%   \begin{minipage}{0.4\textwidth}
-%     \includegraphics[width=\textwidth]{img/heartDwnsmpl-TFL.PNG}
-%      \caption*{Hlawatsch's approach: TFLs}
-%     \label{b)}
-%   \end{minipage}
-% \caption{\enquote{heart} test field}
-% \label{heart-ftle-comp}
-% \end{figure}
+\begin{figure}[H]
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/heartDwnsmpl.png}
+    \caption*{Glyphs}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/heartDwnsmpl-TFL.PNG}
+     \caption*{Hlawatsch's approach: TFLs}
+    \label{b)}
+  \end{minipage}
+\caption{\enquote{heart} test field}
+\label{heart-ftle-comp}
+\end{figure}
 Again considering the trajectories for the heart test field, we note that they all correlate in background regions, which causes the gradient of the flow map to equal zero. This occurs, since we do not have any MRI noise incorporated into the background of the field. Consequently, we obtain results corresponding to Hlawatsch's approach, which is in general susceptive to noise, but not in case the noise was removed or is not present at all initially. From observing Hlawatsch's approach detecting the heart edges, we can infer that the flow is also congruent inside of the heart, inducing a gradient response only to the edges. In our case, we have an offset response incorporated which happens even for total spherical isotropy, wherefore we will obtain a response even if the flow does not change locally (presumed it is not absorbed by low tensor magnitudes). This in turn stems from the fact, that we use a energetic flood-fill difference, which inherently introduces an offset response.
 
-%\begin{figure}[H]
-%  \begin{minipage}{0.3\textwidth}
-%  \includegraphics[width=\textwidth]{img_new/heart_volume.PNG}
-%    \caption*{a) tensor magnitude}
-%    \label{a)}
-%  \end{minipage}
-%  \begin{minipage}{0.3\textwidth}
-%    \includegraphics[width=\textwidth]{img_new/heart_volume3.PNG}
-%     \caption*{b) LTG}
-%    \label{b)}
-%  \end{minipage}
-%  \begin{minipage}{0.3\textwidth}
-%    \includegraphics[width=\textwidth]{img_new/heart_volume5.PNG}
-%     \caption*{c) FTLE H.'s approach}
-%    \label{b)}
-%  \end{minipage}
-%  \caption{\enquote{heart} test field}
-%\label{heart-ftle}
-%\end{figure}
-%Fig. \ref{heart-ftle} depicts the volumes for 
+\begin{figure}[H]
+ \begin{minipage}{0.3\textwidth}
+ \includegraphics[width=\textwidth]{img_new/heart_volume.PNG}
+   \caption*{a) tensor magnitude}
+   \label{a)}
+ \end{minipage}
+ \begin{minipage}{0.3\textwidth}
+   \includegraphics[width=\textwidth]{img_new/heart_volume3.PNG}
+    \caption*{b) LTG}
+   \label{b)}
+ \end{minipage}
+ \begin{minipage}{0.3\textwidth}
+   \includegraphics[width=\textwidth]{img_new/heart_volume5.PNG}
+    \caption*{c) FTLE H.'s approach}
+   \label{b)}
+ \end{minipage}
+ \caption{\enquote{heart} test field}
+\label{heart-ftle}
+\end{figure}
+Fig. \ref{heart-ftle} depicts the volumes for 
 
 
 
