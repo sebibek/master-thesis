@@ -315,8 +315,8 @@ The Cauchy stress tensor, which is propably the classical example of a tensor, i
 \sigma _{31} & \sigma _{32} & \sigma _{33} 
 \end{bmatrix}.
 \end{align*}
-These 3 stress vectors represent the orientation and magnitude of total resulting stress at plane ${x,y,z}$ in plane normal directions ${x,y,z}$ ($3^2=9$ individual numbers). Thus, the stress tensor poses a full valid represenation of the stress distribution at any point in space. The stress tensor itself can be interpreted as a transformation, which maps an incoming normal direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$. The stresses in normal directions (diagonal elements) are directly related to the pressure, which is always isotropic and hence non-directionally dependent (kind of a Euclidean distance of the stress components). The tensor itself is a complicated representation and needs to be projected onto its principal axes to lower its dimensionality, as it is the case for principal component analysis. It is possible to find $2$ principal stress directions in $2D$ through PCA (see Sect.~\ref{sec:pca} below), for which there are no shear stresses existent in equilibrium. These form the principal directions of deformation at a certain location and are sufficient to describe the resulting transformation/deformation behaviour. The resulting system of principal directions and absolute stresses is often called an ``eigensystem'' or ``eigenframe''. So to say, an eigensystem, consistent of the principal directions/axes, spans a principal ellipsoid depicted in Fig.~\ref{hat} in Sect.~\ref{sec:pca}. Another interpretation for the principal component ellipsoid is that it is the result of the tensor transformation applied to the unit circle. It is therefore somehow representing the distortion of an absolutely isotropic object (unit circle) by whatever the underlying affine tensor transformation effects (e.g.: stretching, shearing, mirroring, scaling, rotating). Let us consider it as some lower dimensional, more intuitive representation of the tensor which we were left with in the first place. To put it all together, a tensor is a mathematical transformation which is encoded inside of an abstract order-$o$ number array, which comes in need, whenever we have a whole distribution of directions manifesting itself inside of a tensor (matrix) transformation.
-
+These 3 stress vectors represent the orientation and magnitude of total resulting stress at plane ${x,y,z}$ in plane normal directions ${x,y,z}$ ($3^2=9$ individual numbers). Thus, the stress tensor poses a full valid representation of the stress distribution at any point in space. The stress tensor itself can be interpreted as a transformation, which maps an incoming normal direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$. The stresses in normal directions (diagonal elements) are directly related to the pressure, which is always isotropic and hence non-directionally dependent (kind of a Euclidean distance of the stress components). The tensor itself is a complicated representation and needs to be projected onto its principal axes to lower its dimensionality, as it could be done with, e.g., principal component analysis. It is possible to find $2$ principal stress directions in 2D through PCA (see Sect.~\ref{sec:pca} below), for which there are no shear stresses existent in equilibrium. These form the principal directions of deformation at a certain location and are sufficient to describe the resulting transformation/deformation behaviour. The resulting system of principal directions and absolute stresses is often called an ``eigensystem'' or ``eigenframe''. So to say, an eigensystem, consistent of the principal directions/axes, spans a principal ellipsoid depicted in Fig.~\ref{HAT} in Sect.~\ref{sec:pca}. Another interpretation for the principal component ellipsoid is that it is the result of the tensor transformation applied to the unit circle. It is therefore somehow representing the distortion of an absolutely isotropic object (unit circle) by whatever the underlying affine tensor transformation effects (e.g.: stretching, shearing, mirroring, scaling, rotating). Let us consider it as some lower dimensional, more intuitive representation of the tensor which we were left with in the first place. To put it all together, a tensor is a mathematical transformation which is encoded inside of an abstract order-$o$ number array, which comes in need, whenever we have a whole distribution of directions manifesting itself inside of a tensor (matrix) transformation.
+\newpage
 \section{Polar Coordinates}
 \label{sec:polar}
 \begin{figure}[!t]
@@ -340,11 +340,11 @@ Note, that we switched angle $\phi$ to $\omega$ for reasonable discrimination to
 	r &= \sqrt{x^2 + y^2}, \\
 \omega &= \operatorname{atan2}(y, x).
 \end{align*}
-The polar domain is a circular axis version of the domain $[0..2\pi]$, with negative magnitudes in $r$ shifted by 180 degrees (point reflected) as this is the formal behaviour defined and required by the conversion formulas.
+The polar domain is a circular axis version of the domain $[0..2\pi]$, with negative magnitudes in $r$ shifted by 180 degrees (point reflected) as this is the formal behaviour defined and required by the conversion formulas. Remark that we exclude negative magnitudes, in lack of physical interpretation for negative energies.
 
 \section{Principal Component Analysis}
 \label{sec:pca}
-Note, that we denote a matrix with a second order tensor interchangeably for the sake of simplicity in the following. Also keep in mind, that we interpret a matrix or tensor as affine transformation. For any state of stress in equilibrium it is possible to find $n$ (dimensionality) independent orthogonal directions with no shear stresses existent. Along these directions the principal stresses, which are normal (tensile/compressive) stresses, are exerted. The anisotropy can be represented by, e.g., ellipsoid glyphs.
+Note, that we denote a matrix with a second order tensor interchangeably for the sake of simplicity in the following. Also keep in mind, that we interpret a matrix or tensor as an affine transformation. For any state of stress in equilibrium it is possible to find $n$ (dimensionality) independent orthogonal directions with no shear stresses existent. Along these directions the principal stresses, which are normal (tensile/compressive) stresses, are exerted. The anisotropy can be represented by, e.g., ellipsoid glyphs.
 
 \begin{figure}[!t]
 \hskip 22pt
@@ -365,7 +365,7 @@ Note, that we denote a matrix with a second order tensor interchangeably for the
   \end{minipage}
 \end{figure}
 
-Principal Component Analysis is an algorithm, which is able to capture the principal components (directions) in stochastic data. But it works similarly on transformations to capture the principal directions from transformations like rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular vector decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (skew-) symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$ (cf.~\cite{kieburg}). Note, that the eigenvectors match the singular vectors only for symmetric matrices, which does not mean that they do not form the half-axes of the principal component ellipsoid in other cases (cf.~\cite{moler}). Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling (classically: $\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig.~\ref{HAT} for any kind of transformation matrix. The singular value decomposition is defined as follows:
+Principal component analysis is an algorithm, which is able to capture the principal components (directions) in stochastic data. But it works similarly on transformations to capture the principal directions from transformations like rotation and scaling. Now, principal component analysis can be done by eigenvalue or singular value decomposition, whereas the former yields complex eigenvalues for asymmetric matrices. For (skew-) symmetric (normal) matrices, they are connected through the following relation: $s_i = \sqrt{|\lambda_i|}$ (cf.~\cite{kieburg}). Note, that the eigenvectors match the singular vectors only for symmetric matrices, which does not mean that they do not form the half-axes of the principal component ellipsoid in other cases (cf.~\cite{moler}). Mathematically speaking, a decomposition is somehow decomposing a transformation (which follows certain transformation rules) into parts of subsequent transformations consistent of rotation and scaling (classically: $\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*$). We choose to use singular value decomposition ($\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*$) to be able to set up real eigenvalues for any kind of matrix (singular values are always real and positive). Also, the singular vectors of the $\mathbf{U}$-matrix represent the half-axes of the principal ellipsoid (eigenframe) shown in Fig.~\ref{HAT} for any kind of transformation matrix. The singular value decomposition is defined as follows:
 \begin{align*}
 	\mathbf{A} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}
 \end{align*}
@@ -376,11 +376,11 @@ where
 	\item $\mathbf{V}$ is an {$n\times n$} unitary matrix, $\mathbf{V}^*$ is its conjugate transpose
 \end{itemize}
  
-In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues (\cite{mroz}) ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which would allow us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step, which makes it a basic and central concept within the scope of this work. Within this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques on top to generate a light transport flow map, which permits us somehow to forward the intensities which are given as predefined initialization values in form of symbolic functions defined by the user. This kind of light transport propagation scheme will also allow us to compute an FTLE-like field on the tensor fields.
+In addition, we also calculate the eigenvalues to exploit the sign of the real part of the eigenvalues (\cite{mroz}) ordered decreasingly by absolute value (corresponding to singular value order). The sign corresponds to tensile ($+$) and compressive ($-$) stress, which would allow us to visualize deformation glyphs with arrows pointing inwards for compressive and outwards for tensile stresses. We do this decomposition analysis once for each matrix and then store the precomputed results in a grid. The principal ellipsoid is also used as a transmission profile for the propagation scheme in symbolic form in a subequent step, which makes it a basic and central concept within the scope of this work. Within this work, we will use the singular vectors yielded from singular value decomposition to avoid complex values yielded from eigenvalue decomposition. This will allow us to set up glyphs representing the major/minor axis of the underlying transformation for every kind of (asymmetric/symmetric) tensor. We will then use global-illumination techniques on top to generate a light transport flow map, which permits us somehow to forward the intensities which are given as predefined initialization values in form of symbolic functions defined by the user. This type of light transport propagation scheme will also allow us to compute an FTLE-like field on the tensor fields.
 
 \section{Finite-Time Lyapunov Exponent}
 \label{sec:ftle}
-The Finite-Time Lyapunov Exponent is a measure, developed to analyze time-dependent dynamical systems for their separation abilities concerning massless tracer particles. We imagine a flow field, i.e., a vector field which in turn represents the effective amount or concentration shifted into a particular direction at each point in space. It could be induced by e.g. concentration or height gradients. This flow field is considered a time-dependent dynamical system, since it usually holds a time-component $t$ and thus maps each initial position an aged (altered) position: $\mathbf{\upvarphi}(\mathbf{x}) : \mathbf{x}(t_0) \longmapsto \mathbf{x}(t_0+T)$. We can now imagine placing two close by particles in distance $\delta$ into a flow field and run a time dependent simulation. Remark that this corresponds to the Lagrangian view in vector fields, which travels with the particles (instead of taking the position of a resting observer - Eulerian view):
+The Finite-Time Lyapunov Exponent is a measure, developed to analyze time-dependent dynamical systems for their separation abilities concerning massless tracer particles. We imagine a flow field, i.e., a vector field which in turn represents the effective amount or concentration shifted into a particular direction at each point in space. It could be induced by e.g. concentration or height gradients. This flow field is considered a time-dependent dynamical system, since it usually holds a time-component $t$ and thus maps each initial position an aged (altered) position: $\mathbf{\upvarphi}(\mathbf{x}) : \mathbf{x}(t_0) \longmapsto \mathbf{x}(t_0+T)$. We can now imagine placing two close by particles in distance $\delta$ into a flow field and run a time dependent simulation. Remark that this corresponds to the Lagrangian view in vector fields, which travels with the particles (instead of taking the position of a resting observer called Eulerian view).
 
 \begin{figure}[!t]
   \centering
@@ -394,15 +394,15 @@ The Finite-Time Lyapunov Exponent is a measure, developed to analyze time-depend
   \label{ftle_sep}
 \end{figure}
 
-We observe particle trajectories diverging w.r.t. the central axis ending up in distance $\Delta$. The FTLE measure for this single example (point in space) is then defined as:
+In Fig. \ref{ftle_sep}, we observe particle trajectories diverging w.r.t. the central axis ending up in distance $\Delta$. The FTLE measure for this single example (point in space) is then defined as:
 
 \begin{align*}
-	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}.
 \end{align*}
 
 Alternatively, an FTLE can also be computed from a flow map's gradient, which is more convenient to compute in general:
 \begin{align*}
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\| _2,
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\|_2.
 \end{align*}
 whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$. This will yield a map, which responds most where path lines diverge w.r.t. to a central axis. We consider an example which detects FTLE ridges inside of the cross-section of a double gyre. Note, that this example considers single trajectories diverging implicitly:
 \begin{figure}[!t]
@@ -424,7 +424,7 @@ whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix 
   \label{ftle_gyre}
   \caption*{source: \url{https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/}}
 \end{figure}
-Fig.~\ref{ftle_gyre}a) depicts a scenario of diverging streamlines for a double gyre snapshot in time (yielding a time-independent dynamical system). Fig.~\ref{ftle_gyre}b) features a high ridge on the margins (borders) and in particular at the center of the domain. This region of interest (ROI) is considered to indicate the maximum relative local divergence of tensor field lines, by the approach. Ridges also represent Lagrangian Coherent Structures, which are found in nature in vortices of correlating flow behavior.  We could imagine to introduce this process for a whole distribution of trajectories, which would implement an FTLE for uncertain vector fields in a sense, that whole propability distributions of trajectories could be heeded. An overview about existing visualization techniques for uncertain data is given by Griete \& Schuhmann \cite{griethe}. We require that the trajectories can cross each other unaffectedly, i.e., the superposition principle is supposed to be respected for the magnitudes. But behold, is this behavior not somehow familiar? If we elaborately think this through, we can come up with the idea that this is the behavior of light propagation in vacuum. Light paths are physically allowed to cross each other with no influence exerted on each other at all. Consequently, we choose to model the distributions of trajectories as light intensity profiles. That is, we interpret the polar profiles as a propability density function (PDF) for particle trajectories heading into this direction. To put it into context, our main contribution method LTG uses the FTLE as an inspiration or template to design a similar approach for tensor field visualization. The main difference to the template FTLE is that we follow eigenvectors instead of flow vectors and that we use whole distributions of trajectories, as a tensor field suggests whole distributions of directions, accordingly.
+Fig.~\ref{ftle_gyre}a) depicts a scenario of diverging streamlines for a double gyre snapshot in time (yielding a time-independent dynamical system). Fig.~\ref{ftle_gyre}b) features a high ridge on the margins (borders) and in particular at the center of the domain. The FTLE approach considers this region of interest (ROI) to indicate the maximum relative local divergence of tensor field lines, by the approach. Ridges also represent Lagrangian coherent structures, which are found in nature in vortices of correlating flow behavior.  We could imagine to introduce this process for a whole distribution of trajectories, which would also implement a FTLE for uncertain vector fields in a sense, that whole propability distributions of trajectories could be heeded. An overview about existing visualization techniques for uncertain data is given by Griete \& Schuhmann \cite{griethe}. We require that the trajectories can cross each other unaffectedly, i.e., the superposition principle is supposed to be respected for the magnitudes. But behold, is this behavior not somehow familiar? If we elaborately think this through, we can come up with the idea that this is the behavior of light propagation in vacuum. Light paths are physically allowed to cross each other with no influence exerted on each other at all. Consequently, we choose to model the distributions of trajectories as light intensity profiles. That is, we interpret the polar profiles as a propability density function (PDF) for transmitting particle trajectories heading into a certain direction. To put it into context, our main contribution method LTG uses the FTLE as an inspiration or template to design a similar approach for tensor field visualization. The main difference to the template FTLE is that we follow eigenvectors instead of flow vectors and that we use whole distributions (i.e., light distributions specifically) of trajectories, as a tensor field suggests whole distributions of directions, accordingly. This interpretation will be the connecting key to incorporate tensor fields into our light propagation scheme.
 
 \section{GT Datasets / Methods}
 \label{sec:gt}
@@ -438,109 +438,63 @@ Fig.~\ref{ftle_gyre}a) depicts a scenario of diverging streamlines for a double 
 %  \caption{tensor field lines: bold lines; ellipsoids: ellipsoid glyphs}
 %  \label{scheme}
 %\end{figure}
-Glyphs are derived as a basis for the weighting profiles of the tensors in the following propagation scheme. They were chosen because it is an easy-to-use (understand) concept, which can also be interpreted nicely. In fact, these representations are used for the principal component analysis of direction vectors for the tensor field line extrapolation (integration) and also as transmission profiles for the light propagation scheme in a subsequent step. We can again emphasize glyphs as a crucial, central concept within this work. Tensor field lines (the type of tensor streamline analog that does not introduce artificial intertia) were implemented for ground truth (GT) data generation purposes. For example, when designing a FTLE-like field computation technique, we will need to know when tensor field lines diverge/converge. Examples for glyphs (ellipsoids) and tensor field lines (thin lines) are depicted in Fig.~\ref{test-fields}.
+Glyphs are derived as a basis for the weighting profiles of the tensors in the following propagation scheme. They were chosen because it is an easy-to-use (and understand) concept, which can also be interpreted nicely. Tensor field lines (the type of tensor streamline analog that does not introduce artificial intertia) were implemented for ground truth (GT) data generation purposes. We can again emphasize glyphs as a crucial, central concept within this work. In fact, these representations are used for the principal component analysis of direction vectors for the tensor field line extrapolation (reimplementing Hlawatsch's \cite{hlawatsch} approach) and also as transmission profiles for our invented light propagation scheme in a subsequent step. For example, when designing a FTLE-like field computation technique, we will need to know when tensor field lines diverge/converge as ground truth information. Examples for glyphs (ellipsoids) and tensor field lines (thin lines) are depicted in Fig.~\ref{test-fields}.
 
 \subsection{Test Data (Generation)}
-We used python's numpy library to generate predefined, synthetic test cases and caught two real data example from \url{TensorVis.org} and \url{https://www.cs.purdue.edu/homes/cs530/projects/project5.html}, which needed to be pre-processed through slicing and subsequent cropping to obtain 2D samples ($2\times2$) matrices). These test fields can be grouped into symmetric and asymmetric ones:\\
+We used python's numpy library to generate predefined, synthetic test cases and caught two real data example from \url{TensorVis.org} and \url{https://www.cs.purdue.edu/homes/cs530/projects/project5.html}, which needed to be pre-processed through slicing and subsequent cropping to obtain 2D samples ($2\times2$) matrices). Later on, we will find that we need a noise correction, to process real data. These test fields can be grouped into symmetric and asymmetric ones:\\
+
+
+\subsubsection{Asymmetric Tensor Fields}
 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[height=\textwidth]{img/corner-TFL.png}
-    \caption*{``corner''}
+	a)``corner''
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[height=\textwidth]{img/spiral-TFL.png}
-    \caption*{``spiral''}
+	b)``spiral''
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[height=\textwidth]{img/drain_old.png}
-    \caption*{``V''}
+	c)``V''
     \label{b)}
   \end{minipage}
 \caption{Several test fields}
 \label{test-fields}
 \end{figure}
 
-\subsubsection{Asymmetric Tensor Fields}
-
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=0.8\textwidth]{img/drain(alt).png}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{img/drain(alt)-TFL.png}
 	a)
     \label{a)}
   \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/drain(alt)-TFL.png}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{img/tensorfieldlines.png}
 	b)
     \label{b)}
   \end{minipage}
-\caption{``drain'' test field: a) glyphs, b) tensor field lines for a)}
-\label{drain}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{img/inverse-TFL.png}
+	c)
+    \label{b)}
+  \end{minipage}
+\caption{Several test fields: a)``corner'', ``spiral'', ``V''}
+\label{test_fields2}
 \end{figure}
 
-The ``drain''-Testfield, depicted in Fig.~\ref{drain} is generated to have a kind of proof-of-concept (POC) for the FTLE-related approach. It poses raw, bare diverging tensor field lines without any other feature modulated on top. Thus, it can be expected to induce a high FTLE response, since it is an interpretable ground truth test and is considered to be a basic trigger/stimulus for the approach with no side effects introduced.
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=0.8\textwidth]{img/rings.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-   \centering
-    \includegraphics[width=0.8\textwidth]{img/tensorfieldlines.png}
-	b)
-    \label{b)}
-  \end{minipage}
-\caption{``rings'' test field: a) glyphs, b) tensor field lines for a)}
-\label{rings}
-\end{figure}
-The ``rings'' test field, depicted in Fig.~\ref{rings} should be used to demonstrate the directive ability of the approach transmitting energy in circular orbits.
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/spiral.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/spiral-TFL.png}
-	b)
-    \label{b)}
-  \end{minipage}
-\caption{``spiral''-test field: a) glyphs, b) tensor field lines for a)}
-\label{spiral}
-\end{figure}
-The ``spiral'' test field, depicted in Fig.~\ref{spiral} should be used to demonstrate the directive ability of the approach transmitting energy in archimedian spiral orbits.
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/inverse.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/inverse-TFL.png}
-	b)
-    \label{b)}
-  \end{minipage}
-\caption{``inverse'' test field: a) glyphs, b) tensor field lines for a)}
-\label{inverse}
-\end{figure}
-With the \enquote{inverse} test field we want to demonstrate the directive separation of intensities into four quadrants.
-
+The ``drain''-Testfield, depicted in Fig.~\ref{test_fields2}a) is generated to have a kind of proof-of-concept for the FTLE-related approach. It poses raw, bare diverging tensor field lines without any other feature modulated on top. Thus, it can be expected to induce a high FTLE response, since it is an interpretable ground truth test and is considered to be a basic trigger/stimulus for the approach with no side effects introduced. The ``rings'' test field, depicted in Fig.~\ref{test_fields2} should be used to demonstrate the directive ability of the approach transmitting energy in circular orbits. The ``spiral'' test field, depicted in Fig.~\ref{test_fields2} should be used to demonstrate the directive ability of the approach transmitting energy in archimedian spiral orbits. With the \enquote{inverse} test field we want to demonstrate the directive separation of intensities into four quadrants.
 
 \begin{figure}[!t]
 \centering
@@ -559,11 +513,11 @@ With the \enquote{inverse} test field we want to demonstrate the directive separ
 \caption{``gyre'' test field: a) glyphs, b) tensor field lines for a)}
 \label{gyre}
 \end{figure}
-The test field ``gyre'', depicted in Fig \ref{gyre}, constitutes a sustained turn over the grid representing the redirection or forwarding along domain corners. 
+The test field ``gyre'', depicted in Fig \ref{gyre}, constitutes a classical textbook example for the FTLE and is considered for verifcation purposes.
 
 
 \subsubsection{Symmetric Tensor Fields}
-We also aim to use a real data example of the 3D DTI-MRI diffusion tensor of the brain for a male subject at the age of 27 and another one featuring a human heart. As we visualize 2D symmetric second order tensor fields, we need to slice the dataset and crop the $2{\times}2$ matrices omitting the $z$-component of the original $3{\times}3$ matrices. Fig.~\ref{real1} depicts the glyph representation of the test dataset for slice index $15$. To have some real examples involved, we apply the invented technique to both DTI-MRI \enquote{brain} and \enquote{heart} scans, which can be observed in Figs.~\ref{real1} and \ref{real2}.
+We also aim to use a real data example of the 3D DTI-MRI diffusion tensor of the brain for a male subject at the age of 27 and another one featuring a human heart. As we visualize 2D symmetric second order tensor fields, we need to slice the dataset and crop the $2{\times}2$ matrices omitting the $z$-component of the original $3{\times}3$ matrices. Fig.~\ref{real1} depicts the glyph representation of the test dataset for slice index $15$. To have some real examples involved, we apply the invented technique to both DTI-MRI \enquote{Brain} and \enquote{Heart} scans, which can be observed in Figs.~\ref{real1} and \ref{real2}.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -599,7 +553,7 @@ Observing the \enquote{brain} dataset in Figs. \ref{real1}, one may notice that 
 \caption{\enquote{Heart} dataset: a) tensor magnitude, b) cyclinder glyphs}
 \label{real2}
 \end{figure}
-When we look at this DT-MRI scan of a human heart we can notice the elongated shape, which we consider to represent the aorta and a part of the rest of the heart. If we consider the glyph representation, we again infer, that we incorporate lots of anisotropic regions with varying tensor magnitudes here.
+When we look at this DT-MRI scan of a human heart, we can notice the elongated shape, which we consider to represent the aorta and a part of the rest of the heart. If we consider the glyph representation, we again infer, that we incorporate lots of anisotropic regions with varying tensor magnitudes here.
 
 
 
@@ -622,7 +576,7 @@ This chapter will summarize the main contributions of this work studied and stat
 
 \section{Motivation}
 \label{sec:spec} 
-Our ambition is, to motivate a simple and efficient global illumination propagation scheme, able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We then generate transmission profiles, which we sample in a preliminary step, from the eigensystems (principal component ellipsoids) of the tensors for each cell in the domain (field). This step is done, to provide an orientation for a lattice of crystal fibre structures (cf.~optical fibres) to redirect the intensities in analogy to the anisotropy characteristics of the tensor field within a glyph representation, obtained from principal component analysis (PCA). Our approach should be implicitly adaptive to any kind of 2D dataset or slices of 3D datasets. Thus, we require it to be compatible to handle any kind of matrix (symmetric/anti-symmetric) and any kind of resolution of the field (fully-adaptive). At last, our ambition is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional eigenvectors/singular vectors of tensors). Thus, we aim to generate a new FTLE-related method for tensor field visualization by applying a light transport gradient to the resulting light distributions for every possible position and direction of the light source in the grid (lattice) generated by stimulation with Dirac-pulses. Our approach should efficiently handle (relatively) large datasets with reasonable resolutions, which turns out to be possible with additional computing power empowered by a cluster. 
+Our ambition is to motivate a simple and efficient global illumination propagation scheme, able to distribute energy profiles in discrete polar form in 2D/3D-space w.r.t. energy conservation and propagation attenuation principles. We then generate transmission profiles, which we sample in a preliminary step, from the eigensystems (principal component ellipsoids) of the tensors for each cell in the domain (field). This step is done, to provide an orientation for a lattice of crystal fibre structures (cf.~optical fibres) to redirect the intensities in the grid in analogy to the anisotropy characteristics of the underlying tensor field within a glyph representation, obtained from PCA. Our approach should be implicitly adaptive to any kind of 2D dataset or slices of 3D datasets. Thus, we require it to be compatible to handle any kind of matrix (symmetric/anti-symmetric) and any kind of resolution of the field (fully-adaptive). At last, our ambition is to segment key locations (LCS/ridges) in the field with tensor field lines (hyperstreamlines) converging/diverging, which is necessarily the same (for bidirectional eigenvectors/singular vectors of tensors). Thus, we aim to generate a new FTLE-related method for tensor field visualization by applying a light transport gradient to the resulting light distributions for every possible position and direction of the light source in the grid (lattice) generated by stimulation with Dirac-pulses. Our approach should efficiently handle (relatively) large datasets with reasonable resolutions, which turns out to be possible with additional computing power empowered by a cluster. 
 %Knapp zwei Seiten, in dem die Anforderungen, die Zielsetzung und die
 %Methoden ?berblicksartig beschrieben werden. Hier sollte die
 %Beschreibung ``technischer'' bzw.~``formaler'' sein als in der
@@ -643,9 +597,9 @@ As already discussed, we will design a new method for visualizing tensor fields,
   \caption*{source: \url{http://www.optik.uni-erlangen.de/odem/vorlesung/ws1213/Photometrie_Geometrische_Optik.pdf}}
   \label{polar}
 \end{figure}\vskip 3pt
-As a reminder, polar profiles map each angle $\omega$ a magnitude $r$ forming a function $r(\omega)$. They are circular axis versions of the domain $[0..2\pi]$, with negative magnitudes point reflected by 180 degrees. Thus, they are functions with an angular domain making them directionally dependent, which is a well suited representation for point lights (the type of light source with theoretically no finite extend), as we use them in a style of Dachsbacher et al. \cite{dachsbacher}. For the sake of interpretability, we exclude negative values (energies) from the scope of our calculations which we express through mathematical clip functions, limiting negative values to $0.0$, which we denote by subscript $+$ in the following. We will describe the emission charactersitics of point lights exchanging energies in the lattice by parsing such polar functions. Our grid consists of $\mathop{dim}=\mathop{width}\cdot \mathop{height}$ virtual point lights (VPLs), which are in turn light source with (theoretically) no finite extend represented through polar functions. As a start-up thinker for the propagation scheme, we will think of a grid cell in 2D as a center pixel within an 8-neighborhood with a previously injected point light (imagine a spherical emitter: $r(\omega)=1$ here for simplicity). Inside of this cell, we imagine a circular polar profile of radiant intensities for every angle $\omega$ given in $[\frac{W}{\mathop{rad}}]$. Remember, that all considerations from now on are given concerning a single grid cell respectively. Each cell has 8 (4 faces/edges and 4 diagonals) unique neighbors, which are adjacent point lights in the grid (initialized to $I(\omega)=0$). We consider one face neighbor (top) to shortly explain the steps of the scheme. The diagonals and the others are obtained from derivation and symmetry. Naively, one would consider to just transmit the intensity in the direction its pointing into. But this would omit every propagation attenuation principles (any principles at all specifically), if one takes a closer look:
+As a reminder, polar profiles map each angle $\omega$ a magnitude $r$ forming a function $r(\omega)$. They are circular axis versions of the domain $[0..2\pi]$, with negative magnitudes point reflected by 180 degrees. Thus, they are functions with an angular domain making them directionally dependent, which is a well suited representation for point lights (the type of light source with theoretically no finite extend), as we use them in a style of Dachsbacher et al. \cite{dachsbacher}. For the sake of interpretability, we exclude negative values (energies) from the scope of our calculations which we express through mathematical clip functions, limiting negative values to $0.0$, which we denote by subscript $+$ in the following. We will describe the emission characteristics of point lights exchanging energies in the lattice by parsing such polar functions. Our grid consists of $\mathop{dim}=\mathop{width}\cdot \mathop{height}$ virtual point lights (VPLs), which are in turn light sources with (theoretically) no finite extend represented through polar functions. As a start-up thinker for the propagation scheme, we will think of a grid cell in 2D as a center pixel within an 8-neighborhood with a previously injected point light (imagine a spherical emitter: $r(\omega)=1$ here for simplicity). Inside of this cell, we imagine a circular polar profile of radiant intensities for every angle $\omega$ given in $[\frac{W}{\mathop{rad}}]$. Remember, that all considerations from now on are given concerning a single grid cell respectively. Each cell has 8 (4 faces/edges and 4 diagonals) unique neighbors, which are adjacent point lights in the grid (initialized to $I(\omega)=0$). We consider one face neighbor (top) to shortly explain the steps of the scheme. The diagonals and the others are obtained from derivation and symmetry. Naively, one would consider to just transmit the intensity in the direction its pointing into. But this would omit every propagation attenuation principles (any principles at all specifically), if one takes a closer look.
 \subsection{Accumulation stage}
-Each cone type (yellow and green) is an individual neighbor-dependent angular area. The diagonals take in a greater angular domain while they are located at greater distance and thus need to be attenuated more strongly (consider an isotropic stimulus). We aim for distributing contributions for overlapping cones to transmit attenuated (because of the larger factor $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals in a single step (which also prevents from zigzagging diagonal intensities in case we would transmit diagonal intensities around the corner). Therefore, the intensity gathered in polar coordinates inside of angular ranges marked in green, needs to be partitioned between 2 of the 8 cone index neighbors with following considerations:
+Each cone type (yellow and green) is an individual neighbor-dependent angular area. The diagonals take in a greater angular domain, while they are located at greater distance and thus need to be attenuated more strongly (consider an isotropic stimulus). We aim for distributing contributions for overlapping cones to transmit attenuated (because of the larger factor $\sqrt{2}$ distance) intensity in form of a shared part to the diagonals in a single step (which also prevents from zigzagging diagonal intensities in case we would transmit diagonal intensities around the corner). Therefore, the intensity gathered in polar coordinates inside of angular ranges marked in green, needs to be partitioned between 2 of the 8 cone index neighbors with following considerations:
 
 \begin{figure}[!t]
   \centering
@@ -669,9 +623,13 @@ Remark, that we can precompute these linear combination weights and reutilize th
 	\Phi_{\alpha} &= \varepsilon_\alpha\int_\alpha {I}(\omega)\mathop{d\omega} =\varepsilon_\alpha(\int_{-\pi/4}^{-\alpha/2}{I}(\omega)\mathop{d\omega}+\int_{\alpha/2}^{\pi/4}{I}(\omega)\mathop{d\omega})+\int_{-\alpha/2}^{\alpha/2}{I}(\omega)\mathop{d\omega}\\
 	\Phi_{\beta} &= \varepsilon_\beta\int_\beta {I}(\omega)\mathop{d\omega} = \varepsilon_\beta\int_{-\beta}^{\beta}{I}(\omega)\mathop{d\omega}
 \end{align}
-
+This permits us to scale an oriented and clipped cosine-lobe $\cos_+$ with the total radiant flux with respect to its own total energy when integrated likewise. A discrete cosine lobe never reaches its theoretical sum of $2$ exactly in the interval $[{-\frac{\pi}{2}},{\frac{\pi}{2}}]$. Therefore it needs to be computed to account for sampling (discretization) errors and normalized by following relation (e.g., $\sum_{\cos} \approx 1.9949204635834517$).
+\begin{align}
+\sum_{\cos_+} &= \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}\cos_+(\omega)\mathop{d\omega} \approx 2,\\
+	\cos_k(\omega) &= \frac{\Phi_t}{\sum_{\cos_+}}cos_+(\omega-k\cdot\frac{\pi}{4})\hskip 20pt \mathit{with} \ k\in[0,7].
+\end{align}
 \subsection{Injection stage}
- We place a cosine lobe scaled with the integrated (accumulated) energies in each of the 8 cone directions (angular domains), whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. The contribution areas are depicted in Fig.~\ref{scheme}, the cosine lobes can be observed in Fig.~\ref{iter} respectively. This manner of propagation is inspired by the propagation scheme of Dachsbacher et al. \cite{dachsbacher} (see the paper on how to ``project the flux into a point light''). Basically, we sum up the weighted intensities corresponding to the respective neighbor index and scale an oriented cosine lobe (in direction of the neighbor) with the total flux $\Phi_t$ accumulated inside the neighbor range to transmit all of the parsed intensity for each neighbor distributed into a cosine distribution. We repeat this process once for each neighbor and each cell respectively. When we are done with the whole grid, we just recursively use the result and keep on running propagation cycles. The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) for each propagation cyvle until a state of convergence is reached, which is the case when the energy is spreaded throughout the grid and enters a stationary state of equilibrium, characterized by equal out (at grid borders) to in (at light source positions) energy-flow with no more nettings going on inside the domain. We measure the convergence by setting up an overall distribution error w.r.t to the previous iteration. Note that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions) as depicted in Fig.~\ref{iter}. This occurs, because of a faster propagation attenuation which counteracts the larger angle of diagonal cones. There is a redistribution of intensities in the long term resulting in a, since the shared part effects a uniformly spaced isotropic propagation profile resulting in a circular torus-shaped distribution of intensities, as also observed in Fig.~\ref{iter}. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). We infer, that we can assume to follow physical models of spherical waves. The verification of these principal requirements and specifications can be observed in the evaluation in Chap.~\ref{chap:eval}. We first show the approach for a few iterations with a manual stop criterion to have a kind of imagination for the propagation process:
+ We place a cosine lobe scaled with the integrated (accumulated) energies in each of the 8 cone directions (angular domains), whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. The contribution areas are depicted in Fig.~\ref{scheme}, the cosine lobes can be observed in Fig.~\ref{iter}, respectively. This manner of propagation is inspired by the propagation scheme of Dachsbacher et al. \cite{dachsbacher} (see the paper on how to ``project the flux into a point light''). Basically, we sum up the weighted intensities corresponding to the respective neighbor index and scale an oriented cosine lobe (in direction of the neighbor) with the total flux $\Phi_t$ accumulated inside the neighbor range to transmit all of the parsed intensity for each neighbor distributed into a cosine distribution. Remark, that a cosine distribution physically corresponds to Lambert emitter charactersitics and hence to diffusely reflecting surfaces. We repeat this process once for each neighbor and each cell respectively. When we are done with the whole grid, we just recursively use the result and keep on running propagation cycles. The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) for each propagation cyvle until a state of convergence is reached, which is the case when the energy is spreaded throughout the grid and enters a stationary state of equilibrium, characterized by equal out (at grid borders) to in (at light source positions) energy-flow with no more nettings going on inside the domain. We measure the convergence by setting up an overall distribution error w.r.t. the previous iteration. Note, that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions), as depicted in Fig.~\ref{iter}. This occurs, because of a faster propagation attenuation which counteracts the larger angle of diagonal cones. There is a redistribution of intensities in the long term, since the shared part effects a uniformly spaced isotropic propagation profile resulting in a circular torus-shaped distribution of intensities, as observed in Fig.~\ref{iter}. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). We infer, that we can assume to follow physical models of spherical waves. The verification of these principal requirements and specifications can be observed in the evaluation in Chap.~\ref{chap:eval}. We first show the approach for a few iterations with a manual stop criterion to have a kind of imagination for the propagation process:
 
 \begin{figure}[!t]
   \centering
@@ -681,24 +639,21 @@ Remark, that we can precompute these linear combination weights and reutilize th
   }
   \caption{Impulse response for isotropic stimulus (few iteration snaphots: $t$)}
   \label{iter}
-\end{figure}\vskip 3pt
-Fig \ref{iter} depicts the named iteration indices $0,1,2,3,7,11$ (cycles) for the propagation scheme for a circular pulse stimulus which gets turned off after 1 iteration to demonstrate raw energy spreading in the field (impulse response of the algorithm). In step 1 one can observe the placing of cosine lobes scaled with the respective accumulated and weighted energy for the summed area in each of the 8 neighbor directions. In the subsequent steps, remark the evolution from an 8-neighborhood in step 1 to a circular shaped torus.
+\end{figure}
+Fig \ref{iter} depicts the iteration indices $0,1,2,3,7,11$ (cycles) for the propagation scheme for a circular pulse stimulus which gets turned off after 1 iteration to demonstrate raw energy spreading in the field (impulse response of the propagation scheme). In step 1 one can observe the placing of cosine lobes scaled with the respective accumulated and weighted energy for the summed area in each of the 8 neighbor directions. In the subsequent steps, remark the evolution from an 8-neighborhood in step 1 to a circular shaped torus.
 
-As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to 
-start all over (after reinitialization) until convergence. Another reason is it yields a reasonable source-target or read-write segmentation. We introduce a new operator called \textit{propagate}, permitting us to pre-define the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will extend this operator with a normalization correction in Sect.~\ref{sec:trans} in form of a precise mathematical formulation respectively. For now, just imagine the approach in raw operating mode, with no tensor influence incorporated. That is, evaluating and accumulating the polar profiles, weighting with the linear combination weights and scaling and placing of a cosine lobe to the respective neighbor. For now, we want to define our operator $\mathop{propagate}$: Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_i\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (those which do not contain trivial null samples):
+As already mentioned, a dual-buffer approach is chosen here, as we can efficiently propagate from one into the other and just swap pointers to start all over (after reinitialization) until convergence. Another reason is it yields a reasonable source-target or read-write segmentation. We introduce a new operator called \textit{propagate}, permitting us to predefine the propagation in a symbolic manner. The propagation definition denotes the transformation from one grid (A-buffer) into another (B-buffer) through proper application of the \textit{propagate}-operator to each cell. We will extend this operator with a normalization correction in Sect.~\ref{sec:trans} in form of a precise mathematical formulation, respectively. For now, just imagine the approach in raw operating mode, with no tensor influence incorporated. That is, evaluating and accumulating the polar profiles, weighting with the linear combination weights and scaling and placing of a cosine lobe to the respective neighbor. For now, we want to define our operator $\mathop{propagate}$: Each Grid or Buffer is basically a set of cells defined as $\mathcal{C} = \{\mathbf{c}_1, \mathbf{c}_2, ..., \mathbf{c}_i\}$.  The dual buffer result $\mathcal{C'}$ is denoted symbolically as follows for all cells with a mean intensity greater than zero (those which do not contain trivial zero samples):
 \begin{align}
-	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}].
+	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}],
 \end{align}
-where: $i$: cell index, $I$: source buffer radiant intensity\vskip 5pt
-The dual buffer result $\mathcal{C'}$ denotes the set of all transformed cells after the propagation, i.e., after applying the operator $\mathop{propagate}$ to each cell. This result is generated once in each iteration and gets pushed back and forth between the 2 buffers. Note that, $\mathop{dim}=width\cdot height$, which equals the tensor field resolution in this case. At last, we define a threshold for the minimum overall distribution error for the total radiant flux taken into account for a convergence criterion, initiating a stop sequence when falling below that threshold $\epsilon$ (, e.g., $0.5$) :\\
+whereas: $i$: cell index, $I$: source buffer radiant intensity.\vskip 5pt
+The dual buffer result $\mathcal{C'}$ denotes the set of all transformed cells after the propagation, i.e., after applying the operator $\mathop{propagate}$ to each cell. This result is generated once in each iteration and conceptually gets pushed back and forth between the two buffers. Note that, $\mathop{dim}=width\cdot height$, which equals the tensor field resolution in this case. At last, we define a threshold for the minimum overall distribution error for the total radiant flux taken into account for a convergence criterion, initiating a stop sequence when falling below that threshold $\epsilon$ (, e.g., $0.5$) :\\
 \paragraph{Criterion:}
 \begin{align*}
-	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon\\
+	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon.\\
 \end{align*}
 where $\phi_{total}$: total radiant flux, $I'$: target buffer radiant intensity\vskip 5pt
-Note that we take the absolute value of the differences to prevent from mutual compensation.
-
-Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the intensities on top of the base approach with transmission profiles obtained from the tensor fields through principal component analysis, which yields ellipsoid glyph equations in the following.
+Note that we take the absolute value of the differences to prevent from mutual compensation. Until now, we aimed to simulate the propagation of light in empty space (vacuum) providing us with a physically-motivated but very simplified base-approach. We aim to modulate the transmission of the intensities on top of the base approach with transmission profiles obtained from the tensor fields through principal component analysis, which yields ellipsoid glyph equations in the following.
 
 
 %In diesem und den nachfolgenden Abschnitten werden die Beitr?ge der
@@ -710,13 +665,13 @@ Until now, we aimed to simulate the propagation of light in empty space (vacuum)
 
 \section{Transmission Profiles and Weighting Functions}
 \label{sec:trans}
-Note that the following considerations are only given for the tensor profile operating mode with tensor influence incorporated. To obtain a kind of footprint of the tensor field, we set up ellipse equations for each glyph representation, obtained from applying PCA on each cell (tensor) in the grid. Concurrently, we extend our abstract mathematical operator \textit{propagate}, previously referenced in sect \ref{sec:scheme}, by a normalization strategy necessary for windowing weighting profiles, as it is the case for our elliptical transmission profiles, which we will capture in the following. At this point, we presume the precomputation of singular value decomposition and linear combination weights. We map the singular values (corresponding to eigenvalues $\lambda$ here for simplicity) in decreasing order to the ellipses radii (half-axes) $a(\Delta x)$ and $b(\Delta y)$ as follows:
+Note that the following considerations are only given for the tensor profile operating mode with tensor influence incorporated and now the tensor properties are modeled on top. To obtain a kind of footprint of the tensor field, we set up ellipse equations for each glyph representation, obtained from applying PCA on each cell (tensor) in the grid. Concurrently, we extend our abstract mathematical operator \textit{propagate}, previously defined in Sect. \ref{sec:scheme}, by a normalization strategy necessary for windowing weighting profiles, as it is the case for our elliptical transmission profiles, which we will capture in the following. At this point, we presume the precomputation of singular value decomposition (dependent of each cell) and linear combination weights (independent of cells). We map the singular values (corresponding to eigenvalues $\lambda$ here for simplicity) in decreasing order to the ellipses radii (half-axes) $a(\Delta x)$ and $b(\Delta y)$ as follows:
 
 Ellipse Equation:
 \begin{align}
 	r(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\lambda_1\lambda_2}{\sqrt{\lambda_1^2\sin^2(\omega-\varphi)+\lambda_2^2\cos^2(\omega-\varphi)}}.
 \end{align}
-That is, the singular values form the half-axes of the PCA ellipsoid, which yields us a symbolic definition for our transmission (transfer) functions as weighting profiles which we can now evaluate as a parsing and accumulating step. We compute the offset angle $\varphi$ w.r.t. the x-axis by exploiting the $\mathop{atan2}$-function with 4-quadrant evaluation for the first singular vector (ordered decreasingly in value), since we scale the $x$-axis with the first singular value. As a preliminary preparation, this profile is precomputed (sampled) for all discrete angular steps for each cell (, e.g., $360$) and stored for reuitilization as it is the case for the previously mentioned linear combination weights as well. The weighting scheme which we apply is depicted in Fig.~\ref{weighting}.
+That is, the singular values form the half-axes of the PCA ellipsoid, which yields us a symbolic definition for our transmission (transfer) functions as weighting profiles which we can now evaluate as a parsing and accumulating step. We compute the offset angle $\varphi$ w.r.t. the x-axis by exploiting the $\mathop{atan2}$-function with 4-quadrant evaluation for the first singular vector (ordered decreasingly in value), since we scale the $x$-axis with the first singular value. As a preliminary preparation, this profile is precomputed (sampled) for all discrete angular steps for each cell (e.g., $360$) and stored for reuitilization, as it is the case for the previously mentioned linear combination weights, as well. The weighting scheme, which we apply is depicted in Fig.~\ref{weighting}.
 \begin{figure}[!t]
   \centering
   {
@@ -729,23 +684,19 @@ That is, the singular values form the half-axes of the PCA ellipsoid, which yiel
 We interpret the polar functions as discrete, sampled 1D vectors with a uniform angular resolution. That means, we can use element-wise multiplication for the 1D-vectors in red (Intensity Profile) and cyan (Transmission Profile) to obtain a windowed version of the intensity profile and perform the following integration step to accumulate the total radiant power (flux) as follows. Note that we model angular dependent radiant intensity ${I}(\omega) [\frac{W}{\mathop{rad}}]$ as an underlying physical entity, which is well suited for describing point light sources. As a side note, the physical quantity perceived as brightness by human eyes, is the radiance (luminance), which is yielded by relating radiant intensity to a finite sensitive area ($[\frac{W}{\mathop{rad}}/m^2]$). The primary definition for our total accumulated incident radiant flux (again presuming that the cone is given in local coordinates - i.e. centered around the origin) is then denoted as:
 
 \begin{align}
-	\Phi_{\alpha} &= \varepsilon_\alpha(\int_{-\pi/4}^{-\alpha/2}{T}(\omega){I}(\omega)\mathop{d\omega}+\int_{\alpha/2}^{\pi/4}{T}(\omega){I}(\omega)\mathop{d\omega})+\int_{-\alpha/2}^{\alpha/2}{T}(\omega){I}(\omega)\mathop{d\omega}\\
-	\Phi_{\beta} &= \varepsilon_\beta\int_{-\beta}^{\beta}{T}(\omega){I}(\omega)\mathop{d\omega}
+	\Phi_{\alpha} &= \varepsilon_\alpha(\int_{-\pi/4}^{-\alpha/2}{T}(\omega){I}(\omega)\mathop{d\omega}+\int_{\alpha/2}^{\pi/4}{T}(\omega){I}(\omega)\mathop{d\omega})+\int_{-\alpha/2}^{\alpha/2}{T}(\omega){I}(\omega)\mathop{d\omega},\\
+	\Phi_{\beta} &= \varepsilon_\beta\int_{-\beta}^{\beta}{T}(\omega){I}(\omega)\mathop{d\omega}.
 \end{align}
 
-This permits us to scale an oriented and clipped cosine-lobe $\cos_+$ with the total radiant flux with respect to its own total energy when integrated likewise. A discrete cosine lobe never reaches its theoretical sum of $2$ exactly in the interval $[{-\frac{\pi}{2}},{\frac{\pi}{2}}]$. Therefore it needs to be computed to account for sampling (discretization) errors and normalized by following relation (, e.g., $\sum_{\cos} \approx 1.9949204635834517$).
-\begin{align}
-\sum_{\cos_+} &= \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}\cos_+(\omega)\mathop{d\omega} \approx 2,\\
-	\cos_k(\omega) &= \frac{\Phi_t}{\sum_{\cos_+}}cos_+(\omega-k\cdot\frac{\pi}{4})\hskip 20pt \mathit{with} \ k\in[0,7].
-\end{align}
+
 This specific profile is injected in form of a placement to the corresponding neighbor index $k$. It yields a cosine lobe, which has an overall energy of $\Phi_t$, if the point light is interpreted with a Lambert-emitter (cf.~\cite{lindlein}) characteristic (as part or area element of a diffusely reflecting surface) since the intensity profile matches a cosine in this case. This emitter characteristic is the case for global illumination diffuse indirect illumination (non-specular). It is used in similar style by Dachsbacher et al. for propagating intensities through LPVs (light propagation volumes).
-But caution, we should not generate any exceeding energy right? Now each tensor ellipse equation has a mean transmission rate $[\%]$, which turns out to be a measure or synonym for the total rate of the outgoing transmitted radiant intensity $\int_0^{2\pi}{T}(\omega)\mathop{d\omega}$. Since energy can not be generated from transmission profiles (only transmitting, not generating), we have to normalize every tensor ellipse equation with the highest mean transmission rate in the field, which is then transmitting the whole outgoing intensity $\int_0^{2\pi}{I}(\omega)\mathop{d\omega}$ in total. This restricts the tensor ellipse mean to a maximum of $100\%$ for the tensor with the highest tensor magnitude. We will use the self-made definition of mean tensor magnitude $\mean{r}_{max}$ obtained from the PCA here for simplicity. That is, we take the principal component ellipsoid and calculate its analytical mean, which is then used for mean normalization to $\mean{r}_{max}=1.0$. Hence the tensor ellipse equations are normalized through the following step:
+But caution, we should not generate any exceeding energy right? Each tensor ellipse equation features a mean transmission rate $[\%]$, which turns out to be a measure or synonym for the total rate of the outgoing transmitted radiant intensity $\int_0^{2\pi}{T}(\omega)\mathop{d\omega}$ $[\%]$. Since energy can not be generated from transmission profiles (only transmitting, not generating), we have to normalize every tensor ellipse equation with the highest mean transmission rate in the field, which is then transmitting the whole outgoing intensity $\int_0^{2\pi}{I}(\omega)\mathop{d\omega}$ in total. This restricts the tensor ellipse mean to a maximum of $100\%$ for the tensor with the highest tensor magnitude. We will use the self-made definition of mean tensor magnitude $\mean{r}_{max}$ obtained from the PCA here for simplicity. That is, we take the principal component ellipsoid and calculate its analytical mean, which is then used for mean normalization to $\mean{r}_{max}=1.0$. Hence the tensor ellipse equations are normalized through the following step:
 \begin{align}
-	r_n(\omega) = \frac{1}{\mean{r}_{max}}r(\omega).
+	r_i(\omega) = \frac{1}{\mean{r}_{max}}r(\omega).
 \end{align}
-Notice, that this implements the concept of absorption implicitly, because tensors with a lower mean $\mean{r}$ than $100\%$ absorb energy wheras absorption equals ${\mu} = {1}-{\mean{r}}$ here. Now that we have coped with the problem of overall transmission, we are left with another problem that occurs with the weighting functions as they can still yield values above $1.0$. Consider following examples as $T(\omega)I(\omega)$ pairs (obviously normalized to $1.0$): $1.5\cdot 1.5=2.25$ and $0.5\cdot 0.5=0.25$, which disproves us that a mean $\bar{r}=1.0$ necessarily effects a mean transmission intensity $I_t$ of $1.0<1.25=\frac{2.5}{2}$. This would potentially generate intensity out of nothing which leads to crucially unstable behaviour, since we employ uncontrolled sources of energy in this case. Well, but only in case energy conservation principles were not respected.  To construct a solution, we ask for the source of the excessive energy. If the tensor mean complies with the constraint $\mean{r}\leq 1.0$, then the energy must lack in some other place (since the overall transmission fulfills the energy conservation constraint in that case). The only problem is that a normalization condition in usual style for the transmission profile ${T}(\omega)$ does not necessarily imply the same normalization for the term ${T}(\omega){I}(\omega)$. However, a proper normalization can provide corrective support, wich reveals another subsequent normalization constraint. The normalization factor is defined in three subsequent steps:
+Notice, that this implements the concept of absorption implicitly, because tensors with a lower mean $\mean{r}_i$ than $100\%$ absorb energy wheras absorption equals ${\mu} = {1}-{\mean{r}}$ here. Now, that we have coped with the problem of overall transmission, we are left with another problem that occurs with the weighting functions as they can still yield values above $1.0$. Remark, that the next example could be interpreted congruently to Fig.\ref{weighting}. Consider following examples as $T(\omega)I(\omega)$ pairs (obviously normalized to $\mean{r}=1.0$): $1.5\cdot 1.5=2.25$ and $0.5\cdot 0.5=0.25$, which already disproves us that a mean transmission rate $\mean{r}=1.0$ necessarily effects a mean transmission intensity $I_t$ of $1.0<1.25=\frac{2.5}{2}$ and thus to an overall transmitted intensity of $100\%$. This would potentially generate intensity out of nothing, which leads to crucially unstable behaviour, since we would employ uncontrolled sources of energy in this case. Well, but only in case energy conservation principles were not respected.  To construct a solution, we ask for the source of the excessive energy. If the tensor mean complies with the constraint $\mean{r}\leq 1.0$, then the energy must lack in some other place (since the overall transmission fulfills the energy conservation constraint in that case). The only problem is that a normalization condition in usual style for the transmission profile ${T}(\omega)$ does not necessarily imply the same normalization for the term ${T}(\omega){I}(\omega)$. However, a proper normalization can provide corrective support, wich reveals another subsequent normalization constraint. The normalization factor is defined in three subsequent steps:
 \begin{enumerate}
-	\item Normalization of $TI$ to $\overline{TI}=1.0$
+	\item Normalization of $T(\omega)I(\omega)$ to $\overline{TI}=1.0$
 	\item Subsequent scaling with mean intensity $\mean{I}$ for energy conservation principles
 	\item Subsequent scaling with mean tensor magnitude $\mean{T}$ for absorption principles
 \end{enumerate}
@@ -756,14 +707,17 @@ Hence the transmitted outgoing intensity for a single direction is defined as:
     {I}_t(\omega) = 
 \begin{cases}
    n_f\varepsilon_\alpha{T}(\omega){I}(\omega),& \text{if } k\bmod 2 = 0\\
-     n_f\varepsilon_\beta{T}(\omega){I}(\omega),              & \text{otherwise}
+     n_f\varepsilon_\beta{T}(\omega){I}(\omega),              & \text{otherwise}.
 \end{cases}
 \end{align}
 
 This transforms our equation for the transmitted radiant flux into:
 \begin{align}
-	\Phi_{\alpha,t,i} &= \int_\alpha{I}_{t,i}(\omega)\mathop{d\omega} = n_f\Phi_{\alpha,i},\\
-	\Phi_{\beta,t,i} &= \int_\beta{I}_{t,i}(\omega)\mathop{d\omega} = n_f\Phi_{\beta,i}.
+ \Phi_{t,i} = 
+\begin{cases}
+   \int_\alpha{I}_{t,i}(\omega)\mathop{d\omega} = n_f\Phi_{\alpha,i},& \text{if } k\bmod 2 = 0\\
+     \int_\beta{I}_{t,i}(\omega)\mathop{d\omega} = n_f\Phi_{\beta,i},              & \text{otherwise}.
+\end{cases}
 \end{align}
 Which is now respecting energy conservation principles very conveniently, as all we need is a set of means and we are capable of normalizing the weighted intensity profile transmitted. This collapses our abstract mathematical operator $\mathop{propagate}$, which is applied to each cell, into the following steps:
 \begin{enumerate}
@@ -773,54 +727,39 @@ Which is now respecting energy conservation principles very conveniently, as all
 	\item Scaling of cosine lobe corresponding to neighbor direction and subsequent placing (injection) to corresponding neighbor (write-access)
 	
 \end{enumerate}
-Remember that this operator needs to applied once to each cell to form a whole propagation cycle propagating intensities from source to target buffer. This approach ensures that no energy will be generated and therefore implements the 	physical law of energy conservation or Kirchhoff's current law if you want to think of a particle's diffusion process. Consequently, this allows us to assume that all sources of power (energy) are user-defined. In fact the approach has proven to be robust w.r.t. energy losses for several iterations as depicted in Chap.~\ref{chap:eval} in the stochastic error graph.
+Remember, that this operator needs to be applied once to each cell to form a whole propagation cycle propagating intensities from source to target buffer. This approach ensures, that no energy will be generated and therefore implements the physical law of energy conservation or Kirchhoff's current law if you want to think of a electronic network. Consequently, this allows us to assume that all sources of power (energy) are user-defined. In fact the approach, has proven to be robust w.r.t. energy losses for several iterations as depicted in Chap.~\ref{chap:eval} in the stochastic error graph.
 
 \section{Physical Model}
 \label{sec:model}
-To constitute a physical interpretation for the transmission of the tensor field, we imagine a melting crystal with  fibrous structures aligning with the major eigenvectors of the tensor field. This is what we call the footprint of the tensor field. In that sense of imagination, we would virtually imprint every tensor field into a crystalline structure as a preliminary initialization step. For an every day example, this can be observed in, e.g., the gemstone tiger's eyes' cat's eye effect, where crystal fibers align with the crystal axes respectively and effect a brightened line which never changes position or orientation when rotating the crystal. These oriented crysal fibers are then representing the biased propagation directions of light inside of the crystal lattice. The propability density function $P(\omega)$, for a photon being scattered in a particular direction $\omega$ \cite{ryder}, is then described as:
+To constitute a physical interpretation for the transmission of the tensor field, we imagine a melting crystal with  fibrous structures aligning with the major eigenvectors of the tensor field. This is what we call the footprint of the tensor field. In that sense of imagination, we would virtually imprint every tensor field into a crystalline structure as a preliminary initialization step. For an every day example, this can be observed in, e.g., the gemstone tiger's eye's cat's eye effect, where crystal fibers align with the crystal axes respectively and effect a brightened line which never changes position or orientation when rotating the crystal. These oriented crysal fibers are then representing the biased propagation directions of light inside of the crystal lattice. The propability density function $P(\omega)$, for a photon being scattered (redistributed) in a particular direction $\omega$ \cite{ryder}, is then described as:
 \begin{align}
  	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
  	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
 \end{align}
-This propability density function (PDF) indicates, whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$) degrees and how likely the spontaneuos scattering of a photon in this particular direction will happen. Each tensor is then a unique footprint which can be precomputed for convenience and described as polar profile just as our previously mentioned intensity profiles. We apply these polar profiles in a sense of transmission profiles as discussed in Sect.~\ref{sec:polar}.
+This propability density function (PDF) indicates, whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$) degrees and how likely the spontaneuos scattering of a photon in this particular direction will happen. Each tensor is then a unique footprint which can be precomputed for convenience and described as polar profile just as our previously mentioned intensity profiles. We apply these polar profiles in a sense of transmission profiles as previously discussed in Sect.~\ref{sec:polar}.
 
-\section{Light Propagation Scheme}
-To evaluate the plausibility of the light distribution results obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields, whereas red: tensor glyphs (transmission profiles) and blue: intensity profiles are both depicted in polar coordinates:
+\section{Light Distributions}
+To evaluate the plausibility of the light distribution results, obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields, whereas red: tensor glyphs (transmission profiles) and blue: intensity profiles are both depicted in polar coordinates:
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
-    \includegraphics[width=0.8\textwidth]{img/isotropic.png}
+  \centering
+    \includegraphics[width=0.8\textwidth]{img/iso_sat.png}
     \label{a)}
-	a) light source in top center
+	a)~light source in top center
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
+  \centering
     \includegraphics[width=0.8\textwidth]{img/isotropic-all-center.png}
     \label{b)}
-	b) light source in center
+	b)~light source in center
   \end{minipage}
 \caption{final light propagation distributions for ``isotropy''-testfield}
 \label{isotropic}
 \end{figure}
-One can observe here, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in Sects.~\ref{sec:att} and \ref{sect:conserve}. We can also depict the final distribution as a scalar field when using the total energy in each cell as scalar:
+One can observe in Fig.~\ref{isotropic}, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in Sects.~\ref{sec:att} and \ref{sect:conserve}. We can also depict the final distribution as a scalar field when using the total energy in each cell as scalar:
 
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/iso_scalar.png}
-    \label{a)}
-	a) light source in center
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/iso_sat.png}
-    \label{b)}
-	b) light source in center (rescaled)
-  \end{minipage}
-\caption{final light distributions for ``isotropy''-test field}
-\label{rings-tests}
-\end{figure}
-Note that we skipped the top center example, since we consider it a trivial add-on example. When we observe these scalar heat map plots, we first notice the red dots, which always represent light sources (since they are captured the most energy) in these cases. Specifically, the heat maps are obtained from the same light distributions we plot as polar profiles and should hence be interpreted concurrently. Remark the propagation front indicating a circular wave (circular isolines in a)).
+When we observe these polar and scalar heat map plots in Fig.~\ref{isotropic}, we first notice the red dots, which always represent light sources (since they are captured the most energy) in these cases. Specifically, the heat maps are obtained from the same light distributions we plot as polar profiles and should hence be interpreted concurrently. Remark the propagation front indicating a circular wave (circular isolines in a)).
 In this next example, we use the tensor field ``rings'' as input data for the approach and observe how the intensities are channeled in a circular orbit around the central origin. The anisotropy measures decide whether the transmission profile is more narrow (radical) or more wide (liberal):
 \begin{figure}[!t]
 \centering
@@ -828,109 +767,92 @@ In this next example, we use the tensor field ``rings'' as input data for the ap
     \centering
     \includegraphics[width=0.9\textwidth]{img/rings-two-special1.png}
     \label{a)}
-	a) antisymmtric light sources
+	a)~antisymmetric light sources
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{img/rings-two-special2.png}
+    \includegraphics[width=0.9\textwidth]{img/cos_parallel.png}
     \label{b)}
-	b) symmetric light sources
+	b)~symmetric light sources
   \end{minipage}
 \caption{final light propagation distributions for ``rings''-test field}
 \label{rings-tests}
 \end{figure}
-We consider Fig.~\ref{rings-tests} to regard the behavior for circular tensor field lines. As expected, the intensities get directed in circular orbits by the tensor ellipsoid transmission profiles. Note the symmetry for both cases depicted. Again, we plot the final light distributions as heat maps:
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/cos_parallel.png}
-    \label{a)}
-	a) antisymmtric light sources
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/cos_anti.png}
-    \label{b)}
-	b) symmetric light sources
-  \end{minipage}
-\caption{final light propagation distributions for ``spiral''-test field}
-\label{spiral-tests}
-\end{figure}
-It is noticeable, that the intensities concentrate preferably on the circular tensor field lines, which proves the approach's controlling ability expressing as direction.
-The results for our tensor field ``spiral'' can be interpreted in analogous fashion as the previously discussed ``rings''-testfield. The influence incorporated by the tensor field is easily noticeable in this case as well:
+
+We consider Fig.~\ref{rings-tests} to regard the behavior for circular tensor field lines. As expected, the intensities get directed in circular orbits by the tensor ellipsoid transmission profiles. Note the symmetry for both cases depicted. Again, we plot the final light distributions as heat maps: It is noticeable in Fig. \ref{rings-tests}, that the intensities concentrate preferably on the circular tensor field lines, which proves the approach's controlling ability expressing as direction.
+ The results for our tensor field ``spiral'' can be interpreted in analogous fashion as the previously discussed ``rings''-testfield in Fig. \ref{spiral-tests}. The influence incorporated by the tensor field is easily noticeable in this case as well.
+
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral-two-dense.png}
     \label{a)}
-	a) dense light sources
+	a)~two light sources
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral-two-wide.png}
     \label{b)}
-	b) symmetric light sources
+	b)~symmetric light sources
   \end{minipage}
-\caption{final light propagation distributions for ``spiral''-test field}
-\label{spiral-tests}
-\end{figure}
-For the ``spiral'' tensor field we observe the spiral shape literally absorbing the intensities into its spiral arms, which becomes even more clear when we again observe the heat map representation:
-\begin{figure}[!t]
-\centering
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral-temp2.png}
     \label{a)}
-	a) two light sources
+	c)~two light sources
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{img/spiral_full.png}
     \label{b)}
-	b) four light sources
+	d)~four light sources
   \end{minipage}
 \caption{final light propagation distributions for ``spiral''-test field}
 \label{spiral-tests}
 \end{figure}
+In Fig. \ref{spiral-tests}a)\& b) we observe the spiral shape literally absorbing the intensities into its spiral arms, which becomes even more clear when we again observe the heat map representation in Fig. \ref{spiral-tests}c)\& d).
 
-The star example reveals another interesting feature of the approach: if the intensity impulsively hits an isotropic region, it gets directed according to its intensity profile (neglecting the transmission profile) which implements the principle of inertia for directed light propagation present in vacuum (light never changes its direction):
+The star example reveals another interesting feature of the approach in Fig. \ref{star-tests1} if the intensity impulsively hits an isotropic region, it gets directed according to its intensity profile (neglecting the transmission profile) which implements the principle of inertia for directed light propagation present in vacuum (light never changes its direction). Considering Fig. \ref{spiral-tests} we remark, that the diagonal intensities are attenuated more strongly by default, which introduces a bias into the light paths which are chosen along the axes with higher propability, effectively. This gets even clearer, when we plot the heat map depiction in Fig. \ref{star-tests2} again.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.31\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/star-0,0.png}
     \label{a)}
-	a) single light source
+	a)~single light source
   \end{minipage}
   \begin{minipage}{0.31\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/star-two-wide.png}
     \label{b)}
-	b) symmetric light sources
+	b)~symmetric light sources
   \end{minipage}
    \begin{minipage}{0.31\textwidth}
     \includegraphics[width=\textwidth]{img/star-two-dense.png}
     \label{c)}
-	c) dual light sources
+	c)~dual light sources
   \end{minipage}
 \caption{final light propagation distributions for ``star'' test field}
-\label{spiral-tests}
+\label{star-tests1}
 \end{figure}
-Remark, that the diagonal intensities are attenuated more strongly by default, which introduces a bias into the light paths which are chosen along the axes with higher propability, effectively. This gets even clearer, when we plot the heat map depiction again:
+
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.31\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/star_wide.png}
     \label{a)}
-	a) symmetric light sources
+	a)~symmetric light sources
   \end{minipage}
   \begin{minipage}{0.31\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/star_close.png}
     \label{b)}
-	b) dual light sources
+	b)~dual light sources
   \end{minipage}
 \caption{final light propagation distributions for ``star'' test field}
-\label{spiral-tests}
+\label{star-tests2}
 \end{figure}
 Note that we skipped the single light source example, since we consider it a trivial add-on example. We can regard the intensities condensed inside of a narrow beam of light.
 Note, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g.: $101\times 101$), since the propagation attenuation follows the distance to the origin inversely proportional.
@@ -944,16 +866,19 @@ Now, that we are able to propagate intensity in grid, directed by the eigenvecto
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_left.png}
     \label{a)}
 	a) final light distribution for left spatial offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_right.png}
     \label{b)}
 	b) final light distribution for right spatial offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_diff.png}
     \label{b)}
 	difference image for a) and b)
@@ -966,11 +891,13 @@ The complementing idea for the angular domain would be: placing the light source
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_leftangle.png}
     \label{a)}
 	a) final light distribution for left angular offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_rightangle.png}
     \label{b)}
 	b) final light distribution for right angular offset
