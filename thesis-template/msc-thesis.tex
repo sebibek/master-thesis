@@ -629,7 +629,7 @@ This permits us to scale an oriented and clipped cosine-lobe $\cos_+$ with the t
 	\cos_k(\omega) &= \frac{\Phi_t}{\sum_{\cos_+}}cos_+(\omega-k\cdot\frac{\pi}{4})\hskip 20pt \mathit{with} \ k\in[0,7].
 \end{align}
 \subsection{Injection stage}
- We place a cosine lobe scaled with the integrated (accumulated) energies in each of the 8 cone directions (angular domains), whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. The contribution areas are depicted in Fig.~\ref{scheme}, the cosine lobes can be observed in Fig.~\ref{iter}, respectively. This manner of propagation is inspired by the propagation scheme of Dachsbacher et al. \cite{dachsbacher} (see the paper on how to ``project the flux into a point light''). Basically, we sum up the weighted intensities corresponding to the respective neighbor index and scale an oriented cosine lobe (in direction of the neighbor) with the total flux $\Phi_t$ accumulated inside the neighbor range to transmit all of the parsed intensity for each neighbor distributed into a cosine distribution. Remark, that a cosine distribution physically corresponds to Lambert emitter charactersitics and hence to diffusely reflecting surfaces. We repeat this process once for each neighbor and each cell respectively. When we are done with the whole grid, we just recursively use the result and keep on running propagation cycles. The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) for each propagation cyvle until a state of convergence is reached, which is the case when the energy is spreaded throughout the grid and enters a stationary state of equilibrium, characterized by equal out (at grid borders) to in (at light source positions) energy-flow with no more nettings going on inside the domain. We measure the convergence by setting up an overall distribution error w.r.t. the previous iteration. Note, that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions), as depicted in Fig.~\ref{iter}. This occurs, because of a faster propagation attenuation which counteracts the larger angle of diagonal cones. There is a redistribution of intensities in the long term, since the shared part effects a uniformly spaced isotropic propagation profile resulting in a circular torus-shaped distribution of intensities, as observed in Fig.~\ref{iter}. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). We infer, that we can assume to follow physical models of spherical waves. The verification of these principal requirements and specifications can be observed in the evaluation in Chap.~\ref{chap:eval}. We first show the approach for a few iterations with a manual stop criterion to have a kind of imagination for the propagation process:
+ We place a cosine lobe scaled with the integrated (accumulated) energies in each of the 8 cone directions (angular domains), whereas outgoing integrated and summed energies are weighted by the linear combination weights (factors) in overlapping (green) areas to split up the contributions accordingly. The contribution areas are depicted in Fig.~\ref{scheme}, the cosine lobes can be observed in Fig.~\ref{iter}, respectively. This manner of propagation is inspired by the propagation scheme of Dachsbacher et al. \cite{dachsbacher} (see the paper on how to ``project the flux into a point light''). Basically, we sum up the weighted intensities corresponding to the respective neighbor index and scale an oriented cosine lobe (in direction of the neighbor) with the total flux $\Phi_t$ accumulated inside the neighbor range to transmit all of the parsed intensity for each neighbor distributed into a cosine distribution. Remark, that a cosine distribution physically corresponds to Lambert emitter charactersitics and hence to diffusely reflecting surfaces. We repeat this process once for each neighbor and each cell respectively. When we are done with the whole grid, we just recursively use the result and keep on running propagation cycles. The implementation is done in a dual buffer approach which pushes the energies back and forth (buffer A to buffer B) for each propagation cyvle until a state of convergence is reached, which is the case when the energy is spreaded throughout the grid and enters a stationary state of equilibrium, characterized by equal out (at grid borders) to in (at light source positions) energy-flow with no more nettings going on inside the domain. We measure the convergence by setting up an overall distribution error w.r.t. the previous iteration. Note, that even though we propagate the energy directly through the diagonal cones (which forms a square initially), the 8 degrees of freedom introduce a circular (spherical) wave front after few iterations (for greater resolutions), as depicted in Fig.~\ref{iter}. This occurs, because of a faster propagation attenuation which counteracts the larger angle of diagonal cones. There is a redistribution of intensities in the long term, since the shared part effects a uniformly spaced isotropic propagation profile resulting in a circular torus-shaped distribution of intensities, as observed in Fig.~\ref{iter}. Also note, that this approach satisfies energy conservation and propagation attenuation principles and applies to the principles of light propagation in vacuum (by default). We infer, that we can assume to follow physical models of circular waves. The verification of these principal requirements and specifications can be observed in the evaluation in Chap.~\ref{chap:eval}. We first show the approach for a few iterations with a manual stop criterion to have a kind of imagination for the propagation process:
 
 \begin{figure}[!t]
   \centering
@@ -739,28 +739,26 @@ To constitute a physical interpretation for the transmission of the tensor field
 This propability density function (PDF) indicates, whether there is directed anisotropy or spherical isotropy w.r.t the neighboring $180$ ($\pi \mathop{rad}$) degrees and how likely the spontaneuos scattering of a photon in this particular direction will happen. Each tensor is then a unique footprint which can be precomputed for convenience and described as polar profile just as our previously mentioned intensity profiles. We apply these polar profiles in a sense of transmission profiles as previously discussed in Sect.~\ref{sec:polar}.
 
 \section{Light Distributions}
-To evaluate the plausibility of the light distribution results, obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields, whereas red: tensor glyphs (transmission profiles) and blue: intensity profiles are both depicted in polar coordinates:
+To evaluate the plausibility of the light distribution results, obtained from the light propagation scheme, we plot the transmission profiles overlaid with the resulting intensity profiles for several synthetic test fields, whereas red: tensor glyphs (transmission profiles) and blue: intensity profiles are both depicted in polar coordinates. As an alternative representation, we plot the energy distribution summed over all directions for each cell, which yields a scalar field in Fig. \ref{isotropic} b).
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
   \centering
-    \includegraphics[width=0.8\textwidth]{img/iso_sat.png}
+    \includegraphics[width=0.8\textwidth]{img/isotropic-all-center.png}
     \label{a)}
 	a)~light source in top center
   \end{minipage}
   \begin{minipage}{0.4\textwidth}
   \centering
-    \includegraphics[width=0.8\textwidth]{img/isotropic-all-center.png}
+    \includegraphics[width=0.8\textwidth]{img/iso_sat.png}
     \label{b)}
 	b)~light source in center
   \end{minipage}
 \caption{final light propagation distributions for ``isotropy''-testfield}
 \label{isotropic}
 \end{figure}
-One can observe in Fig.~\ref{isotropic}, how light is propagated with no directional bias leading to an absolutely isotropic distribution in case  b), which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in Sects.~\ref{sec:att} and \ref{sect:conserve}. We can also depict the final distribution as a scalar field when using the total energy in each cell as scalar:
-
-When we observe these polar and scalar heat map plots in Fig.~\ref{isotropic}, we first notice the red dots, which always represent light sources (since they are captured the most energy) in these cases. Specifically, the heat maps are obtained from the same light distributions we plot as polar profiles and should hence be interpreted concurrently. Remark the propagation front indicating a circular wave (circular isolines in a)).
-In this next example, we use the tensor field ``rings'' as input data for the approach and observe how the intensities are channeled in a circular orbit around the central origin. The anisotropy measures decide whether the transmission profile is more narrow (radical) or more wide (liberal):
+One can observe in Fig.~\ref{isotropic}, how light is propagated with no directional bias leading to an absolutely isotropic distribution, which is symmetric as expected. This result is considered to be the absolute ground truth example for the light propagation scheme, which is evaluated separately in Sects.~\ref{sec:att} and \ref{sect:conserve}. When we observe these polar and scalar heat map plots, we first notice the red dots, which always represent light sources (since they cover the most energy) in these cases. Specifically, the heat maps are obtained from the same light distributions, which we plot as polar profiles and should hence be interpreted concurrently. Remark the propagation front indicating a circular wave (circular isolines in a)).
+In this next example in Fig. \ref{rings-tests}, we use the tensor field ``rings'' as input data for the approach and observe how the intensities are channeled in a circular orbit around the central origin. The anisotropy measures decide whether the transmission profile is more narrow (radical) or more wide (liberal):
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -779,8 +777,7 @@ In this next example, we use the tensor field ``rings'' as input data for the ap
 \label{rings-tests}
 \end{figure}
 
-We consider Fig.~\ref{rings-tests} to regard the behavior for circular tensor field lines. As expected, the intensities get directed in circular orbits by the tensor ellipsoid transmission profiles. Note the symmetry for both cases depicted. Again, we plot the final light distributions as heat maps: It is noticeable in Fig. \ref{rings-tests}, that the intensities concentrate preferably on the circular tensor field lines, which proves the approach's controlling ability expressing as direction.
- The results for our tensor field ``spiral'' can be interpreted in analogous fashion as the previously discussed ``rings''-testfield in Fig. \ref{spiral-tests}. The influence incorporated by the tensor field is easily noticeable in this case as well.
+We consider Fig.~\ref{rings-tests} to regard the behavior for circular tensor field lines. As expected, the intensities get directed in circular orbits by the tensor ellipsoid transmission profiles. Note the symmetry for both light source directions. Again, we plot the final light distributions as heat maps: It is noticeable in Fig. \ref{rings-tests}, that the intensities concentrate preferably on the circular tensor field lines, which proves the approach's controlling ability expressed through redirection. The results for our tensor field ``spiral'' can be interpreted in analogous fashion, similar to the previously discussed ``rings''-testfield in Fig. \ref{spiral-tests}. The influence incorporated by the tensor field is easily noticeable in this case as well.
 
 \begin{figure}[!t]
 \centering
@@ -811,9 +808,9 @@ We consider Fig.~\ref{rings-tests} to regard the behavior for circular tensor fi
 \caption{final light propagation distributions for ``spiral''-test field}
 \label{spiral-tests}
 \end{figure}
-In Fig. \ref{spiral-tests}a)\& b) we observe the spiral shape literally absorbing the intensities into its spiral arms, which becomes even more clear when we again observe the heat map representation in Fig. \ref{spiral-tests}c)\& d).
+In Fig. \ref{spiral-tests}a),b) we observe the spiral shape literally absorbing the intensities into its spiral arms, which becomes even more clear, when we again observe the heat map representation in Fig. \ref{spiral-tests}c),d).
 
-The star example reveals another interesting feature of the approach in Fig. \ref{star-tests1} if the intensity impulsively hits an isotropic region, it gets directed according to its intensity profile (neglecting the transmission profile) which implements the principle of inertia for directed light propagation present in vacuum (light never changes its direction). Considering Fig. \ref{spiral-tests} we remark, that the diagonal intensities are attenuated more strongly by default, which introduces a bias into the light paths which are chosen along the axes with higher propability, effectively. This gets even clearer, when we plot the heat map depiction in Fig. \ref{star-tests2} again.
+The star example reveals another interesting feature of the approach in Fig. \ref{star-tests1}. When the intensity impulsively hits an isotropic region, it gets directed according to its intensity profile (neglecting the transmission profile), which implements the principle of inertia for directed light propagation present in vacuum (light never changes its direction). 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.31\textwidth}
@@ -836,7 +833,7 @@ The star example reveals another interesting feature of the approach in Fig. \re
 \caption{final light propagation distributions for ``star'' test field}
 \label{star-tests1}
 \end{figure}
-
+Considering the star test field in Fig. \ref{star-tests1}, we remark, that the diagonal intensities are attenuated more strongly by default, which introduces a bias into the light paths which are chosen along the axes with higher propability, effectively. This gets even clearer, when we plot the heat map depiction in Fig. \ref{star-tests2} again.
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.31\textwidth}
@@ -854,14 +851,13 @@ The star example reveals another interesting feature of the approach in Fig. \re
 \caption{final light propagation distributions for ``star'' test field}
 \label{star-tests2}
 \end{figure}
-Note that we skipped the single light source example, since we consider it a trivial add-on example. We can regard the intensities condensed inside of a narrow beam of light.
-Note, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g.: $101\times 101$), since the propagation attenuation follows the distance to the origin inversely proportional.
+Note that we skipped the single light source example, since we consider it a trivial add-on example. We can regard the intensities condensed inside of a narrow beam of light. Remark, that a logarithmic scale needs to be incorporated to produce results on a large scale in a sense of higher spatial resolution (e.g.: $101\times 101$), since the propagation attenuation follows the distance to the origin inversely proportional ($\sim\frac{1}{r}$) for circular waves.
 
 \section{Light Transport Gradient}
-In this section, we will motivate the main contribution on tensor field analysis in this work. The approach called Light Transport Gradient (LTG) states a FTLE-related approach performed on tensor fields, but employing whole distributions of trajectories interpreted as light transmission profiles. Since we incorporate whole distributions of trajectories, we do not strictly follow the major eigenvectors like Hlawatsch's et al. \cite{hlawatsch} do with their FTLE on single trajectories following tensor field lines. Instead, we follow the directional distribution defined by the tensor field's principal ellipsoids for different input angles, which yields a FTLE volume, congruently depending on the direction, in general. In place of a 2D FTLE field concerning only the direction of the major eigenvector in each cell, we obtain all the directionally dependent FTLEs unrolled into slices and hence transform the FTLE field into a function FTLE$(\omega\mapsto z)$. The resulting volume contains a manifold which is not self-overlapping and is a continous plane for a continous tensor field.
+In this section, we will motivate the main contribution to tensor field analysis in this work. The approach called Light Transport Gradient (LTG) states a FTLE-related approach performed on tensor fields, but employing whole distributions of trajectories interpreted as light transmission profiles. Since we incorporate whole distributions of trajectories, we do not strictly follow the major eigenvectors like Hlawatsch's et al. \cite{hlawatsch} do with their FTLE on single trajectories following tensor field lines. Instead, we follow the directional distribution defined by the tensor field's principal ellipsoids for different input angles, which yields a FTLE volume, congruently depending on the direction, in general. In place of a 2D FTLE field concerning only the direction of the major eigenvector in each cell, we obtain all the directionally dependent FTLEs unrolled into slices and hence transform the FTLE field into a function FTLE$(\omega\mapsto z)$. The resulting volume contains Hlawatsch's result in form of a manifold which is not self-overlapping and is a continous plane for a continous tensor field.
 \label{sec:ltg}
 \subsection{Evolution}
-Now, that we are able to propagate intensity in grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs characterised by divergence/convergence of tensor field lines and drastic changes in anisotropy. For this purpose, we imagine kind of a local and spatial gradient, as we place light sources in two close-by positions and eventually in two close-by directions and analyze the resulting final light distribution. We consider the light distributions and their difference image for the \enquote{isotropic} and the \enquote{drain} test field to have an idea, for which kind or types of cases/configurations we obtain inherently different light distributions, in particular.  We choose to use these test cases, because they constitute absolutely pure examples par excellence for a FTLE computation exposing no (\enquote{isotropic}), or on the other hand raw (\enquote{drain}) tensor field lines diverging. We will start off with the \enquote{isotropic} field from here to first analyze the offset response for no divergence or more specifically, no anisotropy at all. Fig.~\ref{analysis1} depicts final light distributions (cf.~Sect.~\ref{sec:ltg} Fig.~\ref{rings-tests}) for placing the light source one step to the left and one to the right from the central axis (spatial offset). We can observe the light cones cancel out each other in the center of the difference image. That is, per default, light distributions cancel each other out for two close-by light source positions or directions (or more specifically: for continous overlaps in their distributions). In this case, for the \enquote{isotropic} test field, we have no tensor field lines diverging leading to a small overall difference for light sources in finite distance. 
+Now, that we are able to propagate intensity in the grid, directed by the eigenvectors of the tensor field, we aim to do something more elaborate to segment ROIs characterized by divergence/convergence of tensor field lines and drastic changes in anisotropy. For this purpose, we imagine kind of a local and spatial gradient, as we place light sources in two close-by positions and eventually also in two close-by directions and analyze the resulting final light distribution. We consider the light distributions and their difference image for the \enquote{isotropic} and the \enquote{drain} test field to have an idea, for which kind or types of cases, i.e. initial configurations we obtain inherently different light distributions, in particular.  We choose to use these test cases, because they constitute absolutely pure examples par excellence for a FTLE computation exposing no (\enquote{isotropic}), or on the other hand raw (\enquote{drain}) tensor field lines diverging. We will start off with the \enquote{isotropic} field from here to first analyze the offset response for no divergence or more specifically, no anisotropy at all. Fig.~\ref{analysis1} depicts final light distributions (cf.~Sect.~\ref{sec:ltg} Fig.~\ref{rings-tests}) for placing the light source one step to the left and one to the right from the central axis (spatial offset). We can observe the light cones cancel out each other in the center of the difference image. That is, per default, light distributions cancel each other out for two close-by light source positions or directions (or more specifically: for continous overlaps in their distributions). In this case, for the \enquote{isotropic} test field, we have no tensor field lines diverging leading to a small overlap and thus to a decreased overall difference for light sources in finite distance. 
 
 \begin{figure}[!t]
 \centering
@@ -869,19 +865,19 @@ Now, that we are able to propagate intensity in grid, directed by the eigenvecto
     \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_left.png}
     \label{a)}
-	a) final light distribution for left spatial offset
+	a)~final light distribution for left spatial offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
     \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_right.png}
     \label{b)}
-	b) final light distribution for right spatial offset
+	b)~final light distribution for right spatial offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
     \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_diff.png}
     \label{b)}
-	difference image for a) and b)
+	c)~difference image for a) and b)
   \end{minipage}
   \caption{``isotropic'' test field}
 \label{analysis1}
@@ -894,70 +890,77 @@ The complementing idea for the angular domain would be: placing the light source
     \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_leftangle.png}
     \label{a)}
-	a) final light distribution for left angular offset
+	a)~final light distribution for left angular offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
     \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_rightangle.png}
     \label{b)}
-	b) final light distribution for right angular offset
+	b)~final light distribution for right angular offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/scalar_iso_anglediff.png}
     \label{b)}
-	difference image for a) and b)
+	c)~difference image for a) and b)
   \end{minipage}
   \caption{``isotropic'' test field}
 \label{analysis2}
 \end{figure}
-For the angular offset, we can again observe the light distributions cancelling each other out (per default) in the center (middle) of the difference image. For now, we can take home from these examples, that light distributions are cancelling each other out within their overlap in general, in case no anisotropy was introduced into the test tensor field. We again analyze the drain test field (cf.~Fig.~\ref{drain} in Sect.~\ref{chap:grundlagen}) for the behavior of the resulting light distributions in scalar field representation. This following example illustrated in Fig.~\ref{evolution1} now introduces raw tensor field lines diverging w.r.t. the $y$-axis.
+For the angular offset, we can again observe the light distributions cancel each other out (per default) in the center (middle) of the difference image. For now, we can take home from these examples, that light distributions are cancelling each other out within their overlap in general, in case no anisotropy was introduced into the test tensor field. We again analyze the drain test field (cf.~Fig.~\ref{test_fields2}a) in Sect.~\ref{chap:grundlagen}) for the behavior of the resulting light distributions in scalar field representation. This following example illustrated in Fig.~\ref{evolution1} now introduces raw tensor field lines diverging w.r.t. the $y$-axis.
 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/ftle_left.png}
     \label{a)}
-	a) final light distribution for left spatial offset
+	a)~final light distribution for left spatial offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/ftle_right.png}
     \label{b)}
-	b) final light distribution for right spatial offset
+	b)~final light distribution for right spatial offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
+    \centering
     \includegraphics[width=\textwidth]{img/ftle_diff.png}
     \label{b)}
-	difference image for a) and b)
+	c)~difference image for a) and b)
   \end{minipage}
   \caption{``drain'' test field}
 \label{evolution1}
 \end{figure}
-We can see the light distributions diverge following tensor field lines, which in turn form these curves depicted in Fig.~\ref{evolution1}. The separation of path (tensor field) lines and thus of light distributions is maximized at the center location of the field. We can now examine the light paths being dragged into long curves, which prevents the light distributions from overlapping at all. Hence, this test case will lead to larger differences and thus to an increased response of the FTLE field, which we will define in this section. 
+We can remark the light distributions diverge following tensor field lines, which in turn form these curves depicted in Fig.~\ref{evolution1}. The separation of path (tensor field) lines and thus of light distributions is maximized at the center location of the field. We can now examine the light paths being dragged into long curves, which prevents the light distributions from overlapping at all. Hence, this test case will lead to larger differences and thus to an increased response of the FTLE field, which we will define in this section. 
 %Imagine accumulating each pixel in the images to obtain the cumulative total energy in the (difference) grid, which could now be compared for each light source position and direction in terms of proper min-max scaling.
 
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
+\centering
     \includegraphics[width=\textwidth]{img/ftle_leftangle.png}
     \label{a)}
-	a) final light distribution for left angular offset
+	a)~final light distribution for left angular offset
   \end{minipage} $-$
   \begin{minipage}{0.3\textwidth}
+\centering
     \includegraphics[width=\textwidth]{img/ftle_rightangle.png}
     \label{b)}
-	b) final light distribution for right angular offset
+	b)~final light distribution for right angular offset
   \end{minipage} $=$
    \begin{minipage}{0.3\textwidth}
+\centering
     \includegraphics[width=\textwidth]{img/ftle_anglediff.png}
     \label{b)}
-	difference image for a) and b)
+	c)~difference image for a) and b)
   \end{minipage}
   \caption{``drain'' test field: }
 \label{evolution2}
 \end{figure}
-For the angle difference in Fig.~\ref{evolution2}, we can observe that the difference is again increased, because it does not overlap leading to a maximized difference. Imagine accumulating each pixel in the images to obtain the cumulative total energy in the (difference) grid, which could now be compared for each light source position and direction in terms of proper min-max scaling. Now imagine we would accumulate these differences and assign each position a gradient magnitude in form of a scalar value with the summed difference of the final light distributions in the neighborhood. What would we eventually be yielded with. Well, we would obtain another scalar field considered to be the gradient image of the light distributions. We could very well extend this process for every light source direction discretized (sampled) and obtain a $3D$ volume representing the topological structure of the tensor field for every direction. All we need, is a formal definition for a central differences gradient approximation for light distributions given in polar profiles. The main difference to FTLE in vector field visualization is, that we use whole distributions of trajectories and hence need to use a starting direction for the distribution of trajectories, instead of just moving with the flow, as a tensor introduces a whole distribution of directions and does not only depend on the inital position, but also on the direction. This corresponding to the volume emerging from the FTLE plane image, as we introduce a new dimension $\omega$. Remark that we denote the final buffer result as $\mathbf{b}=\mathcal{C}_{final}$ in the following.
+For the angle difference in Fig.~\ref{evolution2}, we can observe that the difference is again increased, because it does not overlap leading to a maximized difference. Imagine accumulating each pixel in the images to obtain the cumulative total energy in the (difference) grid, which could now be compared for each light source position and direction in terms of proper min-max scaling. Now imagine we would accumulate these differences and assign each position a gradient magnitude with components in form of a scalar value with the summed difference of the final light distributions in the neighborhood. What would we finally be yielded with? Well, we would obtain another scalar field considered to be the gradient image of the resulting light distributions. We could very well extend this process for every light source direction discretized (sampled) and obtain a 3D volume representing the topological structure of the tensor field for every direction. All we need, is a formal definition for a central differences gradient approximation for light distributions given in polar profiles. The main difference to FTLE in vector field visualization is, that we use whole distributions of trajectories and hence use an initial direction for the distribution of trajectories, instead of just moving with the flow, as a tensor introduces a whole distribution of directions and does not only depend on the inital position, but also on the direction. This corresponding to the volume emerging from the FTLE plane image, as we introduce a new dimension $\omega$. Remark that we denote the final buffer result concerning the propagatipon scheme as $\mathbf{b}=\mathcal{C}_{final}$ in the following.
 \subsection{Definition}
- As tensor field lines are bidirectional, convergence and divergence can not be reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (, i.e., changes in direction/tensor magnitude) in the field segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures) well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from Sect.~\ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
+ As tensor field lines are bidirectional, convergence and divergence can not be reasonably discerned in that case. We aim to extract ridges from a FTLE-like field to grasp the key regions separating anisotropy behavior (i.e., changes in direction/tensor magnitude) segmented as height ridges in the field, which are in turn LCS (Lagrangian Coherent Structures), well known for their rich substance in physical meaning. They often indicate transport barriers in flow fields. The nature and location of these structures and their interaction with each other is subject to the study of both turbulent and laminar mixing. They can even be observed in nature for, e.g., vortices in flow fields. For this purpose, we will use our, previously defined, $\mathop{propagate}$-operator, i.e., the propagation scheme from Sect.~\ref{sec:scheme} and \ref{sec:trans}, on every possible light source location $\mathbf{x}$ and direction $\omega$ in the grid to obtain the final set of buffers $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ of impulse responses of the algorithm. That is, we initialize the grid with every possible light source configuration and compute a whole final light distribution for each step:
 \begin{align}
 	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}].
 	\label{ftle}
@@ -977,7 +980,7 @@ Whereas $j$ is the index of light source position and direction representing the
 	\sum_{\mathbf{c}\in \mathbf{b_x}}\lvert \mathbf{b_x}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_y}}\lvert\mathbf{b_{y}}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_{\omega}}}\lvert \mathbf{b_{\omega}}\rvert
 	\end{pmatrix}.
 \end{align}
- We choose to use a constant offset of $\frac{\pi}{6}\mathop{rad}$ for the angle because we want to prevent from generating results with content implicitly depending on the angular resolution and also since we need to exceed $\beta$ to have a uniform and consistent placing of cosine lobes (inside diagonal cones) concerning neighbor indices. Remark that the results do not depend on the spatial resolution implicitly, because increasement acts as a domain extension for and does effectively not increase the sampling rate of the propagation scheme. Also note that this step is very expensive considering runtime-costs since it follows the following runtime observation. We have $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ numbers in the grid and on top $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ buffers in total, which need to be processed. Also we remark the convergence criterion, which introduces another heuristic factor $\mathop{width}$, because the straight line distance to the field edges is a measure for eventual compliance, and increases with $d\sim width$ for any location in the grid. We set $\mathop{height}=\mathop{width}$ here for simplicity, which yields:
+ We choose to use a constant offset of $\frac{\pi}{6}\mathop{rad}$ for the angle because we want to prevent from generating results, with content implicitly depending on the angular resolution and also since we need to exceed $\beta$ to have a uniform and consistent placing of cosine lobes (inside diagonal cones) concerning neighbor indices. Remark that the results do not depend on the spatial resolution implicitly, because increasement acts as a domain extension for and does effectively not increase the sampling rate of the propagation scheme. Also note, that this step is very expensive considering runtime-costs since it follows the following runtime observation. We have $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ numbers in the grid and on top $\mathop{width}\cdot \mathop{height}\cdot \mathop{steps}$ buffers in total, which need to be processed. Also we remark the convergence criterion, which introduces another heuristic factor $\mathop{width}$, because the straight line distance to the field edges is a measure for eventual compliance, and increases with $d\sim width$ for any location in the grid. We set $\mathop{height}=\mathop{width}$ here for simplicity, which yields:
 \begin{align}
 	T(n)=\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2}),
 \end{align}
@@ -985,11 +988,11 @@ which is the runtime behavior in order notation considering memory consumption a
 \begin{align}
 	\lvert\nabla \mathbf{b}_{x,y,\omega}\rvert = \sqrt{(\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y})^2 + (\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega})^2}.
 \end{align}
-Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\omega\mapsto  z$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. We note, that our invented technique stands out compared to the already existent FTLE on tensor fields invented by Hlawatsch et al. \cite{hlawatsch}, as we use whole distributions of directions instead of following the major eigenvector strictly. These directional distributions allow for a complete analysis of the tensor field accounting for the incoming direction, as well.
+Note that the resulting scalar field is $(n+1)$-dimensional ($x,y$ and direction $\omega\mapsto  z$) and needs to be flattened by averaging or projection in 3D for proper visualization in case the approach will be adopted in $3D$. We note, that our invented technique stands out compared to the already existent FTLE on tensor fields invented by Hlawatsch et al. \cite{hlawatsch}, as we use whole distributions of directions instead of following the major eigenvectors strictly. These directional distributions allow for a complete analysis of the tensor field accounting for the incoming direction, as well.
 
 
 \subsection{Functionality}
-Remark, that the $z$-axis represents the $\omega$-axis for each test and example and that each data range is rescaled to its interval for proper color coding in heat maps of the resulting $3D$ volume. We will try to show the functionality of the method in a few simple examples. At first, we will have a null example to show the offset response of the approach induced by total spherical anisotropy and no absorption in the field. We consider the example \enquote{isotropic}, concerned to have no influence on the light propagation, as it models homogeneous identity matrices inducing absolutely isotropic transmission (every incident distribution is transmitted as is with no transmission weighting incorporated). This corresponds to the \enquote{non - tensor field} mode of the propagation scheme having no influence of any tensor field incorporated. In this configuration, we could eventually visualize light transport paths in a $2D$ topological scene.
+Remark, that the $z$-axis represents the $\omega$-axis for each test and example and that each data range is rescaled to its interval for proper color coding in heat maps of the resulting $3D$ volume. We will try to show the functionality of the method in a few simple examples. At first, we will have a null example to show the offset response of the approach, induced by total spherical anisotropy and no absorption in the field. We consider the example \enquote{Isotropic}, concerned to have no influence on the light propagation, as it models homogeneous identity matrices inducing absolutely isotropic transmission (every incident distribution is transmitted as is with no transmission weighting incorporated). This corresponds to the \enquote{non - tensor field} mode of the propagation scheme having no influence of any tensor field incorporated. In this configuration, we could eventually visualize light transport paths in a $2D$ topological scene.
 
 \begin{figure}[t]
 \centering
@@ -1009,7 +1012,7 @@ Remark, that the $z$-axis represents the $\omega$-axis for each test and example
 \label{ftle_iso}
 \end{figure}
 
-When we look at the FTLE field, on the top right in Fig.~\ref{ftle_iso}, we determine that we obtain a more or less uniform reponse (, if we would neglect the edges) just as expected. Because the divergence of TFLs is distributed uniformly in this test field, we get approximately the same response for any position, but yet introducing a systematic bias against the light source direction. This is explained by the fact, that the energy will leave the grid sooner on light source positions at the edges for light source directions pointing toward the edges leading to inherently decreased differences and hence gradient magnitudes (responses). Note, that this also causes a shift of the FTLE field to the left, as the light source points to the right ($0^\circ$ slice). As noticeable, no height ridges are detected in this case as expected, since the test field does not pose any specific regions exhibiting diverging tensor field lines. We consider this result the absolute offset response, whereas energies are redistributed and separated more strictly for introducing local features into the grid (field), leading to greater differences, which are in turn emphasized by local regions of interest displayed in deep red at their corresponding positions. Imagine this process comparable with ink absorbed by dry paper. As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=3$-dimensional grid which results from our FTLE computation. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. That is, the slices we observe are stacked along the $\omega\mapsto z$-axis in the following. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid.
+When we look at the FTLE field in Fig.~\ref{ftle_iso}b), we determine that we obtain a more or less uniform reponse, if we would neglect the edges, just as expected. Because the divergence of TFLs is distributed uniformly in this test field, we get approximately the same response for any position, but yet introducing a systematic bias against the light source direction. This is explained by the fact, that the energy will leave the grid sooner on light source positions at the edges for light source directions pointing toward the edges leading to inherently decreased differences and hence gradient magnitudes (responses). Note, that this also causes a shift of the FTLE field to the left, as the light source points to the right ($0^\circ$ slice). As noticeable, no height ridges are detected in this case as expected, since the test field does not pose any specific regions exhibiting diverging tensor field lines. We consider this result the absolute offset response, whereas energies are redistributed and separated more strictly for introducing local features into the grid (field), leading to greater differences, which are in turn emphasized by local ROIs, displayed in deep red at their corresponding positions. Imagine this process comparable with ink being absorbed by dry paper. As we are also interested in the whole ensemble of directions, we can use a volume or surface representation for the $n+1=$3-dimensional grid which results from our FTLE computation. The volume grid is what we call the final footprint of the tensor field which is necessarily derived from the initial glyph footprint. From it, we can observe the behavior of the tensor field for any direction. That is, the slices we observe are stacked along the $\omega\mapsto z$-axis in the following. As a subsequent step, we segment height ridges in $3D$ as thresholded volumes from the whole volume grid.
 
 \begin{figure}[t]
 \centering
@@ -1045,7 +1048,7 @@ To verify the concept of absorption implicitly, we incorporate absorption into t
 \label{ftle_absorb}
 \end{figure}
 
-We observe the clear straight ridge in the example in Fig.~\ref{ftle_absorb}. As expected, the ridge is located on the vertivcal center line. Note, that we (min-max) normalize each transmission profile with the highest mean transmission rate (tensor magnitude) in the field. From this test case, we can conclude, that regions with a comparably small tensor magnitude would not obtain any FTLE field response, which we will later observe for the real datasets \enquote{brain} and \enquote{heart} exhibiting such areas. We will now discuss synthetic examples designed to evaluate the performance of the FTLE. As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. the $y$-axis:
+We observe the clear straight ridge in the example in Fig.~\ref{ftle_absorb}. As expected, the ridge is located on the vertical center line. Note, that we (min-max) normalize each transmission profile with the highest mean transmission rate (tensor magnitude) in the field. From this test case, we can conclude, that regions with a comparably small tensor magnitude would not obtain any FTLE field response, which we will later observe for the real datasets \enquote{brain} and \enquote{heart} exhibiting such areas. We will now discuss synthetic examples designed to evaluate the performance of the FTLE. As a little warmup, we will have an experiment exhibting bare, raw tensor field lines diverging w.r.t. the $y$-axis:
 
 \begin{figure}[t]
 \centering
@@ -1053,26 +1056,24 @@ We observe the clear straight ridge in the example in Fig.~\ref{ftle_absorb}. As
 	\centering
     \includegraphics[width=\textwidth]{img/drain(alt)-TFL.png}
     \label{a)}
-	a)
+	a)~TFLs and glyphs
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
     \includegraphics[width=\textwidth]{img/ftle_drain_alt.png}
     \label{b)}
-	b)
+	b)~LTG($90^\circ$) for a)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
     \includegraphics[width=\textwidth]{img/drain_alt_gradient.png}
     \label{b)}
-	c)
+	c)~Gradient for b)
   \end{minipage}
-  \caption{``drain'' test field: a) TFLs and glyphs, b) LTG($90^\circ$) for a), c) gradient for b)}
+  \caption{``drain'' test field}
 \label{ftle_base}
 \end{figure}
-What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig.~\ref{ftle_base} c).
-
-These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in Sect.~\ref{sect:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation. 
+What we can observe here, is a feature called a ``ridge'' occuring as a high value line segment (red vertical track) which is already quite obvious for human vision. A gradient filter could be applied to extract and segment edges from the image as a preprocessing step for computer vision, which would look like the image in Fig.~\ref{ftle_base} c). These ridges represent ROIs with underlying Lagrangian Coherent Structures, which we already discussed in Sect.~\ref{sec:motiv}. It could for example represent a stress field inside of a mechanical tool with a central axis with maximum stress condensation. 
 \begin{figure}[ht]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -1110,7 +1111,7 @@ For the ``drain'' test field we consider the central channel which produces a cl
   \caption{``diagonal drain'' test field: a) TFLs and glyphs, b) LTG($225^\circ$) for a)}
 \label{diag-ftle}
 \end{figure}
-Regarding the ridge for the \enquote{drain} test field, we note that it is a little smoothed compared to the axis-aligned ridges, as they obtain a larger propagation attenuation (because of the larger distance) leading to a stronger separation of trajectories in general and hence to a smoothed FTLE response. Also we note that the divergence of the tensor field lines is reduced compared to the classic \enquote{drain} example of the FTLE.
+Regarding the ridge for the \enquote{diagonal drain} test field, we note that it is a little smoothed compared to the axis-aligned ridges, as they obtain a larger propagation attenuation (because of the larger distance) leading to a stronger separation of trajectories in general and hence to a smoothed FTLE response. Also we note that the divergence of the tensor field lines is reduced compared to the classic \enquote{drain} example of the FTLE.
 
 \begin{figure}[h]
 \centering
@@ -1149,7 +1150,7 @@ We also evaluated the approach for the ``inverse'' test field, depicted in Fig.~
     \caption{LTG volumes: ``inverse'' test field: a) IsoVolume, b) Surface, c) Contour}
 \label{inverse_volume}
 \end{figure}
-Note that the $z$-axis represents the light source direction angle $\omega$ in this case. The contour filter reveals the star-shaped structure of the tensor field which rotates along the angle axis. This is the effect we already captured for the single slice: For each axis direction we can detect ridges from parallel up to orthogonal to our predefined stimulus (light source) direction, but not in antiparallel direction. This causes the star shape to miss one branch or ray which is in turn the antiparallel direction missing for each light source direction, emphasizing the impression of rotation. We can also try to segment height ridges represented as surfaces from the resulting volume grids as depicted in Fig \ref{inverse_contour}. The orthogonal ridges in this example reach out to the edges because they are gaining a bias by never offsetting the light source in a transmission direction (ellipsoid orientation) for orthogonals. This turns out to be a general feature of the method, as we will later verify in Figs. \ref{res_ftle_volume} and \ref{star-ftle}.
+Note that the $z$-axis represents the light source direction angle $\omega$ in this case. Observing the volumes in Fig. \ref{inverse_volume}, the contour filter reveals the star-shaped structure of the tensor field which rotates along the angle axis. This is the effect we already captured for the single slice: For each axis direction we can detect ridges from parallel up to orthogonal to our predefined stimulus (light source) direction, but not in antiparallel direction. This causes the star shape to miss one branch or ray which is in turn the antiparallel direction missing for each light source direction, emphasizing the impression of rotation. We can also try to segment height ridges represented as surfaces from the resulting volume grids as depicted in Fig \ref{inverse_contour}. The orthogonal ridges in this example reach out to the edges because they are gaining a bias, through never offsetting the light source in a transmission direction (ellipsoid orientation) for orthogonals. This turns out to be a general feature of the method, as we will later verify in Figs. \ref{res_ftle_volume} and \ref{star-ftle}.
 
 %\begin{figure}[!t]
 %\centering
@@ -1192,14 +1193,14 @@ What we can observe in Fig.~\ref{rings-ftle}, is called an inside-outside test p
 	a)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{img/rings_isovolume.png}
+    \includegraphics[height=\textwidth]{img_new/rings_vertridges.png}
 	b)
   \end{minipage}
    \begin{minipage}{0.3\textwidth}
     \includegraphics[height=\textwidth]{img/rings_volume.png}
 	c)
   \end{minipage}
-    \caption{LTG volumes: ``rings'' test field: a) Contour, b) IsoVolume, c) Volume}
+    \caption{LTG volumes: ``rings'' test field: a) Contour, b) VCGRidge, c) Volume}
 \label{rings_contour}
 \end{figure}
 The volumes, we examine here in Fig.~\ref{rings_contour}, show that the field is symmetric, as we do not notice a change along the $\omega\mapsto z$-axis except for the natural shift of the field against the light source direction, which we discussed already in this subsection. Along the $z$-axis, the light source is rotated in all directions which causes the shift to form a full cycle from bottom to top ($[0^\circ,360^\circ]$).
