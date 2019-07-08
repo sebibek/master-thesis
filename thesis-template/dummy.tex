@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subfig}
+\usepackage{url}
 %\usepackage{subfig}
 \newsubfloat{figure}
 \newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
@@ -13,33 +14,22 @@
 \begin{document}
 
 \begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/spiral-two-dense.png}
-    \label{a)}
-	a)~two light sources
+\hskip 22pt
+  \begin{minipage}[!t]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/diverge.png}
+	a)
+   \label{diverge}
+   \captionsetup{font={footnotesize,bf,it}}
+  \end{minipage} \hskip 30pt
+  %\raggedright
+  \begin{minipage}[!t]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{img/ftle_gyre.png}
+	b)
+    \captionsetup{font={footnotesize,bf,it}}
   \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/spiral-two-wide.png}
-    \label{b)}
-	b)~symmetric light sources
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/spiral-temp2.png}
-    \label{a)}
-	c)~two light sources
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/spiral_full.png}
-    \label{b)}
-	d)~four light sources
-  \end{minipage}
-\caption{final light propagation distributions for ``spiral''-test field}
-\label{spiral-tests}
+  \caption{double gyre: a) diverging streamlines, b) FTLE field}
+  \label{ftle_gyre}
+  \caption*{source: \url{https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
