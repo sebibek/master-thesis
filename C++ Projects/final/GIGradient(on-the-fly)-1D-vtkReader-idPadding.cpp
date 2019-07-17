@@ -816,7 +816,7 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<double>&
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
 		// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
-		double sv1 = svdList.at(i).singularValues()[0]*4;
+		double sv1 = svdList.at(i).singularValues()[0]*8;
 		double sv2 = svdList.at(i).singularValues()[1];
 		double dot = sv2 * sv1;
 
