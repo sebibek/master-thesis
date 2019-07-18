@@ -1,0 +1,9 @@
+\select@language {ngerman}
+\beamer@sectionintoc {1}{Introduction}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Motivation}{4}{0}{1}
+\beamer@subsectionintoc {1}{2}{Related Work}{6}{0}{1}
+\beamer@sectionintoc {2}{Fundamentals}{9}{0}{2}
+\beamer@subsectionintoc {2}{1}{Fundamentals}{10}{0}{2}
+\beamer@sectionintoc {3}{Method}{14}{0}{3}
+\beamer@sectionintoc {4}{Results and Evaluation}{18}{0}{4}
+\beamer@sectionintoc {5}{Conclusion and Future Work}{24}{0}{5}

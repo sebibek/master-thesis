@@ -1,0 +1,51 @@
+\documentclass{scrartcl}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{csquotes}
+% Include Graphic-files:
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subfig}
+\usepackage{url}
+%\usepackage{subfig}
+\newsubfloat{figure}
+\newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
+
+\begin{document}
+
+\begin{table}[h]
+\scriptsize
+\centering
+\caption{Challenges in generative modeling:}
+\begin{tabularx}{\textwidth}{X|X|X}
+Global Illumination Methods & Symmetric Tensor Field Visualization & Asymmetric Tensor Field Visualization\\
+\toprule
+\begin{itemize}
+	\item
+\end{itemize}
+&
+\begin{itemize}
+	\item
+\end{itemize}
+& 
+\begin{itemize}
+	\item
+\end{itemize}
+\hline 
+\end{tabularx}
+   \vskip 1pt
+\end{table} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Alternative: put content in separate files
+% Check the difference between including these files using \input{filename} and \include{filename} and see which one you like better
+%\chapter{Einleitung}\label{intro}
+%\input{introduction}
+%
+%\chapter{Voraussetzungen}\label{bg}
+%\input{background}
+
+
+
+\end{document}
