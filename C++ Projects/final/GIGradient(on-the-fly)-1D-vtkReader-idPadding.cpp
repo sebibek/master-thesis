@@ -816,7 +816,7 @@ void computeGlyphsFromVTK(std::vector<double>& glyphBuffer, std::vector<double>&
 		deg2 = deg2 < 0 ? 360 + deg2 : deg2;
 
 		// singular values, decreasing order, corresponding singular vector order, scale ellipses axes in corresponding directions..
-		double sv1 = svdList.at(i).singularValues()[0]*8;
+		double sv1 = svdList.at(i).singularValues()[0]*4;
 		double sv2 = svdList.at(i).singularValues()[1];
 		double dot = sv2 * sv1;
 
@@ -931,9 +931,9 @@ class propagator
 	// create member vectors (arrays) for storing the sampled directions theta
 	std::vector<double> sampleBufferA;
 	std::vector<double> sampleBufferB;
-	std::vector<double> glyphBuffer;
+	std::vector<double>* glyphBuffer;
 	std::vector<double> glyphBufferMem;
-	std::vector<double> glyphBufferInit;
+	std::vector<double>* glyphBufferInit;
 	std::vector<double> readGlyph;
 	std::vector<double> sampleBufferInit;
 
@@ -975,9 +975,9 @@ public:
 		readGlyph = sampleBufferInit;
 		sampleBufferA = sampleBufferInit;
 		sampleBufferB = sampleBufferInit;
-		glyphBuffer = ellipseArray;
-		glyphBufferMem = glyphBuffer;
-		glyphBufferInit = ellipseArrayInit;
+		glyphBuffer = &ellipseArray;
+		//glyphBufferMem = glyphBuffer;
+		glyphBufferInit = &ellipseArrayInit;
 
 		// initialize member samples w. 0
 		initArray = std::vector<double>(steps, 0.0);
@@ -1070,7 +1070,7 @@ public:
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
 			//int index = i + j * width; // compute 1D grid index
-			DoubleIterator glyphStart = std::next(glyphBuffer.begin(), i *steps);
+			DoubleIterator glyphStart = std::next(glyphBuffer[0].begin(), i *steps);
 			DoubleIterator glyphEnd = std::next(glyphStart, steps);
 
 			tMeans[i] = std::accumulate(glyphStart, glyphEnd, 0.0) / steps;
@@ -1081,7 +1081,7 @@ public:
 	void propagate(int mode = 0)
 	{
 		if (mode == 1)
-			glyphBuffer = glyphBufferInit;
+			swap(glyphBuffer, glyphBufferInit);
 		// 1 propagation cycle
 		for (int i = 0; i < width*height; i++) // for each node..
 		{
@@ -1098,7 +1098,7 @@ public:
 			if (equal(start, end, initArray.begin()))
 				continue;
 
-			DoubleIterator glyphStart = std::next(glyphBuffer.begin(), i *steps);
+			DoubleIterator glyphStart = std::next(glyphBuffer[0].begin(), i *steps);
 			DoubleIterator glyphEnd = std::next(glyphStart, steps);
 
 			double sum1 = 0.0;
@@ -1191,7 +1191,7 @@ public:
 		//	}
 
 		if (mode == 1)
-			glyphBuffer = glyphBufferMem;
+			swap(glyphBuffer, glyphBufferInit);
 	}
 	std::vector<double> propagateDist(int i, int j, int t)
 	{
