@@ -14,6 +14,8 @@ color=blue
 \usepackage{multicol}
 \usepackage{ulem}
 \usepackage{makecell}
+\usepackage{upgreek}
+\usepackage{movie15}
 
 \addto{\captionsngerman}{%
   \renewcommand*{\contentsname}{Contents}
@@ -147,9 +149,9 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \frametitle{{Related Work - Asymmetric Tensor Field Visualization}}
 
 \begin{itemize}
-	\item Dual Eigenvectors:
+	\item Dual Eigenvectors: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
 	\bigskip
-	\item Pseudo Eigenvectors:
+	\item Pseudo Eigenvectors: extension for dual eigenvectors to a full set or graph
 	\bigskip
 	\item Scalar Measures: tensor magnitude, tensor mode, isotropy index
 \end{itemize}
@@ -164,229 +166,331 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 %======================================== END OF SECTION
 
 \section[Fundamentals]{Fundamentals}
-\subsection[Fundamentals]{Fundamentals}
 
 \frame{
 \frametitle{{Fundamentals}}
 
-\begin{block}{\centering \textbf{Important Terms}}
-\begin{align*}
-	\text{prior (data) distribution}&: p_{data}=p_z(z)\sim z\\
-	\text{generator function}&: G(z,\theta_g)\hskip 20pt \theta_g: \text{generator parameters}\\
-	\text{discriminator function}&: D(x,\theta_d)\hskip 20pt \theta_d: \text{discriminator parameters}
-\end{align*}\vskip 5pt
-whereas $D(x)$ represents the propability that x is drawn from the training samples (prior data distribution) rather than $p_g$.
+\begin{block}{\centering \textbf{Tensor Fields}}
+\begin{itemize}
+	\item order-$o$ generalization of a matrix with indices of run length $n$ for $n\times n$ matrices
+	\item number arrays following covariant or contravariant transformation rules
+	\item represenation needed for a whole directional distribution for each point in space
+\end{itemize}
 
 \end{block}
+\begin{table}[!b]
+\centering
+\caption{Tensor Shapes}
+ \begin{tabular}{c|c|c|c|c|c|c}
+\textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
+\hline 
+\textbf{shape} & scalar & vector & matrix & ``3D matrix'' & ... & order-$o$ matrix\\ 
+\end{tabular}
+\label{tensor}
+ \end{table} 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Mathematical Formulation}}
+\frametitle{{Fundamentals}}
 
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{block}{\centering \textbf{Cauchy stress tensor}}
+\begin{itemize}
+	\item classical physical example of a tensor
+	\item consistent of $3$ stress vectors arranged in row-major order
+	\item these represent the magnitude and orientation of the resulting stress at plane $x,y,z$ in direction $x,y,z$
+	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
+\end{itemize}
 
-\begin{block}{\centering \textbf{Formal Definition}}
-\textbf{Two-Player Minimax} (specific: zero-sum) game with value function $V(G,D)$:
-\begin{align*}
-	\min_G\max_D V(D,G) &=  \mathbb{E}_{x\sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z\sim p_z(z)}[\log (1-D(G(z))] \\
-	&\Rightarrow \max V(D,G) = 0\hskip 30pt \min V(D,G) = -\infty
-\end{align*}
-outer loop: minimize $V(D,G)$ for $1$ step
- \  $\mid$ \
-inner loop: maximize $V(D,G)$ for $k$ steps \vskip 3pt
-$\rightarrow$ prevents the network from overfitting the training data\\
-$\rightarrow$ stop when gradient of $G$ is very small $\Rightarrow$ slowly changing ($\ddot{G}\approx 0$)
 \end{block}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.5\textwidth]{stress_tensor.png} 
+\caption{Cauchy stress tensor,  \textit{Source: \textcircled{2}}}
+\end{figure}
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+
+\frame{
+\frametitle{{Polar Coordinates}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{block}{\centering \textbf{Conversion Formulas}}
+Polar$\mapsto$Cartesian
+\begin{align*}
+	x &= r \cos \omega, \\
+ 	y &= r \sin \omega.
+\end{align*}
+Cartesian$\mapsto$Polar
+\begin{align*}
+	r &= \sqrt{x^2 + y^2}, \\
+\omega &= \operatorname{atan2}(y, x).
+\end{align*}
+
+\end{block}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.7\textwidth]{polarkoordinaten.png}
+\caption{Polar coordinates,  \textit{Source: \textcircled{3}}}
+\end{figure}
+\begin{itemize}
+	\item polar function $f: \omega\mapsto r$ maps each angle $\omega$ a magnitude $r(\omega)$
+\end{itemize}
+\end{column}
+\end{columns}
+
 } % END OF FRAME
 
 \frame{
-\frametitle{{Precautions}}
+\frametitle{{Principal Component Analysis}}
 
-\begin{block}{\centering \textbf{Formal Definition}}
-\textbf{Two-Player Minimax} (specific: zero-sum) game with value function $V(G,D)$:
-\begin{align*}
-	\min_D\max_G V(D,G) &=  \mathbb{E}_{x\sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z\sim p_z(z)}[\log (1-D(G(z))] \\
-	&\Rightarrow \max V(D,G) = 0\hskip 30pt \min V(D,G) = -\infty
-\end{align*}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Matrix Decompositions}}
+Eigenvalue Decomposition: 
+$
+	\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*
+$\\
+Singular Value Decomposition (SVD): 
+$
+	\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*
+$
 \end{block}
+\end{small}
+\bigskip
+\begin{itemize}
+	\item used to determine the main directions of variance (principal components) in stochastic data
+	\item used to determine the subsequent base transformations composing affine transformations
+\end{itemize}
 
-\begin{block}{\centering \textbf{\emph{Caveat: Early Learning}}}
- $\rightarrow$ Gradients of $G$ might be \alert{poor/vanishing}:\vskip 5pt
-$\Rightarrow$ $D$ can {reject} samples {with high confidence} ($\log (1-D(G(z))$ saturates in this case)\vskip 3pt
-$\Rightarrow$ instead of minimizing $\min \log (1-D(G(z))$, we can assign $G$ to maximize $\log D(G(z)$ $\rightarrow$ same fixed point of dynamics, but yields much stronger gradients\\
-\end{block}
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.7\textwidth]{HAT.png}
+\caption{Principal component analysis,  \textit{Source: \textcircled{4}}}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+
+\frame{
+\frametitle{{Principal Component Analysis}}
+
+
+\includemovie{0.49\textwidth}{0.4\textwidth}{scale.swf}
+\includemovie{0.49\textwidth}{0.4\textwidth}{rotate.swf}
+
+
 } % END OF FRAME
 
 \frame{
-\frametitle{{SGD: Stochastic Gradient Descent}}
+\frametitle{{Finite-Time Lyapunov exponents}}
 
-\begin{block}{\centering \textbf{Gradients}}
-\textbf{Discriminator Gradient:}
-\begin{align*}
-	\nabla_{\theta_d}\frac{1}{m}\sum_{i=1}^m[\log D(x^{(i)}) + \log (1 - D(x^{(i)}))]
-\end{align*}
-\textbf{Generator Gradient:}
-\begin{align*}
-	\nabla_{\theta_g}\frac{1}{m}\sum_{i=1}^m[\log (1 - D(x^{(i)}))]
-\end{align*}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$\\
+Global: 
+$
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\|_2
+$\\
+{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
+\end{small}
+\begin{itemize}
+	\item measure for separation abilities of time-dependent dynamical systems concerning massless tracer particles
+	\item in particular concerning Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
+\end{itemize}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\includegraphics[height=0.9\textwidth]{ftle_sep.pdf}
+\caption{Path line separation,  \textit{Source: \textcircled{4}}}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Glyphs}}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{itemize}
+	\item glyphs are used to represent the principal component ellipsoid, i.e., the anisotropy characteristics and/or tensor magnitude
+	\bigskip
+	\item glyphs can be found in varying shapes, we define ellipsoids here for simplicity
+\end{itemize}
+\end{small}
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.9\textwidth]{random-global.png}
+\caption{$2D$ glyphs for Random field}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Tensor Field Lines}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Procedure}}
+follow major/minor eigenvectors along pathlines
+\end{block}
+\end{small}
+\bigskip
+\begin{itemize}
+	\item ambiguity for nearly isotropic cases: small changes in magnitude effect large changes in glyph orientation
+	\item therefore susceptive to noise in data
+\end{itemize}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.9\textwidth]{random-global-TFL.png}
+\caption{$2D$ glyphs and tensor field lines}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Asymmetric Tensor Fields}}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{drain(alt)-TFL.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{tensorfieldlines.png}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{inverse-TFL.png}
+	c)
+    \label{b)}
+  \end{minipage}
+\caption{Several test fields: a)Drain, Rings, Inverse}
+\label{test_fields2}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Symmetric Tensor Fields}}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.8\textwidth]{gyre.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.8\textwidth]{gyre-TFL.png}
+	b)
+    \label{b)}
+  \end{minipage}
+\caption{Gyre test field: a) glyphs, b) tensor field lines for a)}
+\label{gyre}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Asymmetric Tensor Fields}}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.2\textwidth}
+  \centering
+    \includegraphics[width=0.8\textwidth]{brain_org.png}
+    \label{a)}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.2\textwidth}
+  \centering
+    \includegraphics[width=0.8\textwidth]{brainDwnsmpl.png}
+    \label{b)}
+    b)
+  \end{minipage}
+  \begin{minipage}{0.2\textwidth}
+  \centering
+    \includegraphics[width=0.8\textwidth]{heart_org.png}
+    \label{b)}
+    a)
+  \end{minipage}
+  \begin{minipage}{0.2\textwidth}
+  \centering
+    \includegraphics[width=0.8\textwidth]{heartDwnsmpl.png}
+    \label{b)}
+    b)
+  \end{minipage}
+\caption{Brain and Heart dataset: a) tensor magnitude, b) ellipsoid glyphs}
+\label{real1}
+\end{figure}
+
+%\begin{figure}[!t]
+%\centering
+%  \begin{minipage}{0.2\textwidth}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{heart_org.png}
+%    \label{a)}
+%	a)
+%  \end{minipage}
+%  \begin{minipage}{0.2\textwidth}
+%    \centering
+%      \includegraphics[width=0.8\textwidth]{heartDwnsmpl.png}
+%    \label{b)}
+%	b)
+%  \end{minipage}
+%\caption{Heart dataset: a) tensor magnitude, b) ellipsoid glyphs}
+%\label{real2}
+%\end{figure}
+
 } % END OF FRAME
 
 \section[Method]{Method}
 
-%----------------------------------------
-
-\frame{
-\frametitle{{Architecture}}
-
-
-\begin{figure}[t]
-\includegraphics[width=0.5\textwidth]{img/GAN-arch_edit.png} 
-\caption{Visualization of Architecture (general/DCGAN),  \textit{Source: \textcircled{2}}}
-\end{figure}
-}
-
-\frame{
-\frametitle{{Global Optimum}}
-
-\begin{block}{\centering \textbf{Global Optima}}
-\textbf{Discriminator Optimum:}
-\begin{align*}
-	D_G^*(\mathbf{x}) = \frac{p_{data}(\mathbf{x})}{p_{data}(\mathbf{x}) + p_g(\mathbf{x})}
-\end{align*}
-\textbf{Generator Optimum:}
-\begin{align*}
-	p_g = p_{data}=p_z \Rightarrow D_G^*(\mathbf{x}) = \frac{p_{data}(\mathbf{x})}{p_{data}(\mathbf{x}) + p_g(\mathbf{x})} = \frac{1}{2}
-\end{align*}
-\end{block}
-} % END OF FRAME
-%----------------------------------------
-
-\frame{
-\frametitle{Convergence of the Algorithm}
-\centering
-
-\begin{block}{\centering \textbf{Adversarial Nets}}
-Adversarial Nets represent a limited family of generative $p_g$ distributions via the function $G(z, \theta_g)$ with $p_g$ being indirectly optimized through optimization of $\theta_g$. Lack of theoretical validity of multilayer perceptrons, but excellent performance in practice.
-\end{block}
-
-\begin{figure}[t]
-\includegraphics[width=0.7\textwidth]{img/distributions.png} 
-\caption{Visualization of distributions/mapping $z\rightarrow x$,  \textit{Source: \textcircled{3}}}
-\end{figure}
-
-\vfill
-} % END OF FRAME
-
-%----------------------------------------
 
 \section[Results and Evaluation]{Results and Evaluation}
-
-\frame{
-\frametitle{Training}
-\begin{block}{\centering \textbf{Datasets}}
-\begin{multicols}{2}
-\begin{itemize}
-	\item MNIST
-	\item TFD: toronto face database
-	\item CIFAR-10 [21] 
-\end{itemize}
-\end{multicols}
-\end{block}
-
-\begin{block}{\centering \textbf{Experiments}}\footnotesize
-\begin{columns}
-\begin{column}{.3\textwidth}
-\textbf{Test scenario: }Estimation of propability of ''test set data'' under (behind) $p_g\rightarrow$ fit a Gaussian Parzen window to the samples generated with $G$ and report the log-likelihood considering test data samples obtaining variance $\sigma$ from cross-validation with the test dataset.
-\end{column}
-\begin{column}{.6\textwidth}
-\begin{table}[T]
-\begin{tabularx}{\textwidth}{X|X|X}
-Model & MNIST & TFD\\
-\toprule
-DBN [3] & $138\pm 2$ & $1909\pm 66$\\
-\hline 
-Stacked CAE [3] & $121\pm 1.6$ & $2110\pm 50$\\
-\hline 
-Deep GSN [3] & $214\pm 1.1$ & $1890\pm 29$\\
-\hline
-GAN & $225\pm 2$ & $2057\pm 26$\\
-\hline
-\end{tabularx}
-\caption{Log-likelihood estimates of $p_g$}
-\end{table} 
-\end{column}
-\end{columns}
-\end{block}} % END OF FRAME
-
-\frame{
-\frametitle{Sampling from the Model - 1}
-
-\begin{figure}[t]
-\includegraphics[width=0.5\textwidth]{img/samples_edit.PNG} 
-\caption{Visualization of Samples from the model, \textit{Source: \textcircled{3}}}
-\end{figure}
-
-} % END OF FRAME
 %----------------------------------------
-
-\frame{
-\frametitle{Sampling from the Model - 2}
-\begin{block}{\centering \textbf{MNIST dataset}}
-MNIST digits linearly interpolated to evaluate diversity of generative distribution $p_g$ of GAN approach..
-\end{block}
-\begin{figure}[t]
-\includegraphics[width=0.7\textwidth]{img/digit_interpolation.PNG} 
-\caption{Linearly interpolating digits in $z$-space of $G$ after training, \textit{Source: \textcircled{3}}}
-\end{figure}
 
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
-} % END OF FRAME
-%----------------------------------------
 
-\frame{
-\frametitle{Application in Biomedical Image Analysis}
-
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{block}{\centering \textbf{Application Example: Skin Lesion Segmentation}}
-\begin{itemize}
-\item Generator $G$: Fully (de-)convolutional neural network to synthesize (generate) valid segmentation masks
-\item Discriminator $D$: another convolutional neural network to distinguish synthetic (fake) from real masks
-\end{itemize}
-\end{block}
-\end{column}
-
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.5\textwidth]{img/lesions.jpg} 
-\caption{Segmented Skin Lesions, \textit{Source: \footnotemark}}
-\end{figure}
-\end{column}
-\end{columns}
-
-
-\footnotetext{\url{https://suprememedical.com/Product/skin-lesion-guide}}
-} % END OF FRAME
-%----------------------------------------
-
-\frame{
-\frametitle{Benefits and Drawbacks}
-
-\begin{block}{\centering \textbf{Advantages and Disadvantages}}
-\begin{table}[T]
-\begin{tabularx}{\textwidth}{X|X}
-\textbf{\textcircled{+} Advantages} &  \textbf{\textcircled{-} Disadvantages}\\
-\toprule
-\tabitem no need for Markov Chains (MCMC-approaches)	 & \tabitem no explicit representation of $p_g(x)$\\
-\tabitem training through standard backpropagation & \tabitem $D$ needs to be sufficiently synchronized with $G$ ($D$ must stay inline)\\
-\tabitem incorporation of wide variety of functions possible $\rightarrow$ applicability\vskip 1pt {\tabitem able to represent sharp, degenerate distributions} & $\rightarrow$ avoidance of \emph{Helvetica scenario}: \vskip 5pt $G$ collapsing too many latent $z$'s (e.g. random variables) to the same sample $x$, leading to insufficient generative diversity\\
-\hline
-\end{tabularx}
-\caption{Advantages and Disadvantages of GANs}
-\end{table} 
-\end{block}
-%\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
-} % END OF FRAME
 %----------------------------------------
 
 \section[Conclusion and Future Work]{Conclusion and Future Work}
