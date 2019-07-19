@@ -24,8 +24,9 @@ color=blue
   \renewcommand*{\figurename}{Fig.}	
   \renewcommand*{\tablename}{Tab.}
 }
-
+\newcommand*\mean[1]{\bar{#1}}
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
+\newcommand\widebar[1]{\mathop{\overline{#1}}}
 
 \usepackage{color}
 \usepackage{graphicx}
@@ -435,27 +436,27 @@ follow major/minor eigenvectors along pathlines
 
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.2\textwidth}
+  \begin{minipage}{0.23\textwidth}
   \centering
-    \includegraphics[width=0.8\textwidth]{brain_org.png}
+    \includegraphics[height=\textwidth]{brain_org.png}
     \label{a)}
 	a)
   \end{minipage}
-  \begin{minipage}{0.2\textwidth}
+  \begin{minipage}{0.23\textwidth}
   \centering
-    \includegraphics[width=0.8\textwidth]{brainDwnsmpl.png}
+    \includegraphics[height=\textwidth]{brainDwnsmpl.png}
     \label{b)}
     b)
   \end{minipage}
-  \begin{minipage}{0.2\textwidth}
+  \begin{minipage}{0.23\textwidth}
   \centering
-    \includegraphics[width=0.8\textwidth]{heart_org.png}
+    \includegraphics[height=\textwidth]{heart_org.png}
     \label{b)}
     a)
   \end{minipage}
-  \begin{minipage}{0.2\textwidth}
+  \begin{minipage}{0.23\textwidth}
   \centering
-    \includegraphics[width=0.8\textwidth]{heartDwnsmpl.png}
+    \includegraphics[height=\textwidth]{heartDwnsmpl.png}
     \label{b)}
     b)
   \end{minipage}
@@ -463,27 +464,129 @@ follow major/minor eigenvectors along pathlines
 \label{real1}
 \end{figure}
 
-%\begin{figure}[!t]
-%\centering
-%  \begin{minipage}{0.2\textwidth}
-%    \centering
-%    \includegraphics[width=0.8\textwidth]{heart_org.png}
-%    \label{a)}
-%	a)
-%  \end{minipage}
-%  \begin{minipage}{0.2\textwidth}
-%    \centering
-%      \includegraphics[width=0.8\textwidth]{heartDwnsmpl.png}
-%    \label{b)}
-%	b)
-%  \end{minipage}
-%\caption{Heart dataset: a) tensor magnitude, b) ellipsoid glyphs}
-%\label{real2}
-%\end{figure}
-
 } % END OF FRAME
 
 \section[Method]{Method}
+
+\frame{
+\frametitle{{Propagation Scheme}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{itemize}
+	\item light propagation scheme exchanging energies between neighboring cells
+	\item propagates intensities from initially set cells to corresponding neighbors
+	\item eventually to model anisotropy characteristics of tensor field on top
+\end{itemize}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[!t]
+  \centering
+ {
+    \includegraphics[width=\textwidth]
+    {geogebra-export_large.pdf}
+  }
+  \caption{Propagation Scheme}
+  \label{scheme}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Propagation Scheme}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{align*}
+	\varepsilon_\alpha &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
+	\varepsilon_\beta &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771\\
+	\Phi_{t} &= \varepsilon_k\int I(\omega)\mathop{d\omega}
+\end{align*}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[!t]
+  \centering
+ {
+    \includegraphics[width=\textwidth]
+    {geogebra-export_large.pdf}
+  }
+  \caption{Propagation Scheme}
+  \label{scheme}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+
+\frame{
+\frametitle{{Propagation Scheme}}
+\begin{figure}[!t]
+  \centering
+ {
+    \includegraphics[width=0.8\textwidth]
+    {steps_gallery_format_arrow_alt.png}
+  }
+  \caption{Impulse response}
+  \label{scheme}
+\end{figure}
+\begin{align*}
+\sum_{\cos_+} &= \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}\cos_+(\omega)\mathop{d\omega} \approx 2,\\
+	\cos_k(\omega) &= \frac{\Phi_t}{\sum_{\cos_+}}cos_+(\omega-k\cdot\frac{\pi}{4})\hskip 20pt \mathit{with} \ k\in[0,7]
+\end{align*}
+
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Propagation Scheme - Procedure}}
+\begin{block}{\centering \textbf{Steps}}
+
+\begin{enumerate}
+	\item Accumulation: Evaluating and Accumulating the Polar Profiles
+	\item Applying the linear combination (partition) weights
+	\item Injection: Scaling and Placing of a Cosine Lobe
+\end{enumerate}
+
+\end{block}
+For now, we are able to propagate intensities as circular waves in a 2D Cartesian grid.
+} % END OF FRAME
+
+\frame{
+\frametitle{{Transmission Profiles}}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{block}{\centering \textbf{Redefinition}}
+\begin{align*}
+	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\\
+n_f &= \frac{\mean{T}\mean{I}}{\widebar{TI}}
+\end{align*}
+\end{block}
+\begin{itemize}
+	\item transmission profiles (cyan) are weighted with the intensity profiles (red) as a window function
+	\item a normalization factor $n_f$ is required to respect energy conservation principles 
+\end{itemize}
+
+\end{column}
+
+\begin{column}{.4\textwidth}
+\begin{figure}[!t]
+  \centering
+ {
+    \includegraphics[width=\textwidth]
+    {polarplot.pdf}
+  }
+  \caption{Transmission Weighting}
+  \label{scheme}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
 
 
 \section[Results and Evaluation]{Results and Evaluation}

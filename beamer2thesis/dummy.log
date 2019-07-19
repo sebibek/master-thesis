@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  17 JUL 2019 18:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  19 JUL 2019 16:26
 entering extended mode
 **./dummy.tex
 (dummy.tex
@@ -231,7 +231,14 @@ Package subfig Warning: The subfigure type is already defined. on input line 11
 
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... none found.
-(dummy.aux)
+(dummy.aux
+
+LaTeX Warning: Label `b)' multiply defined.
+
+
+LaTeX Warning: Label `b)' multiply defined.
+
+)
 \openout1 = `dummy.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
@@ -308,49 +315,54 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: End \AtBeginDocument code.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\omscmr.fd")
-! Misplaced \noalign.
-\hline ->\noalign 
-                  {\ifnum 0=`}\fi \hrule \@height \arrayrulewidth \futurelet...
-l.35 \end{tabularx}
-                   
-I expect to see \noalign only after the \cr of
-an alignment. Proceed, and I'll ignore this case.
+<brain_org.png, id=1, 1427.3325pt x 1423.3175pt>
+File: brain_org.png Graphic file (type png)
+ <use brain_org.png>
+Package pdftex.def Info: brain_org.png used on input line 20.
+(pdftex.def)             Requested size: 96.19698pt x 95.90689pt.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 23.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 23.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 23.
 
-! Misplaced \noalign.
-\hline ->\noalign 
-                  {\ifnum 0=`}\fi \hrule \@height \arrayrulewidth \futurelet...
-l.35 \end{tabularx}
-                   
-I expect to see \noalign only after the \cr of
-an alignment. Proceed, and I'll ignore this case.
+<brainDwnsmpl.png, id=3, 526.96875pt x 526.96875pt>
+File: brainDwnsmpl.png Graphic file (type png)
+ <use brainDwnsmpl.png>
+Package pdftex.def Info: brainDwnsmpl.png used on input line 26.
+(pdftex.def)             Requested size: 96.19698pt x 96.1931pt.
 
-! Misplaced \noalign.
-\hline ->\noalign 
-                  {\ifnum 0=`}\fi \hrule \@height \arrayrulewidth \futurelet...
-l.35 \end{tabularx}
-                   
-I expect to see \noalign only after the \cr of
-an alignment. Proceed, and I'll ignore this case.
+<heart_org.png, id=4, 431.36156pt x 429.10312pt>
+File: heart_org.png Graphic file (type png)
+ <use heart_org.png>
+Package pdftex.def Info: heart_org.png used on input line 32.
+(pdftex.def)             Requested size: 96.19698pt x 95.69284pt.
 
-[1
+<heartDwnsmpl.png, id=5, 526.96875pt x 526.96875pt>
+File: heartDwnsmpl.png Graphic file (type png)
+ <use heartDwnsmpl.png>
+Package pdftex.def Info: heartDwnsmpl.png used on input line 38.
+(pdftex.def)             Requested size: 96.19698pt x 96.1931pt.
 
-{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] (dummy.aux) 
-) 
+[1{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <./brain_or
+g.png> <./brainDwnsmpl.png> <./heart_org.png> <./heartDwnsmpl.png>] (dummy.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 5644 strings out of 493328
- 95869 string characters out of 3139127
- 257709 words of memory out of 3000000
- 9140 multiletter control sequences out of 15000+200000
- 5763 words of font info for 21 fonts, out of 3000000 for 9000
+ 5650 strings out of 493328
+ 95959 string characters out of 3139127
+ 257818 words of memory out of 3000000
+ 9144 multiletter control sequences out of 15000+200000
+ 6379 words of font info for 23 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 48i,10n,51p,8839b,424s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Prog
-ram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/
-MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on dummy.pdf (1 page, 35041 bytes).
+ 48i,7n,51p,8839b,319s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb>
+Output written on dummy.pdf (1 page, 229628 bytes).
 PDF statistics:
- 18 PDF objects out of 1000 (max. 8388607)
+ 19 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
