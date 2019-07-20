@@ -553,7 +553,7 @@ follow major/minor eigenvectors along pathlines
 \end{enumerate}
 
 \end{block}
-For now, we are able to propagate intensities as circular waves in a 2D Cartesian grid.
+For now, we are able to propagate intensities as circular waves in a 2D Cartesian grid defined through polar functions given on cell centers.
 } % END OF FRAME
 
 \frame{
@@ -577,7 +577,7 @@ n_f &= \frac{\mean{T}\mean{I}}{\widebar{TI}}
 \begin{figure}[!t]
   \centering
  {
-    \includegraphics[width=\textwidth]
+    \includegraphics[width=0.6\textwidth]
     {polarplot.pdf}
   }
   \caption{Transmission Weighting}
@@ -588,9 +588,433 @@ n_f &= \frac{\mean{T}\mean{I}}{\widebar{TI}}
 \end{columns}
 } % END OF FRAME
 
+\frame{
+\frametitle{{Propagation Scheme - Procedure}}
+\begin{block}{\centering \textbf{Procedure}}
+
+\begin{enumerate}
+	\item Computation of normalization factor $n_f$
+	\item Direction (component)-wise weighting to account for shared part in diagonal cones
+	\item Integration (accumulation) of total radiant flux weighted with \underline{normalized} transmission profiles inside the angular neighbor range (read-access)
+	\item Scaling of cosine lobe corresponding to neighbor direction and subsequent placing (injection) to corresponding neighbor (write-access)
+\end{enumerate}
+\begin{align*}
+	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}]
+\end{align*}
+\end{block}
+Until now, we are able to modulate the propagated intensities with the anisotropy characteristics of the underlying tensor field.
+} % END OF FRAME
+
+\frame{
+\frametitle{{Propagation Scheme}}
+\begin{block}{\centering \textbf{Criterion}}
+\begin{itemize}
+	\item the Procedure is repeated recursively and is performed with switching source and target buffer
+	\item a stop sequence is initiated when following criterion is reached:
+	\begin{align*}
+	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon.
+	\end{align*}
+	\item we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, whereas the flow map t in a stable state
+\end{itemize}
+\end{block}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Propagation Scheme - Physical Model}}
+\begin{block}{\centering \textbf{Crystal Fiber Structures}}
+\begin{itemize}
+	\item crystal lattices reveal gradients in refractive indices, which lead to anisotropic light transport inside the medium (birefringence)
+	\item the propability for redistribution of a photon in a particular direction is given by the phase function model yielded from Rayleigh scattering:
+	\begin{align*}
+ 	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
+ 	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
+	\end{align*}
+	\item each tensor is then a unique footprint: $\mathbf{t_{i,j}}\mapsto T(\omega)$
+\end{itemize}
+\end{block}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Propagation Scheme - Light Distributions}}
+\begin{figure}[!t]
+\centering
+   a)
+  \begin{minipage}{0.25\textwidth}
+  \centering
+    \includegraphics[height=0.8\textwidth]{isotropic-all-center.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.25\textwidth}
+  \centering
+    \includegraphics[height=0.8\textwidth]{rings-two-special1.png}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{spiral-two-wide.png}
+    \label{b)}
+  \end{minipage}
+\label{isotropic}
+\end{figure}
+\begin{figure}[!t]
+\centering
+   b)
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{iso_sat.png}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{cos_parallel.png}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{spiral_full.png}
+    \label{b)}
+  \end{minipage}
+\caption{final light propagation distributions in: a) polar, b) scalar field rep}
+\label{rings-tests}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evolution}}
+\begin{figure}[!t]
+\centering
+ a)
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{scalar_iso_left.png}
+    \label{a)}
+  \end{minipage} $-$
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{scalar_iso_right.png}
+    \label{b)}
+  \end{minipage} $=$
+   \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{scalar_iso_diff.png}
+    \label{b)}
+  \end{minipage}
+\label{analysis1}
+\end{figure}
+\begin{figure}[!t]
+\centering
+ b)
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{scalar_iso_leftangle.png}
+    \label{a)}
+  \end{minipage} $-$
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{scalar_iso_rightangle.png}
+    \label{b)}
+	\end{minipage} $=$
+   \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{scalar_iso_anglediff.png}
+    \label{b)}
+  \end{minipage}
+  \caption{Isotropic test field}
+\label{analysis2}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evolution}}
+\begin{figure}[!t]
+\centering
+ a)
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{ftle_left.png}
+    \label{a)}
+  \end{minipage} $-$
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{ftle_right.png}
+    \label{b)}
+  \end{minipage} $=$
+   \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{ftle_diff.png}
+    \label{b)}
+  \end{minipage}
+\label{analysis1}
+\end{figure}
+\begin{figure}[!t]
+\centering
+ b)
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{ftle_leftangle.png}
+    \label{a)}
+  \end{minipage} $-$
+  \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{ftle_rightangle.png}
+    \label{b)}
+	\end{minipage} $=$
+   \begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[height=0.8\textwidth]{ftle_anglediff.png}
+    \label{b)}
+  \end{minipage}
+  \caption{Drain test field}
+\label{analysis2}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Definition}}
+\begin{block}{\centering \textbf{Defintion}}
+\begin{align*}
+	\mathcal{B} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \ {\forall } \ i \in [1,\mathop{dim}] \ {\forall } \ j \in [1,\mathop{dim}\cdot \mathop{steps}]
+	\label{ftle}
+\end{align*}
+\end{block}
+\begin{itemize}
+	\item Previous examples prove that the conductivity property (transmission) of the tensor field effects a separation of energies for diverging pathlines
+	\item the eventual goal is to obtain a FTLE field from accumulating the overall energy in the difference scalar field
+	\item Buffer $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ contains propagated light distributions for each discrete location and direction in the field, on which we will eventually apply a gradient
+\end{itemize}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Definition}}
+\begin{block}{\centering \textbf{Gradient Approximation: Central Differences}}
+\begin{align*}
+	\nabla \mathbf{b}_{x,y,\omega} =
+	\begin{pmatrix}
+	\frac{\partial \mathbf{b}_{x,y,\omega}}{\partial x} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial y} \\ \frac{\partial \mathbf{b}_{x,y,\omega}}{\partial \omega}
+	\end{pmatrix} \approx
+	\frac{1}{2}
+	\begin{pmatrix}
+	\sum_{\mathbf{c}}\lvert \mathbf{b}_{x+1,y,\omega} - \mathbf{b}_{x-1,y,\omega}\rvert \\ \sum_{\mathbf{c}}\lvert \mathbf{b}_{x,y+1,\omega} - \mathbf{b}_{x,y-1,\omega}\rvert \\ \sum_{\mathbf{c}}\lvert \mathbf{b}_{x,y,\omega+\pi/6} - \mathbf{b}_{x,y,\omega-\pi/6}\rvert
+	\end{pmatrix} =
+	\frac{1}{2}
+	\begin{pmatrix}
+	\sum_{\mathbf{c}\in \mathbf{b_x}}\lvert \mathbf{b_x}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_y}}\lvert\mathbf{b_{y}}\rvert \\ \sum_{\mathbf{c}\in \mathbf{b_{\omega}}}\lvert \mathbf{b_{\omega}}\rvert
+	\end{pmatrix}.
+\end{align*}
+\end{block}
+\begin{itemize}
+	\item a finite set of cells is interpreted as a 1D vector $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$ here, contained as an element of the set of final buffers $\mathcal{B}$
+	\item the resulting volume grid is raised by one dimension $d=2+1=3$ for taking direction as additional input parameter and computing the Euclidean norm of the gradient
+	\item runtime behavior: $T(n)=\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2})$
+\end{itemize}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Functionality}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[height=0.9\textwidth]{isotropic2.png}
+    \label{a)}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \centering
+    \includegraphics[height=0.9\textwidth]{iso_ftle.png}
+    \label{b)}
+	b)
+  \end{minipage}
+  \caption{Isotropic test field: a) glyphs, b) LTG($0^\circ$) for a)}
+\label{ftle_iso}
+\end{figure}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Functionality}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+    \centering
+    \includegraphics[height=0.9\textwidth]{iso_volume.png}
+    \label{a)}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+   \centering
+    \includegraphics[height=0.9\textwidth]{iso_isovolume.png}
+    \label{b)}
+	b)
+  \end{minipage}
+  \caption{Isotropic test field: a) volume, b) IsoVolume for a)}
+\label{ftle_iso}
+\end{figure}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Functionality}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+	\centering
+    \includegraphics[width=\textwidth]{drain(alt)-TFL.png}
+    \label{a)}
+	a)~TFLs and glyphs
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{ftle_drain_alt.png}
+    \label{b)}
+	b)~LTG($90^\circ$) for a)
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{drain_alt_gradient.png}
+    \label{b)}
+	c)~Gradient for b)
+  \end{minipage}
+  \caption{Drain test field}
+\label{ftle_base}
+\end{figure}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Functionality}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=0.9\textwidth]{inverse-TFL.png}
+    \label{a)}
+	a)
+  \end{minipage}
+  \begin{minipage}[!t]{0.4\textwidth}
+  \centering
+    \includegraphics[width=0.9\textwidth]{inverse-FTLE-raw.png}
+    \label{b)}
+	b)
+  \end{minipage}
+  \caption{Inverse-test field: a) TFLs and glyphs, b) LTG($90^\circ$) for a)}
+\label{inverse-ftle}
+\end{figure}
+
+} % END OF FRAME
+
+
+\frame{
+\frametitle{{Light Transport Gradient - Functionality}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{inverse_isovolume.png}
+    a)
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{inverse_surface.png}
+    b)
+  \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+    \includegraphics[height=\textwidth]{inverse_contour.png}
+    c)
+  \end{minipage}
+    \caption{LTG volumes: ``Inverse'' test field: a) IsoVolume, b) Surface, c) Contour}
+\label{inverse_volume}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Functionality}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=0.9\textwidth]{bow-TFL.png}
+    \label{a)}
+	a)
+  \end{minipage}
+  \begin{minipage}[!t]{0.4\textwidth}
+  \centering
+    \includegraphics[width=0.9\textwidth]{bow_ftle.png}
+    \label{b)}
+	b)
+  \end{minipage}
+  \caption{``Bow''-test field: a) TFLs and glyphs, b) LTG($0^\circ$) for a)}
+\label{bow-ftle}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Functionality}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{bow_contour.png}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{bow_volume.png}
+	b)
+  \end{minipage}
+    \caption{LTG volumes: ``Bow'' test field : a) Contour, b) IsoVolume}
+\label{bow_contour}
+\end{figure}
+
+} % END OF FRAME
+
+
+
+
 
 \section[Results and Evaluation]{Results and Evaluation}
 %----------------------------------------
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+  \centering
+ {
+    \includegraphics[width=0.6\textwidth]
+    {inverse_law.pdf}
+  }
+  \caption{Propagation attenuation}
+  \label{att}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{tensorfieldlines.png}
+	a) TFLs and glyphs
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{total_anisotropy1.png}
+    b) iteration $50$
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{total_anisotropy2.png}
+	c) iteration $103$
+    \label{c)}
+  \end{minipage}
+\caption{intensity propagation in grid for total anisotropy}
+\label{anisotropy}
+\end{figure}
+} % END OF FRAME
 
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
 

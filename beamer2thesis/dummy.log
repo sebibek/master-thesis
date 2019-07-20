@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  19 JUL 2019 16:26
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  20 JUL 2019 14:38
 entering extended mode
 **./dummy.tex
 (dummy.tex
@@ -231,14 +231,7 @@ Package subfig Warning: The subfigure type is already defined. on input line 11
 
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... none found.
-(dummy.aux
-
-LaTeX Warning: Label `b)' multiply defined.
-
-
-LaTeX Warning: Label `b)' multiply defined.
-
-)
+(dummy.aux)
 \openout1 = `dummy.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
@@ -315,11 +308,12 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: End \AtBeginDocument code.
 
-<brain_org.png, id=1, 1427.3325pt x 1423.3175pt>
-File: brain_org.png Graphic file (type png)
- <use brain_org.png>
-Package pdftex.def Info: brain_org.png used on input line 20.
-(pdftex.def)             Requested size: 96.19698pt x 95.90689pt.
+<isotropic-all-center.png, id=1, 527.72156pt x 527.72156pt>
+File: isotropic-all-center.png Graphic file (type png)
+
+<use isotropic-all-center.png>
+Package pdftex.def Info: isotropic-all-center.png used on input line 21.
+(pdftex.def)             Requested size: 83.64804pt x 83.65143pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <10.95> on input line 23.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -327,42 +321,57 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 23.
 
-<brainDwnsmpl.png, id=3, 526.96875pt x 526.96875pt>
-File: brainDwnsmpl.png Graphic file (type png)
- <use brainDwnsmpl.png>
-Package pdftex.def Info: brainDwnsmpl.png used on input line 26.
-(pdftex.def)             Requested size: 96.19698pt x 96.1931pt.
+<rings-two-special1.png, id=2, 527.72156pt x 527.72156pt>
+File: rings-two-special1.png Graphic file (type png)
 
-<heart_org.png, id=4, 431.36156pt x 429.10312pt>
-File: heart_org.png Graphic file (type png)
- <use heart_org.png>
-Package pdftex.def Info: heart_org.png used on input line 32.
-(pdftex.def)             Requested size: 96.19698pt x 95.69284pt.
+<use rings-two-special1.png>
+Package pdftex.def Info: rings-two-special1.png used on input line 26.
+(pdftex.def)             Requested size: 83.64804pt x 83.65143pt.
 
-<heartDwnsmpl.png, id=5, 526.96875pt x 526.96875pt>
-File: heartDwnsmpl.png Graphic file (type png)
- <use heartDwnsmpl.png>
-Package pdftex.def Info: heartDwnsmpl.png used on input line 38.
-(pdftex.def)             Requested size: 96.19698pt x 96.1931pt.
+<spiral-two-wide.png, id=3, 527.72156pt x 527.72156pt>
+File: spiral-two-wide.png Graphic file (type png)
 
-[1{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <./brain_or
-g.png> <./brainDwnsmpl.png> <./heart_org.png> <./heartDwnsmpl.png>] (dummy.aux)
+<use spiral-two-wide.png>
+Package pdftex.def Info: spiral-two-wide.png used on input line 31.
+(pdftex.def)             Requested size: 83.64804pt x 83.65143pt.
+ <iso_sat.png, id=4, 338.01282pt x 338.01282pt>
+File: iso_sat.png Graphic file (type png)
 
-LaTeX Warning: There were multiply-defined labels.
+<use iso_sat.png>
+Package pdftex.def Info: iso_sat.png used on input line 41.
+(pdftex.def)             Requested size: 83.65198pt x 83.65143pt.
+ <cos_parallel.png, id=5, 338.01282pt x 338.01282pt>
+File: cos_parallel.png Graphic file (type png)
+
+<use cos_parallel.png>
+Package pdftex.def Info: cos_parallel.png used on input line 46.
+(pdftex.def)             Requested size: 83.65198pt x 83.65143pt.
+ <spiral_full.png, id=6, 292.09125pt x 292.09125pt>
+File: spiral_full.png Graphic file (type png)
+
+<use spiral_full.png>
+Package pdftex.def Info: spiral_full.png used on input line 51.
+(pdftex.def)             Requested size: 83.65244pt x 83.65143pt.
+ [1{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <./isotrop
+ic-all-center.png> <./rings-two-special1.png> <./spiral-two-wide.png> <./iso_sa
+t.png> <./cos_parallel.png> <./spiral_full.png>]
+(dummy.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
  ) 
 Here is how much of TeX's memory you used:
- 5650 strings out of 493328
- 95959 string characters out of 3139127
- 257818 words of memory out of 3000000
- 9144 multiletter control sequences out of 15000+200000
+ 5661 strings out of 493328
+ 96259 string characters out of 3139127
+ 257709 words of memory out of 3000000
+ 9153 multiletter control sequences out of 15000+200000
  6379 words of font info for 23 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 48i,7n,51p,8839b,319s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 48i,7n,51p,8839b,320s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb>
-Output written on dummy.pdf (1 page, 229628 bytes).
+Output written on dummy.pdf (1 page, 96767 bytes).
 PDF statistics:
- 19 PDF objects out of 1000 (max. 8388607)
+ 22 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 31 words of extra memory for PDF output out of 10000 (max. 10000000)
 
