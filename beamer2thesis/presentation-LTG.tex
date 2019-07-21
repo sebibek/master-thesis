@@ -68,6 +68,7 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 
 
 \begin{document}
+
 \frame[plain]{\titlepage}
 \frame{\frametitle{Outline}\tableofcontents[hideallsubsections]}
 
@@ -558,6 +559,22 @@ For now, we are able to propagate intensities as circular waves in a 2D Cartesia
 
 \frame{
 \frametitle{{Transmission Profiles}}
+
+\begin{block}{\centering \textbf{Ellipse Equation}}
+\begin{align*}
+	r(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\lambda_1\lambda_2}{\sqrt{\lambda_1^2\sin^2(\omega-\varphi)+\lambda_2^2\cos^2(\omega-\varphi)}}.
+\end{align*}
+\end{block}
+\begin{itemize}
+	\item transmission profiles $r(\omega)$ are given as symbolic functions by the mapping of eigenvalues to half-axes radii and the shift angle of the major eigenvector $\varphi=\mathop{atan2}\frac{s_{1,y}}{s_{1,x}}$ 
+	\item these polar functions are precomputed and sampled once as an initialization step
+\end{itemize}
+
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Transmission Profiles}}
 \begin{columns}
 \begin{column}{.6\textwidth}
 \begin{block}{\centering \textbf{Redefinition}}
@@ -609,7 +626,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \frametitle{{Propagation Scheme}}
 \begin{block}{\centering \textbf{Criterion}}
 \begin{itemize}
-	\item the Procedure is repeated recursively and is performed with switching source and target buffer
+	\item the Procedure is repeated recursively for each individual cell and is performed with switching source and target buffer
 	\item a stop sequence is initiated when following criterion is reached:
 	\begin{align*}
 	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon.
@@ -969,9 +986,6 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 } % END OF FRAME
 
 
-
-
-
 \section[Results and Evaluation]{Results and Evaluation}
 %----------------------------------------
 
@@ -1015,6 +1029,291 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{anisotropy}
 \end{figure}
 } % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+  \includegraphics[height=\textwidth]{gyre.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+    \includegraphics[height=\textwidth]{gyre_ftle.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+    \includegraphics[height=\textwidth]{gyre_ftle_org.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+  \caption{Gyre test field: a) glyphs, b) LTG($0^\circ$), c) FTLE: Hlawatsch's approach}
+\label{gyre-ftle}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+    \centering
+  \includegraphics[height=\textwidth]{gyre_volume2.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+    \centering
+    \includegraphics[height=\textwidth]{gyre_gauss_contour.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+   \begin{minipage}{0.3\textwidth}
+     \centering
+    \includegraphics[height=\textwidth]{gyre_volume4.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+  \caption{Gyre test field LTG volumes: a) IsoVolume, b) Contour, c) GaussContour}
+\label{gyre_volume}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{itemize}
+	\item real data examples reveal two important features, which need to be respected: 
+	\begin{enumerate}
+		\item  Segmentation in FG-BG regions
+		\item Random noise modulated on top
+	\end{enumerate}
+	\item We propose the following threshold corrections to prevent noisy FTLE results: 
+	\begin{itemize}
+		\item for Hlawatsch's approach:
+			\begin{align*}
+		\varphi_i = 
+		\begin{cases}
+	    	\varphi_i,& \text{if } \mean{r}_i > \theta,\\
+ 	   		0.0^\circ,              & \text{otherwise}.
+		\end{cases}
+			\end{align*}
+		\item for our approach (only for transmission - extending trajectories):
+		\begin{align*}
+		r_i(\omega) = 
+		\begin{cases}
+	    	\frac{1}{\mean{r}_i}r_i(\omega),& \text{if } \mean{r}_i > \theta,\\
+ 	   		1.0,              & \text{otherwise}.
+		\end{cases}
+		\end{align*}
+	\end{itemize}
+
+\end{itemize}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+   \centering
+  \includegraphics[height=\textwidth]{brainDwnsmpl.png}
+	a)~Glyphs
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[height=\textwidth]{brainDwnsmpl-TFL.PNG}
+	b)~TFLs
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[height=\textwidth]{brain_ftle_org.PNG}
+	c)~FTLE: H.'s approach
+    \label{b)}
+  \end{minipage}
+\caption{Brain test field}
+\label{brain_ftle_comp}
+\end{figure}
+
+} % END OF FRAME
+
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+   \centering
+  \includegraphics[height=\textwidth]{brainDwnsmpl_denoise.png}
+	a)~Glyphs
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[height=\textwidth]{brain-TFL.PNG}
+	b)~TFLs
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[height=\textwidth]{brain_ftle_surf_noisereduction.PNG}
+	c)~FTLE: H.'s approach
+    \label{b)}
+  \end{minipage}
+\caption{Brain test field}
+\label{brain_ftle_comp}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+	\centering
+\begin{minipage}[t]{0.21\textwidth}
+  \centering
+    \includegraphics[height=\textwidth]{brain_ftle.PNG} a)
+    \label{b)}
+  \end{minipage}\hskip 15pt
+  \begin{minipage}[t]{0.21\textwidth}
+  \centering
+  \includegraphics[height=\textwidth]{brain_surf.PNG} b)
+     \label{a)}
+  \end{minipage}\hskip 15pt
+  \begin{minipage}[t]{0.21\textwidth}
+    \centering
+    \includegraphics[height=\textwidth]{brain_volume2.PNG} \\
+    c)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}[t]{0.21\textwidth}
+    \centering
+    \includegraphics[height=\textwidth]{brain_cross-section.PNG} \\
+    d)
+    \label{b)}
+  \end{minipage}
+  \caption{Brain test field LTG: a) LTG($0^\circ$)-VAR1, b) LTG($0^\circ$)-VAR2, c) LTG volume, d) cross-section}
+\label{brain-volumes}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+   \centering
+  \includegraphics[width=\textwidth]{heartDwnsmpl.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[width=\textwidth]{heartDwnsmpl-TFL.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[width=\textwidth]{heart_ftle_org.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+\caption{Heart test field: a) glyphs, b) TFLs, c) FTLE: H.'s approach}
+\label{heart-ftle-comp}
+\end{figure}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+   \centering
+  \includegraphics[width=\textwidth]{heartDwnsmpl.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[width=\textwidth]{heartDwnsmpl-TFL.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+   \centering
+    \includegraphics[width=\textwidth]{heart_ftle_org.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+\caption{Heart test field: a) glyphs, b) TFLs}
+\label{heart-ftle-comp}
+\end{figure}
+
+} % END OF FRAME\\
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{heart.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_slice0.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_ftle_org.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+  \caption{Heart test field: a) LTG global, b) LTG local, c) Hlawatsch's approach}
+\label{heart-ftle}
+\end{figure}
+
+} % END OF FRAME\\
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
+\begin{figure}[!t]
+\centering
+ \begin{minipage}{0.3\textwidth}
+ \centering
+ \includegraphics[height=\textwidth]{heart_volume.PNG}
+   \label{a)}
+ \end{minipage}\hskip 12pt
+ \begin{minipage}{0.3\textwidth}
+ \centering
+   \includegraphics[width=\textwidth]{heart_volume3.PNG}
+   \label{b)}
+ \end{minipage}
+ \begin{minipage}{0.3\textwidth}
+ \centering
+   \includegraphics[height=\textwidth]{heart_volume5.PNG}
+   \label{b)}
+ \end{minipage}
+ \caption{Heart test field: LTG volumes}
+\label{heart-ftle-volumes}
+\end{figure}
+} % END OF FRAME\\
+
 
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
 

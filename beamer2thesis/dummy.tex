@@ -1,4 +1,4 @@
-\documentclass{scrartcl}
+\documentclass{beamer}
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{csquotes}
@@ -13,48 +13,38 @@
 
 \begin{document}
 
+
+\frame{
+\frametitle{{Light Transport Gradient - Evaluation}}
 \begin{figure}[!t]
-\centering
-   a)
-  \begin{minipage}{0.25\textwidth}
+	\centering
+\begin{minipage}[t]{0.21\textwidth}
   \centering
-    \includegraphics[height=0.8\textwidth]{isotropic-all-center.png}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.25\textwidth}
+    \includegraphics[height=\textwidth]{brain_ftle.PNG} a)
+    \label{b)}
+  \end{minipage}\hskip 15pt
+  \begin{minipage}[t]{0.21\textwidth}
   \centering
-    \includegraphics[height=0.8\textwidth]{rings-two-special1.png}
+  \includegraphics[height=\textwidth]{brain_surf.PNG} b)
+     \label{a)}
+  \end{minipage}\hskip 15pt
+  \begin{minipage}[t]{0.21\textwidth}
+    \centering
+    \includegraphics[height=\textwidth]{brain_volume2.PNG} \\
+    c)
     \label{b)}
   \end{minipage}
-  \begin{minipage}{0.25\textwidth}
+  \begin{minipage}[t]{0.21\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{spiral-two-wide.png}
+    \includegraphics[height=\textwidth]{brain_cross-section.PNG} \\
+    d)
     \label{b)}
   \end{minipage}
-\label{isotropic}
-\end{figure}
-\begin{figure}[!t]
-\centering
-   b)
-  \begin{minipage}{0.25\textwidth}
-    \centering
-    \includegraphics[height=0.8\textwidth]{iso_sat.png}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.25\textwidth}
-    \centering
-    \includegraphics[height=0.8\textwidth]{cos_parallel.png}
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.25\textwidth}
-    \centering
-    \includegraphics[height=0.8\textwidth]{spiral_full.png}
-    \label{b)}
-  \end{minipage}
-\caption{final light propagation distributions in: a) polar, b) scalar field rep}
-\label{rings-tests}
+  \caption{Brain test field LTG: a) LTG($0^\circ$)-VAR1, b) LTG($0^\circ$)-VAR2, c) LTG volume, d) cross-section}
+\label{brain-volumes}
 \end{figure}
 
+} % END OF FRAME
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
