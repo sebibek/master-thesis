@@ -2250,3 +2250,310 @@ l.1175 }
 ier (name{brain_ftle_comp}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
+l.1175 }
+         % END OF FRAME [50
+
+ <./brainDwnsmpl_denoise.png> <./brain-TFL.PNG> <./brain_ftle_surf_noisereducti
+on.PNG>]
+<brain_ftle.PNG, id=3932, 421.575pt x 423.08063pt>
+File: brain_ftle.PNG Graphic file (type png)
+ <use brain_ftle.PNG>
+Package pdftex.def Info: brain_ftle.PNG used on input line 1207.
+(pdftex.def)             Requested size: 82.879pt x 83.17528pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1207 }
+         % END OF FRAME <brain_surf.PNG, id=3933, 523.20468pt x 524.71031pt>
+File: brain_surf.PNG Graphic file (type png)
+
+<use brain_surf.PNG>
+Package pdftex.def Info: brain_surf.PNG used on input line 1207.
+(pdftex.def)             Requested size: 82.93207pt x 83.17528pt.
+pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1207 }
+         % END OF FRAME
+<brain_volume2.PNG, id=3934, 359.84438pt x 471.26062pt>
+File: brain_volume2.PNG Graphic file (type png)
+
+<use brain_volume2.PNG>
+Package pdftex.def Info: brain_volume2.PNG used on input line 1207.
+(pdftex.def)             Requested size: 63.5063pt x 83.17528pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1207 }
+         % END OF FRAME
+<brain_cross-section.PNG, id=3935, 246.9225pt x 519.44063pt>
+File: brain_cross-section.PNG Graphic file (type png)
+
+<use brain_cross-section.PNG>
+Package pdftex.def Info: brain_cross-section.PNG used on input line 1207.
+(pdftex.def)             Requested size: 39.53477pt x 83.17528pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1207 }
+         % END OF FRAME [51
+
+ <./brain_ftle.PNG> <./brain_surf.PNG> <./brain_volume2.PNG> <./brain_cross-sec
+tion.PNG>]
+File: heartDwnsmpl.png Graphic file (type png)
+ <use heartDwnsmpl.png>
+Package pdftex.def Info: heartDwnsmpl.png used on input line 1235.
+(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
+pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1235 }
+         % END OF FRAME
+<heartDwnsmpl-TFL.PNG, id=4009, 526.96875pt x 526.96875pt>
+File: heartDwnsmpl-TFL.PNG Graphic file (type png)
+
+<use heartDwnsmpl-TFL.PNG>
+Package pdftex.def Info: heartDwnsmpl-TFL.PNG used on input line 1235.
+(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1235 }
+         % END OF FRAME
+<heart_ftle_org.PNG, id=4010, 551.81157pt x 552.56438pt>
+File: heart_ftle_org.PNG Graphic file (type png)
+
+<use heart_ftle_org.PNG>
+Package pdftex.def Info: heart_ftle_org.PNG used on input line 1235.
+(pdftex.def)             Requested size: 118.81924pt x 118.97607pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1235 }
+         % END OF FRAME [52
+
+ <./heartDwnsmpl-TFL.PNG> <./heart_ftle_org.PNG>]
+File: heartDwnsmpl.png Graphic file (type png)
+
+<use heartDwnsmpl.png>
+Package pdftex.def Info: heartDwnsmpl.png used on input line 1263.
+(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
+pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1263 }
+         % END OF FRAME\\
+File: heartDwnsmpl-TFL.PNG Graphic file (type png)
+ <use heartDwnsmpl-TFL.PNG>
+Package pdftex.def Info: heartDwnsmpl-TFL.PNG used on input line 1263.
+(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1263 }
+         % END OF FRAME\\
+File: heart_ftle_org.PNG Graphic file (type png)
+ <use heart_ftle_org.PNG>
+Package pdftex.def Info: heart_ftle_org.PNG used on input line 1263.
+(pdftex.def)             Requested size: 118.81924pt x 118.97607pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1263 }
+         % END OF FRAME\\pdfTeX warning (ext4): destination with the same ident
+ifier (name{heart-ftle-comp}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1263 }
+         % END OF FRAME\\ [53
+
+] <heart.png, id=4150, 1539.7525pt x 1541.76pt>
+File: heart.png Graphic file (type png)
+
+<use heart.png>
+Package pdftex.def Info: heart.png used on input line 1291.
+(pdftex.def)             Requested size: 118.81924pt x 118.9676pt.
+pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1291 }
+         % END OF FRAME\\
+<heart_slice0.PNG, id=4151, 528.47438pt x 528.47438pt>
+File: heart_slice0.PNG Graphic file (type png)
+ <use heart_slice0.PNG>
+Package pdftex.def Info: heart_slice0.PNG used on input line 1291.
+(pdftex.def)             Requested size: 118.81924pt x 118.8129pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1291 }
+         % END OF FRAME\\
+File: heart_ftle_org.PNG Graphic file (type png)
+ <use heart_ftle_org.PNG>
+Package pdftex.def Info: heart_ftle_org.PNG used on input line 1291.
+(pdftex.def)             Requested size: 118.81924pt x 118.97607pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1291 }
+         % END OF FRAME\\ [54
+
+ <./heart.png> <./heart_slice0.PNG>]
+<heart_volume.PNG, id=4222, 440.39531pt x 413.29407pt>
+File: heart_volume.PNG Graphic file (type png)
+ <use heart_volume.PNG>
+Package pdftex.def Info: heart_volume.PNG used on input line 1315.
+(pdftex.def)             Requested size: 126.6093pt x 118.81924pt.
+pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1315 }
+         % END OF FRAME\\
+Overfull \hbox (7.79005pt too wide) in paragraph at lines 1315--1315
+ [][] 
+ []
+
+<heart_volume3.PNG, id=4223, 461.47406pt x 461.47406pt>
+File: heart_volume3.PNG Graphic file (type png)
+
+<use heart_volume3.PNG>
+Package pdftex.def Info: heart_volume3.PNG used on input line 1315.
+(pdftex.def)             Requested size: 118.81924pt x 118.81856pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1315 }
+         % END OF FRAME\\
+<heart_volume5.PNG, id=4224, 440.39531pt x 413.29407pt>
+File: heart_volume5.PNG Graphic file (type png)
+
+<use heart_volume5.PNG>
+Package pdftex.def Info: heart_volume5.PNG used on input line 1315.
+(pdftex.def)             Requested size: 126.6093pt x 118.81924pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1315 }
+         % END OF FRAME\\
+Overfull \hbox (7.79005pt too wide) in paragraph at lines 1315--1315
+ [][] 
+ []
+
+[55
+
+ <./heart_volume.PNG> <./heart_volume3.PNG> <./heart_volume5.PNG>]
+(presentation-LTG.toc) [56
+
+] [57
+
+] [58
+
+] [59
+
+]
+<img/questions.pdf, id=4573, 416.55624pt x 222.8325pt>
+File: img/questions.pdf Graphic file (type pdf)
+ <use img/questions.pdf>
+Package pdftex.def Info: img/questions.pdf used on input line 1413.
+(pdftex.def)             Requested size: 316.84932pt x 169.50406pt.
+
+[60
+
+ <./img/questions.pdf>]
+Overfull \vbox (9.60336pt too high) detected at line 1433
+ []
+
+[61
+
+]
+\tf@nav=\write7
+\openout7 = `presentation-LTG.nav'.
+
+\tf@toc=\write8
+\openout8 = `presentation-LTG.toc'.
+
+\tf@snm=\write9
+\openout9 = `presentation-LTG.snm'.
+
+
+
+Package movie15 Warning: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+(movie15)                @@ Package `movie15' is obsolete and @@
+(movie15)                @@ superseded by `media9'.           @@
+(movie15)                @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
+
+
+Package movie15 Warning: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+(movie15)                @@ Rerun to get object references right! @@
+(movie15)                @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1436.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1436.
+(presentation-LTG.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1436.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1436.
+
+Package rerunfilecheck Info: File `presentation-LTG.out' has not changed.
+(rerunfilecheck)             Checksum: 23C046C3072F7998DF9F07AFBE04984D;380.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 20728 strings out of 493328
+ 386537 string characters out of 3139127
+ 578642 words of memory out of 3000000
+ 23487 multiletter control sequences out of 15000+200000
+ 26458 words of font info for 89 fonts, out of 3000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 56i,20n,65p,812b,825s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx9.pfb><C:/Pro
+gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><C:/Program Files/M
+iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.
+9/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
+ype1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publ
+ic/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
+ts/cm/cmmi9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmm
+ib10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><
+C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program
+ Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Files/M
+iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Files/MiKTeX 2.
+9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
+ype1/public/amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
+ublic/amsfonts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
+msfonts/cm/cmssi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
+cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7
+.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/
+Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Program F
+iles/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Program Files/MiK
+TeX 2.9/fonts/type1/public/amsfonts/euler/eurm10.pfb><C:/Program Files/MiKTeX 2
+.9/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
+/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a
+.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
+Output written on presentation-LTG.pdf (61 pages, 11568564 bytes).
+PDF statistics:
+ 4828 PDF objects out of 5155 (max. 8388607)
+ 160 named destinations out of 1000 (max. 500000)
+ 579 words of extra memory for PDF output out of 10000 (max. 10000000)
+
