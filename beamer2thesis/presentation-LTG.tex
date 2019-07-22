@@ -1239,34 +1239,6 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
-   \centering
-  \includegraphics[width=\textwidth]{heartDwnsmpl.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-   \centering
-    \includegraphics[width=\textwidth]{heartDwnsmpl-TFL.PNG}
-	b)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-   \centering
-    \includegraphics[width=\textwidth]{heart_ftle_org.PNG}
-	c)
-    \label{b)}
-  \end{minipage}
-\caption{Heart test field: a) glyphs, b) TFLs}
-\label{heart-ftle-comp}
-\end{figure}
-
-} % END OF FRAME\\
-
-\frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.3\textwidth}
   \centering
   \includegraphics[width=\textwidth]{heart.png}
 	a)
@@ -1322,44 +1294,43 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \section[Conclusion and Future Work]{Conclusion and Future Work}
 
 \frame{
-\frametitle{Summary}
+\frametitle{Summary and Conclusion}
 
 \begin{itemize}
-\item GANs: new framework for estimating \alert{generative models} defined by multilayer perceptrons (Convolutional Layers) trained by standard backpropagation $\rightarrow$ no need for any Markov chains (MCMC-approaches), which can have problems Mixing (Converging)
-\item Results\/ Samples considered to be \alert{competitive} with those of the state-of-the-art generative models
-\item Empirical Evaluation (Fitting a Gaussian Parzen window to measure distribution similarity of $p_g$ as log-likelihood metric) indicates comparable scores than achieved for state-of-the-art methods like DBNs, Stacked CAE, GSN, Adversarial nets and \alert{comparable validity/representativity}
+\item Light Propagation Scheme: new simplified model to propagate circular waves in a 2D Cartesian grid
+\item LTG: FTLE-based approach using the propagation scheme to generate the flow map, which is analyzed for its gradient, to segment ridges representing LCS\\
+$\Rightarrow$ 3D FTLE field dependent on the direction as input parameter
+\item Hlawatsch's FTLE field is contained as 2D manifold in our FTLE volume grid
+\item Evaluation of the approach proves the functionality and yields informative and promising results, which pose the benefit of further investigation
 \end{itemize}
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
 } % END OF FRAME
 %----------------------------------------
 
 \frame{
-\frametitle{Conclusion}
+\frametitle{Future Work}
 
 \begin{itemize}
-\item approach is, besides DGMs (directed graphical models), the only one, inducing \alert{no problems} or further elaborations for sampling (generating samples) or training $\rightarrow$ rather simple implementation
-\item experiments show \alert{comparable similarities} against state-of-the-art methods in log-likelhood score and variance in matching the prior distribution $p_z$ with the generative one ($p_g$), but the method proposed is regarded to be more simple than others
-\item the \alert{synchronization of D} is yet an effortful factor, since sufficient reasoning for the number of steps of the inner loop is needed to avoid the previously named "Helvetica scenario"!
-\item \alert{future applications} might involve the synthetic generation of morphologically correct segmentation masks of seperatable objects, fake images (databases), keys/passwords (cryptography), image processing
+\item applications: 
+	\begin{itemize}
+		\item mechanical component design
+		\item stress distributions in seismology
+		\item DT-MRI: diffusion tensor - medical resonance imaging
+	\end{itemize}
+	\bigskip
+\item future work:
+	\begin{itemize}
+		\item incorporate segmentation algorithms to segment FG-BG data for local normalization
+		\item application to uncertain (error-prone) vector fields (e.g. phase-contrast-MRI): apply our light transport gradient to the computed flow map of an uncertain vector field interpreting PDFs as transmission profiles
+		\item applicability tests for engineering and medical data
+		\item optimized GPU-parallelized version for convenient runtimes
+	\end{itemize}
 \end{itemize}
 
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
 } % END OF FRAME
 %----------------------------------------
 
-\frame{
-\frametitle{Outlook}
-\textbf{Straighforward extensions}:
-\begin{enumerate}
-\item Conditional generative Model $p(\mathbf{x}|c)$ w. adding condition $c$
-\item Learned approximate inference: Predict prior-$z$ w. given latent $x$
-\item Modeling of multiple Conditionals: $p(\mathbf{x}_S|\mathbf{x}_\xout{S})$
-\item Semi-Supervised Learning: Better Performance w. partially labeled training data
-\item Efficiency improvements: Better methods to coordinate $G$ and $D$, better distributions to sample $z$ from during training
-\end{enumerate}
-
-%\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."
-} % END OF FRAME
 %----------------------------------------
 
 %========================================
@@ -1417,20 +1388,37 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{block}{\centering \textbf{Literature}}
 \small
 \begin{enumerate}
-\item Goodfellow, Ian, et al. "Generative adversarial nets."
-\item Izadi, Saeed \& Mirikharaji, Zahra \& Kawahara, Jeremy \& Hamarneh, Ghassan. Generative adversarial networks to segment skin lesions.
+\item 
 \end{enumerate}
 \end{block}
 \begin{block}{\centering \textbf{Images}}
 \small
 \begin{enumerate}
-\item {\url{https://www.sevendaysvt.com/vermont/some-counterfeiters-still-do-it-old-school/Content?oid=3276910}}
-\item \small \url{https://www.altoros.com/blog/the-diversity-of-tensorflow-wrappers}\\ \url{-gpus-generative-adversarial-networks-etc/} \& \url{https://medium.freecodecamp.org/an-intuitive-introduction-to-generative}\\ \url{-adversarial-networks-gans-7a2264a81394}
-\item Goodfellow, Ian, et al. "Generative adversarial nets."
+\item 
 
 \end{enumerate}
 \end{block}
 }
+
+%\frame{
+%\frametitle{Sources and further reading}
+%\begin{block}{\centering \textbf{Literature}}
+%\small
+%\begin{enumerate}
+%\item Goodfellow, Ian, et al. "Generative adversarial nets."
+%\item Izadi, Saeed \& Mirikharaji, Zahra \& Kawahara, Jeremy \& Hamarneh, Ghassan. Generative adversarial networks to segment skin lesions.
+%\end{enumerate}
+%\end{block}
+%\begin{block}{\centering \textbf{Images}}
+%\small
+%\begin{enumerate}
+%\item {\url{https://www.sevendaysvt.com/vermont/some-counterfeiters-still-do-it-old-school/Content?oid=3276910}}
+%\item \small \url{https://www.altoros.com/blog/the-diversity-of-tensorflow-wrappers}\\ \url{-gpus-generative-adversarial-networks-etc/} \& \url{https://medium.freecodecamp.org/an-intuitive-introduction-to-generative}\\ \url{-adversarial-networks-gans-7a2264a81394}
+%\item Goodfellow, Ian, et al. "Generative adversarial nets."
+%
+%\end{enumerate}
+%\end{block}
+%}
 
 
 \end{document}
