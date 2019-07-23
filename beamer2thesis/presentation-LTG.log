@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  23 JUL 2019 19:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  23 JUL 2019 20:52
 entering extended mode
 **./presentation-LTG.tex
 (presentation-LTG.tex
@@ -932,6 +932,18 @@ LaTeX Warning: Label `a)' multiply defined.
 LaTeX Warning: Label `b)' multiply defined.
 
 
+LaTeX Warning: Label `b)' multiply defined.
+
+
+LaTeX Warning: Label `test_fields2' multiply defined.
+
+
+LaTeX Warning: Label `a)' multiply defined.
+
+
+LaTeX Warning: Label `b)' multiply defined.
+
+
 LaTeX Warning: Label `a)' multiply defined.
 
 
@@ -1319,1179 +1331,138 @@ n-LTG.toc) [2
 ]
 (presentation-LTG.toc) [3
 
-] [4
-
-] [5
-
 ]
-LaTeX Font Info:    Try loading font information for U+msa on input line 133.
+LaTeX Font Info:    Try loading font information for U+msa on input line 102.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 133.
+LaTeX Font Info:    Try loading font information for U+msb on input line 102.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Try loading font information for OT1+mathkerncmss on input 
-line 133.
+line 102.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\sansmathaccent\ot1mathkerncmss.fd"
 File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/ma
 thkerncmss.
 )
-
-pdfTeX warning: pdflatex (file ./LPV.pdf): PDF inclusion: found PDF version <1.
-7>, but at most version <1.5> allowed
-<LPV.pdf, id=452, 148.1535pt x 96.36pt>
-File: LPV.pdf Graphic file (type pdf)
- <use LPV.pdf>
-Package pdftex.def Info: LPV.pdf used on input line 133.
-(pdftex.def)             Requested size: 99.01503pt x 64.40057pt.
-LaTeX Font Info:    Try loading font information for OMS+cmss on input line 133
+<Scalar_field.png, id=330, 602.25pt x 602.25pt>
+File: Scalar_field.png Graphic file (type png)
+ <use Scalar_field.png>
+Package pdftex.def Info: Scalar_field.png used on input line 102.
+(pdftex.def)             Requested size: 138.62044pt x 138.61566pt.
+LaTeX Font Info:    Try loading font information for OMS+cmss on input line 102
 .
-LaTeX Font Info:    No file OMScmss.fd. on input line 133.
+LaTeX Font Info:    No file OMScmss.fd. on input line 102.
 
 
 LaTeX Font Warning: Font shape `OMS/cmss/m/it' undefined
-(Font)              using `OMS/cmsy/m/n' instead on input line 133.
+(Font)              using `OMS/cmsy/m/n' instead on input line 102.
 
 
 LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
-(Font)              using `OMS/cmsy/m/n' instead on input line 133.
+(Font)              using `OMS/cmsy/m/n' instead on input line 102.
+
+[4
+
+ <./Scalar_field.png (PNG copy)>]
+<vector_field.pdf, id=401, 361.35pt x 359.3425pt>
+File: vector_field.pdf Graphic file (type pdf)
+ <use vector_field.pdf>
+Package pdftex.def Info: vector_field.pdf used on input line 126.
+(pdftex.def)             Requested size: 118.81924pt x 118.1557pt.
+
+<vector_field2.pdf, id=402, 361.35pt x 359.3425pt>
+File: vector_field2.pdf Graphic file (type pdf)
+ <use vector_field2.pdf>
+Package pdftex.def Info: vector_field2.pdf used on input line 126.
+(pdftex.def)             Requested size: 118.81924pt x 118.1557pt.
+
+Overfull \vbox (94.00876pt too high) detected at line 126
+ []
+
+[5
+
+ <./vector_field.pdf> <./vector_field2.pdf
+
+pdfTeX warning: pdflatex (file ./vector_field2.pdf): PDF inclusion: multiple pd
+fs with page group included in a single page
+>] <hyperstreamlines.png, id=490, 642.14906pt x 642.90187pt>
+File: hyperstreamlines.png Graphic file (type png)
+
+<use hyperstreamlines.png>
+Package pdftex.def Info: hyperstreamlines.png used on input line 154.
+(pdftex.def)             Requested size: 118.81924pt x 118.9546pt.
+
+<random-global.png, id=491, 526.96875pt x 526.96875pt>
+File: random-global.png Graphic file (type png)
+ <use random-global.png>
+Package pdftex.def Info: random-global.png used on input line 154.
+(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
+
+Overfull \vbox (105.31656pt too high) detected at line 154
+ []
 
 [6
 
- <./LPV.pdf>] [7
+ <./hyperstreamlines.png> <./random-global.png>]
 
-] [8
+pdfTeX warning: pdflatex (file ./LPV.pdf): PDF inclusion: found PDF version <1.
+7>, but at most version <1.5> allowed
+<LPV.pdf, id=561, 148.1535pt x 96.36pt>
+File: LPV.pdf Graphic file (type pdf)
+ <use LPV.pdf>
+Package pdftex.def Info: LPV.pdf used on input line 193.
+(pdftex.def)             Requested size: 99.01503pt x 64.40057pt.
+ [7
 
-] (presentation-LTG.toc) [9
-
-] [10
+ <./LPV.pdf>] [8
 
 ]
-<stress_tensor.png, id=909, 506.89375pt x 426.59375pt>
-File: stress_tensor.png Graphic file (type png)
- <use stress_tensor.png>
-Package pdftex.def Info: stress_tensor.png used on input line 218.
-(pdftex.def)             Requested size: 99.01503pt x 83.3254pt.
+[9
 
-[11
-
- <./stress_tensor.png>]
-<polarkoordinaten.png, id=980, 466.74374pt x 216.81pt>
-File: polarkoordinaten.png Graphic file (type png)
-
-<use polarkoordinaten.png>
-Package pdftex.def Info: polarkoordinaten.png used on input line 251.
-(pdftex.def)             Requested size: 138.62044pt x 64.39177pt.
- [12
-
- <./polarkoordinaten.png>]
-<HAT.png, id=1049, 260.975pt x 206.7725pt>
-File: HAT.png Graphic file (type png)
- <use HAT.png>
-Package pdftex.def Info: HAT.png used on input line 285.
-(pdftex.def)             Requested size: 110.89465pt x 87.86295pt.
- [13
-
- <./HAT.png>]
-[14
-
-<<scale.swf>><<rotate.swf>>]
-
-pdfTeX warning: pdflatex (file ./ftle_sep.pdf): PDF inclusion: found PDF versio
-n <1.7>, but at most version <1.5> allowed
-<ftle_sep.pdf, id=1207, 86.20204pt x 288.54802pt>
-File: ftle_sep.pdf Graphic file (type pdf)
- <use ftle_sep.pdf>
-Package pdftex.def Info: ftle_sep.pdf used on input line 330.
-(pdftex.def)             Requested size: 42.5945pt x 142.57849pt.
- [15
-
- <./ftle_sep.pdf>] <random-global.png, id=1325, 526.96875pt x 526.96875pt>
+]
 File: random-global.png Graphic file (type png)
+ <use random-global.png>
+Package pdftex.def Info: random-global.png used on input line 261.
+(pdftex.def)             Requested size: 83.16687pt x 83.1731pt.
 
-<use random-global.png>
-Package pdftex.def Info: random-global.png used on input line 353.
-(pdftex.def)             Requested size: 142.58096pt x 142.57849pt.
- [16
+<random_global.png, id=879, 551.81157pt x 551.81157pt>
+File: random_global.png Graphic file (type png)
+ <use random_global.png>
+Package pdftex.def Info: random_global.png used on input line 261.
+(pdftex.def)             Requested size: 83.17232pt x 83.1731pt.
 
- <./random-global.png>]
-<random-global-TFL.png, id=1393, 526.96875pt x 526.96875pt>
-File: random-global-TFL.png Graphic file (type png)
+<random_local_slice0.png, id=881, 537.50812pt x 539.01375pt>
+File: random_local_slice0.png Graphic file (type png)
 
-<use random-global-TFL.png>
-Package pdftex.def Info: random-global-TFL.png used on input line 381.
-(pdftex.def)             Requested size: 142.58096pt x 142.57849pt.
- [17
+<use random_local_slice0.png>
+Package pdftex.def Info: random_local_slice0.png used on input line 261.
+(pdftex.def)             Requested size: 82.93561pt x 83.1731pt.
 
- <./random-global-TFL.png>]
-<drain-TFL.png, id=1461, 526.96875pt x 526.96875pt>
-File: drain-TFL.png Graphic file (type png)
- <use drain-TFL.png>
-Package pdftex.def Info: drain-TFL.png used on input line 410.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
+Overfull \vbox (15.37048pt too high) detected at line 261
+ []
 
-<rings-TFL.png, id=1462, 526.96875pt x 526.96875pt>
-File: rings-TFL.png Graphic file (type png)
- <use rings-TFL.png>
-Package pdftex.def Info: rings-TFL.png used on input line 410.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
-
-<inverse-TFL.png, id=1463, 752.8125pt x 752.8125pt>
-File: inverse-TFL.png Graphic file (type png)
- <use inverse-TFL.png>
-Package pdftex.def Info: inverse-TFL.png used on input line 410.
-(pdftex.def)             Requested size: 118.80981pt x 118.81924pt.
-
-[18
+[10
 
 pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
 n already used, duplicate ignored
 
 \@EveryShipout@Output ...@Org@Shipout \box \@cclv 
                                                   
-l.410 }
-        % END OF FRAME <./drain-TFL.png> <./rings-TFL.png> <./inverse-TFL.png>]
-<gyre.png, id=1536, 526.96875pt x 526.96875pt>
-File: gyre.png Graphic file (type png)
- <use gyre.png>
-Package pdftex.def Info: gyre.png used on input line 433.
-(pdftex.def)             Requested size: 126.73778pt x 126.73239pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.433 }
-        % END OF FRAME <gyre-TFL.png, id=1537, 526.96875pt x 526.96875pt>
-File: gyre-TFL.png Graphic file (type png)
+l.261 }
+        % END OF FRAME <./random_global.png> <./random_local_slice0.png>]
+(presentation-LTG.toc) [11
 
-<use gyre-TFL.png>
-Package pdftex.def Info: gyre-TFL.png used on input line 433.
-(pdftex.def)             Requested size: 126.73778pt x 126.73239pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.433 }
-        % END OF FRAME [19
-
- <./gyre.png> <./gyre-TFL.png>]
-<brain_org.png, id=1608, 1427.3325pt x 1423.3175pt>
-File: brain_org.png Graphic file (type png)
- <use brain_org.png>
-Package pdftex.def Info: brain_org.png used on input line 468.
-(pdftex.def)             Requested size: 91.34242pt x 91.09213pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.468 }
-        % END OF FRAME <brainDwnsmpl.png, id=1609, 526.96875pt x 526.96875pt>
-File: brainDwnsmpl.png Graphic file (type png)
-
-<use brainDwnsmpl.png>
-Package pdftex.def Info: brainDwnsmpl.png used on input line 468.
-(pdftex.def)             Requested size: 91.08714pt x 91.09213pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.468 }
-        % END OF FRAME <heart_org.png, id=1610, 431.36156pt x 429.10312pt>
-File: heart_org.png Graphic file (type png)
-
-<use heart_org.png>
-Package pdftex.def Info: heart_org.png used on input line 468.
-(pdftex.def)             Requested size: 91.56932pt x 91.09213pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.468 }
-        % END OF FRAME <heartDwnsmpl.png, id=1611, 526.96875pt x 526.96875pt>
-File: heartDwnsmpl.png Graphic file (type png)
-
-<use heartDwnsmpl.png>
-Package pdftex.def Info: heartDwnsmpl.png used on input line 468.
-(pdftex.def)             Requested size: 91.08714pt x 91.09213pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.468 }
-        % END OF FRAME [20
-
- <./brain_org.png> <./brainDwnsmpl.png> <./heart_org.png> <./heartDwnsmpl.png>]
- (presentation-LTG.toc) [21
+] [12
 
 ]
-
-pdfTeX warning: pdflatex (file ./geogebra-export_large.pdf): PDF inclusion: fou
-nd PDF version <1.7>, but at most version <1.5> allowed
-<geogebra-export_large.pdf, id=1754, 647.50102pt x 338.88907pt>
-File: geogebra-export_large.pdf Graphic file (type pdf)
-
-<use geogebra-export_large.pdf>
-Package pdftex.def Info: geogebra-export_large.pdf used on input line 497.
-(pdftex.def)             Requested size: 158.42163pt x 82.9122pt.
- [22
-
- <./geogebra-export_large.pdf>]
-File: geogebra-export_large.pdf Graphic file (type pdf)
-
-<use geogebra-export_large.pdf>
-Package pdftex.def Info: geogebra-export_large.pdf used on input line 524.
-(pdftex.def)             Requested size: 158.42163pt x 82.9122pt.
-pdfTeX warning (ext4): destination with the same identifier (name{scheme}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.524 }
-        % END OF FRAME [23
-
-]
-<steps_gallery_format_arrow_alt.png, id=1892, 1924.18875pt x 432.86719pt>
-File: steps_gallery_format_arrow_alt.png Graphic file (type png)
-
-<use steps_gallery_format_arrow_alt.png>
-Package pdftex.def Info: steps_gallery_format_arrow_alt.png used on input line 
-544.
-(pdftex.def)             Requested size: 316.84932pt x 71.27469pt.
-pdfTeX warning (ext4): destination with the same identifier (name{scheme}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.544 }
-        % END OF FRAME [24
-
- <./steps_gallery_format_arrow_alt.png>] [25
-
-]
-[26
-
-] <polarplot.pdf, id=2094, 325.215pt x 326.21875pt>
-File: polarplot.pdf Graphic file (type pdf)
- <use polarplot.pdf>
-Package pdftex.def Info: polarplot.pdf used on input line 606.
-(pdftex.def)             Requested size: 95.05394pt x 95.34766pt.
-pdfTeX warning (ext4): destination with the same identifier (name{scheme}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.606 }
-        % END OF FRAME [27
-
- <./polarplot.pdf>] [28
-
-] [29
-
-] [30
-
-]
-<isotropic-all-center.png, id=2370, 527.72156pt x 527.72156pt>
-File: isotropic-all-center.png Graphic file (type png)
-
-<use isotropic-all-center.png>
-Package pdftex.def Info: isotropic-all-center.png used on input line 698.
-(pdftex.def)             Requested size: 79.21118pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.698 }
-        % END OF FRAME
-<rings-two-special1.png, id=2371, 527.72156pt x 527.72156pt>
-File: rings-two-special1.png Graphic file (type png)
-
-<use rings-two-special1.png>
-Package pdftex.def Info: rings-two-special1.png used on input line 698.
-(pdftex.def)             Requested size: 79.21118pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.698 }
-        % END OF FRAME
-<spiral-two-wide.png, id=2372, 527.72156pt x 527.72156pt>
-File: spiral-two-wide.png Graphic file (type png)
-
-<use spiral-two-wide.png>
-Package pdftex.def Info: spiral-two-wide.png used on input line 698.
-(pdftex.def)             Requested size: 79.21118pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.698 }
-        % END OF FRAME <iso_sat.png, id=2373, 338.01282pt x 338.01282pt>
-File: iso_sat.png Graphic file (type png)
-
-<use iso_sat.png>
-Package pdftex.def Info: iso_sat.png used on input line 698.
-(pdftex.def)             Requested size: 79.21123pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.698 }
-        % END OF FRAME <cos_parallel.png, id=2374, 338.01282pt x 338.01282pt>
-File: cos_parallel.png Graphic file (type png)
-
-<use cos_parallel.png>
-Package pdftex.def Info: cos_parallel.png used on input line 698.
-(pdftex.def)             Requested size: 79.21123pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.698 }
-        % END OF FRAME <spiral_full.png, id=2375, 292.09125pt x 292.09125pt>
-File: spiral_full.png Graphic file (type png)
-
-<use spiral_full.png>
-Package pdftex.def Info: spiral_full.png used on input line 698.
-(pdftex.def)             Requested size: 79.21332pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.698 }
-        % END OF FRAME
-Overfull \vbox (14.28452pt too high) detected at line 698
- []
-
-[31
-
- <./isotropic-all-center.png> <./rings-two-special1.png> <./spiral-two-wide.png
-> <./iso_sat.png> <./cos_parallel.png> <./spiral_full.png>]
-<scalar_iso_left.png, id=2451, 426.84468pt x 426.84468pt>
-File: scalar_iso_left.png Graphic file (type png)
-
-<use scalar_iso_left.png>
-Package pdftex.def Info: scalar_iso_left.png used on input line 744.
-(pdftex.def)             Requested size: 79.21252pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.744 }
-        % END OF FRAME
-<scalar_iso_right.png, id=2452, 421.575pt x 426.84468pt>
-File: scalar_iso_right.png Graphic file (type png)
-
-<use scalar_iso_right.png>
-Package pdftex.def Info: scalar_iso_right.png used on input line 744.
-(pdftex.def)             Requested size: 78.23459pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.744 }
-        % END OF FRAME
-<scalar_iso_diff.png, id=2453, 425.33907pt x 423.83344pt>
-File: scalar_iso_diff.png Graphic file (type png)
-
-<use scalar_iso_diff.png>
-Package pdftex.def Info: scalar_iso_diff.png used on input line 744.
-(pdftex.def)             Requested size: 79.49126pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.744 }
-        % END OF FRAME
-<scalar_iso_leftangle.png, id=2454, 470.50781pt x 471.26062pt>
-File: scalar_iso_leftangle.png Graphic file (type png)
-
-<use scalar_iso_leftangle.png>
-Package pdftex.def Info: scalar_iso_leftangle.png used on input line 744.
-(pdftex.def)             Requested size: 79.08066pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.744 }
-        % END OF FRAME
-<scalar_iso_rightangle.png, id=2455, 435.12563pt x 435.87843pt>
-File: scalar_iso_rightangle.png Graphic file (type png)
-
-<use scalar_iso_rightangle.png>
-Package pdftex.def Info: scalar_iso_rightangle.png used on input line 744.
-(pdftex.def)             Requested size: 79.06949pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.744 }
-        % END OF FRAME
-<scalar_iso_anglediff.png, id=2456, 432.11438pt x 430.60875pt>
-File: scalar_iso_anglediff.png Graphic file (type png)
-
-<use scalar_iso_anglediff.png>
-Package pdftex.def Info: scalar_iso_anglediff.png used on input line 744.
-(pdftex.def)             Requested size: 79.48494pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.744 }
-        % END OF FRAME
-Overfull \vbox (13.1734pt too high) detected at line 744
- []
-
-[32
-
- <./scalar_iso_left.png> <./scalar_iso_right.png> <./scalar_iso_diff.png> <./sc
-alar_iso_leftangle.png> <./scalar_iso_rightangle.png> <./scalar_iso_anglediff.p
-ng>] <ftle_left.png, id=2531, 398.99063pt x 398.99063pt>
-File: ftle_left.png Graphic file (type png)
-
-<use ftle_left.png>
-Package pdftex.def Info: ftle_left.png used on input line 790.
-(pdftex.def)             Requested size: 79.21225pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAME <ftle_right.png, id=2532, 399.74344pt x 401.24907pt>
-File: ftle_right.png Graphic file (type png)
-
-<use ftle_right.png>
-Package pdftex.def Info: ftle_right.png used on input line 790.
-(pdftex.def)             Requested size: 78.91034pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAME <ftle_diff.png, id=2533, 398.23781pt x 398.23781pt>
-File: ftle_diff.png Graphic file (type png)
-
-<use ftle_diff.png>
-Package pdftex.def Info: ftle_diff.png used on input line 790.
-(pdftex.def)             Requested size: 79.20863pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAMEpdfTeX warning (ext4): destination with the same identifi
-er (name{analysis1}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAME
-<ftle_leftangle.png, id=2534, 426.84468pt x 423.08063pt>
-File: ftle_leftangle.png Graphic file (type png)
-
-<use ftle_leftangle.png>
-Package pdftex.def Info: ftle_leftangle.png used on input line 790.
-(pdftex.def)             Requested size: 79.91594pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAME
-<ftle_rightangle.png, id=2535, 427.5975pt x 425.33907pt>
-File: ftle_rightangle.png Graphic file (type png)
-
-<use ftle_rightangle.png>
-Package pdftex.def Info: ftle_rightangle.png used on input line 790.
-(pdftex.def)             Requested size: 79.63278pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAME
-<ftle_anglediff.png, id=2536, 428.35031pt x 424.58624pt>
-File: ftle_anglediff.png Graphic file (type png)
-
-<use ftle_anglediff.png>
-Package pdftex.def Info: ftle_anglediff.png used on input line 790.
-(pdftex.def)             Requested size: 79.91025pt x 79.21233pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAMEpdfTeX warning (ext4): destination with the same identifi
-er (name{analysis2}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.790 }
-        % END OF FRAME
-Overfull \vbox (13.1734pt too high) detected at line 790
- []
-
-[33
-
- <./ftle_left.png> <./ftle_right.png> <./ftle_diff.png> <./ftle_leftangle.png> 
-<./ftle_rightangle.png> <./ftle_anglediff.png>] [34
-
-]
-Overfull \vbox (0.39493pt too high) detected at line 830
- []
-
-[35
-
-] <isotropic2.png, id=2742, 526.96875pt x 526.96875pt>
-File: isotropic2.png Graphic file (type png)
- <use isotropic2.png>
-Package pdftex.def Info: isotropic2.png used on input line 851.
-(pdftex.def)             Requested size: 142.58096pt x 142.57849pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.851 }
-        % END OF FRAME <iso_ftle.png, id=2743, 423.83344pt x 423.08063pt>
-File: iso_ftle.png Graphic file (type png)
-
-<use iso_ftle.png>
-Package pdftex.def Info: iso_ftle.png used on input line 851.
-(pdftex.def)             Requested size: 142.82742pt x 142.57849pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.851 }
-        % END OF FRAME
-Overfull \vbox (5.77585pt too high) detected at line 851
- []
-
-[36
-
- <./isotropic2.png> <./iso_ftle.png>]
-<iso_volume.png, id=2813, 365.11406pt x 435.12563pt>
-File: iso_volume.png Graphic file (type png)
- <use iso_volume.png>
-Package pdftex.def Info: iso_volume.png used on input line 872.
-(pdftex.def)             Requested size: 119.64119pt x 142.57849pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.872 }
-        % END OF FRAME <iso_isovolume.png, id=2814, 351.56343pt x 447.92343pt>
-File: iso_isovolume.png Graphic file (type png)
-
-<use iso_isovolume.png>
-Package pdftex.def Info: iso_isovolume.png used on input line 872.
-(pdftex.def)             Requested size: 111.90178pt x 142.57849pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.872 }
-        % END OF FRAMEpdfTeX warning (ext4): destination with the same identifi
-er (name{ftle_iso}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.872 }
-        % END OF FRAME [37
-
- <./iso_volume.png> <./iso_isovolume.png>]
-<drain(alt)-TFL.png, id=2884, 376.40625pt x 376.40625pt>
-File: drain(alt)-TFL.png Graphic file (type png)
-
-<use drain(alt)-TFL.png>
-Package pdftex.def Info: drain(alt)-TFL.png used on input line 899.
-(pdftex.def)             Requested size: 118.81924pt x 118.8213pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.899 }
-        % END OF FRAME
-<ftle_drain_alt.png, id=2885, 450.18187pt x 455.45157pt>
-File: ftle_drain_alt.png Graphic file (type png)
-
-<use ftle_drain_alt.png>
-Package pdftex.def Info: ftle_drain_alt.png used on input line 899.
-(pdftex.def)             Requested size: 118.81924pt x 120.20761pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.899 }
-        % END OF FRAME
-<drain_alt_gradient.png, id=2886, 432.11438pt x 433.62pt>
-File: drain_alt_gradient.png Graphic file (type png)
-
-<use drain_alt_gradient.png>
-Package pdftex.def Info: drain_alt_gradient.png used on input line 899.
-(pdftex.def)             Requested size: 118.81924pt x 119.22932pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.899 }
-        % END OF FRAME [38
-
- <./drain(alt)-TFL.png> <./ftle_drain_alt.png> <./drain_alt_gradient.png>]
-File: inverse-TFL.png Graphic file (type png)
- <use inverse-TFL.png>
-Package pdftex.def Info: inverse-TFL.png used on input line 921.
-(pdftex.def)             Requested size: 142.57849pt x 142.57637pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.921 }
-        % END OF FRAME
-<inverse-FTLE-raw.png, id=2957, 452.4403pt x 452.4403pt>
-File: inverse-FTLE-raw.png Graphic file (type png)
-
-<use inverse-FTLE-raw.png>
-Package pdftex.def Info: inverse-FTLE-raw.png used on input line 921.
-(pdftex.def)             Requested size: 142.57849pt x 142.57468pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.921 }
-        % END OF FRAME
-Overfull \vbox (5.77373pt too high) detected at line 921
- []
-
-[39
-
- <./inverse-FTLE-raw.png>]
-<inverse_isovolume.png, id=3026, 240.9pt x 231.86626pt>
-File: inverse_isovolume.png Graphic file (type png)
-
-<use inverse_isovolume.png>
-Package pdftex.def Info: inverse_isovolume.png used on input line 944.
-(pdftex.def)             Requested size: 123.44917pt x 118.81924pt.
-
-Overfull \hbox (4.62993pt too wide) in paragraph at lines 944--944
-[][]
- []
-
-<inverse_surface.png, id=3027, 455.45157pt x 442.65375pt>
-File: inverse_surface.png Graphic file (type png)
-
-<use inverse_surface.png>
-Package pdftex.def Info: inverse_surface.png used on input line 944.
-(pdftex.def)             Requested size: 122.2508pt x 118.81924pt.
-
-Overfull \hbox (3.43155pt too wide) in paragraph at lines 944--944
-[][]
- []
-
-<inverse_contour.png, id=3028, 315.42844pt x 264.99pt>
-File: inverse_contour.png Graphic file (type png)
-
-<use inverse_contour.png>
-Package pdftex.def Info: inverse_contour.png used on input line 944.
-(pdftex.def)             Requested size: 141.43611pt x 118.81924pt.
-
-Overfull \hbox (22.61687pt too wide) in paragraph at lines 944--944
-[][]
- []
-
-[40
-
- <./inverse_isovolume.png> <./inverse_surface.png> <./inverse_contour.png>]
-<bow-TFL.png, id=3098, 526.96875pt x 526.96875pt>
-File: bow-TFL.png Graphic file (type png)
- <use bow-TFL.png>
-Package pdftex.def Info: bow-TFL.png used on input line 966.
-(pdftex.def)             Requested size: 142.57849pt x 142.58096pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.966 }
-        % END OF FRAME <bow_ftle.png, id=3099, 470.50781pt x 472.76625pt>
-File: bow_ftle.png Graphic file (type png)
-
-<use bow_ftle.png>
-Package pdftex.def Info: bow_ftle.png used on input line 966.
-(pdftex.def)             Requested size: 142.57849pt x 143.2593pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.966 }
-        % END OF FRAME
-Overfull \vbox (6.45665pt too high) detected at line 966
- []
-
-[41
-
- <./bow-TFL.png> <./bow_ftle.png>]
-<bow_contour.png, id=3169, 521.69907pt x 446.41782pt>
-File: bow_contour.png Graphic file (type png)
- <use bow_contour.png>
-Package pdftex.def Info: bow_contour.png used on input line 986.
-(pdftex.def)             Requested size: 158.42163pt x 135.5612pt.
-
-<bow_volume.png, id=3170, 517.935pt x 438.13687pt>
-File: bow_volume.png Graphic file (type png)
- <use bow_volume.png>
-Package pdftex.def Info: bow_volume.png used on input line 986.
-(pdftex.def)             Requested size: 158.42163pt x 134.01596pt.
-
-[42
-
- <./bow_contour.png> <./bow_volume.png>] (presentation-LTG.toc) [43
-
-]
-<inverse_law.pdf, id=3312, 712.6625pt x 454.69875pt>
-File: inverse_law.pdf Graphic file (type pdf)
- <use inverse_law.pdf>
-Package pdftex.def Info: inverse_law.pdf used on input line 1004.
-(pdftex.def)             Requested size: 237.6385pt x 151.61906pt.
-
-Overfull \vbox (3.02338pt too high) detected at line 1004
- []
-
-[44
-
- <./inverse_law.pdf>]
-<tensorfieldlines.png, id=3407, 526.96875pt x 526.96875pt>
-File: tensorfieldlines.png Graphic file (type png)
-
-<use tensorfieldlines.png>
-Package pdftex.def Info: tensorfieldlines.png used on input line 1031.
-(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1031 }
-         % END OF FRAME
-<total_anisotropy1.png, id=3408, 527.72156pt x 527.72156pt>
-File: total_anisotropy1.png Graphic file (type png)
-
-<use total_anisotropy1.png>
-Package pdftex.def Info: total_anisotropy1.png used on input line 1031.
-(pdftex.def)             Requested size: 118.81924pt x 118.81274pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1031 }
-         % END OF FRAME
-<total_anisotropy2.png, id=3409, 527.72156pt x 527.72156pt>
-File: total_anisotropy2.png Graphic file (type png)
-
-<use total_anisotropy2.png>
-Package pdftex.def Info: total_anisotropy2.png used on input line 1031.
-(pdftex.def)             Requested size: 118.81924pt x 118.81274pt.
- [45
-
- <./tensorfieldlines.png> <./total_anisotropy1.png> <./total_anisotropy2.png>]
-File: gyre.png Graphic file (type png)
- <use gyre.png>
-Package pdftex.def Info: gyre.png used on input line 1059.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1059 }
-         % END OF FRAME <gyre_ftle.PNG, id=3481, 574.39594pt x 572.89032pt>
-File: gyre_ftle.PNG Graphic file (type png)
-
-<use gyre_ftle.PNG>
-Package pdftex.def Info: gyre_ftle.PNG used on input line 1059.
-(pdftex.def)             Requested size: 119.12796pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1059 }
-         % END OF FRAME
-<gyre_ftle_org.PNG, id=3482, 532.23843pt x 530.73282pt>
-File: gyre_ftle_org.PNG Graphic file (type png)
-
-<use gyre_ftle_org.PNG>
-Package pdftex.def Info: gyre_ftle_org.PNG used on input line 1059.
-(pdftex.def)             Requested size: 119.15562pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1059 }
-         % END OF FRAME [46
-
- <./gyre_ftle.PNG> <./gyre_ftle_org.PNG>]
-<gyre_volume2.png, id=3551, 1210.5225pt x 1322.9425pt>
-File: gyre_volume2.png Graphic file (type png)
- <use gyre_volume2.png>
-Package pdftex.def Info: gyre_volume2.png used on input line 1087.
-(pdftex.def)             Requested size: 108.72067pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1087 }
-         % END OF FRAME
-<gyre_gauss_contour.PNG, id=3552, 476.53032pt x 482.55281pt>
-File: gyre_gauss_contour.PNG Graphic file (type png)
-
-<use gyre_gauss_contour.PNG>
-Package pdftex.def Info: gyre_gauss_contour.PNG used on input line 1087.
-(pdftex.def)             Requested size: 117.33629pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1087 }
-         % END OF FRAME <gyre_volume4.PNG, id=3553, 1359.0775pt x 1383.1675pt>
-File: gyre_volume4.PNG Graphic file (type png)
-
-<use gyre_volume4.PNG>
-Package pdftex.def Info: gyre_volume4.PNG used on input line 1087.
-(pdftex.def)             Requested size: 116.73322pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1087 }
-         % END OF FRAME [47
-
- <./gyre_volume2.png> <./gyre_gauss_contour.PNG> <./gyre_volume4.PNG>] [48
-
-]
-File: brainDwnsmpl.png Graphic file (type png)
- <use brainDwnsmpl.png>
-Package pdftex.def Info: brainDwnsmpl.png used on input line 1146.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1146 }
-         % END OF FRAME
-<brainDwnsmpl-TFL.PNG, id=3690, 526.96875pt x 526.96875pt>
-File: brainDwnsmpl-TFL.PNG Graphic file (type png)
-
-<use brainDwnsmpl-TFL.PNG>
-Package pdftex.def Info: brainDwnsmpl-TFL.PNG used on input line 1146.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1146 }
-         % END OF FRAME
-<brain_ftle_org.PNG, id=3691, 532.99126pt x 532.99126pt>
-File: brain_ftle_org.PNG Graphic file (type png)
-
-<use brain_ftle_org.PNG>
-Package pdftex.def Info: brain_ftle_org.PNG used on input line 1146.
-(pdftex.def)             Requested size: 118.81993pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1146 }
-         % END OF FRAME [49
-
- <./brainDwnsmpl-TFL.PNG> <./brain_ftle_org.PNG>]
-<brainDwnsmpl_denoise.png, id=3762, 526.96875pt x 526.96875pt>
-File: brainDwnsmpl_denoise.png Graphic file (type png)
-
-<use brainDwnsmpl_denoise.png>
-Package pdftex.def Info: brainDwnsmpl_denoise.png used on input line 1175.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1175 }
-         % END OF FRAME <brain-TFL.PNG, id=3763, 526.96875pt x 526.96875pt>
-File: brain-TFL.PNG Graphic file (type png)
-
-<use brain-TFL.PNG>
-Package pdftex.def Info: brain-TFL.PNG used on input line 1175.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1175 }
-         % END OF FRAME
-<brain_ftle_surf_noisereduction.PNG, id=3764, 533.74406pt x 533.74406pt>
-File: brain_ftle_surf_noisereduction.PNG Graphic file (type png)
-
-<use brain_ftle_surf_noisereduction.PNG>
-Package pdftex.def Info: brain_ftle_surf_noisereduction.PNG used on input line 
-1175.
-(pdftex.def)             Requested size: 118.81673pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1175 }
-         % END OF FRAMEpdfTeX warning (ext4): destination with the same identif
-ier (name{brain_ftle_comp}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1175 }
-         % END OF FRAME [50
-
- <./brainDwnsmpl_denoise.png> <./brain-TFL.PNG> <./brain_ftle_surf_noisereducti
-on.PNG>]
-<brain_ftle.PNG, id=3834, 421.575pt x 423.08063pt>
-File: brain_ftle.PNG Graphic file (type png)
- <use brain_ftle.PNG>
-Package pdftex.def Info: brain_ftle.PNG used on input line 1207.
-(pdftex.def)             Requested size: 82.879pt x 83.17528pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1207 }
-         % END OF FRAME <brain_surf.PNG, id=3835, 523.20468pt x 524.71031pt>
-File: brain_surf.PNG Graphic file (type png)
-
-<use brain_surf.PNG>
-Package pdftex.def Info: brain_surf.PNG used on input line 1207.
-(pdftex.def)             Requested size: 82.93207pt x 83.17528pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1207 }
-         % END OF FRAME
-<brain_volume2.PNG, id=3836, 359.84438pt x 471.26062pt>
-File: brain_volume2.PNG Graphic file (type png)
-
-<use brain_volume2.PNG>
-Package pdftex.def Info: brain_volume2.PNG used on input line 1207.
-(pdftex.def)             Requested size: 63.5063pt x 83.17528pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1207 }
-         % END OF FRAME
-<brain_cross-section.PNG, id=3837, 246.9225pt x 519.44063pt>
-File: brain_cross-section.PNG Graphic file (type png)
-
-<use brain_cross-section.PNG>
-Package pdftex.def Info: brain_cross-section.PNG used on input line 1207.
-(pdftex.def)             Requested size: 39.53477pt x 83.17528pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1207 }
-         % END OF FRAME [51
-
- <./brain_ftle.PNG> <./brain_surf.PNG> <./brain_volume2.PNG> <./brain_cross-sec
-tion.PNG>]
-File: heartDwnsmpl.png Graphic file (type png)
- <use heartDwnsmpl.png>
-Package pdftex.def Info: heartDwnsmpl.png used on input line 1235.
-(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1235 }
-         % END OF FRAME
-<heartDwnsmpl-TFL.PNG, id=3909, 526.96875pt x 526.96875pt>
-File: heartDwnsmpl-TFL.PNG Graphic file (type png)
-
-<use heartDwnsmpl-TFL.PNG>
-Package pdftex.def Info: heartDwnsmpl-TFL.PNG used on input line 1235.
-(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1235 }
-         % END OF FRAME
-<heart_ftle_org.PNG, id=3910, 551.81157pt x 552.56438pt>
-File: heart_ftle_org.PNG Graphic file (type png)
-
-<use heart_ftle_org.PNG>
-Package pdftex.def Info: heart_ftle_org.PNG used on input line 1235.
-(pdftex.def)             Requested size: 118.81924pt x 118.97607pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1235 }
-         % END OF FRAME [52
-
- <./heartDwnsmpl-TFL.PNG> <./heart_ftle_org.PNG>]
-<heart.png, id=3980, 1539.7525pt x 1541.76pt>
-File: heart.png Graphic file (type png)
- <use heart.png>
-Package pdftex.def Info: heart.png used on input line 1263.
-(pdftex.def)             Requested size: 118.81924pt x 118.9676pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1263 }
-         % END OF FRAME\\
-<heart_slice0.PNG, id=3981, 528.47438pt x 528.47438pt>
-File: heart_slice0.PNG Graphic file (type png)
- <use heart_slice0.PNG>
-Package pdftex.def Info: heart_slice0.PNG used on input line 1263.
-(pdftex.def)             Requested size: 118.81924pt x 118.8129pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1263 }
-         % END OF FRAME\\
-File: heart_ftle_org.PNG Graphic file (type png)
- <use heart_ftle_org.PNG>
-Package pdftex.def Info: heart_ftle_org.PNG used on input line 1263.
-(pdftex.def)             Requested size: 118.81924pt x 118.97607pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1263 }
-         % END OF FRAME\\ [53
-
- <./heart.png> <./heart_slice0.PNG>]
-<heart_volume.PNG, id=4050, 440.39531pt x 413.29407pt>
-File: heart_volume.PNG Graphic file (type png)
- <use heart_volume.PNG>
-Package pdftex.def Info: heart_volume.PNG used on input line 1287.
-(pdftex.def)             Requested size: 126.6093pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1287 }
-         % END OF FRAME\\
-Overfull \hbox (7.79005pt too wide) in paragraph at lines 1287--1287
- [][] 
- []
-
-<heart_volume3.PNG, id=4051, 461.47406pt x 461.47406pt>
-File: heart_volume3.PNG Graphic file (type png)
-
-<use heart_volume3.PNG>
-Package pdftex.def Info: heart_volume3.PNG used on input line 1287.
-(pdftex.def)             Requested size: 118.81924pt x 118.81856pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1287 }
-         % END OF FRAME\\
-<heart_volume5.PNG, id=4052, 440.39531pt x 413.29407pt>
-File: heart_volume5.PNG Graphic file (type png)
-
-<use heart_volume5.PNG>
-Package pdftex.def Info: heart_volume5.PNG used on input line 1287.
-(pdftex.def)             Requested size: 126.6093pt x 118.81924pt.
-pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
-n already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1287 }
-         % END OF FRAME\\
-Overfull \hbox (7.79005pt too wide) in paragraph at lines 1287--1287
- [][] 
- []
-
-[54
-
- <./heart_volume.PNG> <./heart_volume3.PNG> <./heart_volume5.PNG>]
-(presentation-LTG.toc) [55
-
-] [56
-
-] [57
-
-]
-<img/questions.pdf, id=4325, 416.55624pt x 222.8325pt>
-File: img/questions.pdf Graphic file (type pdf)
- <use img/questions.pdf>
-Package pdftex.def Info: img/questions.pdf used on input line 1384.
-(pdftex.def)             Requested size: 316.84932pt x 169.50406pt.
-
-[58
-
- <./img/questions.pdf>] [59
-
-]
-\tf@nav=\write7
-\openout7 = `presentation-LTG.nav'.
-
-\tf@toc=\write8
-\openout8 = `presentation-LTG.toc'.
-
-\tf@snm=\write9
-\openout9 = `presentation-LTG.snm'.
-
-
-
-Package movie15 Warning: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-(movie15)                @@ Package `movie15' is obsolete and @@
-(movie15)                @@ superseded by `media9'.           @@
-(movie15)                @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1424.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1424.
-(presentation-LTG.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1424.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1424.
-
-Package rerunfilecheck Info: File `presentation-LTG.out' has not changed.
-(rerunfilecheck)             Checksum: 23C046C3072F7998DF9F07AFBE04984D;380.
-
-
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
-
-
-LaTeX Warning: There were multiply-defined labels.
-
- ) 
-Here is how much of TeX's memory you used:
- 20700 strings out of 493328
- 385885 string characters out of 3139127
- 573155 words of memory out of 3000000
- 23462 multiletter control sequences out of 15000+200000
- 26290 words of font info for 88 fonts, out of 3000000 for 9000
- 1141 hyphenation exceptions out of 8191
- 56i,20n,65p,812b,823s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx9.pfb><C:/Pro
-gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Fil
-es/MiKTeX 2.9/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><C:/Program Files/M
-iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.
-9/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
-ype1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publ
-ic/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
-ts/cm/cmmi9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmm
-ib10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><
-C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program
- Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Files/M
-iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Files/MiKTeX 2.
-9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
-ype1/public/amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
-ublic/amsfonts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
-msfonts/cm/cmssi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7
-.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/
-Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Program F
-iles/MiKTeX 2.9/fonts/type1/public/amsfonts/euler/eurm10.pfb><C:/Program Files/
-MiKTeX 2.9/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Program Files/MiKTeX 2.9/fon
-ts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/time
-s/utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on presentation-LTG.pdf (59 pages, 12664838 bytes).
-PDF statistics:
- 4564 PDF objects out of 5155 (max. 8388607)
- 156 named destinations out of 1000 (max. 500000)
- 589 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+<stress_tensor.png, id=1101, 506.89375pt x 426.59375pt>
+File: stress_tensor.png Graphic file (type png)
+
+<use stress_tensor.png>
+Package pdftex.def Info: stress_tensor.png used on input line 311.
+(pdftex.d

@@ -77,34 +77,94 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 
 \section[Introduction]{Introduction}
 
-\subsection[Introduction]{Motivation}
+\subsection[Introduction]{Introduction}
 
 \frame{
-\frametitle{{Motivation}}
-
+\frametitle{{Introduction - Scalar Fields}}
+\begin{columns}
+\begin{column}{.5\textwidth}
 \begin{itemize}
-	\item visualization in general is needed to generate a more readable, explorable and intuitive representation
-	\item tensor representations are needed to describe a directional distribution for each point in space, when:
+	\item Scalar fields are visualized by heat maps (color codings) classically
+	\bigskip
+	\item Each position in space is mapped a scalar height value
+	\bigskip
+	\item Examples: temperature field, height field
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.7\textwidth]{Scalar_field.png} 
+\caption{Scalar field,  \textit{Source: \textcircled{1}}}
+\end{figure}
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Introduction - Vector Fields}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Vector fields are visualized by a collection of arrows with a given magnitude and direction classically
+	\bigskip
+	\item Each position in space is mapped a scalar magnitude and an angle
+	\bigskip
+	\item Examples: flow field, magnetic field, gravitational field
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.6\textwidth]{vector_field.pdf} a)
+\includegraphics[width=0.6\textwidth]{vector_field2.pdf} b)
+\caption{Vector fields: a) $\{x,y\}$, b) $\{-y,x\}$}
+\end{figure}
+
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Introduction - Tensor Fields}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Tensor fields are commonly visualized by:
 	\begin{itemize}
-	\item e.g. for vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
-	\item e.g. for fluid and solid continuum mechanics: to describe a whole distribution of stresses
-	\item e.g. for DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
+		\item Glyphs
+		\item Tensor field lines (TFLs) $\Rightarrow$ Hyperstreamlines
 	\end{itemize}
+	\bigskip
+	\item Each position in space is mapped a tensor describing a directional distribution
+	\bigskip
+	\item Scalar Measures: anisotropy index, tensor magnitude
 \end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.6\textwidth]{hyperstreamlines.png} a)
+\includegraphics[width=0.6\textwidth]{random-global.png} b)
+\caption{Tensor fields: a) Tensor field lines, b) Glyphs}
+\end{figure}
+
+\end{column}
+\end{columns}
+
 } % END OF FRAME
 
 
-\frame{
-\frametitle{{Objectives}}
-
-\begin{itemize}
-	\item a light transport model (propagation scheme) following basic but crucial physical principles,
-	\item application of this model for tensor field visualization interpreting tensors as light transmission properties,
-	\item a FTLE (Finite-time Lyapunov exponents)-related approach called light transport gradient (LTG) for visualizing key structures, namely LCS (Lagrangian coherent structures) in 2D second-order tensor fields, and
-	\item application of our approach to both synthetic and real data involving brain and heart datasets.
-\end{itemize}
-
-} % END OF FRAME
+%\frame{
+%\frametitle{{Objectives}}
+%
+%\begin{itemize}
+%	\item a light transport model (propagation scheme) following basic but crucial physical principles,
+%	\item application of this model for tensor field visualization interpreting tensors as light transmission properties,
+%	\item a FTLE (Finite-time Lyapunov exponents)-related approach called light transport gradient (LTG) for visualizing key structures, namely LCS (Lagrangian coherent structures) in 2D second-order tensor fields, and
+%	\item application of our approach to both synthetic and real data involving brain and heart datasets.
+%\end{itemize}
+%
+%} % END OF FRAME
 %----------------------------------------
 
 \subsection[Introduction]{Related Work}
@@ -166,6 +226,39 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 %----------------------------------------
 
 %======================================== END OF SECTION
+\subsection[Introduction]{Motivation}
+\frame{
+\frametitle{{Motivation - Tensor Fields}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=0.7\textwidth]{random-global.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=0.7\textwidth]{random_global.png}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=0.7\textwidth]{random_local_slice0.png}
+	c)
+    \label{b)}
+  \end{minipage}
+\caption{Random field: a) field, b) tensor magnitude, c) FTLE}
+\label{test_fields2}
+\end{figure}
+Applications:
+\begin{itemize}
+	\item Vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
+	\item Fluid and solid continuum mechanics: to describe a whole distribution of stresses
+	\item DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
+\end{itemize}
+} % END OF FRAME
 
 \section[Fundamentals]{Fundamentals}
 
@@ -1235,56 +1328,173 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Heart dataset - Evaluation}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
   \centering
-  \includegraphics[width=\textwidth]{heart.png}
+  \includegraphics[width=\textwidth]{heartDwnsmpl.PNG}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_slice0.PNG}
+    \includegraphics[width=\textwidth]{heart_slice20.PNG}
 	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_ftle_org.PNG}
+    \includegraphics[width=\textwidth]{heart_slice20_rescale.PNG}
 	c)
     \label{b)}
   \end{minipage}
-  \caption{Heart test field: a) LTG global, b) LTG local, c) Hlawatsch's approach}
+  \caption{Heart test field: a) Glyphs, b) LTG local, c) LTG local (rescale)}
 \label{heart-ftle}
 \end{figure}
-
-} % END OF FRAME\\
+\begin{itemize}
+	\item light ridges enhanced by rescaling for the down-left direction
+	\item these regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
+	\item edge artifacts: edges effect high gradients for the flow map
+\end{itemize}
+} % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Heart dataset - Evaluation}}
 \begin{figure}[!t]
 \centering
- \begin{minipage}{0.3\textwidth}
- \centering
- \includegraphics[height=\textwidth]{heart_volume.PNG}
-   \label{a)}
- \end{minipage}\hskip 12pt
- \begin{minipage}{0.3\textwidth}
- \centering
-   \includegraphics[width=\textwidth]{heart_volume3.PNG}
-   \label{b)}
- \end{minipage}
- \begin{minipage}{0.3\textwidth}
- \centering
-   \includegraphics[height=\textwidth]{heart_volume5.PNG}
-   \label{b)}
- \end{minipage}
- \caption{Heart test field: LTG volumes}
-\label{heart-ftle-volumes}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{heart_vcgRidges4.PNG}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_isoVolume3.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_contour.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+  \caption{Heart test field: a) Glyphs, b) LTG local, c) LTG local (rescale)}
+\label{heart-ftle}
 \end{figure}
-} % END OF FRAME\\
+\begin{itemize}
+	\item volumes reveal blob-shaped features
+	\item these features in turn form 3D ridges representing LCS
+\end{itemize}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Random Test Field}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Tensor fields are commonly visualized by:
+	\begin{itemize}
+		\item Glyphs
+		\item Tensor field lines (TFLs) $\Rightarrow$ Hyperstreamlines
+	\end{itemize}
+	\bigskip
+	\item Each position in space is mapped a tensor describing a directional distribution
+	\bigskip
+	\item Scalar Measures: anisotropy index, tensor magnitude
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-global.png}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-local.png}
+	b)
+  \end{minipage}
+\label{bow_contour}
+\end{figure}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_global.png}
+	c)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_local_slice0.png}
+	d)
+  \end{minipage}
+    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
+\label{bow_contour}
+\end{figure}
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Random Test Field - Evaluation}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item numerics: limit number representation to a particular range
+	\item preposition for relatively high tensor mags.: $\lambda_1\approx\lambda_2\approx1.0$ (because ellipsoid area equals $A=\lambda_1\cdot\lambda_2\cdot\pi$)\\
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-global.png}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-local.png}
+	b)
+  \end{minipage}
+\label{bow_contour}
+\end{figure}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_global.png}
+	c)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_local_slice0.png}
+	d)
+  \end{minipage}
+    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
+\label{bow_contour}
+\end{figure}
+\end{column}
+\end{columns}
+
+%$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)
+} % END OF FRAME
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Alternative: put content in separate files
+% Check the difference between including these files using \input{filename} and \include{filename} and see which one you like better
+%\chapter{Einleitung}\label{intro}
+%\input{introduction}
+%
+%\chapter{Voraussetzungen}\label{bg}
+%\input{background}
 
 
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}

@@ -171,8 +171,116 @@ Applications:
 \end{column}
 \end{columns}
 
-
 } % END OF FRAME
+
+\frame{
+\frametitle{{Random Test Field - Evaluation}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item numerics: limit number representation to a particular range
+	\item preposition for relatively high tensor mags.: $\lambda_1\approx\lambda_2\approx1.0$ (because ellipsoid area equals $A=\lambda_1\cdot\lambda_2\cdot\pi$)\\
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-global.png}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-local.png}
+	b)
+  \end{minipage}
+\label{bow_contour}
+\end{figure}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_global.png}
+	c)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_local_slice0.png}
+	d)
+  \end{minipage}
+    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
+\label{bow_contour}
+\end{figure}
+\end{column}
+\end{columns}
+
+%$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)
+} % END OF FRAME
+
+\frame{
+\frametitle{{Heart dataset - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{heartDwnsmpl.PNG}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_slice20.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_slice20_rescale.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+  \caption{Heart test field: a) Glyphs, b) LTG local, c) LTG local (rescale)}
+\label{heart-ftle}
+\end{figure}
+\begin{itemize}
+	\item light ridges enhanced by rescaling for the down-left direction
+	\item these regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
+	\item edge artifacts: edges effect high gradients for the flow map
+\end{itemize}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Heart dataset - Evaluation}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{heart_vcgRidges4.PNG}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_isoVolume3.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{heart_contour.PNG}
+	c)
+    \label{b)}
+  \end{minipage}
+  \caption{Heart test field: a) Glyphs, b) LTG local, c) LTG local (rescale)}
+\label{heart-ftle}
+\end{figure}
+\begin{itemize}
+	\item volumes reveal blob-shaped features
+	\item these features in turn form 3D ridges representing LCS
+\end{itemize}
+} % END OF FRAME
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Alternative: put content in separate files

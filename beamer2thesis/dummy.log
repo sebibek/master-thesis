@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  23 JUL 2019 19:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  23 JUL 2019 20:43
 entering extended mode
 **./dummy.tex
 (dummy.tex
@@ -766,6 +766,33 @@ LaTeX Warning: Label `b)' multiply defined.
 
 LaTeX Warning: Label `bow_contour' multiply defined.
 
+
+LaTeX Warning: Label `bow_contour' multiply defined.
+
+
+LaTeX Warning: Label `bow_contour' multiply defined.
+
+
+LaTeX Warning: Label `a)' multiply defined.
+
+
+LaTeX Warning: Label `b)' multiply defined.
+
+
+LaTeX Warning: Label `b)' multiply defined.
+
+
+LaTeX Warning: Label `a)' multiply defined.
+
+
+LaTeX Warning: Label `b)' multiply defined.
+
+
+LaTeX Warning: Label `b)' multiply defined.
+
+
+LaTeX Warning: Label `heart-ftle' multiply defined.
+
 )
 \openout1 = `dummy.aux'.
 
@@ -1045,21 +1072,21 @@ l.122 }
 File: random-global.png Graphic file (type png)
 
 <use random-global.png>
-Package pdftex.def Info: random-global.png used on input line 175.
+Package pdftex.def Info: random-global.png used on input line 174.
 (pdftex.def)             Requested size: 61.45703pt x 61.45648pt.
- <random-local.png, id=150, 526.96875pt x 526.96875pt>
+ <random-local.png, id=151, 526.96875pt x 526.96875pt>
 File: random-local.png Graphic file (type png)
 
 <use random-local.png>
-Package pdftex.def Info: random-local.png used on input line 175.
+Package pdftex.def Info: random-local.png used on input line 174.
 (pdftex.def)             Requested size: 61.45703pt x 61.45648pt.
 File: random_global.png Graphic file (type png)
  <use random_global.png>
-Package pdftex.def Info: random_global.png used on input line 175.
+Package pdftex.def Info: random_global.png used on input line 174.
 (pdftex.def)             Requested size: 61.45703pt x 61.44884pt.
 File: random_local_slice0.png Graphic file (type png)
  <use random_local_slice0.png>
-Package pdftex.def Info: random_local_slice0.png used on input line 175.
+Package pdftex.def Info: random_local_slice0.png used on input line 174.
 (pdftex.def)             Requested size: 61.45703pt x 61.6275pt.
 
 [5
@@ -1069,8 +1096,116 @@ pdfTeX warning (ext4): destination with the same identifier (name{bow_contour})
 
 \@EveryShipout@Output ...@Org@Shipout \box \@cclv 
                                                   
-l.175 }
+l.174 }
         % END OF FRAME <./random-local.png>]
+File: random-global.png Graphic file (type png)
+ <use random-global.png>
+Package pdftex.def Info: random-global.png used on input line 219.
+(pdftex.def)             Requested size: 61.45703pt x 61.45648pt.
+File: random-local.png Graphic file (type png)
+
+<use random-local.png>
+Package pdftex.def Info: random-local.png used on input line 219.
+(pdftex.def)             Requested size: 61.45703pt x 61.45648pt.
+pdfTeX warning (ext4): destination with the same identifier (name{bow_contour})
+ has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.219 }
+        % END OF FRAME
+File: random_global.png Graphic file (type png)
+ <use random_global.png>
+Package pdftex.def Info: random_global.png used on input line 219.
+(pdftex.def)             Requested size: 61.45703pt x 61.44884pt.
+File: random_local_slice0.png Graphic file (type png)
+ <use random_local_slice0.png>
+Package pdftex.def Info: random_local_slice0.png used on input line 219.
+(pdftex.def)             Requested size: 61.45703pt x 61.6275pt.
+pdfTeX warning (ext4): destination with the same identifier (name{bow_contour})
+ has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.219 }
+        % END OF FRAME [6
+
+]
+<heartDwnsmpl.PNG, id=205, 526.96875pt x 526.96875pt>
+File: heartDwnsmpl.PNG Graphic file (type png)
+ <use heartDwnsmpl.PNG>
+Package pdftex.def Info: heartDwnsmpl.PNG used on input line 251.
+(pdftex.def)             Requested size: 92.1879pt x 92.18874pt.
+pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.251 }
+        % END OF FRAME <heart_slice20.PNG, id=206, 567.62062pt x 568.37344pt>
+File: heart_slice20.PNG Graphic file (type png)
+
+<use heart_slice20.PNG>
+Package pdftex.def Info: heart_slice20.PNG used on input line 251.
+(pdftex.def)             Requested size: 92.1879pt x 92.3032pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.251 }
+        % END OF FRAME
+<heart_slice20_rescale.PNG, id=207, 567.62062pt x 568.37344pt>
+File: heart_slice20_rescale.PNG Graphic file (type png)
+
+<use heart_slice20_rescale.PNG>
+Package pdftex.def Info: heart_slice20_rescale.PNG used on input line 251.
+(pdftex.def)             Requested size: 92.1879pt x 92.3032pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.251 }
+        % END OF FRAME [7
+
+ <./heartDwnsmpl.PNG> <./heart_slice20.PNG> <./heart_slice20_rescale.PNG>] <hea
+rt_vcgRidges4.PNG, id=237, 1266.7325pt x 1130.2225pt>
+File: heart_vcgRidges4.PNG Graphic file (type png)
+
+<use heart_vcgRidges4.PNG>
+Package pdftex.def Info: heart_vcgRidges4.PNG used on input line 282.
+(pdftex.def)             Requested size: 92.1879pt x 82.24515pt.
+pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.282 }
+        % END OF FRAME <heart_isoVolume3.PNG, id=238, 1204.5pt x 1027.84pt>
+File: heart_isoVolume3.PNG Graphic file (type png)
+
+<use heart_isoVolume3.PNG>
+Package pdftex.def Info: heart_isoVolume3.PNG used on input line 282.
+(pdftex.def)             Requested size: 92.1879pt x 78.65303pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.282 }
+        % END OF FRAME <heart_contour.PNG, id=239, 1710.39pt x 1511.6475pt>
+File: heart_contour.PNG Graphic file (type png)
+
+<use heart_contour.PNG>
+Package pdftex.def Info: heart_contour.PNG used on input line 282.
+(pdftex.def)             Requested size: 92.1879pt x 81.4686pt.
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.282 }
+        % END OF FRAMEpdfTeX warning (ext4): destination with the same identifi
+er (name{heart-ftle}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.282 }
+        % END OF FRAME [8
+
+ <./heart_vcgRidges4.PNG> <./heart_isoVolume3.PNG> <./heart_contour.PNG>]
 \tf@nav=\write6
 \openout6 = `dummy.nav'.
 
@@ -1080,11 +1215,11 @@ l.175 }
 \tf@snm=\write8
 \openout8 = `dummy.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 188.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 188.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 296.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 296.
  (dummy.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 188.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 188.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 296.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 296.
 Package rerunfilecheck Info: File `dummy.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
@@ -1096,22 +1231,23 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 18785 strings out of 493328
- 352869 string characters out of 3139127
+ 18830 strings out of 493328
+ 353683 string characters out of 3139127
  439591 words of memory out of 3000000
- 21895 multiletter control sequences out of 15000+200000
+ 21926 multiletter control sequences out of 15000+200000
  14540 words of font info for 53 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,14n,55p,795b,763s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Pr
 ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Fi
 les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/
-fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/ty
-pe1/public/amsfonts/symbols/msam10.pfb>
-Output written on dummy.pdf (5 pages, 2212784 bytes).
+eX 2.9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTeX 2.9/fo
+nts/type1/public/amsfonts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
+e1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/symbols/msam10.pfb>
+Output written on dummy.pdf (8 pages, 5960741 bytes).
 PDF statistics:
- 202 PDF objects out of 1000 (max. 8388607)
- 15 named destinations out of 1000 (max. 500000)
- 83 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 297 PDF objects out of 1000 (max. 8388607)
+ 22 named destinations out of 1000 (max. 500000)
+ 113 words of extra memory for PDF output out of 10000 (max. 10000000)
 
