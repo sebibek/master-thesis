@@ -1,4 +1,11 @@
-\documentclass{beamer}
+\documentclass[aspectratio=169]{beamer}
+\usetheme[language=ngerman,
+titlepagelogo=logopolito,
+bullet=circle,
+pageofpages=of,
+titleline=true,
+color=blue
+]{TorinoTh}
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{csquotes}
@@ -8,6 +15,14 @@
 \usepackage{subfig}
 \usepackage{url}
 %\usepackage{subfig}
+
+\usepackage{beamerthemesplit}
+\usetheme[compress]{Heidelberg}
+\definecolor{unirot}{rgb}{0.4,0.4,0.3} % babyblue 0,0.58,1
+\usecolortheme[named=unirot]{structure}
+%\setbeamercolor{alerted text}{fg=red}
+\newcommand*\hilite[1]{\textcolor{red}{#1}}
+
 \newsubfloat{figure}
 \newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
 
@@ -50,8 +65,8 @@
 \end{column}
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
-\includegraphics[width=0.6\textwidth]{vector_field.pdf} a)
-\includegraphics[width=0.6\textwidth]{vector_field2.pdf} b)
+\includegraphics[width=0.4\textwidth]{vector_field.pdf} a)
+\includegraphics[width=0.4\textwidth]{vector_field2.pdf} b)
 \caption{Vector fields: a) $\{x,y\}$, b) $\{-y,x\}$}
 \end{figure}
 
@@ -78,8 +93,8 @@
 \end{column}
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
-\includegraphics[width=0.6\textwidth]{hyperstreamlines.png} a)
-\includegraphics[width=0.6\textwidth]{random-global.png} b)
+\includegraphics[width=0.4\textwidth]{random-global-TFL.png} a)
+\includegraphics[width=0.4\textwidth]{random-global.png} b)
 \caption{Tensor fields: a) Tensor field lines, b) Glyphs}
 \end{figure}
 
@@ -127,57 +142,6 @@ Applications:
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item Tensor fields are commonly visualized by:
-	\begin{itemize}
-		\item Glyphs
-		\item Tensor field lines (TFLs) $\Rightarrow$ Hyperstreamlines
-	\end{itemize}
-	\bigskip
-	\item Each position in space is mapped a tensor describing a directional distribution
-	\bigskip
-	\item Scalar Measures: anisotropy index, tensor magnitude
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random-global.png}
-	a)
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random-local.png}
-	b)
-  \end{minipage}
-\label{bow_contour}
-\end{figure}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random_global.png}
-	c)
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random_local_slice0.png}
-	d)
-  \end{minipage}
-    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
-\label{bow_contour}
-\end{figure}
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Random Test Field - Evaluation}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{itemize}
 	\item numerics: limit number representation to a particular range
 	\item preposition for relatively high tensor mags.: $\lambda_1\approx\lambda_2\approx1.0$ (because ellipsoid area equals $A=\lambda_1\cdot\lambda_2\cdot\pi$)\\
 \end{itemize}
@@ -185,38 +149,26 @@ Applications:
 \begin{column}{.5\textwidth}
 \begin{figure}[!t]
 \centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random-global.png}
-	a)
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random-local.png}
-	b)
-  \end{minipage}
-\label{bow_contour}
-\end{figure}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random_global.png}
-	c)
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{random_local_slice0.png}
-	d)
-  \end{minipage}
+    \includegraphics[width=0.35\textwidth]{random-global.png} a)
+    \includegraphics[width=0.35\textwidth]{random-local.png} b)
+    \includegraphics[width=0.35\textwidth]{random_global.png} c)
+    \includegraphics[width=0.35\textwidth]{random_local_slice0.png}	d)
     \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
 \label{bow_contour}
 \end{figure}
+%\begin{figure}[!t]
+%\centering
+%    
+%    
+%\label{bow_contour}
+%\end{figure}
 \end{column}
 \end{columns}
 
-%$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)
 } % END OF FRAME
+
+%$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)
+
 
 \frame{
 \frametitle{{Heart dataset - Evaluation}}
