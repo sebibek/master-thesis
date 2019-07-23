@@ -90,6 +90,29 @@
 
 \frame{
 \frametitle{{Motivation - Tensor Fields}}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=0.7\textwidth]{random-global.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=0.7\textwidth]{random_global.png}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.3\textwidth}
+      \centering
+    \includegraphics[height=0.7\textwidth]{random_local_slice0.png}
+	c)
+    \label{b)}
+  \end{minipage}
+\caption{Random field: a) field, b) tensor magnitude, c) FTLE}
+\label{test_fields2}
+\end{figure}
 Applications:
 \begin{itemize}
 	\item Vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
@@ -98,6 +121,58 @@ Applications:
 \end{itemize}
 } % END OF FRAME
 
+
+\frame{
+\frametitle{{Random Test Field}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Tensor fields are commonly visualized by:
+	\begin{itemize}
+		\item Glyphs
+		\item Tensor field lines (TFLs) $\Rightarrow$ Hyperstreamlines
+	\end{itemize}
+	\bigskip
+	\item Each position in space is mapped a tensor describing a directional distribution
+	\bigskip
+	\item Scalar Measures: anisotropy index, tensor magnitude
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-global.png}
+	a)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random-local.png}
+	b)
+  \end{minipage}
+\label{bow_contour}
+\end{figure}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_global.png}
+	c)
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{random_local_slice0.png}
+	d)
+  \end{minipage}
+    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
+\label{bow_contour}
+\end{figure}
+\end{column}
+\end{columns}
+
+
+} % END OF FRAME
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Alternative: put content in separate files
