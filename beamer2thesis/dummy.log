@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  21 JUL 2019 16:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  23 JUL 2019 19:20
 entering extended mode
 **./dummy.tex
 (dummy.tex
@@ -759,14 +759,7 @@ Package subfig Warning: The subfigure type is already defined. on input line 11
 
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... none found.
-(dummy.aux
-
-LaTeX Warning: Label `b)' multiply defined.
-
-
-LaTeX Warning: Label `b)' multiply defined.
-
-)
+(dummy.aux)
 \openout1 = `dummy.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
@@ -945,64 +938,79 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: End \AtBeginDocument code.
  (dummy.nav)
-<brain_ftle.PNG, id=12, 421.575pt x 423.08063pt>
-File: brain_ftle.PNG Graphic file (type png)
- <use brain_ftle.PNG>
-Package pdftex.def Info: brain_ftle.PNG used on input line 47.
-(pdftex.def)             Requested size: 64.30135pt x 64.53293pt.
-
-<brain_surf.PNG, id=14, 523.20468pt x 524.71031pt>
-File: brain_surf.PNG Graphic file (type png)
- <use brain_surf.PNG>
-Package pdftex.def Info: brain_surf.PNG used on input line 47.
-(pdftex.def)             Requested size: 64.3466pt x 64.53293pt.
-
-<brain_volume2.PNG, id=15, 359.84438pt x 471.26062pt>
-File: brain_volume2.PNG Graphic file (type png)
- <use brain_volume2.PNG>
-Package pdftex.def Info: brain_volume2.PNG used on input line 47.
-(pdftex.def)             Requested size: 49.27422pt x 64.53293pt.
-
-<brain_cross-section.PNG, id=16, 246.9225pt x 519.44063pt>
-File: brain_cross-section.PNG Graphic file (type png)
-
-<use brain_cross-section.PNG>
-Package pdftex.def Info: brain_cross-section.PNG used on input line 47.
-(pdftex.def)             Requested size: 30.67307pt x 64.53293pt.
-LaTeX Font Info:    Try loading font information for U+msa on input line 47.
+LaTeX Font Info:    Try loading font information for U+msa on input line 37.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 47.
+LaTeX Font Info:    Try loading font information for U+msb on input line 37.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Try loading font information for OT1+mathkerncmss on input 
-line 47.
+line 37.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\sansmathaccent\ot1mathkerncmss.fd"
 File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/ma
 thkerncmss.
 )
+<Scalar_field.png, id=12, 602.25pt x 602.25pt>
+File: Scalar_field.png Graphic file (type png)
+ <use Scalar_field.png>
+Package pdftex.def Info: Scalar_field.png used on input line 37.
+(pdftex.def)             Requested size: 107.55098pt x 107.54568pt.
+LaTeX Font Info:    Try loading font information for OMS+cmss on input line 37.
+
+LaTeX Font Info:    No file OMScmss.fd. on input line 37.
+
+
+LaTeX Font Warning: Font shape `OMS/cmss/m/it' undefined
+(Font)              using `OMS/cmsy/m/n' instead on input line 37.
+
+
+LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
+(Font)              using `OMS/cmsy/m/n' instead on input line 37.
+
 [1
 
-{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}pdfTeX warning
- (ext4): destination with the same identifier (name{b\)}) has been already used
-, duplicate ignored
+{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <./Scalar_fie
+ld.png (PNG copy)>] <vector_field.pdf, id=46, 361.35pt x 359.3425pt>
+File: vector_field.pdf Graphic file (type pdf)
 
-\@EveryShipout@Output ...@Org@Shipout \box \@cclv 
-                                                  
-l.47 }
-       % END OF FRAMEpdfTeX warning (ext4): destination with the same identifie
-r (name{b\)}) has been already used, duplicate ignored
+<use vector_field.pdf>
+Package pdftex.def Info: vector_field.pdf used on input line 61.
+(pdftex.def)             Requested size: 92.18788pt x 91.67224pt.
+ <vector_field2.pdf, id=47, 361.35pt x 359.3425pt>
+File: vector_field2.pdf Graphic file (type pdf)
 
-\@EveryShipout@Output ...@Org@Shipout \box \@cclv 
-                                                  
-l.47 }
-       % END OF FRAME <./brain_ftle.PNG> <./brain_surf.PNG> <./brain_volume2.PN
-G> <./brain_cross-section.PNG>]
+<use vector_field2.pdf>
+Package pdftex.def Info: vector_field2.pdf used on input line 61.
+(pdftex.def)             Requested size: 92.18788pt x 91.67224pt.
+ [2
+
+ <./vector_field.pdf> <./vector_field2.pdf
+
+pdfTeX warning: pdflatex (file ./vector_field2.pdf): PDF inclusion: multiple pd
+fs with page group included in a single page
+>] <hyperstreamlines.png, id=90, 642.14906pt x 642.90187pt>
+File: hyperstreamlines.png Graphic file (type png)
+
+<use hyperstreamlines.png>
+Package pdftex.def Info: hyperstreamlines.png used on input line 89.
+(pdftex.def)             Requested size: 92.18788pt x 92.29135pt.
+
+<random-global.png, id=91, 526.96875pt x 526.96875pt>
+File: random-global.png Graphic file (type png)
+ <use random-global.png>
+Package pdftex.def Info: random-global.png used on input line 89.
+(pdftex.def)             Requested size: 92.18788pt x 92.18874pt.
+
+[3
+
+ <./hyperstreamlines.png> <./random-global.png>] [4
+
+]
 \tf@nav=\write6
 \openout6 = `dummy.nav'.
 
@@ -1012,32 +1020,35 @@ G> <./brain_cross-section.PNG>]
 \tf@snm=\write8
 \openout8 = `dummy.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 61.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 61.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 113.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 113.
  (dummy.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 61.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 61.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 113.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 113.
 Package rerunfilecheck Info: File `dummy.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
 
-LaTeX Warning: There were multiply-defined labels.
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 18656 strings out of 493328
- 350121 string characters out of 3139127
- 437591 words of memory out of 3000000
- 21787 multiletter control sequences out of 15000+200000
- 8946 words of font info for 33 fonts, out of 3000000 for 9000
+ 18758 strings out of 493328
+ 352435 string characters out of 3139127
+ 438591 words of memory out of 3000000
+ 21877 multiletter control sequences out of 15000+200000
+ 14540 words of font info for 53 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 56i,14n,55p,795b,551s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Pr
-ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Fi
-les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on dummy.pdf (1 page, 722703 bytes).
+ 56i,14n,55p,795b,763s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Files/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/
+fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/symbols/msam10.pfb>
+Output written on dummy.pdf (4 pages, 1971182 bytes).
 PDF statistics:
- 65 PDF objects out of 1000 (max. 8388607)
- 6 named destinations out of 1000 (max. 500000)
- 63 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 165 PDF objects out of 1000 (max. 8388607)
+ 9 named destinations out of 1000 (max. 500000)
+ 68 words of extra memory for PDF output out of 10000 (max. 10000000)
 

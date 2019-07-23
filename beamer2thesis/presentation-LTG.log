@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  22 JUL 2019 12:30
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  23 JUL 2019 19:09
 entering extended mode
 **./presentation-LTG.tex
 (presentation-LTG.tex
@@ -1429,25 +1429,23 @@ Package pdftex.def Info: random-global-TFL.png used on input line 381.
  [17
 
  <./random-global-TFL.png>]
-<drain(alt)-TFL.png, id=1461, 526.96875pt x 526.96875pt>
-File: drain(alt)-TFL.png Graphic file (type png)
-
-<use drain(alt)-TFL.png>
-Package pdftex.def Info: drain(alt)-TFL.png used on input line 410.
+<drain-TFL.png, id=1461, 526.96875pt x 526.96875pt>
+File: drain-TFL.png Graphic file (type png)
+ <use drain-TFL.png>
+Package pdftex.def Info: drain-TFL.png used on input line 410.
 (pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
 
-<tensorfieldlines.png, id=1462, 526.96875pt x 526.96875pt>
-File: tensorfieldlines.png Graphic file (type png)
-
-<use tensorfieldlines.png>
-Package pdftex.def Info: tensorfieldlines.png used on input line 410.
+<rings-TFL.png, id=1462, 526.96875pt x 526.96875pt>
+File: rings-TFL.png Graphic file (type png)
+ <use rings-TFL.png>
+Package pdftex.def Info: rings-TFL.png used on input line 410.
 (pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
 
-<inverse-TFL.png, id=1463, 526.96875pt x 526.96875pt>
+<inverse-TFL.png, id=1463, 752.8125pt x 752.8125pt>
 File: inverse-TFL.png Graphic file (type png)
  <use inverse-TFL.png>
 Package pdftex.def Info: inverse-TFL.png used on input line 410.
-(pdftex.def)             Requested size: 118.82016pt x 118.81924pt.
+(pdftex.def)             Requested size: 118.80981pt x 118.81924pt.
 
 [18
 
@@ -1457,8 +1455,8 @@ n already used, duplicate ignored
 \@EveryShipout@Output ...@Org@Shipout \box \@cclv 
                                                   
 l.410 }
-        % END OF FRAME <./drain(alt)-TFL.png> <./tensorfieldlines.png> <./inver
-se-TFL.png>] <gyre.png, id=1536, 526.96875pt x 526.96875pt>
+        % END OF FRAME <./drain-TFL.png> <./rings-TFL.png> <./inverse-TFL.png>]
+<gyre.png, id=1536, 526.96875pt x 526.96875pt>
 File: gyre.png Graphic file (type png)
  <use gyre.png>
 Package pdftex.def Info: gyre.png used on input line 433.
@@ -1900,18 +1898,19 @@ l.872 }
         % END OF FRAME [37
 
  <./iso_volume.png> <./iso_isovolume.png>]
+<drain(alt)-TFL.png, id=2884, 376.40625pt x 376.40625pt>
 File: drain(alt)-TFL.png Graphic file (type png)
 
 <use drain(alt)-TFL.png>
 Package pdftex.def Info: drain(alt)-TFL.png used on input line 899.
-(pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
+(pdftex.def)             Requested size: 118.81924pt x 118.8213pt.
 pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.899 }
         % END OF FRAME
-<ftle_drain_alt.png, id=2884, 450.18187pt x 455.45157pt>
+<ftle_drain_alt.png, id=2885, 450.18187pt x 455.45157pt>
 File: ftle_drain_alt.png Graphic file (type png)
 
 <use ftle_drain_alt.png>
@@ -1923,7 +1922,7 @@ n already used, duplicate ignored
                    \relax 
 l.899 }
         % END OF FRAME
-<drain_alt_gradient.png, id=2885, 432.11438pt x 433.62pt>
+<drain_alt_gradient.png, id=2886, 432.11438pt x 433.62pt>
 File: drain_alt_gradient.png Graphic file (type png)
 
 <use drain_alt_gradient.png>
@@ -1936,19 +1935,18 @@ n already used, duplicate ignored
 l.899 }
         % END OF FRAME [38
 
- <./ftle_drain_alt.png> <./drain_alt_gradient.png>]
+ <./drain(alt)-TFL.png> <./ftle_drain_alt.png> <./drain_alt_gradient.png>]
 File: inverse-TFL.png Graphic file (type png)
-
-<use inverse-TFL.png>
+ <use inverse-TFL.png>
 Package pdftex.def Info: inverse-TFL.png used on input line 921.
-(pdftex.def)             Requested size: 142.57849pt x 142.58096pt.
+(pdftex.def)             Requested size: 142.57849pt x 142.57637pt.
 pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.921 }
         % END OF FRAME
-<inverse-FTLE-raw.png, id=2955, 452.4403pt x 452.4403pt>
+<inverse-FTLE-raw.png, id=2957, 452.4403pt x 452.4403pt>
 File: inverse-FTLE-raw.png Graphic file (type png)
 
 <use inverse-FTLE-raw.png>
@@ -1960,13 +1958,13 @@ n already used, duplicate ignored
                    \relax 
 l.921 }
         % END OF FRAME
-Overfull \vbox (5.77832pt too high) detected at line 921
+Overfull \vbox (5.77373pt too high) detected at line 921
  []
 
 [39
 
  <./inverse-FTLE-raw.png>]
-<inverse_isovolume.png, id=3024, 240.9pt x 231.86626pt>
+<inverse_isovolume.png, id=3026, 240.9pt x 231.86626pt>
 File: inverse_isovolume.png Graphic file (type png)
 
 <use inverse_isovolume.png>
@@ -1977,7 +1975,7 @@ Overfull \hbox (4.62993pt too wide) in paragraph at lines 944--944
 [][]
  []
 
-<inverse_surface.png, id=3025, 455.45157pt x 442.65375pt>
+<inverse_surface.png, id=3027, 455.45157pt x 442.65375pt>
 File: inverse_surface.png Graphic file (type png)
 
 <use inverse_surface.png>
@@ -1988,7 +1986,7 @@ Overfull \hbox (3.43155pt too wide) in paragraph at lines 944--944
 [][]
  []
 
-<inverse_contour.png, id=3026, 315.42844pt x 264.99pt>
+<inverse_contour.png, id=3028, 315.42844pt x 264.99pt>
 File: inverse_contour.png Graphic file (type png)
 
 <use inverse_contour.png>
@@ -2002,7 +2000,7 @@ Overfull \hbox (22.61687pt too wide) in paragraph at lines 944--944
 [40
 
  <./inverse_isovolume.png> <./inverse_surface.png> <./inverse_contour.png>]
-<bow-TFL.png, id=3096, 526.96875pt x 526.96875pt>
+<bow-TFL.png, id=3098, 526.96875pt x 526.96875pt>
 File: bow-TFL.png Graphic file (type png)
  <use bow-TFL.png>
 Package pdftex.def Info: bow-TFL.png used on input line 966.
@@ -2012,7 +2010,7 @@ n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.966 }
-        % END OF FRAME <bow_ftle.png, id=3097, 470.50781pt x 472.76625pt>
+        % END OF FRAME <bow_ftle.png, id=3099, 470.50781pt x 472.76625pt>
 File: bow_ftle.png Graphic file (type png)
 
 <use bow_ftle.png>
@@ -2030,13 +2028,13 @@ Overfull \vbox (6.45665pt too high) detected at line 966
 [41
 
  <./bow-TFL.png> <./bow_ftle.png>]
-<bow_contour.png, id=3167, 521.69907pt x 446.41782pt>
+<bow_contour.png, id=3169, 521.69907pt x 446.41782pt>
 File: bow_contour.png Graphic file (type png)
  <use bow_contour.png>
 Package pdftex.def Info: bow_contour.png used on input line 986.
 (pdftex.def)             Requested size: 158.42163pt x 135.5612pt.
 
-<bow_volume.png, id=3168, 517.935pt x 438.13687pt>
+<bow_volume.png, id=3170, 517.935pt x 438.13687pt>
 File: bow_volume.png Graphic file (type png)
  <use bow_volume.png>
 Package pdftex.def Info: bow_volume.png used on input line 986.
@@ -2047,7 +2045,7 @@ Package pdftex.def Info: bow_volume.png used on input line 986.
  <./bow_contour.png> <./bow_volume.png>] (presentation-LTG.toc) [43
 
 ]
-<inverse_law.pdf, id=3310, 712.6625pt x 454.69875pt>
+<inverse_law.pdf, id=3312, 712.6625pt x 454.69875pt>
 File: inverse_law.pdf Graphic file (type pdf)
  <use inverse_law.pdf>
 Package pdftex.def Info: inverse_law.pdf used on input line 1004.
@@ -2059,8 +2057,10 @@ Overfull \vbox (3.02338pt too high) detected at line 1004
 [44
 
  <./inverse_law.pdf>]
+<tensorfieldlines.png, id=3407, 526.96875pt x 526.96875pt>
 File: tensorfieldlines.png Graphic file (type png)
- <use tensorfieldlines.png>
+
+<use tensorfieldlines.png>
 Package pdftex.def Info: tensorfieldlines.png used on input line 1031.
 (pdftex.def)             Requested size: 118.81924pt x 118.82016pt.
 pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
@@ -2069,7 +2069,7 @@ n already used, duplicate ignored
                    \relax 
 l.1031 }
          % END OF FRAME
-<total_anisotropy1.png, id=3405, 527.72156pt x 527.72156pt>
+<total_anisotropy1.png, id=3408, 527.72156pt x 527.72156pt>
 File: total_anisotropy1.png Graphic file (type png)
 
 <use total_anisotropy1.png>
@@ -2081,7 +2081,7 @@ n already used, duplicate ignored
                    \relax 
 l.1031 }
          % END OF FRAME
-<total_anisotropy2.png, id=3406, 527.72156pt x 527.72156pt>
+<total_anisotropy2.png, id=3409, 527.72156pt x 527.72156pt>
 File: total_anisotropy2.png Graphic file (type png)
 
 <use total_anisotropy2.png>
@@ -2089,7 +2089,7 @@ Package pdftex.def Info: total_anisotropy2.png used on input line 1031.
 (pdftex.def)             Requested size: 118.81924pt x 118.81274pt.
  [45
 
- <./total_anisotropy1.png> <./total_anisotropy2.png>]
+ <./tensorfieldlines.png> <./total_anisotropy1.png> <./total_anisotropy2.png>]
 File: gyre.png Graphic file (type png)
  <use gyre.png>
 Package pdftex.def Info: gyre.png used on input line 1059.
@@ -2099,7 +2099,7 @@ n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1059 }
-         % END OF FRAME <gyre_ftle.PNG, id=3477, 574.39594pt x 572.89032pt>
+         % END OF FRAME <gyre_ftle.PNG, id=3481, 574.39594pt x 572.89032pt>
 File: gyre_ftle.PNG Graphic file (type png)
 
 <use gyre_ftle.PNG>
@@ -2111,7 +2111,7 @@ n already used, duplicate ignored
                    \relax 
 l.1059 }
          % END OF FRAME
-<gyre_ftle_org.PNG, id=3478, 532.23843pt x 530.73282pt>
+<gyre_ftle_org.PNG, id=3482, 532.23843pt x 530.73282pt>
 File: gyre_ftle_org.PNG Graphic file (type png)
 
 <use gyre_ftle_org.PNG>
@@ -2125,7 +2125,7 @@ l.1059 }
          % END OF FRAME [46
 
  <./gyre_ftle.PNG> <./gyre_ftle_org.PNG>]
-<gyre_volume2.png, id=3547, 1210.5225pt x 1322.9425pt>
+<gyre_volume2.png, id=3551, 1210.5225pt x 1322.9425pt>
 File: gyre_volume2.png Graphic file (type png)
  <use gyre_volume2.png>
 Package pdftex.def Info: gyre_volume2.png used on input line 1087.
@@ -2136,7 +2136,7 @@ n already used, duplicate ignored
                    \relax 
 l.1087 }
          % END OF FRAME
-<gyre_gauss_contour.PNG, id=3548, 476.53032pt x 482.55281pt>
+<gyre_gauss_contour.PNG, id=3552, 476.53032pt x 482.55281pt>
 File: gyre_gauss_contour.PNG Graphic file (type png)
 
 <use gyre_gauss_contour.PNG>
@@ -2147,7 +2147,7 @@ n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1087 }
-         % END OF FRAME <gyre_volume4.PNG, id=3549, 1359.0775pt x 1383.1675pt>
+         % END OF FRAME <gyre_volume4.PNG, id=3553, 1359.0775pt x 1383.1675pt>
 File: gyre_volume4.PNG Graphic file (type png)
 
 <use gyre_volume4.PNG>
@@ -2173,7 +2173,7 @@ n already used, duplicate ignored
                    \relax 
 l.1146 }
          % END OF FRAME
-<brainDwnsmpl-TFL.PNG, id=3686, 526.96875pt x 526.96875pt>
+<brainDwnsmpl-TFL.PNG, id=3690, 526.96875pt x 526.96875pt>
 File: brainDwnsmpl-TFL.PNG Graphic file (type png)
 
 <use brainDwnsmpl-TFL.PNG>
@@ -2185,7 +2185,7 @@ n already used, duplicate ignored
                    \relax 
 l.1146 }
          % END OF FRAME
-<brain_ftle_org.PNG, id=3687, 532.99126pt x 532.99126pt>
+<brain_ftle_org.PNG, id=3691, 532.99126pt x 532.99126pt>
 File: brain_ftle_org.PNG Graphic file (type png)
 
 <use brain_ftle_org.PNG>
@@ -2199,7 +2199,7 @@ l.1146 }
          % END OF FRAME [49
 
  <./brainDwnsmpl-TFL.PNG> <./brain_ftle_org.PNG>]
-<brainDwnsmpl_denoise.png, id=3758, 526.96875pt x 526.96875pt>
+<brainDwnsmpl_denoise.png, id=3762, 526.96875pt x 526.96875pt>
 File: brainDwnsmpl_denoise.png Graphic file (type png)
 
 <use brainDwnsmpl_denoise.png>
@@ -2210,7 +2210,7 @@ n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1175 }
-         % END OF FRAME <brain-TFL.PNG, id=3759, 526.96875pt x 526.96875pt>
+         % END OF FRAME <brain-TFL.PNG, id=3763, 526.96875pt x 526.96875pt>
 File: brain-TFL.PNG Graphic file (type png)
 
 <use brain-TFL.PNG>
@@ -2222,7 +2222,7 @@ n already used, duplicate ignored
                    \relax 
 l.1175 }
          % END OF FRAME
-<brain_ftle_surf_noisereduction.PNG, id=3760, 533.74406pt x 533.74406pt>
+<brain_ftle_surf_noisereduction.PNG, id=3764, 533.74406pt x 533.74406pt>
 File: brain_ftle_surf_noisereduction.PNG Graphic file (type png)
 
 <use brain_ftle_surf_noisereduction.PNG>
@@ -2243,7 +2243,7 @@ l.1175 }
 
  <./brainDwnsmpl_denoise.png> <./brain-TFL.PNG> <./brain_ftle_surf_noisereducti
 on.PNG>]
-<brain_ftle.PNG, id=3830, 421.575pt x 423.08063pt>
+<brain_ftle.PNG, id=3834, 421.575pt x 423.08063pt>
 File: brain_ftle.PNG Graphic file (type png)
  <use brain_ftle.PNG>
 Package pdftex.def Info: brain_ftle.PNG used on input line 1207.
@@ -2253,7 +2253,7 @@ n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1207 }
-         % END OF FRAME <brain_surf.PNG, id=3831, 523.20468pt x 524.71031pt>
+         % END OF FRAME <brain_surf.PNG, id=3835, 523.20468pt x 524.71031pt>
 File: brain_surf.PNG Graphic file (type png)
 
 <use brain_surf.PNG>
@@ -2265,7 +2265,7 @@ n already used, duplicate ignored
                    \relax 
 l.1207 }
          % END OF FRAME
-<brain_volume2.PNG, id=3832, 359.84438pt x 471.26062pt>
+<brain_volume2.PNG, id=3836, 359.84438pt x 471.26062pt>
 File: brain_volume2.PNG Graphic file (type png)
 
 <use brain_volume2.PNG>
@@ -2277,7 +2277,7 @@ n already used, duplicate ignored
                    \relax 
 l.1207 }
          % END OF FRAME
-<brain_cross-section.PNG, id=3833, 246.9225pt x 519.44063pt>
+<brain_cross-section.PNG, id=3837, 246.9225pt x 519.44063pt>
 File: brain_cross-section.PNG Graphic file (type png)
 
 <use brain_cross-section.PNG>
@@ -2302,7 +2302,7 @@ n already used, duplicate ignored
                    \relax 
 l.1235 }
          % END OF FRAME
-<heartDwnsmpl-TFL.PNG, id=3905, 526.96875pt x 526.96875pt>
+<heartDwnsmpl-TFL.PNG, id=3909, 526.96875pt x 526.96875pt>
 File: heartDwnsmpl-TFL.PNG Graphic file (type png)
 
 <use heartDwnsmpl-TFL.PNG>
@@ -2314,7 +2314,7 @@ n already used, duplicate ignored
                    \relax 
 l.1235 }
          % END OF FRAME
-<heart_ftle_org.PNG, id=3906, 551.81157pt x 552.56438pt>
+<heart_ftle_org.PNG, id=3910, 551.81157pt x 552.56438pt>
 File: heart_ftle_org.PNG Graphic file (type png)
 
 <use heart_ftle_org.PNG>
@@ -2328,7 +2328,7 @@ l.1235 }
          % END OF FRAME [52
 
  <./heartDwnsmpl-TFL.PNG> <./heart_ftle_org.PNG>]
-<heart.png, id=3976, 1539.7525pt x 1541.76pt>
+<heart.png, id=3980, 1539.7525pt x 1541.76pt>
 File: heart.png Graphic file (type png)
  <use heart.png>
 Package pdftex.def Info: heart.png used on input line 1263.
@@ -2339,7 +2339,7 @@ n already used, duplicate ignored
                    \relax 
 l.1263 }
          % END OF FRAME\\
-<heart_slice0.PNG, id=3977, 528.47438pt x 528.47438pt>
+<heart_slice0.PNG, id=3981, 528.47438pt x 528.47438pt>
 File: heart_slice0.PNG Graphic file (type png)
  <use heart_slice0.PNG>
 Package pdftex.def Info: heart_slice0.PNG used on input line 1263.
@@ -2362,7 +2362,7 @@ l.1263 }
          % END OF FRAME\\ [53
 
  <./heart.png> <./heart_slice0.PNG>]
-<heart_volume.PNG, id=4046, 440.39531pt x 413.29407pt>
+<heart_volume.PNG, id=4050, 440.39531pt x 413.29407pt>
 File: heart_volume.PNG Graphic file (type png)
  <use heart_volume.PNG>
 Package pdftex.def Info: heart_volume.PNG used on input line 1287.
@@ -2377,7 +2377,7 @@ Overfull \hbox (7.79005pt too wide) in paragraph at lines 1287--1287
  [][] 
  []
 
-<heart_volume3.PNG, id=4047, 461.47406pt x 461.47406pt>
+<heart_volume3.PNG, id=4051, 461.47406pt x 461.47406pt>
 File: heart_volume3.PNG Graphic file (type png)
 
 <use heart_volume3.PNG>
@@ -2389,7 +2389,7 @@ n already used, duplicate ignored
                    \relax 
 l.1287 }
          % END OF FRAME\\
-<heart_volume5.PNG, id=4048, 440.39531pt x 413.29407pt>
+<heart_volume5.PNG, id=4052, 440.39531pt x 413.29407pt>
 File: heart_volume5.PNG Graphic file (type png)
 
 <use heart_volume5.PNG>
@@ -2415,7 +2415,7 @@ Overfull \hbox (7.79005pt too wide) in paragraph at lines 1287--1287
 ] [57
 
 ]
-<img/questions.pdf, id=4321, 416.55624pt x 222.8325pt>
+<img/questions.pdf, id=4325, 416.55624pt x 222.8325pt>
 File: img/questions.pdf Graphic file (type pdf)
  <use img/questions.pdf>
 Package pdftex.def Info: img/questions.pdf used on input line 1384.
@@ -2459,10 +2459,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 20690 strings out of 493328
- 385717 string characters out of 3139127
+ 20700 strings out of 493328
+ 385885 string characters out of 3139127
  573155 words of memory out of 3000000
- 23454 multiletter control sequences out of 15000+200000
+ 23462 multiletter control sequences out of 15000+200000
  26290 words of font info for 88 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,20n,65p,812b,823s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -2489,9 +2489,9 @@ iles/MiKTeX 2.9/fonts/type1/public/amsfonts/euler/eurm10.pfb><C:/Program Files/
 MiKTeX 2.9/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Program Files/MiKTeX 2.9/fon
 ts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/time
 s/utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on presentation-LTG.pdf (59 pages, 11498138 bytes).
+Output written on presentation-LTG.pdf (59 pages, 12664838 bytes).
 PDF statistics:
- 4560 PDF objects out of 5155 (max. 8388607)
+ 4564 PDF objects out of 5155 (max. 8388607)
  156 named destinations out of 1000 (max. 500000)
- 579 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 589 words of extra memory for PDF output out of 10000 (max. 10000000)
 

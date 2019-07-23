@@ -15,35 +15,87 @@
 
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
-\begin{figure}[!t]
-	\centering
-\begin{minipage}[t]{0.21\textwidth}
-  \centering
-    \includegraphics[height=\textwidth]{brain_ftle.PNG} a)
-    \label{b)}
-  \end{minipage}\hskip 15pt
-  \begin{minipage}[t]{0.21\textwidth}
-  \centering
-  \includegraphics[height=\textwidth]{brain_surf.PNG} b)
-     \label{a)}
-  \end{minipage}\hskip 15pt
-  \begin{minipage}[t]{0.21\textwidth}
-    \centering
-    \includegraphics[height=\textwidth]{brain_volume2.PNG} \\
-    c)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}[t]{0.21\textwidth}
-    \centering
-    \includegraphics[height=\textwidth]{brain_cross-section.PNG} \\
-    d)
-    \label{b)}
-  \end{minipage}
-  \caption{Brain test field LTG: a) LTG($0^\circ$)-VAR1, b) LTG($0^\circ$)-VAR2, c) LTG volume, d) cross-section}
-\label{brain-volumes}
+\frametitle{{Introduction - Scalar Fields}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Scalar fields are visualized by heat maps (color codings) classically
+	\bigskip
+	\item Each position in space is mapped a scalar height value
+	\bigskip
+	\item Examples: temperature field, height field
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.7\textwidth]{Scalar_field.png} 
+\caption{Scalar field,  \textit{Source: \textcircled{1}}}
+\end{figure}
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Introduction - Vector Fields}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Vector fields are visualized by a collection of arrows with a given magnitude and direction classically
+	\bigskip
+	\item Each position in space is mapped a scalar magnitude and an angle
+	\bigskip
+	\item Examples: flow field, magnetic field, gravitational field
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.6\textwidth]{vector_field.pdf} a)
+\includegraphics[width=0.6\textwidth]{vector_field2.pdf} b)
+\caption{Vector fields: a) $\{x,y\}$, b) $\{-y,x\}$}
 \end{figure}
 
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Introduction - Tensor Fields}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Tensor fields are commonly visualized by:
+	\begin{itemize}
+		\item Glyphs
+		\item Tensor field lines (TFLs) $\Rightarrow$ Hyperstreamlines
+	\end{itemize}
+	\bigskip
+	\item Each position in space is mapped a tensor describing a directional distribution
+	\bigskip
+	\item Scalar Measures: anisotropy index, tensor magnitude
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.6\textwidth]{hyperstreamlines.png} a)
+\includegraphics[width=0.6\textwidth]{random-global.png} b)
+\caption{Tensor fields: a) Tensor field lines, b) Glyphs}
+\end{figure}
+
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Motivation - Tensor Fields}}
+Applications:
+\begin{itemize}
+	\item Vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
+	\item Fluid and solid continuum mechanics: to describe a whole distribution of stresses
+	\item DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
+\end{itemize}
 } % END OF FRAME
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
