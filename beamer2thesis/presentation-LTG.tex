@@ -1,4 +1,4 @@
-\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=169,UKenglish]{beamer}
 \usetheme[language=ngerman,
 titlepagelogo=logopolito,
 bullet=circle,
@@ -16,6 +16,7 @@ color=blue
 \usepackage{makecell}
 \usepackage{upgreek}
 \usepackage{movie15}
+\usepackage{isodate}
 
 \addto{\captionsngerman}{%
   \renewcommand*{\contentsname}{Contents}
@@ -41,17 +42,17 @@ color=blue
 %\def\hilite<#1>{%
   %\temporal<#1>{\color{black}}{\color{unirot}}%
                %{\color{gray}}}
+\setlength{\belowcaptionskip}{-10pt}
 
 \title[Light Transport Techniques for Tensor Field Visualization]{Light Transport Techniques for Tensor Field Visualization}
-%\subtitle{}
-\author[Sebastian Bek]{Sebastian Bek}
-\date{\today}
+\subtitle{Master's Thesis Presentation}
+\vspace*{2pt}
+\author[Sebastian Bek]{Sebastian Bek\vspace*{7pt}}
+\date{July 24th 2019}
 \institute[Uni HD]{
 Heidelberg University\\
 Visual Computing Group (VCG)\\
-Master's Thesis Presentation\\
 Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
-%\color{unirot}{sebibek@gmail.com}}
 }
 
 %---------------------------------------%
@@ -106,7 +107,7 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item Vector fields are visualized by a collection of arrows with a given magnitude and direction classically
+	\item visualized by a collection of arrows with a given magnitude and direction classically
 	\bigskip
 	\item Each position in space is mapped a scalar magnitude and an angle
 	\bigskip
@@ -133,7 +134,7 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 	\item Tensor fields are commonly visualized by:
 	\begin{itemize}
 		\item Glyphs
-		\item Tensor field lines (TFLs) $\Rightarrow$ Hyperstreamlines
+		\item Tensor field lines (TFLs)\\ $\Rightarrow$ Hyperstreamlines
 	\end{itemize}
 	\bigskip
 	\item Each position in space is mapped a tensor describing a directional distribution
@@ -153,7 +154,91 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 
 } % END OF FRAME
 
+\frame{
+\frametitle{{Glyphs}}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{itemize}
+	\item glyphs are used to represent the principal component ellipsoid, i.e., the anisotropy characteristics and/or tensor magnitude
+	\bigskip
+	\item glyphs can be found in varying shapes, we define ellipsoids here for simplicity
+\end{itemize}
+\end{small}
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.9\textwidth]{random-global.png}
+\caption{$2D$ glyphs for Random field}
+\end{figure}
 
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Tensor Field Lines}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Procedure}}
+follow major/minor eigenvectors along pathlines
+\end{block}
+\end{small}
+\bigskip
+\begin{itemize}
+	\item ambiguity for nearly isotropic cases: small changes in magnitude effect large changes in glyph orientation
+	\item therefore susceptive to noise in data
+\end{itemize}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.9\textwidth]{random-global-TFL.png}
+\caption{$2D$ glyphs and tensor field lines}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Introduction - Tensor Field Lines}}
+
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.22\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{drain-TFL.png}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.22\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{rings-TFL.png}
+	b)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.22\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{inverse-TFL.png}
+	c)
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}{0.22\textwidth}
+      \centering
+    \includegraphics[height=\textwidth]{gyre-TFL.png}
+	d)
+    \label{b)}
+  \end{minipage}
+\caption{Several test fields: a)Drain, b) Rings, c) Inverse, d) Gyre}
+\label{test_fields2}
+\end{figure}
+
+} % END OF FRAME}
 
 %\frame{
 %\frametitle{{Objectives}}
@@ -175,23 +260,29 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item Discrete Ordinates Method: discretizes RTE in both spatial and angular domain
+	\item Discrete Ordinates Method
 	\bigskip
-	\item Lattice-Boltzmann method: light propagation modeled as a diffusion process
+	\item Lattice-Boltzmann method
 	\bigskip
-	\item Light Propagation Volumes: light exchanged between neighboring cells and stored locally in capacities
+	\item Light Propagation Volumes
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
-\includegraphics[width=0.5\textwidth]{LPV.pdf} 
+\includegraphics[width=0.55\textwidth]{LPV.pdf}
+\includegraphics[width=0.55\textwidth]{LPV2.pdf} 
 \caption{Light Propagation Volumes,  \textit{Source: \textcircled{1}}}
 \end{figure}
 \end{column}
 \end{columns}
 
-
 } % END OF FRAME
+
+%\item Discrete Ordinates Method: discretizes RTE in both spatial and angular domain
+%	\bigskip
+%	\item Lattice-Boltzmann method: light propagation modeled as a diffusion process
+%	\bigskip
+%	\item Light Propagation Volumes: light exchanged between neighboring cells and stored locally
 
 \frame{
 \frametitle{{Related Work - Symmetric Tensor Field Visualization}}
@@ -255,11 +346,15 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \end{figure}
 Applications:
 \begin{itemize}
-	\item Vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
-	\item Fluid and solid continuum mechanics: to describe a whole distribution of stresses
-	\item DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
+	\item Vector fields: describe spatial gradient called Jacobian-matrix,
+	\item Fluid and solid continuum mechanics: stress tensor (e.g. Cauchy stress tensor)
+	\item DT-MRI: diffusion tensor - magnetic resonance imaging
 \end{itemize}
 } % END OF FRAME
+
+%\item Vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
+%	\item Fluid and solid continuum mechanics: to describe a whole distribution of stresses
+%	\item DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
 
 \section[Fundamentals]{Fundamentals}
 
@@ -272,11 +367,10 @@ Applications:
 	\item number arrays following covariant or contravariant transformation rules
 	\item represenation needed for a whole directional distribution for each point in space
 \end{itemize}
-
 \end{block}
-\begin{table}[!b]
+\begin{table}[b]
 \centering
-\caption{Tensor Shapes}
+\caption{Tensor Shapes}\bigskip
  \begin{tabular}{c|c|c|c|c|c|c}
 \textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
 \hline 
@@ -295,7 +389,6 @@ Applications:
 \begin{itemize}
 	\item classical physical example of a tensor
 	\item consistent of $3$ stress vectors arranged in row-major order
-	\item these represent the magnitude and orientation of the resulting stress at plane $x,y,z$ in direction $x,y,z$
 	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
 \end{itemize}
 
@@ -311,6 +404,10 @@ Applications:
 
 } % END OF FRAME
 
+%\item classical physical example of a tensor
+%	\item consistent of $3$ stress vectors arranged in row-major order
+%	\item these represent the magnitude and orientation of the resulting stress at plane $x,y,z$ in direction $x,y,z$
+%	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
 
 \frame{
 \frametitle{{Polar Coordinates}}
@@ -336,6 +433,7 @@ Cartesian$\mapsto$Polar
 \includegraphics[width=0.7\textwidth]{polarkoordinaten.png}
 \caption{Polar coordinates,  \textit{Source: \textcircled{3}}}
 \end{figure}
+\bigskip
 \begin{itemize}
 	\item polar function $f: \omega\mapsto r$ maps each angle $\omega$ a magnitude $r(\omega)$
 \end{itemize}
@@ -423,143 +521,64 @@ $\\
 \end{columns}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Glyphs}}
-\begin{columns}
-\begin{column}{.6\textwidth}
-\begin{small}
-\begin{itemize}
-	\item glyphs are used to represent the principal component ellipsoid, i.e., the anisotropy characteristics and/or tensor magnitude
-	\bigskip
-	\item glyphs can be found in varying shapes, we define ellipsoids here for simplicity
-\end{itemize}
-\end{small}
-\end{column}
-\begin{column}{.4\textwidth}
-\begin{figure}[t]
-\centering
-\includegraphics[height=0.9\textwidth]{random-global.png}
-\caption{$2D$ glyphs for Random field}
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
-
-\frame{
-\frametitle{{Tensor Field Lines}}
-
-\begin{columns}
-\begin{column}{.6\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Procedure}}
-follow major/minor eigenvectors along pathlines
-\end{block}
-\end{small}
-\bigskip
-\begin{itemize}
-	\item ambiguity for nearly isotropic cases: small changes in magnitude effect large changes in glyph orientation
-	\item therefore susceptive to noise in data
-\end{itemize}
-
-\end{column}
-\begin{column}{.4\textwidth}
-\begin{figure}[t]
-\centering
-\includegraphics[height=0.9\textwidth]{random-global-TFL.png}
-\caption{$2D$ glyphs and tensor field lines}
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
-
-\frame{
-\frametitle{{Asymmetric Tensor Fields}}
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.3\textwidth}
-      \centering
-    \includegraphics[height=\textwidth]{drain-TFL.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-      \centering
-    \includegraphics[height=\textwidth]{rings-TFL.png}
-	b)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-      \centering
-    \includegraphics[height=\textwidth]{inverse-TFL.png}
-	c)
-    \label{b)}
-  \end{minipage}
-\caption{Several test fields: a)Drain, Rings, Inverse}
-\label{test_fields2}
-\end{figure}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Symmetric Tensor Fields}}
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.8\textwidth]{gyre.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.8\textwidth]{gyre-TFL.png}
-	b)
-    \label{b)}
-  \end{minipage}
-\caption{Gyre test field: a) glyphs, b) tensor field lines for a)}
-\label{gyre}
-\end{figure}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Asymmetric Tensor Fields}}
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.23\textwidth}
-  \centering
-    \includegraphics[height=\textwidth]{brain_org.png}
-    \label{a)}
-	a)
-  \end{minipage}
-  \begin{minipage}{0.23\textwidth}
-  \centering
-    \includegraphics[height=\textwidth]{brainDwnsmpl.png}
-    \label{b)}
-    b)
-  \end{minipage}
-  \begin{minipage}{0.23\textwidth}
-  \centering
-    \includegraphics[height=\textwidth]{heart_org.png}
-    \label{b)}
-    a)
-  \end{minipage}
-  \begin{minipage}{0.23\textwidth}
-  \centering
-    \includegraphics[height=\textwidth]{heartDwnsmpl.png}
-    \label{b)}
-    b)
-  \end{minipage}
-\caption{Brain and Heart dataset: a) tensor magnitude, b) ellipsoid glyphs}
-\label{real1}
-\end{figure}
-
-} % END OF FRAME
+%
+%\frame{
+%\frametitle{{Symmetric Tensor Fields}}
+%
+%\begin{figure}[!t]
+%\centering
+%  \begin{minipage}{0.4\textwidth}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{gyre.png}
+%	a)
+%    \label{a)}
+%  \end{minipage}
+%  \begin{minipage}{0.4\textwidth}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{gyre-TFL.png}
+%	b)
+%    \label{b)}
+%  \end{minipage}
+%\caption{Gyre test field: a) glyphs, b) tensor field lines for a)}
+%\label{gyre}
+%\end{figure}
+%
+%} % END OF FRAME
+%
+%\frame{
+%\frametitle{{Asymmetric Tensor Fields}}
+%
+%\begin{figure}[!t]
+%\centering
+%  \begin{minipage}{0.23\textwidth}
+%  \centering
+%    \includegraphics[height=\textwidth]{brain_org.png}
+%    \label{a)}
+%	a)
+%  \end{minipage}
+%  \begin{minipage}{0.23\textwidth}
+%  \centering
+%    \includegraphics[height=\textwidth]{brainDwnsmpl.png}
+%    \label{b)}
+%    b)
+%  \end{minipage}
+%  \begin{minipage}{0.23\textwidth}
+%  \centering
+%    \includegraphics[height=\textwidth]{heart_org.png}
+%    \label{b)}
+%    a)
+%  \end{minipage}
+%  \begin{minipage}{0.23\textwidth}
+%  \centering
+%    \includegraphics[height=\textwidth]{heartDwnsmpl.png}
+%    \label{b)}
+%    b)
+%  \end{minipage}
+%\caption{Brain and Heart dataset: a) tensor magnitude, b) ellipsoid glyphs}
+%\label{real1}
+%\end{figure}
+%
+%} % END OF FRAME
 
 \section[Method]{Method}
 
@@ -646,8 +665,7 @@ follow major/minor eigenvectors along pathlines
 	\item Applying the linear combination (partition) weights
 	\item Injection: Scaling and Placing of a Cosine Lobe
 \end{enumerate}
-
-\end{block}
+\end{block}\bigskip
 For now, we are able to propagate intensities as circular waves in a 2D Cartesian grid defined through polar functions given on cell centers.
 } % END OF FRAME
 
@@ -752,17 +770,17 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
    a)
   \begin{minipage}{0.25\textwidth}
   \centering
-    \includegraphics[height=0.8\textwidth]{isotropic-all-center.png}
+    \includegraphics[width=0.7\textwidth]{isotropic-all-center.png}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.25\textwidth}
   \centering
-    \includegraphics[height=0.8\textwidth]{rings-two-special1.png}
+    \includegraphics[width=0.7\textwidth]{rings-two-special1.png}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{spiral-two-wide.png}
+    \includegraphics[width=0.7\textwidth]{spiral-two-wide.png}
     \label{b)}
   \end{minipage}
 \label{isotropic}
@@ -772,17 +790,17 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
    b)
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{iso_sat.png}
+    \includegraphics[width=0.7\textwidth]{iso_sat.png}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{cos_parallel.png}
+    \includegraphics[width=0.7\textwidth]{cos_parallel.png}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{spiral_full.png}
+    \includegraphics[width=0.7\textwidth]{spiral_full.png}
     \label{b)}
   \end{minipage}
 \caption{final light propagation distributions in: a) polar, b) scalar field rep}
@@ -798,17 +816,17 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
  a)
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{scalar_iso_left.png}
+    \includegraphics[height=0.7\textwidth]{scalar_iso_left.png}
     \label{a)}
   \end{minipage} $-$
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{scalar_iso_right.png}
+    \includegraphics[height=0.7\textwidth]{scalar_iso_right.png}
     \label{b)}
   \end{minipage} $=$
    \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{scalar_iso_diff.png}
+    \includegraphics[height=0.7\textwidth]{scalar_iso_diff.png}
     \label{b)}
   \end{minipage}
 \label{analysis1}
@@ -818,17 +836,17 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
  b)
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{scalar_iso_leftangle.png}
+    \includegraphics[height=0.7\textwidth]{scalar_iso_leftangle.png}
     \label{a)}
   \end{minipage} $-$
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{scalar_iso_rightangle.png}
+    \includegraphics[height=0.7\textwidth]{scalar_iso_rightangle.png}
     \label{b)}
 	\end{minipage} $=$
    \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{scalar_iso_anglediff.png}
+    \includegraphics[height=0.7\textwidth]{scalar_iso_anglediff.png}
     \label{b)}
   \end{minipage}
   \caption{Isotropic test field}
@@ -844,17 +862,17 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
  a)
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{ftle_left.png}
+    \includegraphics[height=0.7\textwidth]{ftle_left.png}
     \label{a)}
   \end{minipage} $-$
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{ftle_right.png}
+    \includegraphics[height=0.7\textwidth]{ftle_right.png}
     \label{b)}
   \end{minipage} $=$
    \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{ftle_diff.png}
+    \includegraphics[height=0.7\textwidth]{ftle_diff.png}
     \label{b)}
   \end{minipage}
 \label{analysis1}
@@ -864,17 +882,17 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
  b)
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{ftle_leftangle.png}
+    \includegraphics[height=0.7\textwidth]{ftle_leftangle.png}
     \label{a)}
   \end{minipage} $-$
   \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{ftle_rightangle.png}
+    \includegraphics[height=0.7\textwidth]{ftle_rightangle.png}
     \label{b)}
 	\end{minipage} $=$
    \begin{minipage}{0.25\textwidth}
     \centering
-    \includegraphics[height=0.8\textwidth]{ftle_anglediff.png}
+    \includegraphics[height=0.7\textwidth]{ftle_anglediff.png}
     \label{b)}
   \end{minipage}
   \caption{Drain test field}
@@ -919,81 +937,136 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item a finite set of cells is interpreted as a 1D vector $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$ here, contained as an element of the set of final buffers $\mathcal{B}$
 	\item the resulting volume grid is raised by one dimension $d=2+1=3$ for taking direction as additional input parameter and computing the Euclidean norm of the gradient
-	\item runtime behavior: $T(n)=\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2})$
+	
 \end{itemize}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Light Transport Gradient - Functionality}}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[height=0.9\textwidth]{isotropic2.png}
-    \label{a)}
-	a)
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[height=0.9\textwidth]{iso_ftle.png}
-    \label{b)}
-	b)
-  \end{minipage}
-  \caption{Isotropic test field: a) glyphs, b) LTG($0^\circ$) for a)}
-\label{ftle_iso}
-\end{figure}
-} % END OF FRAME
+%\item runtime behavior: $T(n)=\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2})$
+
 
 \frame{
 \frametitle{{Light Transport Gradient - Functionality}}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-    \centering
-    \includegraphics[height=0.9\textwidth]{iso_volume.png}
-    \label{a)}
-	a)
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-   \centering
-    \includegraphics[height=0.9\textwidth]{iso_isovolume.png}
-    \label{b)}
-	b)
-  \end{minipage}
-  \caption{Isotropic test field: a) volume, b) IsoVolume for a)}
-\label{ftle_iso}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Isotropic test field reveals offset response for the approach
+	\bigskip
+	\item Natural shift against the inital light source (slice) direction (left)
+	\bigskip
+	\item maximum distance to the edges lies on the circumference of a circle
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.4\textwidth]{isotropic2.png} a)
+\includegraphics[width=0.4\textwidth]{iso_ftle.png} b)
+\caption{Isotropic test field: a) Glyphs, b) LTG}
 \end{figure}
+
+\end{column}
+\end{columns}
+
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Functionality}}
+\frametitle{{Light Transport Gradient - Isotropic field}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Isotropic test field reveals offset response for the approach
+	\bigskip
+	\item Natural shift against the inital light source (slice) direction (left)
+	\bigskip
+	\item maximum distance to the edges lies on the circumference of a circle
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[height=0.5\textwidth]{iso_volume.png} a)
+\includegraphics[height=0.5\textwidth]{iso_isovolume.png} b)
+\caption{Isotropic test field: a) Glyphs, b) LTG}
+\end{figure}
+
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Drain field}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
 	\centering
-    \includegraphics[width=\textwidth]{drain(alt)-TFL.png}
+    \includegraphics[width=0.8\textwidth]{drain(alt)-TFL.png}
     \label{a)}
 	a)~TFLs and glyphs
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{ftle_drain_alt.png}
+    \includegraphics[width=0.8\textwidth]{ftle_drain_alt.png}
     \label{b)}
 	b)~LTG($90^\circ$) for a)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{drain_alt_gradient.png}
+    \includegraphics[width=0.8\textwidth]{drain_alt_gradient.png}
     \label{b)}
 	c)~Gradient for b)
   \end{minipage}
   \caption{Drain test field}
 \label{ftle_base}
 \end{figure}
+\begin{itemize}
+	\item strong ridge in the center of the field indicated by the approach
+	\item segmentation could be done by edge detection via gradient filter
+\end{itemize}
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Functionality}}
+\frametitle{{Light Transport Gradient - Drain field}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Drain test field reveals strong ridge in $-y$ direction
+	\bigskip
+	\item Ridge remains more stable on the top edges w.r.t. initial direction
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[!t]
+\centering
+  \begin{minipage}{0.4\textwidth}
+  \includegraphics[width=0.9\textwidth]{drain_top.PNG}\vskip 10pt
+    \includegraphics[width=0.9\textwidth]{drain_alt-profile.PNG}
+	a)
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}{0.4\textwidth}
+    \includegraphics[width=0.9\textwidth]{drain_alt_isovolume.PNG}
+	b)
+    \label{b)}
+  \end{minipage}
+  \caption{LTG volumes: Drain test field a) cross-section, b) IsoVolume}
+\label{drain_contour}
+\end{figure}
+
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Light Transport Gradient - Inverse field}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Inverse test field reveals strong ridges in axes direction
+	\bigskip
+	\item Ridges are detected up to orthogonally to the initial light source direction
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.4\textwidth}
@@ -1011,80 +1084,96 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
   \caption{Inverse-test field: a) TFLs and glyphs, b) LTG($90^\circ$) for a)}
 \label{inverse-ftle}
 \end{figure}
+\end{column}
+\end{columns}
 
 } % END OF FRAME
 
-
 \frame{
-\frametitle{{Light Transport Gradient - Functionality}}
+\frametitle{{Light Transport Gradient - Inverse field}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{inverse_isovolume.png}
+    \includegraphics[height=0.7\textwidth]{inverse_isovolume.png}
     a)
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{inverse_surface.png}
+    \includegraphics[height=0.7\textwidth]{inverse_surface.png}
     b)
   \end{minipage}
    \begin{minipage}{0.3\textwidth}
-    \includegraphics[height=\textwidth]{inverse_contour.png}
+    \includegraphics[height=0.7\textwidth]{inverse_contour.png}
     c)
   \end{minipage}
     \caption{LTG volumes: ``Inverse'' test field: a) IsoVolume, b) Surface, c) Contour}
 \label{inverse_volume}
 \end{figure}
-
+\begin{itemize}
+	\item Inverse test field reveals strong ridges in axes direction
+	\item Ridges are detected up to orthogonally to the initial light source direction
+\end{itemize}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Light Transport Gradient - Functionality}}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=0.9\textwidth]{bow-TFL.png}
-    \label{a)}
-	a)
-  \end{minipage}
-  \begin{minipage}[!t]{0.4\textwidth}
-  \centering
-    \includegraphics[width=0.9\textwidth]{bow_ftle.png}
-    \label{b)}
-	b)
-  \end{minipage}
-  \caption{``Bow''-test field: a) TFLs and glyphs, b) LTG($0^\circ$) for a)}
-\label{bow-ftle}
-\end{figure}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Light Transport Gradient - Functionality}}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{bow_contour.png}
-	a)
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{bow_volume.png}
-	b)
-  \end{minipage}
-    \caption{LTG volumes: ``Bow'' test field : a) Contour, b) IsoVolume}
-\label{bow_contour}
-\end{figure}
-
-} % END OF FRAME
+%\frame{
+%\frametitle{{Light Transport Gradient - Functionality}}
+%\begin{figure}[!t]
+%\centering
+%  \begin{minipage}{0.4\textwidth}
+%  \centering
+%    \includegraphics[width=0.9\textwidth]{bow-TFL.png}
+%    \label{a)}
+%	a)
+%  \end{minipage}
+%  \begin{minipage}[!t]{0.4\textwidth}
+%  \centering
+%    \includegraphics[width=0.9\textwidth]{bow_ftle.png}
+%    \label{b)}
+%	b)
+%  \end{minipage}
+%  \caption{``Bow''-test field: a) TFLs and glyphs, b) LTG($0^\circ$) for a)}
+%\label{bow-ftle}
+%\end{figure}
+%
+%} % END OF FRAME
+%
+%\frame{
+%\frametitle{{Light Transport Gradient - Functionality}}
+%\begin{figure}[!t]
+%\centering
+%  \begin{minipage}{0.4\textwidth}
+%  \centering
+%    \includegraphics[width=\textwidth]{bow_contour.png}
+%	a)
+%  \end{minipage}
+%  \begin{minipage}{0.4\textwidth}
+%  \centering
+%    \includegraphics[width=\textwidth]{bow_volume.png}
+%	b)
+%  \end{minipage}
+%    \caption{LTG volumes: ``Bow'' test field : a) Contour, b) IsoVolume}
+%\label{bow_contour}
+%\end{figure}
+%
+%} % END OF FRAME
 
 
 \section[Results and Evaluation]{Results and Evaluation}
 %----------------------------------------
 
+
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Evaluation - Inverse Law}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item Inverse (square) law is evaluated for propagation
+	\bigskip
+	\item Magnitude is related to magnitude $r_1$ at distance 1 
+	\bigskip
+	\item Samples are fitted to $f(r)=\frac{a}{r}+c$
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
 \begin{figure}[!t]
   \centering
  {
@@ -1095,82 +1184,89 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
   \label{att}
 \end{figure}
 
+\end{column}
+\end{columns}
+
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Evaluation - Total Anisotropy}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{tensorfieldlines.png}
+    \includegraphics[width=0.8\textwidth]{tensorfieldlines.png}
 	a) TFLs and glyphs
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{total_anisotropy1.png}
+    \includegraphics[width=0.8\textwidth]{total_anisotropy1.png}
     b) iteration $50$
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{total_anisotropy2.png}
+    \includegraphics[width=0.8\textwidth]{total_anisotropy2.png}
 	c) iteration $103$
     \label{c)}
   \end{minipage}
 \caption{intensity propagation in grid for total anisotropy}
 \label{anisotropy}
 \end{figure}
+Light intensity is propagated in circular orbits, which reveals a sampling drift.
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Evaluation - Light Transport Gradient}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}[t]{0.3\textwidth}
     \centering
-  \includegraphics[height=\textwidth]{gyre.png}
+  \includegraphics[height=0.7\textwidth]{gyre.png}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \centering
-    \includegraphics[height=\textwidth]{gyre_ftle.PNG}
+    \includegraphics[height=0.7\textwidth]{gyre_ftle.PNG}
 	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
     \centering
-    \includegraphics[height=\textwidth]{gyre_ftle_org.PNG}
+    \includegraphics[height=0.7\textwidth]{gyre_ftle_org.PNG}
 	c)
     \label{b)}
   \end{minipage}
   \caption{Gyre test field: a) glyphs, b) LTG($0^\circ$), c) FTLE: Hlawatsch's approach}
 \label{gyre-ftle}
 \end{figure}
-
+\begin{itemize}
+	\item LTG is detecting ridges up to orthogonal directions
+	\item Response is decreased in gyre centers for measuring separation through (circular) overlap
+\end{itemize}
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Evaluation - Light Transport Gradient}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
     \centering
-  \includegraphics[height=\textwidth]{gyre_volume2.png}
+  \includegraphics[height=0.7\textwidth]{gyre_volume2.png}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
     \centering
-    \includegraphics[height=\textwidth]{gyre_gauss_contour.PNG}
+    \includegraphics[height=0.7\textwidth]{gyre_gauss_contour.PNG}
 	b)
     \label{b)}
   \end{minipage}
    \begin{minipage}{0.3\textwidth}
      \centering
-    \includegraphics[height=\textwidth]{gyre_volume4.PNG}
+    \includegraphics[height=0.7\textwidth]{gyre_volume4.PNG}
 	c)
     \label{b)}
   \end{minipage}
@@ -1178,10 +1274,15 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{gyre_volume}
 \end{figure}
 
+\begin{itemize}
+	\item LTG is detecting ridges up to orthogonal directions
+	\item Response is decreased in gyre centers for measuring separation through (circular) overlap
+\end{itemize}
 } % END OF FRAME
 
+
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Evaluation - Light Transport Gradient}}
 \begin{itemize}
 	\item real data examples reveal two important features, which need to be respected: 
 	\begin{enumerate}
@@ -1212,24 +1313,24 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Light Transport Gradient - Brain dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
    \centering
-  \includegraphics[height=\textwidth]{brainDwnsmpl.png}
+  \includegraphics[height=0.7\textwidth]{brainDwnsmpl.png}
 	a)~Glyphs
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
    \centering
-    \includegraphics[height=\textwidth]{brainDwnsmpl-TFL.PNG}
+    \includegraphics[height=0.7\textwidth]{brainDwnsmpl-TFL.PNG}
 	b)~TFLs
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
    \centering
-    \includegraphics[height=\textwidth]{brain_ftle_org.PNG}
+    \includegraphics[height=0.7\textwidth]{brain_ftle_org.PNG}
 	c)~FTLE: H.'s approach
     \label{b)}
   \end{minipage}
@@ -1237,28 +1338,31 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{brain_ftle_comp}
 \end{figure}
 
+\begin{itemize}
+	\item Noise present in the Brain dataset $\Rightarrow$ TFLs reveal chaotic trajectories
+	\item FTLE response throughout the image (because of ambiguity in isotropic regions)
+\end{itemize}
 } % END OF FRAME
 
-
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Light Transport Gradient - Brain dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
    \centering
-  \includegraphics[height=\textwidth]{brainDwnsmpl_denoise.png}
+  \includegraphics[height=0.7\textwidth]{brainDwnsmpl_denoise.png}
 	a)~Glyphs
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
    \centering
-    \includegraphics[height=\textwidth]{brain-TFL.PNG}
+    \includegraphics[height=0.7\textwidth]{brain-TFL.PNG}
 	b)~TFLs
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
    \centering
-    \includegraphics[height=\textwidth]{brain_ftle_surf_noisereduction.PNG}
+    \includegraphics[height=0.7\textwidth]{brain_ftle_surf_noisereduction.PNG}
 	c)~FTLE: H.'s approach
     \label{b)}
   \end{minipage}
@@ -1266,10 +1370,14 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{brain_ftle_comp}
 \end{figure}
 
+\begin{itemize}
+	\item Denoising: Tensor mags. below threshold are padded with zeros
+	\item Correlating trajectories in BG regions: FTLE response only in FG regions
+\end{itemize}
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Light Transport Gradient - Brain dataset}}
 \begin{figure}[!t]
 	\centering
 \begin{minipage}[t]{0.21\textwidth}
@@ -1294,31 +1402,36 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
     d)
     \label{b)}
   \end{minipage}
-  \caption{Brain test field LTG: a) LTG($0^\circ$)-VAR1, b) LTG($0^\circ$)-VAR2, c) LTG volume, d) cross-section}
+  \caption{Brain test field LTG: a) LTG($0^\circ$)-Global, b) LTG($0^\circ$)-Local, c) LTG volume, d) cross-section}
 \label{brain-volumes}
 \end{figure}
 
+\begin{itemize}
+	\item No anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing high tensor mags.
+\end{itemize}
 } % END OF FRAME
 
+%Volume non-directionally dependent
+
 \frame{
-\frametitle{{Light Transport Gradient - Evaluation}}
+\frametitle{{Light Transport Gradient - Heart dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
    \centering
-  \includegraphics[width=\textwidth]{heartDwnsmpl.png}
+  \includegraphics[width=0.7\textwidth]{heartDwnsmpl.png}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
    \centering
-    \includegraphics[width=\textwidth]{heartDwnsmpl-TFL.PNG}
+    \includegraphics[width=0.7\textwidth]{heartDwnsmpl-TFL.PNG}
 	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
    \centering
-    \includegraphics[width=\textwidth]{heart_ftle_org.PNG}
+    \includegraphics[width=0.7\textwidth]{heart_ftle_org.PNG}
 	c)
     \label{b)}
   \end{minipage}
@@ -1326,27 +1439,32 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{heart-ftle-comp}
 \end{figure}
 
+
+\begin{itemize}
+	\item No noise present in the Heart dataset $\Rightarrow$ TFLs reveal correlated trajectories
+	\item FTLE response on structure obtained in the style of Hlawatsch et al.
+\end{itemize}
 } % END OF FRAME
 
 \frame{
-\frametitle{{Heart dataset - Evaluation}}
+\frametitle{{Light Transport Gradient - Heart dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
   \centering
-  \includegraphics[width=\textwidth]{heartDwnsmpl.PNG}
+  \includegraphics[height=0.7\textwidth]{heartDwnsmpl.PNG}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_slice20.PNG}
+    \includegraphics[width=0.7\textwidth]{heart_ftle_org.PNG}
 	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_slice20_rescale.PNG}
+    \includegraphics[width=0.7\textwidth]{heart_slice20_rescale.PNG}
 	c)
     \label{b)}
   \end{minipage}
@@ -1354,35 +1472,35 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{heart-ftle}
 \end{figure}
 \begin{itemize}
-	\item light ridges enhanced by rescaling for the down-left direction
-	\item these regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
+	\item light ridges enhanced by rescaling for the down-left direction (red lines in c))
+	\item regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
 	\item edge artifacts: edges effect high gradients for the flow map
 \end{itemize}
 } % END OF FRAME
 
 \frame{
-\frametitle{{Heart dataset - Evaluation}}
+\frametitle{{Light Transport Gradient - Heart dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
   \centering
-  \includegraphics[width=\textwidth]{heart_vcgRidges4.PNG}
+  \includegraphics[height=0.7\textwidth]{heart_vcgRidges4.PNG}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_isoVolume3.PNG}
+    \includegraphics[height=0.7\textwidth]{heart_isoVolume.PNG}
 	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_contour.PNG}
+    \includegraphics[height=0.7\textwidth]{heart_contour.PNG}
 	c)
     \label{b)}
   \end{minipage}
-  \caption{Heart test field: a) Glyphs, b) LTG local, c) LTG local (rescale)}
+  \caption{Heart test field: a) VCGRidgeSurface, b) IsoVolume, c) Contour}
 \label{heart-ftle}
 \end{figure}
 \begin{itemize}
@@ -1397,7 +1515,8 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{column}{.5\textwidth}
 \begin{itemize}
 	\item numerics: limit number representation to a particular range
-	\item preposition for relatively high tensor mags.: $\lambda_1\approx\lambda_2\approx1.0$ (because ellipsoid area equals $A=\lambda_1\cdot\lambda_2\cdot\pi$)\\
+	\bigskip
+	\item preposition for relatively high tensor mags.: $\lambda_1\approx\lambda_2\approx1.0$ (because ellipse area equals $A=\lambda_1\cdot\lambda_2\cdot\pi$)\\
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -1407,7 +1526,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
     \includegraphics[width=0.35\textwidth]{random-local.png} b)
     \includegraphics[width=0.35\textwidth]{random_global.png} c)
     \includegraphics[width=0.35\textwidth]{random_local_slice0.png}	d)
-    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
+    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG}
 \label{bow_contour}
 \end{figure}
 %\begin{figure}[!t]
@@ -1420,6 +1539,9 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{columns}
 
 } % END OF FRAME
+
+%$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -6,15 +6,32 @@ pageofpages=of,
 titleline=true,
 color=blue
 ]{TorinoTh}
+
+%\usepackage[ngerman]{babel}
+%\usepackage[utf8]{inputenc}
 \usepackage{tabularx}
 \usepackage{booktabs}
-\usepackage{csquotes}
-% Include Graphic-files:
+\usepackage{multicol}
+\usepackage{ulem}
+\usepackage{makecell}
+\usepackage{upgreek}
+\usepackage{movie15}
+%\usepackage{isodate}
+
+\addto{\captionsngerman}{%
+  \renewcommand*{\contentsname}{Contents}
+  \renewcommand*{\listfigurename}{Figures}
+  \renewcommand*{\listtablename}{Tables}
+  \renewcommand*{\figurename}{Fig.}	
+  \renewcommand*{\tablename}{Tab.}
+}
+\newcommand*\mean[1]{\bar{#1}}
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+\newcommand\widebar[1]{\mathop{\overline{#1}}}
+
+\usepackage{color}
 \usepackage{graphicx}
-\usepackage{caption}
-\usepackage{subfig}
-\usepackage{url}
-%\usepackage{subfig}
+\usepackage{fancybox}
 
 \usepackage{beamerthemesplit}
 \usetheme[compress]{Heidelberg}
@@ -22,153 +39,64 @@ color=blue
 \usecolortheme[named=unirot]{structure}
 %\setbeamercolor{alerted text}{fg=red}
 \newcommand*\hilite[1]{\textcolor{red}{#1}}
+%\def\hilite<#1>{%
+  %\temporal<#1>{\color{black}}{\color{unirot}}%
+               %{\color{gray}}}
 
-\newsubfloat{figure}
+
+\title[Light Transport Techniques for Tensor Field Visualization]{Light Transport Techniques for Tensor Field Visualization}
+\subtitle{Master's Thesis Presentation}
+\vspace*{2pt}
+\author[Sebastian Bek]{Sebastian Bek\vspace*{7pt}}
+\date{July 24th 2019}
+\institute[Uni HD]{
+Heidelberg University\\
+Visual Computing Group (VCG)\\
+Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
+}
+
+%\color{unirot}{sebibek@gmail.com}
+%\newsubfloat{figure}
 \newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
+\setlength{\belowcaptionskip}{-10pt}
+\setlength{\intextsep}{-30pt}
 
 \begin{document}
 
+%\frame[plain]{\titlepage}
 
 \frame{
-\frametitle{{Introduction - Scalar Fields}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{itemize}
-	\item Scalar fields are visualized by heat maps (color codings) classically
-	\bigskip
-	\item Each position in space is mapped a scalar height value
-	\bigskip
-	\item Examples: temperature field, height field
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.7\textwidth]{Scalar_field.png} 
-\caption{Scalar field,  \textit{Source: \textcircled{1}}}
-\end{figure}
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Introduction - Vector Fields}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{itemize}
-	\item Vector fields are visualized by a collection of arrows with a given magnitude and direction classically
-	\bigskip
-	\item Each position in space is mapped a scalar magnitude and an angle
-	\bigskip
-	\item Examples: flow field, magnetic field, gravitational field
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.4\textwidth]{vector_field.pdf} a)
-\includegraphics[width=0.4\textwidth]{vector_field2.pdf} b)
-\caption{Vector fields: a) $\{x,y\}$, b) $\{-y,x\}$}
-\end{figure}
-
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Introduction - Tensor Fields}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{itemize}
-	\item Tensor fields are commonly visualized by:
-	\begin{itemize}
-		\item Glyphs
-		\item Tensor field lines (TFLs) $\Rightarrow$ Hyperstreamlines
-	\end{itemize}
-	\bigskip
-	\item Each position in space is mapped a tensor describing a directional distribution
-	\bigskip
-	\item Scalar Measures: anisotropy index, tensor magnitude
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.4\textwidth]{random-global-TFL.png} a)
-\includegraphics[width=0.4\textwidth]{random-global.png} b)
-\caption{Tensor fields: a) Tensor field lines, b) Glyphs}
-\end{figure}
-
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Motivation - Tensor Fields}}
+\frametitle{{Light Transport Gradient - Heart dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
-      \centering
-    \includegraphics[height=0.7\textwidth]{random-global.png}
+   \centering
+  \includegraphics[width=0.7\textwidth]{heartDwnsmpl.png}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-      \centering
-    \includegraphics[height=0.7\textwidth]{random_global.png}
+   \centering
+    \includegraphics[width=0.7\textwidth]{heartDwnsmpl-TFL.PNG}
 	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
-      \centering
-    \includegraphics[height=0.7\textwidth]{random_local_slice0.png}
+   \centering
+    \includegraphics[width=0.7\textwidth]{heart_ftle_org.PNG}
 	c)
     \label{b)}
   \end{minipage}
-\caption{Random field: a) field, b) tensor magnitude, c) FTLE}
-\label{test_fields2}
+\caption{Heart test field: a) glyphs, b) TFLs, c) FTLE: H.'s approach}
+\label{heart-ftle-comp}
 \end{figure}
-Applications:
+
+
 \begin{itemize}
-	\item Vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
-	\item Fluid and solid continuum mechanics: to describe a whole distribution of stresses
-	\item DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
+	\item No noise present in the Heart dataset $\Rightarrow$ TFLs reveal correlated trajectories
+	\item FTLE response on structure obtained in the style of Hlawatsch et al.
 \end{itemize}
 } % END OF FRAME
-
-
-\frame{
-\frametitle{{Random Test Field}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{itemize}
-	\item numerics: limit number representation to a particular range
-	\item preposition for relatively high tensor mags.: $\lambda_1\approx\lambda_2\approx1.0$ (because ellipsoid area equals $A=\lambda_1\cdot\lambda_2\cdot\pi$)\\
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[!t]
-\centering
-    \includegraphics[width=0.35\textwidth]{random-global.png} a)
-    \includegraphics[width=0.35\textwidth]{random-local.png} b)
-    \includegraphics[width=0.35\textwidth]{random_global.png} c)
-    \includegraphics[width=0.35\textwidth]{random_local_slice0.png}	d)
-    \caption{Random test field : a) Global, b) Local normalization, c) Tensor mag. d) LTG (FTLE)}
-\label{bow_contour}
-\end{figure}
-%\begin{figure}[!t]
-%\centering
-%    
-%    
-%\label{bow_contour}
-%\end{figure}
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-%$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)
-
 
 \frame{
 \frametitle{{Heart dataset - Evaluation}}
@@ -176,19 +104,19 @@ Applications:
 \centering
   \begin{minipage}{0.3\textwidth}
   \centering
-  \includegraphics[width=\textwidth]{heartDwnsmpl.PNG}
+  \includegraphics[height=0.9\textwidth]{heartDwnsmpl.PNG}
 	a)
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_slice20.PNG}
+    \includegraphics[width=0.9\textwidth]{heart_ftle_org.PNG}
 	b)
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{heart_slice20_rescale.PNG}
+    \includegraphics[width=0.9\textwidth]{heart_slice20_rescale.PNG}
 	c)
     \label{b)}
   \end{minipage}
@@ -196,42 +124,15 @@ Applications:
 \label{heart-ftle}
 \end{figure}
 \begin{itemize}
-	\item light ridges enhanced by rescaling for the down-left direction
-	\item these regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
+	\item light ridges enhanced by rescaling for the down-left direction (red lines in c))
+	\item regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
 	\item edge artifacts: edges effect high gradients for the flow map
 \end{itemize}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Heart dataset - Evaluation}}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{heart_vcgRidges4.PNG}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{heart_isoVolume3.PNG}
-	b)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-  \centering
-    \includegraphics[width=\textwidth]{heart_contour.PNG}
-	c)
-    \label{b)}
-  \end{minipage}
-  \caption{Heart test field: a) Glyphs, b) LTG local, c) LTG local (rescale)}
-\label{heart-ftle}
-\end{figure}
-\begin{itemize}
-	\item volumes reveal blob-shaped features
-	\item these features in turn form 3D ridges representing LCS
-\end{itemize}
-} % END OF FRAME
+
+%Volume non-directionally dependent
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
