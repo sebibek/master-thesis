@@ -28,10 +28,13 @@ color=blue
 \newcommand*\mean[1]{\bar{#1}}
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \newcommand\widebar[1]{\mathop{\overline{#1}}}
+\newcommand{\source}[1]{\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{Source: \color{black}{#1}}}}}
 
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{fancybox}
+
+\hypersetup{colorlinks,linkcolor=black,urlcolor=black}
 
 \usepackage{beamerthemesplit}
 \usetheme[compress]{Heidelberg}
@@ -85,17 +88,24 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item Scalar fields are visualized by heat maps (color codings) classically
+	\item Each position in space is mapped a scalar value: $\mathop{f(\mathbf{x})\colon} \mathbf{x}\mapsto f\mathbf{(x)}$
 	\bigskip
-	\item Each position in space is mapped a scalar height value
+	\item Scalar fields can be visualized by color codings
 	\bigskip
 	\item Examples: temperature field, height field
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
-\includegraphics[width=0.7\textwidth]{Scalar_field.png} 
-\caption{Scalar field,  \textit{Source: \textcircled{1}}}
+\begin{minipage}{0.85\textwidth}
+\centering
+\includegraphics[width=0.8\textwidth]{scalar_edit.png} 
+\caption{Scalar field}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{\url{https://w.wiki/6Wt}}
+\end{minipage}
+
 \end{figure}
 \end{column}
 \end{columns}
@@ -107,9 +117,9 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item visualized by a collection of arrows with a given magnitude and direction classically
+	\item vector valued function: $\mathop{\mathbf{u(x)}\colon} \mathbf{x}\mapsto\mathbf{u}$, w. $\mathbf{x}\in\mathcal{R}^n$: location vector
 	\bigskip
-	\item Each position in space is mapped a scalar magnitude and an angle
+	\item visualized by arrow plots with given mag. and direction
 	\bigskip
 	\item Examples: flow field, magnetic field, gravitational field
 \end{itemize}
@@ -118,7 +128,39 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{figure}[t]
 \includegraphics[width=0.4\textwidth]{vector_field.pdf} a)
 \includegraphics[width=0.4\textwidth]{vector_field2.pdf} b)
-\caption{Vector fields: a) $\{x,y\}$, b) $\{-y,x\}$}
+\caption{Vector fields: a) $\begin{pmatrix}
+x\\y
+\end{pmatrix}$, b) $\begin{pmatrix}
+-y\\x
+\end{pmatrix}$}
+\end{figure}
+
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Introduction - Vector Fields}}
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{itemize}
+	\item vector-valued function: $\mathop{\mathbf{u(x)}\colon} \mathbf{x}\mapsto\mathbf{u}$, w. $\mathbf{x}\in\mathcal{R}^n$: location vector
+	\bigskip
+	\item visualized by streamlines to reveal global influences
+	\bigskip
+	\item Examples: flow field, magnetic field, gravitational field
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\includegraphics[width=0.4\textwidth]{vector_field_streamline.pdf} a)
+\includegraphics[width=0.4\textwidth]{vector_field2_streamline.pdf} b)
+\caption{Vector fields: a) $\begin{pmatrix}
+x\\y
+\end{pmatrix}$, b) $\begin{pmatrix}
+-y\\x
+\end{pmatrix}$}
 \end{figure}
 
 \end{column}
@@ -131,14 +173,15 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
+	\item tensor-valued function: $\mathop{t_{ij}\mathbf{(x)}\colon} \mathbf{x}\mapsto t$, w. $\mathbf{x}\in\mathcal{R}^n$: location vector
+	\bigskip
 	\item Tensor fields are commonly visualized by:
 	\begin{itemize}
 		\item Glyphs
 		\item Tensor field lines (TFLs)\\ $\Rightarrow$ Hyperstreamlines
 	\end{itemize}
 	\bigskip
-	\item Each position in space is mapped a tensor describing a directional distribution
-	\bigskip
+	
 	\item Scalar Measures: anisotropy index, tensor magnitude
 \end{itemize}
 \end{column}
@@ -155,22 +198,37 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 } % END OF FRAME
 
 \frame{
-\frametitle{{Glyphs}}
+\frametitle{{Eigenanalysis - Tensor Fields}}
 \begin{columns}
 \begin{column}{.6\textwidth}
 \begin{small}
-\begin{itemize}
-	\item glyphs are used to represent the principal component ellipsoid, i.e., the anisotropy characteristics and/or tensor magnitude
-	\bigskip
-	\item glyphs can be found in varying shapes, we define ellipsoids here for simplicity
-\end{itemize}
+Definition: $\mathop{f\colon} \mathcal{V}\to \mathcal{V}$, \hskip 10pt $f(\mathbf{x})=\lambda\mathbf{x}$,\hskip 10pt w. $\mathcal{V}\in\mathcal{R}^n$\vskip 5pt
+Direction, invariant under transformation $A$, sought:
+\begin{block}{\centering \textbf{Eigenvalue Problem}}
+\begin{align*}
+	A \cdot \mathbf{x} = \lambda \mathbf{x}
+\end{align*}
+whereas: $A$: square matrix, $\lambda$: eigenvalue $\mathbf{x}$: eigenvector
+\end{block}
 \end{small}
+%\bigskip
+Symbolic Computation:
+\begin{itemize}
+	\item eigenvalues: solving a linear system
+	\item eigenvectors: plugging in the eigenvalues and solving for $\mathbf{x}$
+\end{itemize}
+
 \end{column}
 \begin{column}{.4\textwidth}
 \begin{figure}[t]
-\centering
-\includegraphics[height=0.9\textwidth]{random-global.png}
-\caption{$2D$ glyphs for Random field}
+\begin{minipage}{0.85\textwidth}
+\includegraphics[width=\textwidth]{HAT_edit2.png}
+\caption{Eigensystem}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{\url{https://slideplayer.com/slide/5291764}}
+\end{minipage}
+
 \end{figure}
 
 \end{column}
@@ -178,7 +236,76 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 } % END OF FRAME
 
 \frame{
-\frametitle{{Tensor Field Lines}}
+\frametitle{{Computation of Eigensystem - Tensor Fields}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Matrix Decompositions}}
+Eigenvalue Decomposition: \hskip 46pt
+$
+	A = {R}{S}{R}^*
+$\\
+Singular Value Decomposition (SVD): 
+$
+	{A} = {U} {\Sigma} {V}^*
+$
+\end{block}
+\end{small}
+\begin{itemize}
+	\item eigenvalues and eigenvectors (EVs)
+	\item singular values and singular vectors
+	\item EVs represent the half-axes of the transformation applied to unit circle
+	\item eigenvalues represent lengths of axes
+\end{itemize}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\begin{minipage}{0.85\textwidth}
+\includegraphics[width=\textwidth]{SVD.png}
+\caption{SVD}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{\url{https://w.wiki/6WN}}
+\end{minipage}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Glyphs - Tensor Fields}}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{itemize}
+	\item eigensystems are computed for all cells in a grid
+	\bigskip
+	\item glyphs are used to represent the eigensystem
+	\bigskip
+	\item glyphs can be found in varying shapes:
+	\begin{itemize}
+		\item box
+		\item ellipsoid (which we use here)
+		\item superquadric
+	\end{itemize}
+\end{itemize}
+\end{small}
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.8\textwidth]{random-global.png}
+\caption{$2D$ glyphs for Random field}
+\end{figure}
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Tensor Field Lines - Tensor Fields}}
 
 \begin{columns}
 \begin{column}{.6\textwidth}
@@ -191,13 +318,15 @@ follow major/minor eigenvectors along pathlines
 \begin{itemize}
 	\item ambiguity for nearly isotropic cases: small changes in magnitude effect large changes in glyph orientation
 	\item therefore susceptive to noise in data
+	\item trajectories can cross each other\\
+	$\Rightarrow$ effects chaotic trajectories hard, to interpret
 \end{itemize}
 
 \end{column}
 \begin{column}{.4\textwidth}
 \begin{figure}[t]
 \centering
-\includegraphics[height=0.9\textwidth]{random-global-TFL.png}
+\includegraphics[height=0.8\textwidth]{random-global-TFL.png}
 \caption{$2D$ glyphs and tensor field lines}
 \end{figure}
 
@@ -205,40 +334,40 @@ follow major/minor eigenvectors along pathlines
 \end{columns}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Introduction - Tensor Field Lines}}
-
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.22\textwidth}
-      \centering
-    \includegraphics[height=\textwidth]{drain-TFL.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.22\textwidth}
-      \centering
-    \includegraphics[height=\textwidth]{rings-TFL.png}
-	b)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.22\textwidth}
-      \centering
-    \includegraphics[height=\textwidth]{inverse-TFL.png}
-	c)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.22\textwidth}
-      \centering
-    \includegraphics[height=\textwidth]{gyre-TFL.png}
-	d)
-    \label{b)}
-  \end{minipage}
-\caption{Several test fields: a)Drain, b) Rings, c) Inverse, d) Gyre}
-\label{test_fields2}
-\end{figure}
-
-} % END OF FRAME}
+%\frame{
+%\frametitle{{Introduction - Tensor Field Lines}}
+%
+%\begin{figure}[!t]
+%\centering
+%  \begin{minipage}{0.22\textwidth}
+%      \centering
+%    \includegraphics[height=\textwidth]{drain-TFL.png}
+%	a)
+%    \label{a)}
+%  \end{minipage}
+%  \begin{minipage}{0.22\textwidth}
+%      \centering
+%    \includegraphics[height=\textwidth]{rings-TFL.png}
+%	b)
+%    \label{b)}
+%  \end{minipage}
+%  \begin{minipage}{0.22\textwidth}
+%      \centering
+%    \includegraphics[height=\textwidth]{inverse-TFL.png}
+%	c)
+%    \label{b)}
+%  \end{minipage}
+%  \begin{minipage}{0.22\textwidth}
+%      \centering
+%    \includegraphics[height=\textwidth]{gyre-TFL.png}
+%	d)
+%    \label{b)}
+%  \end{minipage}
+%\caption{Several test fields: a)Drain, b) Rings, c) Inverse, d) Gyre}
+%\label{test_fields2}
+%\end{figure}
+%
+%} % END OF FRAME}
 
 %\frame{
 %\frametitle{{Objectives}}
@@ -253,71 +382,6 @@ follow major/minor eigenvectors along pathlines
 %} % END OF FRAME
 %----------------------------------------
 
-\subsection[Introduction]{Related Work}
-
-\frame{
-\frametitle{{Related Work - Global Illumination Methods}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{itemize}
-	\item Discrete Ordinates Method
-	\bigskip
-	\item Lattice-Boltzmann method
-	\bigskip
-	\item Light Propagation Volumes
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.55\textwidth]{LPV.pdf}
-\includegraphics[width=0.55\textwidth]{LPV2.pdf} 
-\caption{Light Propagation Volumes,  \textit{Source: \textcircled{1}}}
-\end{figure}
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-%\item Discrete Ordinates Method: discretizes RTE in both spatial and angular domain
-%	\bigskip
-%	\item Lattice-Boltzmann method: light propagation modeled as a diffusion process
-%	\bigskip
-%	\item Light Propagation Volumes: light exchanged between neighboring cells and stored locally
-
-\frame{
-\frametitle{{Related Work - Symmetric Tensor Field Visualization}}
-
-\begin{itemize}
-	\item Glyphs: represent anisotropy with shape and orientation
-	\item Tensor Field Lines (TFLs): follow the eigenvector along tensor field lines
-	\item Tensorlines: introduce artificial inertia on TFLs to increase stability
-	\item HyperLIC: use Line Integral Convolution from Vector Field Visualization on TFLs
-	\item FTLE: exploit the gradient of the flow map of TFLs to generate an FTLE field
-	\item Scalar Measures: tensor magnitude, diffusivity, fractional anisotropy, anisotropy coefficients (measures)
-\end{itemize}
-
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Related Work - Asymmetric Tensor Field Visualization}}
-
-\begin{itemize}
-	\item Dual Eigenvectors: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
-	\bigskip
-	\item Pseudo Eigenvectors: extension for dual eigenvectors to a full set or graph
-	\bigskip
-	\item Scalar Measures: tensor magnitude, tensor mode, isotropy index
-\end{itemize}
-
-
-} % END OF FRAME
-%----------------------------------------
-
-
-%----------------------------------------
-
-%======================================== END OF SECTION
 \subsection[Introduction]{Motivation}
 \frame{
 \frametitle{{Motivation - Tensor Fields}}
@@ -355,6 +419,66 @@ Applications:
 %\item Vector fields: to describe the directionally dependent spatial gradient called Jacobian-matrix,
 %	\item Fluid and solid continuum mechanics: to describe a whole distribution of stresses
 %	\item DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
+
+\subsection[Introduction]{Related Work}
+
+\frame{
+\frametitle{{Related Work - Global Illumination Methods}}
+
+\begin{itemize}
+	\item Discrete Ordinates Method: discretizes RTE in both spatial and angular domain
+	\bigskip
+	\item Lattice-Boltzmann method: light propagation modeled as a diffusion process
+	\bigskip
+	\item Light Propagation Volumes: light exchanged between neighboring cells and stored locally
+\end{itemize}
+
+
+} % END OF FRAME
+
+%\begin{column}{.5\textwidth}
+%\begin{figure}[t]
+%\includegraphics[width=0.55\textwidth]{LPV.pdf}
+%\includegraphics[width=0.55\textwidth]{LPV2.pdf} 
+%\caption{Light Propagation Volumes,  \textit{Source: \textcircled{1}}}
+%\end{figure}
+%\end{column}
+
+\frame{
+\frametitle{{Related Work - Symmetric Tensor Field Visualization}}
+
+\begin{itemize}
+	\item Glyphs: represent anisotropy with shape and orientation
+	\item Tensor Field Lines (TFLs): follow the eigenvector along tensor field lines
+	\item Tensorlines: introduce artificial inertia on TFLs to increase stability
+	\item HyperLIC: use Line Integral Convolution from Vector Field Visualization on TFLs
+	\item FTLE: exploit the gradient of the flow map of TFLs to generate an FTLE field
+	\item Scalar Measures: tensor magnitude, diffusivity, fractional anisotropy, anisotropy coefficients (measures)
+\end{itemize}
+
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Related Work - Asymmetric Tensor Field Visualization}}
+
+\begin{itemize}
+	\item Dual Eigenvectors: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
+	\bigskip
+	\item Pseudo Eigenvectors: extension for dual eigenvectors to a full set or graph
+	\bigskip
+	\item Scalar Measures: tensor magnitude, tensor mode, isotropy index
+\end{itemize}
+
+
+} % END OF FRAME
+%----------------------------------------
+
+
+%----------------------------------------
+
+%======================================== END OF SECTION
+
 
 \section[Fundamentals]{Fundamentals}
 
@@ -409,83 +533,81 @@ Applications:
 %	\item these represent the magnitude and orientation of the resulting stress at plane $x,y,z$ in direction $x,y,z$
 %	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
 
-\frame{
-\frametitle{{Polar Coordinates}}
+%\frame{
+%\frametitle{{Polar Coordinates}}
+%
+%\begin{columns}
+%\begin{column}{.5\textwidth}
+%\begin{block}{\centering \textbf{Conversion Formulas}}
+%Polar$\mapsto$Cartesian
+%\begin{align*}
+%	x &= r \cos \omega, \\
+% 	y &= r \sin \omega.
+%\end{align*}
+%Cartesian$\mapsto$Polar
+%\begin{align*}
+%	r &= \sqrt{x^2 + y^2}, \\
+%\omega &= \operatorname{atan2}(y, x).
+%\end{align*}
+%
+%\end{block}
+%\end{column}
+%\begin{column}{.5\textwidth}
+%\begin{figure}[t]
+%\includegraphics[width=0.7\textwidth]{polarkoordinaten.png}
+%\caption{Polar coordinates,  \textit{Source: \textcircled{3}}}
+%\end{figure}
+%\bigskip
+%\begin{itemize}
+%	\item polar function $f: \omega\mapsto r$ maps each angle $\omega$ a magnitude $r(\omega)$
+%\end{itemize}
+%\end{column}
+%\end{columns}
+%
+%} % END OF FRAME
 
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{block}{\centering \textbf{Conversion Formulas}}
-Polar$\mapsto$Cartesian
-\begin{align*}
-	x &= r \cos \omega, \\
- 	y &= r \sin \omega.
-\end{align*}
-Cartesian$\mapsto$Polar
-\begin{align*}
-	r &= \sqrt{x^2 + y^2}, \\
-\omega &= \operatorname{atan2}(y, x).
-\end{align*}
-
-\end{block}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.7\textwidth]{polarkoordinaten.png}
-\caption{Polar coordinates,  \textit{Source: \textcircled{3}}}
-\end{figure}
-\bigskip
-\begin{itemize}
-	\item polar function $f: \omega\mapsto r$ maps each angle $\omega$ a magnitude $r(\omega)$
-\end{itemize}
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Principal Component Analysis}}
-
-\begin{columns}
-\begin{column}{.6\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Matrix Decompositions}}
-Eigenvalue Decomposition: 
-$
-	\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*
-$\\
-Singular Value Decomposition (SVD): 
-$
-	\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*
-$
-\end{block}
-\end{small}
-\bigskip
-\begin{itemize}
-	\item used to determine the main directions of variance (principal components) in stochastic data
-	\item used to determine the subsequent base transformations composing affine transformations
-\end{itemize}
-
-\end{column}
-\begin{column}{.4\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.7\textwidth]{HAT.png}
-\caption{Principal component analysis,  \textit{Source: \textcircled{4}}}
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
-
-
-\frame{
-\frametitle{{Principal Component Analysis}}
-
-
-\includemovie{0.49\textwidth}{0.4\textwidth}{scale.swf}
-\includemovie{0.49\textwidth}{0.4\textwidth}{rotate.swf}
-
-
-} % END OF FRAME
+%\frame{
+%\frametitle{{Principal Component Analysis}}
+%
+%\begin{columns}
+%\begin{column}{.6\textwidth}
+%\begin{small}
+%\begin{block}{\centering \textbf{Matrix Decompositions}}
+%Eigenvalue Decomposition: 
+%$
+%	\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*
+%$\\
+%Singular Value Decomposition (SVD): 
+%$
+%	\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*
+%$
+%\end{block}
+%\end{small}
+%\bigskip
+%\begin{itemize}
+%	\item used to determine the main directions of variance (principal components) in stochastic data
+%	\item used to determine the subsequent base transformations composing affine transformations
+%\end{itemize}
+%
+%\end{column}
+%\begin{column}{.4\textwidth}
+%\begin{figure}[t]
+%\includegraphics[width=0.7\textwidth]{HAT.png}
+%\caption{Principal component analysis,  \textit{Source: \textcircled{4}}}
+%\end{figure}
+%
+%\end{column}
+%\end{columns}
+%} % END OF FRAME
+%
+%
+%\frame{
+%\frametitle{{Principal Component Analysis}}
+%
+%\includemovie{0.49\textwidth}{0.4\textwidth}{scale.swf}
+%\includemovie{0.49\textwidth}{0.4\textwidth}{rotate.swf}
+%
+%} % END OF FRAME
 
 \frame{
 \frametitle{{Finite-Time Lyapunov exponents}}
@@ -743,7 +865,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 	\begin{align*}
 	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon.
 	\end{align*}
-	\item we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, whereas the flow map t in a stable state
+	\item we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, whereas the flow map takes in a stable state
 \end{itemize}
 \end{block}
 } % END OF FRAME
@@ -911,7 +1033,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{block}
 \begin{itemize}
 	\item Previous examples prove that the conductivity property (transmission) of the tensor field effects a separation of energies for diverging pathlines
-	\item the eventual goal is to obtain a FTLE field from accumulating the overall energy in the difference scalar field
+	\item Eventual goal is to obtain a FTLE field from accumulating the overall energy in the difference scalar field
 	\item Buffer $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ contains propagated light distributions for each discrete location and direction in the field, on which we will eventually apply a gradient
 \end{itemize}
 } % END OF FRAME
@@ -1214,7 +1336,9 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \caption{intensity propagation in grid for total anisotropy}
 \label{anisotropy}
 \end{figure}
-Light intensity is propagated in circular orbits, which reveals a sampling drift.
+\begin{itemize}
+	\item Light intensity is propagated in circular orbits, which reveals a sampling drift
+\end{itemize}
 } % END OF FRAME
 
 \frame{

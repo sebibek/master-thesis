@@ -1,10 +1,10 @@
-\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=169,urlcolor=black]{beamer}
 \usetheme[language=ngerman,
 titlepagelogo=logopolito,
 bullet=circle,
 pageofpages=of,
-titleline=true,
-color=blue
+color=blue,
+titleline=true
 ]{TorinoTh}
 
 %\usepackage[ngerman]{babel}
@@ -16,8 +16,9 @@ color=blue
 \usepackage{makecell}
 \usepackage{upgreek}
 \usepackage{movie15}
+%\usepackage{xcolor}
 %\usepackage{isodate}
-
+\hypersetup{colorlinks,linkcolor=black,urlcolor=black}
 \addto{\captionsngerman}{%
   \renewcommand*{\contentsname}{Contents}
   \renewcommand*{\listfigurename}{Figures}
@@ -57,80 +58,94 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 
 %\color{unirot}{sebibek@gmail.com}
 %\newsubfloat{figure}
-\newcommand{\source}[1]{\vspace{-3pt} \caption*{ Source: {#1}} }
+\newcommand{\source}[1]{\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{Source: \color{black}{#1}}}}}
 \setlength{\belowcaptionskip}{-10pt}
-\setlength{\intextsep}{-30pt}
+%\setlength{\intextsep}{-30pt}
 
 \begin{document}
 
 %\frame[plain]{\titlepage}
-
 \frame{
-\frametitle{{Light Transport Gradient - Heart dataset}}
-\begin{figure}[!t]
+\frametitle{{Finite-Time Lyapunov exponents}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$\\
+Global: 
+$
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\|_2
+$\\
+{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
+\end{block}
+\end{small}
+\begin{itemize}
+	\item measure for separation abilities of LTV (time-variant) systems concerning massless tracer particles
+	\item Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
+\end{itemize}
+
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\begin{minipage}{0.85\textwidth}
 \centering
-  \begin{minipage}{0.3\textwidth}
-   \centering
-  \includegraphics[width=0.7\textwidth]{heartDwnsmpl.png}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-   \centering
-    \includegraphics[width=0.7\textwidth]{heartDwnsmpl-TFL.PNG}
-	b)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-   \centering
-    \includegraphics[width=0.7\textwidth]{heart_ftle_org.PNG}
-	c)
-    \label{b)}
-  \end{minipage}
-\caption{Heart test field: a) glyphs, b) TFLs, c) FTLE: H.'s approach}
-\label{heart-ftle-comp}
+\includegraphics[height=0.6\textwidth]{gyre_rot.pdf} a)
+\includegraphics[height=0.6\textwidth]{ftle_sep.pdf} b)
+\caption{a) Vector field, b) diverging pathlines}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{b) Skript Prof. Sadlo, SciVis SS2017}
+\end{minipage}
+
 \end{figure}
 
-
-\begin{itemize}
-	\item No noise present in the Heart dataset $\Rightarrow$ TFLs reveal correlated trajectories
-	\item FTLE response on structure obtained in the style of Hlawatsch et al.
-\end{itemize}
+\end{column}
+\end{columns}
 } % END OF FRAME
 
 \frame{
-\frametitle{{Heart dataset - Evaluation}}
-\begin{figure}[!t]
-\centering
-  \begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[height=0.9\textwidth]{heartDwnsmpl.PNG}
-	a)
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-  \centering
-    \includegraphics[width=0.9\textwidth]{heart_ftle_org.PNG}
-	b)
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-  \centering
-    \includegraphics[width=0.9\textwidth]{heart_slice20_rescale.PNG}
-	c)
-    \label{b)}
-  \end{minipage}
-  \caption{Heart test field: a) Glyphs, b) LTG local, c) LTG local (rescale)}
-\label{heart-ftle}
-\end{figure}
+\frametitle{{Finite-Time Lyapunov exponents}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$\\
+Global: 
+$
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\|_2
+$\\
+{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
+\end{block}
+\end{small}
 \begin{itemize}
-	\item light ridges enhanced by rescaling for the down-left direction (red lines in c))
-	\item regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
-	\item edge artifacts: edges effect high gradients for the flow map
+	\item measure for separation abilities of LTV (time-variant) systems concerning massless tracer particles
+	\item Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
 \end{itemize}
+
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.35\textwidth]{gyre.pdf}~a)
+\includegraphics[height=0.35\textwidth]{ftle.png}~b)
+\caption{a) Vector field, b) FTLE field}
+
+\end{figure}
+
+\end{column}
+\end{columns}
 } % END OF FRAME
 
 
+%glyphs are used to represent the eigensystem, i.e., the anisotropy characteristics and/or tensor magnitude
 %Volume non-directionally dependent
 
 
