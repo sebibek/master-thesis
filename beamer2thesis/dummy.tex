@@ -33,6 +33,7 @@ titleline=true
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{fancybox}
+\usepackage[singlespacing]{setspace}
 
 \usepackage{beamerthemesplit}
 \usetheme[compress]{Heidelberg}
@@ -60,89 +61,45 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 %\newsubfloat{figure}
 \newcommand{\source}[1]{\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{Source: \color{black}{#1}}}}}
 \setlength{\belowcaptionskip}{-10pt}
-%\setlength{\intextsep}{-30pt}
+\setlength{\intextsep}{-20pt}
 
 \begin{document}
 
 %\frame[plain]{\titlepage}
 \frame{
-\frametitle{{Finite-Time Lyapunov exponents}}
+\frametitle{{Tensor Field Lines - Tensor Fields}}
 
 \begin{columns}
-\begin{column}{.5\textwidth}
+\begin{column}{.6\textwidth}
 \begin{small}
-\begin{block}{\centering \textbf{Definition}}
-Local: 
-$
-	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
-$\\
-Global: 
-$
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\|_2
-$\\
-{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
+\begin{block}{\centering \textbf{Procedure}}
+follow major/minor eigenvectors along pathlines
 \end{block}
 \end{small}
+\bigskip
 \begin{itemize}
-	\item measure for separation abilities of LTV (time-variant) systems concerning massless tracer particles
-	\item Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
+	\item possible approach: tensor field topology: e.g. separatrices, degenerate points:
+	\begin{itemize}
+		\item purple: structurally unstable point
+		\item red: wedge
+		\item green: trisector
+	\end{itemize}
 \end{itemize}
 
 \end{column}
-\begin{column}{.5\textwidth}
+\begin{column}{.4\textwidth}
 \begin{figure}[t]
-\begin{minipage}{0.85\textwidth}
 \centering
-\includegraphics[height=0.6\textwidth]{gyre_rot.pdf} a)
-\includegraphics[height=0.6\textwidth]{ftle_sep.pdf} b)
-\caption{a) Vector field, b) diverging pathlines}
-\end{minipage}
-\begin{minipage}{0.1\textwidth}
-\source{b) Skript Prof. Sadlo, SciVis SS2017}
-\end{minipage}
-
+\includegraphics[height=0.8\textwidth]{hyperstreamlines.png}
+\caption{tensor field lines}
 \end{figure}
 
 \end{column}
 \end{columns}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Finite-Time Lyapunov exponents}}
-
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Definition}}
-Local: 
-$
-	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
-$\\
-Global: 
-$
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\|_2
-$\\
-{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
-\end{block}
-\end{small}
-\begin{itemize}
-	\item measure for separation abilities of LTV (time-variant) systems concerning massless tracer particles
-	\item Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
-\end{itemize}
-
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\centering
-\includegraphics[height=0.35\textwidth]{gyre.pdf}~a)
-\includegraphics[height=0.35\textwidth]{ftle.png}~b)
-\caption{a) Vector field, b) FTLE field}
-
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
+%\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
+%\item representing the stress at plane with normal x,y,z in direction x,y,z yielding 9 components
 
 
 %glyphs are used to represent the eigensystem, i.e., the anisotropy characteristics and/or tensor magnitude

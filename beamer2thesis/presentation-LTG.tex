@@ -88,11 +88,11 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item Each position in space is mapped a scalar value: $\mathop{f(\mathbf{x})\colon} \mathbf{x}\mapsto f\mathbf{(x)}$
+	\item each position in space is mapped a scalar value: ${f(\mathbf{x})\colon} \mathbf{x}\mapsto f\mathbf{(x)}$
 	\bigskip
-	\item Scalar fields can be visualized by color codings
+	\item scalar fields can be visualized by color codings
 	\bigskip
-	\item Examples: temperature field, height field
+	\item examples: temperature field, height field
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -100,7 +100,7 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{minipage}{0.85\textwidth}
 \centering
 \includegraphics[width=0.8\textwidth]{scalar_edit.png} 
-\caption{Scalar field}
+\caption{Color-coded height field}
 \end{minipage}
 \begin{minipage}{0.1\textwidth}
 \source{\url{https://w.wiki/6Wt}}
@@ -121,7 +121,7 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 	\bigskip
 	\item visualized by arrow plots with given mag. and direction
 	\bigskip
-	\item Examples: flow field, magnetic field, gravitational field
+	\item examples: flow field, magnetic field, electric field, gravitational field
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -149,14 +149,14 @@ x\\y
 	\bigskip
 	\item visualized by streamlines to reveal global influences
 	\bigskip
-	\item Examples: flow field, magnetic field, gravitational field
+	\item Examples: flow field, magnetic field, electric field, gravitational field
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
-\includegraphics[width=0.4\textwidth]{vector_field_streamline.pdf} a)
-\includegraphics[width=0.4\textwidth]{vector_field2_streamline.pdf} b)
-\caption{Vector fields: a) $\begin{pmatrix}
+\includegraphics[width=0.4\textwidth]{vector_field2_streamline.pdf} a)
+\includegraphics[width=0.4\textwidth]{vector_field_streamline.pdf} b)
+\caption{Streamlines: a) $\begin{pmatrix}
 x\\y
 \end{pmatrix}$, b) $\begin{pmatrix}
 -y\\x
@@ -175,14 +175,14 @@ x\\y
 \begin{itemize}
 	\item tensor-valued function: $\mathop{t_{ij}\mathbf{(x)}\colon} \mathbf{x}\mapsto t$, w. $\mathbf{x}\in\mathcal{R}^n$: location vector
 	\bigskip
-	\item Tensor fields are commonly visualized by:
+	\item tensor fields are commonly visualized by:
 	\begin{itemize}
-		\item Glyphs
-		\item Tensor field lines (TFLs)\\ $\Rightarrow$ Hyperstreamlines
+		\item glyphs
+		\item tensor field lines (TFLs)\\ $\Rightarrow$ Hyperstreamlines
 	\end{itemize}
 	\bigskip
 	
-	\item Scalar Measures: anisotropy index, tensor magnitude
+	\item scalar measures: anisotropy index, tensor magnitude
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -201,8 +201,8 @@ x\\y
 \frametitle{{Eigenanalysis - Tensor Fields}}
 \begin{columns}
 \begin{column}{.6\textwidth}
-\begin{small}
-Definition: $\mathop{f\colon} \mathcal{V}\to \mathcal{V}$, \hskip 10pt $f(\mathbf{x})=\lambda\mathbf{x}$,\hskip 10pt w. $\mathcal{V}\in\mathcal{R}^n$\vskip 5pt
+\begin{small}Definition: $\mathop{f\colon} \mathcal{V}\to \mathcal{V}$
+, \hskip 10pt $f(\mathbf{x})=\lambda\mathbf{x}$,\hskip 10pt w. $\mathcal{V}\in\mathcal{R}^n$\vskip 5pt
 Direction, invariant under transformation $A$, sought:
 \begin{block}{\centering \textbf{Eigenvalue Problem}}
 \begin{align*}
@@ -283,8 +283,11 @@ $
 \begin{itemize}
 	\item eigensystems are computed for all cells in a grid
 	\bigskip
-	\item glyphs are used to represent the eigensystem
-	\bigskip
+	\item glyphs are shapes representing eigensystems, i.e.:
+	\begin{itemize}
+		\item eigenvectors
+		\item eigenvalues
+	\end{itemize}
 	\item glyphs can be found in varying shapes:
 	\begin{itemize}
 		\item box
@@ -316,10 +319,10 @@ follow major/minor eigenvectors along pathlines
 \end{small}
 \bigskip
 \begin{itemize}
-	\item ambiguity for nearly isotropic cases: small changes in magnitude effect large changes in glyph orientation
+	\item ambiguity for nearly isotropic cases:\\ small changes in magnitude effect large changes in glyph orientation
 	\item therefore susceptive to noise in data
 	\item trajectories can cross each other\\
-	$\Rightarrow$ effects chaotic trajectories hard, to interpret
+	$\Rightarrow$ effects chaotic trajectories, hard to interpret
 \end{itemize}
 
 \end{column}
@@ -328,6 +331,38 @@ follow major/minor eigenvectors along pathlines
 \centering
 \includegraphics[height=0.8\textwidth]{random-global-TFL.png}
 \caption{$2D$ glyphs and tensor field lines}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Tensor Field Lines - Tensor Fields}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Procedure}}
+follow major/minor eigenvectors along pathlines
+\end{block}
+\end{small}
+\bigskip
+\begin{itemize}
+	\item possible approach: tensor field topology: e.g. separatrices, degenerate points:
+	\begin{itemize}
+		\item purple: structurally unstable point
+		\item red: wedge
+		\item green: trisector
+	\end{itemize}
+\end{itemize}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.8\textwidth]{hyperstreamlines.png}
+\caption{tensor field lines}
 \end{figure}
 
 \end{column}
@@ -510,13 +545,24 @@ Applications:
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{block}{\centering \textbf{Cauchy stress tensor}}
+\begin{align*}
+\boldsymbol{\sigma}
+ = \left[{\begin{matrix} \mathbf{T}^{(\mathbf{e}_1)} \\
+\boldsymbol{T}^{(\mathbf{e}_2)} \\
+\boldsymbol{T}^{(\mathbf{e}_3)} \\
+\end{matrix}}\right] =
+\begin{bmatrix}
+\sigma _{11} & \sigma _{12} & \sigma _{13} \\
+\sigma _{21} & \sigma _{22} & \sigma _{23} \\
+\sigma _{31} & \sigma _{32} & \sigma _{33} 
+\end{bmatrix}.
+\end{align*}
+\end{block}
+\bigskip
 \begin{itemize}
 	\item classical physical example of a tensor
 	\item consistent of $3$ stress vectors arranged in row-major order
-	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
 \end{itemize}
-
-\end{block}
 \end{column}
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
@@ -613,7 +659,55 @@ Applications:
 \frametitle{{Finite-Time Lyapunov exponents}}
 
 \begin{columns}
-\begin{column}{.6\textwidth}
+\begin{column}{.5\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$ (cf. Fig. b))\\
+Global: 
+$
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+$\\
+{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
+\end{block}
+\end{small}
+\begin{itemize}
+	\item measure for separation abilities of time-variant systems
+	\item Lagrangian view in vector fields: placing particle, moving with flow
+\end{itemize}
+
+
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\begin{minipage}{0.85\textwidth}
+\centering
+\includegraphics[height=0.6\textwidth]{gyre_rot.pdf} a)
+\includegraphics[height=0.6\textwidth]{ftle_sep.pdf} b)
+\caption{a) Vector field, b) diverging pathlines}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{b) Skript Prof. Sadlo, SciVis SS2017}
+\end{minipage}
+
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+%\begin{itemize}
+%	\item measure for separation abilities of LTV (time-variant) systems concerning massless tracer particles
+%	\item Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
+%\end{itemize}
+
+\frame{
+\frametitle{{Finite-Time Lyapunov exponents}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
 \begin{small}
 \begin{block}{\centering \textbf{Definition}}
 Local: 
@@ -622,28 +716,31 @@ $
 $\\
 Global: 
 $
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\upvarphi(x)}\|_2
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
 $\\
 {\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
 \begin{itemize}
-	\item measure for separation abilities of time-dependent dynamical systems concerning massless tracer particles
-	\item in particular concerning Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
+	\item measures gradient of flow map $\nabla\mathbf{u(x)}$
+	\item FTLE field responds most where path lines diverge
 \end{itemize}
 
 \end{column}
-\begin{column}{.4\textwidth}
+\begin{column}{.5\textwidth}
 \begin{figure}[t]
-\includegraphics[height=0.9\textwidth]{ftle_sep.pdf}
-\caption{Path line separation,  \textit{Source: \textcircled{4}}}
+\centering
+\includegraphics[height=0.34\textwidth]{gyre.pdf}~a)
+\includegraphics[height=0.35\textwidth]{ftle.png}~b)
+\caption{a) Vector field, b) FTLE field}
+
 \end{figure}
 
 \end{column}
 \end{columns}
 } % END OF FRAME
 
-%
+
 %\frame{
 %\frametitle{{Symmetric Tensor Fields}}
 %
@@ -705,26 +802,31 @@ $\\
 \section[Method]{Method}
 
 \frame{
-\frametitle{{Propagation Scheme}}
-
+\frametitle{{Propagation Scheme - Template}}
 \begin{columns}
 \begin{column}{.6\textwidth}
+To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:
 \begin{itemize}
-	\item light propagation scheme exchanging energies between neighboring cells
-	\item propagates intensities from initially set cells to corresponding neighbors
+	\item light propagation volumes (LPV) in a style of Dachsbacher et al. (cf. Fig.)
+	\item light propagation scheme exchanging energies between neighboring cells: $\Phi_{t} = \int I(\omega)\mathop{d\omega}$\\
+	{\small w. $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
 	\item eventually to model anisotropy characteristics of tensor field on top
 \end{itemize}
 
 \end{column}
 \begin{column}{.4\textwidth}
-\begin{figure}[!t]
-  \centering
- {
-    \includegraphics[width=\textwidth]
-    {geogebra-export_large.pdf}
-  }
-  \caption{Propagation Scheme}
-  \label{scheme}
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.79\textwidth}
+\centering
+\includegraphics[width=0.7\textwidth]{LPV.pdf}
+\includegraphics[width=0.9\textwidth]{LPV2.pdf}
+\caption{Light Propagation Volumes}
+\end{minipage}
+\begin{minipage}{0.15\textwidth}
+\source{\textit{A. Kaplanyan and C. Dachsbacher, ''Cascaded light}} 
+\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{propagation volumes for realtime indirect illumination"}}}
+\end{minipage}
 \end{figure}
 
 \end{column}
@@ -732,16 +834,19 @@ $\\
 } % END OF FRAME
 
 \frame{
-\frametitle{{Propagation Scheme}}
+\frametitle{{Propagation Scheme - Linear Combination Weights}}
 
 \begin{columns}
 \begin{column}{.6\textwidth}
+Share of $\alpha,\beta$ on each cone angle (yellow, green):
+\begin{block}{\centering \textbf{Linear combination weights}}
 \begin{align*}
 	\varepsilon_\alpha &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
 	\varepsilon_\beta &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771\\
 	\Phi_{t} &= \varepsilon_k\int I(\omega)\mathop{d\omega}
 \end{align*}
-
+{\small w. $\Phi_{t}$: transmitted radiant flux, $I(\omega)$: radiant intensity}
+\end{block}
 \end{column}
 \begin{column}{.4\textwidth}
 \begin{figure}[!t]
