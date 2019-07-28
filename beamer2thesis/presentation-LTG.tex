@@ -212,7 +212,7 @@ whereas: $A$: square matrix, $\lambda$: eigenvalue $\mathbf{x}$: eigenvector
 \end{block}
 \end{small}
 %\bigskip
-Symbolic Computation:
+Symbolic computation of eigensystem:
 \begin{itemize}
 	\item eigenvalues: solving a linear system
 	\item eigenvectors: plugging in the eigenvalues and solving for $\mathbf{x}$
@@ -319,7 +319,7 @@ follow major/minor eigenvectors along pathlines
 \end{small}
 \bigskip
 \begin{itemize}
-	\item ambiguity for nearly isotropic cases:\\ small changes in magnitude effect large changes in glyph orientation
+	\item ambiguity for nearly isotropic cases:\\ small changes in magnitude effect large changes in tensor field line orientation
 	\item therefore susceptive to noise in data
 	\item trajectories can cross each other\\
 	$\Rightarrow$ effects chaotic trajectories, hard to interpret
@@ -546,7 +546,7 @@ Applications:
 \begin{column}{.5\textwidth}
 \begin{block}{\centering \textbf{Cauchy stress tensor}}
 \begin{align*}
-\boldsymbol{\sigma}
+\sigma_{i,j}
  = \left[{\begin{matrix} \mathbf{T}^{(\mathbf{e}_1)} \\
 \boldsymbol{T}^{(\mathbf{e}_2)} \\
 \boldsymbol{T}^{(\mathbf{e}_3)} \\
@@ -576,7 +576,7 @@ Applications:
 
 %\item classical physical example of a tensor
 %	\item consistent of $3$ stress vectors arranged in row-major order
-%	\item these represent the magnitude and orientation of the resulting stress at plane $x,y,z$ in direction $x,y,z$
+%	\item %\item representing the stress at plane with normal x,y,z in direction x,y,z yielding 9 components
 %	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
 
 %\frame{
@@ -807,10 +807,9 @@ $\\
 \begin{column}{.6\textwidth}
 To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:
 \begin{itemize}
-	\item light propagation volumes (LPV) in a style of Dachsbacher et al. (cf. Fig.)
-	\item light propagation scheme exchanging energies between neighboring cells: $\Phi_{t} = \int I(\omega)\mathop{d\omega}$\\
+	\item using light propagation volumes (LPV) in a style of Dachsbacher et al. (cf. Fig.)
+	\item exchanging energies between neighboring cells: $\Phi_{t} = \int I(\omega)\mathop{d\omega}$\\
 	{\small w. $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
-	\item eventually to model anisotropy characteristics of tensor field on top
 \end{itemize}
 
 \end{column}
@@ -837,23 +836,23 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \frametitle{{Propagation Scheme - Linear Combination Weights}}
 
 \begin{columns}
-\begin{column}{.6\textwidth}
-Share of $\alpha,\beta$ on each cone angle (yellow, green):
+\begin{column}{.5\textwidth}
+{\small angle by arc color: $\alpha$: red ,$\beta$: green}
 \begin{block}{\centering \textbf{Linear combination weights}}
 \begin{align*}
 	\varepsilon_\alpha &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
 	\varepsilon_\beta &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771\\
 	\Phi_{t} &= \varepsilon_k\int I(\omega)\mathop{d\omega}
 \end{align*}
-{\small w. $\Phi_{t}$: transmitted radiant flux, $I(\omega)$: radiant intensity}
+{\small w. $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
 \end{block}
 \end{column}
-\begin{column}{.4\textwidth}
+\begin{column}{.5\textwidth}
 \begin{figure}[!t]
   \centering
  {
     \includegraphics[width=\textwidth]
-    {geogebra-export_large.pdf}
+    {geogebra-export_large-edit.pdf}
   }
   \caption{Propagation Scheme}
   \label{scheme}
@@ -862,6 +861,7 @@ Share of $\alpha,\beta$ on each cone angle (yellow, green):
 \end{column}
 \end{columns}
 } % END OF FRAME
+%{\small Share of $\alpha,\beta$ on each cone angle (yellow, green):}
 
 
 \frame{
@@ -869,17 +869,20 @@ Share of $\alpha,\beta$ on each cone angle (yellow, green):
 \begin{figure}[!t]
   \centering
  {
-    \includegraphics[width=0.8\textwidth]
+    \includegraphics[width=0.75\textwidth]
     {steps_gallery_format_arrow_alt.png}
   }
   \caption{Impulse response}
   \label{scheme}
 \end{figure}
 \begin{align*}
-\sum_{\cos_+} &= \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}\cos_+(\omega)\mathop{d\omega} \approx 2,\\
+\sum_{\cos_+} &= \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}\cos_+(\omega)\mathop{d\omega} \approx 2,\hskip 10pt\cos_+(\omega) = 
+\begin{cases}
+   \cos(\omega),& \text{if } \cos(\omega) > 0\\
+    0,              & \text{otherwise}.
+\end{cases} \\
 	\cos_k(\omega) &= \frac{\Phi_t}{\sum_{\cos_+}}cos_+(\omega-k\cdot\frac{\pi}{4})\hskip 20pt \mathit{with} \ k\in[0,7]
 \end{align*}
-
 
 } % END OF FRAME
 
@@ -888,27 +891,24 @@ Share of $\alpha,\beta$ on each cone angle (yellow, green):
 \begin{block}{\centering \textbf{Steps}}
 
 \begin{enumerate}
-	\item Accumulation: Evaluating and Accumulating the Polar Profiles
-	\item Applying the linear combination (partition) weights
+	\item Accumulation: evaluate and accumulate the polar intensity profiles
+	\item Apply the linear combination (partition) weights
 	\item Injection: Scaling and Placing of a Cosine Lobe
 \end{enumerate}
 \end{block}\bigskip
-For now, we are able to propagate intensities as circular waves in a 2D Cartesian grid defined through polar functions given on cell centers.
+So far, we are able to propagate intensities as circular waves in a 2D Cartesian grid defined through polar functions given on cell centers.
 } % END OF FRAME
 
 \frame{
 \frametitle{{Transmission Profiles}}
-
+To interpret eigensystems of tensors as conductivity property for light transport, we will need transfer functions (transmission profiles) for the propagation scheme:
 \begin{block}{\centering \textbf{Ellipse Equation}}
 \begin{align*}
-	r(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\lambda_1\lambda_2}{\sqrt{\lambda_1^2\sin^2(\omega-\varphi)+\lambda_2^2\cos^2(\omega-\varphi)}}.
+	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\lambda_1\lambda_2}{\sqrt{\lambda_1^2\sin^2(\omega-\varphi)+\lambda_2^2\cos^2(\omega-\varphi)}}
 \end{align*}
+{\small w. $\varphi=\mathop{atan2}(\lambda_{1,y},\lambda_{1,x})$ and $\lambda$: singular value, $a$: x-radius ellipse, $b$: y-radius ellipse}
 \end{block}
-\begin{itemize}
-	\item transmission profiles $r(\omega)$ are given as symbolic functions by the mapping of eigenvalues to half-axes radii and the shift angle of the major eigenvector $\varphi=\mathop{atan2}\frac{s_{1,y}}{s_{1,x}}$ 
-	\item these polar functions are precomputed and sampled once as an initialization step
-\end{itemize}
-
+$\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions by the mapping of eigenvalues to half-axes radii and the shift angle of the major singular vector $\varphi$
 
 } % END OF FRAME
 
@@ -919,7 +919,7 @@ For now, we are able to propagate intensities as circular waves in a 2D Cartesia
 \begin{block}{\centering \textbf{Redefinition}}
 \begin{align*}
 	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\\
-n_f &= \frac{\mean{T}\mean{I}}{\widebar{TI}}
+n_f &= \frac{\mean{T}\mean{I}}{\widebar{TI}}\hskip 15pt \mathit{w.} \ \mean{f}=\frac{1}{2\pi}\int_0^{2\pi}f(\omega)\mathop{d\omega}
 \end{align*}
 \end{block}
 \begin{itemize}
@@ -943,34 +943,37 @@ n_f &= \frac{\mean{T}\mean{I}}{\widebar{TI}}
 \end{column}
 \end{columns}
 } % END OF FRAME
-
 \frame{
 \frametitle{{Propagation Scheme - Procedure}}
 \begin{block}{\centering \textbf{Procedure}}
-
+	
 \begin{enumerate}
-	\item Computation of normalization factor $n_f$
-	\item Direction (component)-wise weighting to account for shared part in diagonal cones
-	\item Integration (accumulation) of total radiant flux weighted with \underline{normalized} transmission profiles inside the angular neighbor range (read-access)
-	\item Scaling of cosine lobe corresponding to neighbor direction and subsequent placing (injection) to corresponding neighbor (write-access)
+	\item Compute the normalization factor $n_f$
+	\item Apply the linear combination (partition) weights and $n_f$
+	\item Accumulation: evaluate product of intensity and transmission profiles and accumulate
+	\item Injection: placing of a cosine lobe scaled with transmitted flux $\Phi_t$
 \end{enumerate}
 \begin{align*}
 	\mathcal{C'} = \mathop{propagate}\{c_i\in \mathcal{C} \ \mid \ |\mean{I}_i| > 0\} \hskip 5pt {\forall } \ i \in [1,\mathop{dim}]
 \end{align*}
 \end{block}
-Until now, we are able to modulate the propagated intensities with the anisotropy characteristics of the underlying tensor field.
+Until now, we are able to modulate the propagated intensities with the anisotropy characteristics of the underlying tensor field interpreted as conductivity property.
 } % END OF FRAME
+%\item Direction (component)-wise weighting to account for shared part in diagonal cones
+%\item Integration of total radiant flux weighted with \underline{normalized} transmission profiles inside the angular neighbor range (read-access)
+%\item Scaling and placing of cosine lobe and subsequent placing (injection) to corresponding neighbor direction (write-access)
+
 
 \frame{
 \frametitle{{Propagation Scheme}}
 \begin{block}{\centering \textbf{Criterion}}
 \begin{itemize}
-	\item the Procedure is repeated recursively for each individual cell and is performed with switching source and target buffer
+	\item the procedure is repeated recursively for each individual cell and is performed with switching source and target buffer
 	\item a stop sequence is initiated when following criterion is reached:
 	\begin{align*}
-	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon.
+	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon,
 	\end{align*}
-	\item we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, whereas the flow map takes in a stable state
+	\item i.e., we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, whereas the flow map takes in a stable state
 \end{itemize}
 \end{block}
 } % END OF FRAME
@@ -979,13 +982,13 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \frametitle{{Propagation Scheme - Physical Model}}
 \begin{block}{\centering \textbf{Crystal Fiber Structures}}
 \begin{itemize}
-	\item crystal lattices reveal gradients in refractive indices, which lead to anisotropic light transport inside the medium (birefringence)
+	\item crystal lattices reveal gradients dependent on direction, which leads to anisotropic light transport inside the medium (birefringence: e.g. quartz, ruby)
 	\item the propability for redistribution of a photon in a particular direction is given by the phase function model yielded from Rayleigh scattering:
 	\begin{align*}
  	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
  	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
 	\end{align*}
-	\item each tensor is then a unique footprint: $\mathbf{t_{i,j}}\mapsto T(\omega)$
+	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
 \end{itemize}
 \end{block}
 } % END OF FRAME
@@ -1076,7 +1079,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
     \includegraphics[height=0.7\textwidth]{scalar_iso_anglediff.png}
     \label{b)}
   \end{minipage}
-  \caption{Isotropic test field}
+  \caption{Isotropic test field: scalar field representation}
 \label{analysis2}
 \end{figure}
 
@@ -1122,7 +1125,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
     \includegraphics[height=0.7\textwidth]{ftle_anglediff.png}
     \label{b)}
   \end{minipage}
-  \caption{Drain test field}
+  \caption{Drain test field: scalar field representation}
 \label{analysis2}
 \end{figure}
 
@@ -1137,9 +1140,9 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{align*}
 \end{block}
 \begin{itemize}
-	\item Previous examples prove that the conductivity property (transmission) of the tensor field effects a separation of energies for diverging pathlines
-	\item Eventual goal is to obtain a FTLE field from accumulating the overall energy in the difference scalar field
-	\item Buffer $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ contains propagated light distributions for each discrete location and direction in the field, on which we will eventually apply a gradient
+	\item previous examples prove that the conductivity property (transmission) of the tensor field effects a separation of energies for diverging pathlines
+	\item buffer $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ contains propagated light distributions for each discrete location and direction in the field, on which we will eventually apply a gradient
+	\item FTLE field is yielded from accumulating the overall energy in the difference scalar field for varying location and direction 
 \end{itemize}
 } % END OF FRAME
 
@@ -1163,7 +1166,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{block}
 \begin{itemize}
 	\item a finite set of cells is interpreted as a 1D vector $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$ here, contained as an element of the set of final buffers $\mathcal{B}$
-	\item the resulting volume grid is raised by one dimension $d=2+1=3$ for taking direction as additional input parameter and computing the Euclidean norm of the gradient
+	\item the resulting volume grid is raised by one dimension $d=2+1=3$ for taking direction as additional input argument and computing the Euclidean norm of the gradient
 	
 \end{itemize}
 } % END OF FRAME
@@ -1178,7 +1181,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item Isotropic test field reveals offset response for the approach
 	\bigskip
-	\item Natural shift against the inital light source (slice) direction (left)
+	\item natural shift against the inital light source (slice) direction (left)
 	\bigskip
 	\item maximum distance to the edges lies on the circumference of a circle
 \end{itemize}
@@ -1202,7 +1205,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item Isotropic test field reveals offset response for the approach
 	\bigskip
-	\item Natural shift against the inital light source (slice) direction (left)
+	\item natural shift against the inital light source (slice) direction (left)
 	\bigskip
 	\item maximum distance to the edges lies on the circumference of a circle
 \end{itemize}
@@ -1257,7 +1260,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item Drain test field reveals strong ridge in $-y$ direction
 	\bigskip
-	\item Ridge remains more stable on the top edges w.r.t. initial direction
+	\item ridge remains more stable on the top edges w.r.t. initial direction
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -1290,7 +1293,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item Inverse test field reveals strong ridges in axes direction
 	\bigskip
-	\item Ridges are detected up to orthogonally to the initial light source direction
+	\item ridges are detected up to orthogonally to the initial light source direction
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -1337,7 +1340,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{figure}
 \begin{itemize}
 	\item Inverse test field reveals strong ridges in axes direction
-	\item Ridges are detected up to orthogonally to the initial light source direction
+	\item ridges are detected up to orthogonally to the initial light source direction
 \end{itemize}
 } % END OF FRAME
 
@@ -1393,11 +1396,11 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item Inverse (square) law is evaluated for propagation
+	\item Inverse (square) Law is evaluated for propagation
 	\bigskip
-	\item Magnitude is related to magnitude $r_1$ at distance 1 
+	\item magnitude is related to magnitude $r_1$ at distance 1 
 	\bigskip
-	\item Samples are fitted to $f(r)=\frac{a}{r}+c$
+	\item samples are fitted to $f(r)=\frac{a}{r}+c$
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -1442,7 +1445,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{anisotropy}
 \end{figure}
 \begin{itemize}
-	\item Light intensity is propagated in circular orbits, which reveals a sampling drift
+	\item Light intensity is propagated in circular orbits, which reveals a sampling drift.
 \end{itemize}
 } % END OF FRAME
 
@@ -1473,7 +1476,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{figure}
 \begin{itemize}
 	\item LTG is detecting ridges up to orthogonal directions
-	\item Response is decreased in gyre centers for measuring separation through (circular) overlap
+	\item response is decreased in gyre centers for measuring separation through (circular) overlap
 \end{itemize}
 } % END OF FRAME
 
@@ -1505,7 +1508,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 
 \begin{itemize}
 	\item LTG is detecting ridges up to orthogonal directions
-	\item Response is decreased in gyre centers for measuring separation through (circular) overlap
+	\item response is decreased in gyre centers for measuring separation through (circular) overlap
 \end{itemize}
 } % END OF FRAME
 
@@ -1518,7 +1521,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 		\item  Segmentation in FG-BG regions
 		\item Random noise modulated on top
 	\end{enumerate}
-	\item We propose the following threshold corrections to prevent noisy FTLE results: 
+	\item we propose the following threshold corrections to prevent noisy FTLE results: 
 	\begin{itemize}
 		\item for Hlawatsch's approach:
 			\begin{align*}
@@ -1568,7 +1571,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{figure}
 
 \begin{itemize}
-	\item Noise present in the Brain dataset $\Rightarrow$ TFLs reveal chaotic trajectories
+	\item noise present in the Brain dataset $\Rightarrow$ TFLs reveal chaotic trajectories
 	\item FTLE response throughout the image (because of ambiguity in isotropic regions)
 \end{itemize}
 } % END OF FRAME
@@ -1600,8 +1603,8 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{figure}
 
 \begin{itemize}
-	\item Denoising: Tensor mags. below threshold are padded with zeros
-	\item Correlating trajectories in BG regions: FTLE response only in FG regions
+	\item denoising: Tensor mags. below threshold are padded with zeros
+	\item correlating trajectories in BG regions: FTLE response only in FG regions
 \end{itemize}
 } % END OF FRAME
 
@@ -1636,7 +1639,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{figure}
 
 \begin{itemize}
-	\item No anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing high tensor mags.
+	\item no anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing high tensor mags.
 \end{itemize}
 } % END OF FRAME
 
@@ -1670,7 +1673,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 
 
 \begin{itemize}
-	\item No noise present in the Heart dataset $\Rightarrow$ TFLs reveal correlated trajectories
+	\item no noise present in the Heart dataset $\Rightarrow$ TFLs reveal correlated trajectories
 	\item FTLE response on structure obtained in the style of Hlawatsch et al.
 \end{itemize}
 } % END OF FRAME
