@@ -29,6 +29,8 @@ titleline=true
 \newcommand*\mean[1]{\bar{#1}}
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \newcommand\widebar[1]{\mathop{\overline{#1}}}
+\usepackage{caption}
+\captionsetup{font=scriptsize}
 
 \usepackage{color}
 \usepackage{graphicx}
@@ -62,27 +64,92 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \newcommand{\source}[1]{\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{Source: \color{black}{#1}}}}}
 \setlength{\belowcaptionskip}{-10pt}
 \setlength{\intextsep}{-20pt}
-
+%\usepackage[style=verbose,backend=biber]{biblatex}
+%\addbibresource{references.bib}
+%\usepackage[multiple]{footmisc}
+%\usepackage[bottom]{footmisc}
+\renewcommand\thempfootnote{\arabic{mpfootnote}}
 \begin{document}
 
 %\frame[plain]{\titlepage}
 
-
 \frame{
-\frametitle{{Propagation Scheme - Physical Model}}
-\begin{block}{\centering \textbf{Crystal Fiber Structures}}
-\begin{itemize}
-	\item crystal lattices reveal gradients dependent on direction, which leads to anisotropic light transport inside the medium (birefringence)
-	\item the propability for redistribution of a photon in a particular direction is given by the phase function model yielded from Rayleigh scattering:
-	\begin{align*}
- 	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
- 	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
-	\end{align*}
-	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
-\end{itemize}
+\frametitle{{Eigenanalysis - Tensor Fields}}
+\begin{columns}
+\begin{column}{.6\textwidth}
+Direction, invariant under transformation $A$, sought:
+\begin{block}{\centering \textbf{Eigenvalue Problem}}
+\begin{align*}
+	A \cdot \boldsymbol{\epsilon} = \lambda \boldsymbol{\epsilon}
+\end{align*}
+with: $A$: square matrix, $\lambda$: eigenvalue $\mathbf{\epsilon}$: eigenvector
 \end{block}
+\begin{itemize}
+	\item eigensystems:\\ full set of eigenvalues and -vectors
+	\item we propose to use singular value systems (SVS) in analogy to Eigensystems\\
+	{\tiny Proof: "Glyphs for General Second-Order 2D and 3D Tensors", Gerrits et al., 2017}
+\end{itemize}
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\begin{minipage}{0.85\textwidth}
+\includegraphics[width=\textwidth]{HAT_edit2.png}
+\caption*{Eigensystem: characteristic ellipsoid}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{\url{https://slideplayer.com/slide/5291764}}
+\end{minipage}
+
+\end{figure}
+
+\end{column}
+\end{columns}
 } % END OF FRAME
 
+\frame{
+\frametitle{{Computation of Eigensystem - Tensor Fields}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Matrix Decompositions}}
+1) Eigenvalue Decomposition: \hskip 46pt
+$
+	A = {R}{S}{R}^*
+$\\
+2) Singular Value Decomposition (SVD): 
+$
+	{A} = {U} {\Sigma} {V}^*
+$
+\end{block}
+\end{small}
+\begin{small}
+\begin{enumerate}
+	\item eigenvalues \hskip 14pt and eigenvectors
+	\item singular values and singular vectors (SVs)
+\end{enumerate}
+\begin{itemize}
+	\item SVs represent the axes of characteristic ellipsoid \footnote{Gerrits et al. ''Glyphs for General Second-Order 2D and 3D Tensors", IEEE Transactions on Visualization and Computer Graphics, 2017.}
+	\item singular values ($s_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{M. Kieburg, “What is the Relation between Eigenvalues \& Singular
+Values?, 2016} are lengths of axes
+\end{itemize}
+\end{small}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\begin{minipage}{0.9\textwidth}
+\includegraphics[width=\textwidth]{SVD.png}
+\caption*{Singular value system}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\source{\url{https://w.wiki/6WN}}
+\end{minipage}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
 
 
 %glyphs are used to represent the eigensystem, i.e., the anisotropy characteristics and/or tensor magnitude
