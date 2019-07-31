@@ -915,6 +915,41 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 } % END OF FRAME
 
 \frame{
+\frametitle{{Propagation Scheme - Template}}
+\begin{columns}
+\begin{column}{.6\textwidth}
+To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
+\begin{small}
+\begin{block}{\centering \textbf{Steps}}
+\begin{enumerate}
+	\item Evaluate and accumulate the polar intensity profiles\bigskip
+	\item Injection: scaling and placing of a Cosine Lobe
+\end{enumerate}
+\end{block}
+
+\end{small}
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.79\textwidth}
+\centering
+\includegraphics[width=0.7\textwidth]{LPV.pdf}
+\includegraphics[width=0.9\textwidth]{LPV2.pdf}
+\caption*{Light Propagation Volumes}
+\end{minipage}
+\begin{minipage}{0.15\textwidth}
+\source{\textit{A. Kaplanyan and C. Dachsbacher, ''Cascaded light}} 
+\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{propagation volumes for realtime indirect illumination"}}}
+\end{minipage}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+
+\frame{
 \frametitle{{Propagation Scheme - Linear Combination Weights}}
 
 \begin{columns}
@@ -947,7 +982,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 
 
 \frame{
-\frametitle{{Propagation Scheme}}
+\frametitle{{Propagation Scheme - Injection}}
 \begin{figure}[!t]
   \centering
  {
@@ -1033,7 +1068,7 @@ n_f &= \frac{\mean{T}\cdot\mean{I}}{\widebar{T\cdot I}}\hskip 15pt \mathit{with}
 
 \frame{
 \frametitle{{Propagation Scheme - Procedure}}
-\begin{block}{\centering \textbf{Procedure}}
+\begin{block}{\centering \textbf{Steps}}
 	
 \begin{enumerate}
 	\item Compute the normalization factor $n_f$
@@ -1671,7 +1706,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
   \begin{minipage}{0.3\textwidth}
    \centering
     \includegraphics[height=0.7\textwidth]{brain_ftle_org.PNG}
-	c)~FTLE: H.'s approach
+	c)~FTLE: Hlawatsch's approach
     \label{b)}
   \end{minipage}
 \caption*{Brain test field}
@@ -1703,7 +1738,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
   \begin{minipage}{0.3\textwidth}
    \centering
     \includegraphics[height=0.7\textwidth]{brain_ftle_surf_noisereduction.PNG}
-	c)~FTLE: H.'s approach
+	c)~FTLE: Hlawatsch's approach
     \label{b)}
   \end{minipage}
 \caption*{Brain test field (denoised)}
@@ -1711,7 +1746,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 \end{figure}
 \bigskip
 \begin{itemize}
-	\item denoising: tensor mags. below threshold are padded with zeros
+	\item denoising: tensor magnitudes below threshold are padded with zeros
 	\item correlating trajectories in BG regions: FTLE response only in FG regions
 \end{itemize}
 } % END OF FRAME
@@ -1742,12 +1777,12 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
     d)
     \label{b)}
   \end{minipage}
-  \caption*{Brain test field LTG: a) Tensor magnitude, b) LTG($0^\circ$), c) LTG volume, d) cross-section}
+  \caption*{Brain test field LTG: a) Tensor magnitude, b) LTG($0^\circ$), c) LTG volume, d) Cross-section}
 \label{brain-volumes}
 \end{figure}
 \bigskip
 \begin{itemize}
-	\item no anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing high tensor mags.
+	\item no anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing high tensor magnitudes
 \end{itemize}
 } % END OF FRAME
 
@@ -1775,7 +1810,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 	c)
     \label{b)}
   \end{minipage}
-\caption*{Heart test field: a) glyphs, b) TFLs, c) FTLE: H.'s approach}
+\caption*{Heart test field: a) glyphs, b) TFLs, c) FTLE: Hlawatsch's approach}
 \label{heart-ftle-comp}
 \end{figure}
 \bigskip
@@ -1807,13 +1842,13 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 	c)
     \label{b)}
   \end{minipage}
-  \caption*{Heart test field: a) Glyphs, b) H.'s approach, c) LTG (rescale)}
+  \caption*{Heart test field: a) Glyphs, b) Hlawatsch's approach, c) LTG}
 \label{heart-ftle}
 \end{figure}\bigskip
 \begin{itemize}
 	\item light ridges enhanced by rescaling for the down-left direction (red lines in c))
 	\item regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
-	\item edge artifacts: edges effect high gradients for the flow map
+	\item edge artifacts: edges effect high gradients in the flow map
 \end{itemize}
 } % END OF FRAME
 
@@ -1854,11 +1889,15 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 \frametitle{{Random Test Field}}
 \begin{columns}
 \begin{column}{.5\textwidth}
+\begin{small}
 \begin{itemize}
 	\item numerics: limit number representation to a particular range
 	\bigskip
-	\item preposition for relatively high tensor mags.: $\sigma_1\approx\sigma_2\approx1.0$ (because ellipse area equals $A=\sigma_1\cdot\sigma_2\cdot\pi$)\\
+	\item characteristic ellipsoid area: $A=\sigma_1\cdot\sigma_2\cdot\pi$
+	$\Rightarrow$ preposition for high tensor magnitudes: $\sigma_1\approx\sigma_2\approx1.0$ (implicit spherical isotropy)\bigskip
+	\item local normalization is verified to emphasize regions with increased anisotropy
 \end{itemize}
+\end{small}
 \end{column}
 \begin{column}{.5\textwidth}
 \begin{figure}[!t]
@@ -1867,7 +1906,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
     \includegraphics[width=0.33\textwidth]{random-local.png} b)
     \includegraphics[width=0.33\textwidth]{random_global.png} c)
     \includegraphics[width=0.33\textwidth]{random_local_slice0.png}	d)
-    \caption*{Random test field : a) Tensor magnitude, b) Local normalization, c) Tensor mag. d) LTG}
+    \caption*{Random test field : a) Glyphs, b) Local normalization, c) Tensor magnitude d) LTG}
 \label{bow_contour}
 \end{figure}
 %\begin{figure}[!t]
@@ -1880,6 +1919,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 \end{columns}
 
 } % END OF FRAME
+
 
 %$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)
 

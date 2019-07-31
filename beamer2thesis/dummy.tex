@@ -73,37 +73,39 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 
 
 \frame{
-\frametitle{{Propagation Scheme - Template}}
+\frametitle{{Random Test Field}}
 \begin{columns}
-\begin{column}{.6\textwidth}
-To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
+\begin{column}{.5\textwidth}
+\begin{small}
 \begin{itemize}
-	\item using light propagation volumes (LPV) similar to Dachsbacher et al. (cf. Fig.)\bigskip
-	\item exchanging itensities between neighboring cells: $\Phi_{t} = \int I(\omega)\mathop{d\omega}$\\
-	{\small with $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
+	\item numerics: limit number representation to a particular range
+	\bigskip
+	\item characteristic ellipsoid area: $A=\sigma_1\cdot\sigma_2\cdot\pi$
+	$\Rightarrow$ preposition for high tensor magnitudes: $\sigma_1\approx\sigma_2\approx1.0$ (implicit spherical isotropy)\bigskip
+	\item local normalization is verified to emphasize regions with increased anisotropy
 \end{itemize}
-
+\end{small}
 \end{column}
-\begin{column}{.4\textwidth}
-\begin{figure}[t]
+\begin{column}{.5\textwidth}
+\begin{figure}[!t]
 \centering
-\begin{minipage}{0.79\textwidth}
-\centering
-\includegraphics[width=0.7\textwidth]{LPV.pdf}
-\includegraphics[width=0.9\textwidth]{LPV2.pdf}
-\caption*{Light Propagation Volumes}
-\end{minipage}
-\begin{minipage}{0.15\textwidth}
-\source{\textit{A. Kaplanyan and C. Dachsbacher, ''Cascaded light}} 
-\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{propagation volumes for realtime indirect illumination"}}}
-\end{minipage}
+    \includegraphics[width=0.33\textwidth]{random-global.png} a)
+    \includegraphics[width=0.33\textwidth]{random-local.png} b)
+    \includegraphics[width=0.33\textwidth]{random_global.png} c)
+    \includegraphics[width=0.33\textwidth]{random_local_slice0.png}	d)
+    \caption*{Random test field : a) Glyphs, b) Local normalization, c) Tensor magnitude d) LTG}
+\label{bow_contour}
 \end{figure}
-
+%\begin{figure}[!t]
+%\centering
+%    
+%    
+%\label{bow_contour}
+%\end{figure}
 \end{column}
 \end{columns}
+
 } % END OF FRAME
-
-
 
 %glyphs are used to represent the eigensystem, i.e., the anisotropy characteristics and/or tensor magnitude
 %Volume non-directionally dependent
