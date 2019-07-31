@@ -80,7 +80,7 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \tableofcontents[currentsection,hideallsubsections]  % show TOC and highlight current section
 \end{frame}
 }
-
+\setlength{\footnotesep}{0.1cm}
 \renewcommand\thempfootnote{\arabic{mpfootnote}}
 \begin{document}
 
@@ -91,8 +91,6 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 %========================================
 
 \section[Introduction]{Introduction}
-
-\subsection[Introduction]{Introduction}
 
 \frame{
 \frametitle{{Introduction - Scalar Fields}}
@@ -169,7 +167,7 @@ x\\y
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item vector-valued function: $\mathop{\mathbf{u(x)}\colon} \mathbf{x}\mapsto\mathbf{u}$, w. $\mathbf{x}\in\mathcal{R}^n$: location vector
+	\item vector-valued function: $\mathop{\mathbf{u(x)}\colon} \mathbf{x}\mapsto\mathbf{u}$, with $\mathbf{x}\in\mathcal{R}^n$: location vector
 	\bigskip
 	\item visualized by streamlines to reveal global structure
 	\bigskip
@@ -204,7 +202,7 @@ x\\y
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item tensor-valued function: $\mathop{t_{ij}\mathbf{(x)}\colon} \mathbf{x}\mapsto t$, w. $\mathbf{x}\in\mathcal{R}^n$: location vector
+	\item tensor-valued function: $\mathop{t_{ij}\mathbf{(x)}\colon} \mathbf{x}\mapsto t$, with $\mathbf{x}\in\mathcal{R}^n$: location vector
 	\bigskip
 	\item tensor fields can be visualized by:
 	\begin{itemize}
@@ -228,8 +226,208 @@ x\\y
 
 } % END OF FRAME
 
+\section[Fundamentals]{Fundamentals}
 \frame{
-\frametitle{{Eigenanalysis - Tensor Fields}}
+\frametitle{{Fundamentals - Tensor Fields}}
+
+\begin{block}{\centering \textbf{Tensor Fields}}
+\begin{itemize}
+	\item order-$o$ generalization of a matrix with indices of run length $n$ for $n\times n$ matrices
+	\item number arrays following covariant or contravariant transformation rules
+	\item represenation needed for a whole directional distribution for each point in space
+\end{itemize}
+\end{block}
+\begin{table}[b]
+\centering
+\caption*{Tensor Shapes}\bigskip
+ \begin{tabular}{c|c|c|c|c|c|c}
+\textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
+\hline 
+\textbf{shape} & scalar & vector & matrix & ``3D matrix'' & ... & order-$o$ matrix\\ 
+\end{tabular}
+\label{tensor}
+ \end{table} 
+} % END OF FRAME
+
+\frame{
+\frametitle{{Fundamentals - Tensor Fields}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{block}{\centering \textbf{Cauchy stress tensor}}
+\begin{align*}
+\sigma
+ = \left[{\begin{matrix} \mathbf{T}^{(\mathbf{e}_1)} \\
+\boldsymbol{T}^{(\mathbf{e}_2)} \\
+\boldsymbol{T}^{(\mathbf{e}_3)} \\
+\end{matrix}}\right] =
+\begin{bmatrix}
+\sigma _{11} & \sigma _{12} & \sigma _{13} \\
+\sigma _{21} & \sigma _{22} & \sigma _{23} \\
+\sigma _{31} & \sigma _{32} & \sigma _{33} 
+\end{bmatrix}\\
+\text{stress vector: }\mathbf{T(n)} = \mathbf{n}\cdot\sigma
+\end{align*}
+\end{block}
+\bigskip
+\begin{itemize}
+	\item classical physical example of a tensor
+	\item consistent of $3$ stress vectors arranged in row-major order
+\end{itemize}
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\begin{minipage}{0.9\textwidth}
+\includegraphics[width=0.9\textwidth]{stress_tensor.png} 
+\caption*{Cauchy stress tensor}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\source{https://w.wiki/6gV}
+\end{minipage}
+\end{figure}
+\end{column}
+\end{columns}
+
+} % END OF FRAME
+
+%\item classical physical example of a tensor
+%	\item consistent of $3$ stress vectors arranged in row-major order
+%	\item %\item representing the stress at plane with normal x,y,z in direction x,y,z yielding 9 components
+%	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
+
+%\frame{
+%\frametitle{{Polar Coordinates}}
+%
+%\begin{columns}
+%\begin{column}{.5\textwidth}
+%\begin{block}{\centering \textbf{Conversion Formulas}}
+%Polar$\mapsto$Cartesian
+%\begin{align*}
+%	x &= r \cos \omega, \\
+% 	y &= r \sin \omega.
+%\end{align*}
+%Cartesian$\mapsto$Polar
+%\begin{align*}
+%	r &= \sqrt{x^2 + y^2}, \\
+%\omega &= \operatorname{atan2}(y, x).
+%\end{align*}
+%
+%\end{block}
+%\end{column}
+%\begin{column}{.5\textwidth}
+%\begin{figure}[t]
+%\includegraphics[width=0.7\textwidth]{polarkoordinaten.png}
+%\caption*{Polar coordinates,  \textit{Source: \textcircled{3}}}
+%\end{figure}
+%\bigskip
+%\begin{itemize}
+%	\item polar function $f: \omega\mapsto r$ maps each angle $\omega$ a magnitude $r(\omega)$
+%\end{itemize}
+%\end{column}
+%\end{columns}
+%
+%} % END OF FRAME
+
+%
+%\frame{
+%\frametitle{{Principal Component Analysis}}
+%
+%\includemovie{0.49\textwidth}{0.4\textwidth}{scale.swf}
+%\includemovie{0.49\textwidth}{0.4\textwidth}{rotate.swf}
+%
+%} % END OF FRAME
+
+\frame{
+\frametitle{{Fundamentals - Finite-Time Lyapunov exponents}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$ (cf. Fig. b))\\
+Global: 
+$
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+$\\
+{\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
+\end{block}
+\end{small}
+\begin{itemize}
+	\item measure for separation abilities of time-variant systems
+	\item Lagrangian view in vector fields: placing particle, moving with flow
+\end{itemize}
+
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\begin{minipage}{0.85\textwidth}
+\centering
+\includegraphics[height=0.6\textwidth]{diverge_rot.png} a)
+\includegraphics[height=0.6\textwidth]{ftle_sep.pdf} b)
+\caption*{a) Vector field, b) diverging pathlines}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{b) Skript Prof. Sadlo, SciVis SS2017}
+\end{minipage}
+
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+%\begin{itemize}
+%	\item measure for separation abilities of LTV (time-variant) systems concerning massless tracer particles
+%	\item Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
+%\end{itemize}
+
+\frame{
+\frametitle{{Fundamentals - Finite-Time Lyapunov exponents}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$\\
+Global: 
+$
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+$\\
+{\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
+\end{block}
+\end{small}
+\begin{itemize}
+	\item measures gradient of flow map $\nabla\mathbf{u(x)}$
+	\item FTLE field responds largest where path lines diverge
+\end{itemize}
+
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.9\textwidth}
+\centering
+a)\includegraphics[height=0.34\textwidth]{diverge.png}
+b)\includegraphics[height=0.35\textwidth]{ftle.png}
+\caption*{a) Vector field, b) FTLE field}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\centering
+\source{http://tiny.cc/2zbjaz}
+\end{minipage}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+\frame{
+\frametitle{{Tensor Fields - Eigenanalysis}}
 \begin{columns}
 \begin{column}{.6\textwidth}
 Direction, invariant under transformation $A$, sought:
@@ -262,7 +460,7 @@ with: $A$: square matrix, $\lambda$: eigenvalue $\mathbf{\epsilon}$: eigenvector
 } % END OF FRAME
 
 \frame{
-\frametitle{{Computation of Eigensystem - Tensor Fields}}
+\frametitle{{Tensor Fields - Computation of Eigensystem}}
 
 \begin{columns}
 \begin{column}{.59\textwidth}
@@ -285,7 +483,7 @@ $
 \end{enumerate}
 \begin{itemize}
 	\item SVs represent the axes of characteristic ellipsoid \footnote{Gerrits et al. ''Glyphs for General Second-Order 2D and 3D Tensors", IEEE\\ Transactions on Visualization and Computer Graphics, 2017.}
-	\item singular values ($s_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{Kieburg, “What is the Relation between Eigenvalues \& Singular
+	\item singular values ($s_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{Kieburg “What is the Relation between Eigenvalues \& Singular
 Values?, 2016} are lengths of axes
 \end{itemize}
 \end{small}
@@ -363,37 +561,6 @@ follow major/minor eigenvectors along pathlines
 \bigskip
 \begin{small}
 \begin{itemize}
-	\item ambiguity for nearly isotropic cases:\\ small changes in components effect large changes in tensor field line orientation (see Fig.)\bigskip
-	\item therefore susceptive to noise in data
-\end{itemize}
-\end{small}
-
-\end{column}
-\begin{column}{.4\textwidth}
-\centering
-\begin{figure}[t]
-\centering
-\includegraphics[height=0.8\textwidth]{nearly_isotropic.pdf}
-\caption*{Ambiguity}
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
-
-\frame{
-\frametitle{{Tensor Fields - Tensor Field Lines}}
-
-\begin{columns}
-\begin{column}{.6\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Procedure}}
-follow major/minor eigenvectors along pathlines
-\end{block}
-\end{small}
-\bigskip
-\begin{small}
-\begin{itemize}
 	\item ambiguity for nearly isotropic cases:\\ small changes in magnitude effect large changes in tensor field line orientation
 	\item therefore susceptive to noise in data
 	\item trajectories can cross each other\\
@@ -425,6 +592,37 @@ follow major/minor eigenvectors along pathlines
 \end{block}
 \end{small}
 \bigskip
+\begin{small}
+\begin{itemize}
+	\item ambiguity for nearly isotropic cases:\\ small changes in components effect large changes in tensor field line orientation (see Fig.)\bigskip
+	\item therefore susceptive to noise in data
+\end{itemize}
+\end{small}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\centering
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.8\textwidth]{nearly_isotropic.pdf}
+\caption*{Ambiguity}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Tensor Fields - Tensor Field Lines}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Procedure}}
+follow major/minor eigenvectors along pathlines
+\end{block}
+\end{small}
+\bigskip
 
 	$\Rightarrow$ possible approach: tensor field topology: e.g. separatrices, degenerate points:
 	\begin{itemize}
@@ -438,10 +636,15 @@ follow major/minor eigenvectors along pathlines
 \centering
 \begin{figure}[t]
 \centering
-\includegraphics[height=0.8\textwidth]{hyperstreamlines.png}
-\caption*{tensor field lines}
+\begin{minipage}{0.85\textwidth}
+\centering
+\includegraphics[height=0.9\textwidth]{hyperstreamlines.png}
+\caption*{Degenerate points}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\source{\url{http://tiny.cc/qefjaz}}
+\end{minipage}
 \end{figure}
-
 \end{column}
 \end{columns}
 } % END OF FRAME
@@ -494,9 +697,9 @@ follow major/minor eigenvectors along pathlines
 %} % END OF FRAME
 %----------------------------------------
 
-\subsection[Introduction]{Motivation}
+
 \frame{
-\frametitle{{Motivation - Tensor Fields}}
+\frametitle{{Tensor Fields - Motivation}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -517,7 +720,7 @@ follow major/minor eigenvectors along pathlines
 	c)
     \label{b)}
   \end{minipage}
-\caption*{Random field: a) field, b) tensor magnitude, c) ours(LTG)}
+\caption*{Random field: a) Field, b) Tensor magnitude, c) Our approach(LTG)}
 \label{test_fields2}
 \end{figure}
 Applications:
@@ -532,19 +735,34 @@ Applications:
 %	\item Fluid and solid continuum mechanics: to describe a whole distribution of stresses
 %	\item DT-MRI: diffusion tensor - magnetic resonance imaging: to describe the diffusion characteristics of water molecules within tissue
 
-\subsection[Introduction]{Related Work}
+\frame{
+\frametitle{{Main Idea}}
+
+The main idea is to use methods from global illumination to visualize tensor fields. Therefore, we interpret SVS of tensors as conductivity property...\\ \bigskip
+Primary Requirements:
+\begin{itemize}
+	\item light propagation scheme to model light transport in a 2D grid\bigskip
+	\item transfer functions to model anisotropic light transport in a 2D grid
+\end{itemize}
+
+} % END OF FRAME
+
 
 \frame{
 \frametitle{{Related Work - Global Illumination Methods}}
 
 \begin{itemize}
 	\item discrete ordinates method: ''Radiative transfer", by S. Chandrasekhar, 1950
-	\bigskip
+		\bigskip
 	\item lattice-Boltzmann method:  Geist et al., ''Lattice-Boltzmann lighting”, 2004
-	\bigskip
+	\begin{figure}[t]
+	\includegraphics[width=0.4\textwidth]{lattice.png} 
+	\end{figure}
 	\item light propagation volumes: C. Dachsbacher et al., ''Cascaded light propagation volumes for real-time indirect illumination", 2010
+\begin{minipage}{0.3\textwidth}
+\includegraphics[width=0.65\textwidth]{LPV.pdf} 
+\end{minipage}	
 \end{itemize}
-
 
 } % END OF FRAME
 
@@ -567,15 +785,19 @@ Applications:
 \frame{
 \frametitle{{Related Work - Symmetric Tensor Field Visualization}}
 
+\begin{small}
 \begin{itemize}
-	\item glyphs: represent anisotropy with shape and orientation
-	\item tensor field lines (TFLs): follow the eigenvector along tensor field lines
-	\item tensorlines: introduce artificial inertia on TFLs to increase stability
-	\item HyperLIC: use Line Integral Convolution from Vector Field Visualization on TFLs
-	\item FTLE: exploit the gradient of the flow map of TFLs to generate an FTLE field
-	\item scalar measures: tensor magnitude, diffusivity, fractional anisotropy, anisotropy coefficients (measures)
+	\item glyphs\footnote[frame]{McLoughlin et al. ''Over two decades of integration-based, geometric flow visualization", 2010} represent anisotropy with shape and orientation
+	\item tensor field lines\footnote[frame]{Vilanova et al. ''Dti visualization with streamsurfaces beaand evenly-spaced volume seeding", 2004} (TFLs): follow tensor field along major eigenvector
+	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
+based propagation through diffusion tensor fields", 1999} introduce artificial inertia on TFLs to increase stability
+	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003} use Line Integral Convolution from Vector Field Visualization on TFLs
+	\item FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
+characteristic curves in symmetric second order tensor fields", 2011} exploit the gradient of the flow map of TFLs to generate an FTLE field
+	\item scalar measures: fractional anisotropy\footnote[frame]{P. Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
+diffusion measures for MRI from tensor basis analysis", 2002}
 \end{itemize}
-
+\end{small}
 
 } % END OF FRAME
 
@@ -583,248 +805,22 @@ Applications:
 \frametitle{{Related Work - Asymmetric Tensor Field Visualization}}
 
 \begin{itemize}
-	\item dual eigenvectors: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
+	\item dual eigenvectors\footnote[frame]{Zheng and Pang ''2d asymmetric tensor analysis", 2005}: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
 	\bigskip
-	\item pseudo eigenvectors: extension for dual eigenvectors to a full set or graph
+	\item pseudo eigenvectors\footnote[frame]{Laramee et al. ''2d asymmetric tensor field topology", 2012}: extension for dual eigenvectors to a full set or graph
 	\bigskip
-	\item scalar measures: tensor magnitude, tensor mode, isotropy index
+	\item scalar measures: tensor magnitude\footnote[frame]{Lin et al. ''Asymmetric tensor field visualization for surfaces", 2011}, tensor mode\footnote[frame]{Palacios et al. ''Feature surfaces in symmetric tensor fields based on eigenvalue
+manifold", 2015}, isotropy index\footnote[frame]{see footnote 11}
 \end{itemize}
 
-
 } % END OF FRAME
+
 %----------------------------------------
 
 
 %----------------------------------------
 
 %======================================== END OF SECTION
-
-
-\section[Fundamentals]{Fundamentals}
-
-\frame{
-\frametitle{{Fundamentals}}
-
-\begin{block}{\centering \textbf{Tensor Fields}}
-\begin{itemize}
-	\item order-$o$ generalization of a matrix with indices of run length $n$ for $n\times n$ matrices
-	\item number arrays following covariant or contravariant transformation rules
-	\item represenation needed for a whole directional distribution for each point in space
-\end{itemize}
-\end{block}
-\begin{table}[b]
-\centering
-\caption*{Tensor Shapes}\bigskip
- \begin{tabular}{c|c|c|c|c|c|c}
-\textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
-\hline 
-\textbf{shape} & scalar & vector & matrix & ``3D matrix'' & ... & order-$o$ matrix\\ 
-\end{tabular}
-\label{tensor}
- \end{table} 
-} % END OF FRAME
-
-\frame{
-\frametitle{{Fundamentals}}
-
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{block}{\centering \textbf{Cauchy stress tensor}}
-\begin{align*}
-\sigma
- = \left[{\begin{matrix} \mathbf{T}^{(\mathbf{e}_1)} \\
-\boldsymbol{T}^{(\mathbf{e}_2)} \\
-\boldsymbol{T}^{(\mathbf{e}_3)} \\
-\end{matrix}}\right] =
-\begin{bmatrix}
-\sigma _{11} & \sigma _{12} & \sigma _{13} \\
-\sigma _{21} & \sigma _{22} & \sigma _{23} \\
-\sigma _{31} & \sigma _{32} & \sigma _{33} 
-\end{bmatrix}\\
-\text{stress vector: }\mathbf{T(n)} = \mathbf{n}\cdot\sigma
-\end{align*}
-\end{block}
-\bigskip
-\begin{itemize}
-	\item classical physical example of a tensor
-	\item consistent of $3$ stress vectors arranged in row-major order
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\includegraphics[width=0.5\textwidth]{stress_tensor.png} 
-\caption*{Cauchy stress tensor,  \textit{Source: \textcircled{2}}}
-\end{figure}
-\end{column}
-\end{columns}
-
-} % END OF FRAME
-
-%\item classical physical example of a tensor
-%	\item consistent of $3$ stress vectors arranged in row-major order
-%	\item %\item representing the stress at plane with normal x,y,z in direction x,y,z yielding 9 components
-%	\item maps an incoming direction vector $\mathbf{n}$ a resulting stress vector $\mathbf{T^{(n)}} = \mathbf{n}\cdot\boldsymbol{\sigma}$ per transformation
-
-%\frame{
-%\frametitle{{Polar Coordinates}}
-%
-%\begin{columns}
-%\begin{column}{.5\textwidth}
-%\begin{block}{\centering \textbf{Conversion Formulas}}
-%Polar$\mapsto$Cartesian
-%\begin{align*}
-%	x &= r \cos \omega, \\
-% 	y &= r \sin \omega.
-%\end{align*}
-%Cartesian$\mapsto$Polar
-%\begin{align*}
-%	r &= \sqrt{x^2 + y^2}, \\
-%\omega &= \operatorname{atan2}(y, x).
-%\end{align*}
-%
-%\end{block}
-%\end{column}
-%\begin{column}{.5\textwidth}
-%\begin{figure}[t]
-%\includegraphics[width=0.7\textwidth]{polarkoordinaten.png}
-%\caption*{Polar coordinates,  \textit{Source: \textcircled{3}}}
-%\end{figure}
-%\bigskip
-%\begin{itemize}
-%	\item polar function $f: \omega\mapsto r$ maps each angle $\omega$ a magnitude $r(\omega)$
-%\end{itemize}
-%\end{column}
-%\end{columns}
-%
-%} % END OF FRAME
-
-%\frame{
-%\frametitle{{Principal Component Analysis}}
-%
-%\begin{columns}
-%\begin{column}{.6\textwidth}
-%\begin{small}
-%\begin{block}{\centering \textbf{Matrix Decompositions}}
-%Eigenvalue Decomposition: 
-%$
-%	\mathbf{A} = \mathbf{R}\mathbf{S}\mathbf{R}^*
-%$\\
-%Singular Value Decomposition (SVD): 
-%$
-%	\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^*
-%$
-%\end{block}
-%\end{small}
-%\bigskip
-%\begin{itemize}
-%	\item used to determine the main directions of variance (principal components) in stochastic data
-%	\item used to determine the subsequent base transformations composing affine transformations
-%\end{itemize}
-%
-%\end{column}
-%\begin{column}{.4\textwidth}
-%\begin{figure}[t]
-%\includegraphics[width=0.7\textwidth]{HAT.png}
-%\caption*{Principal component analysis,  \textit{Source: \textcircled{4}}}
-%\end{figure}
-%
-%\end{column}
-%\end{columns}
-%} % END OF FRAME
-%
-%
-%\frame{
-%\frametitle{{Principal Component Analysis}}
-%
-%\includemovie{0.49\textwidth}{0.4\textwidth}{scale.swf}
-%\includemovie{0.49\textwidth}{0.4\textwidth}{rotate.swf}
-%
-%} % END OF FRAME
-
-\frame{
-\frametitle{{Finite-Time Lyapunov exponents}}
-
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Definition}}
-Local: 
-$
-	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
-$ (cf. Fig. b))\\
-Global: 
-$
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
-$\\
-{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
-\end{block}
-\end{small}
-\begin{itemize}
-	\item measure for separation abilities of time-variant systems
-	\item Lagrangian view in vector fields: placing particle, moving with flow
-\end{itemize}
-
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\begin{minipage}{0.85\textwidth}
-\centering
-\includegraphics[height=0.6\textwidth]{diverge_rot.png} a)
-\includegraphics[height=0.6\textwidth]{ftle_sep.pdf} b)
-\caption*{a) Vector field, b) diverging pathlines}
-\end{minipage}
-\begin{minipage}{0.1\textwidth}
-\source{b) Skript Prof. Sadlo, SciVis SS2017}
-\end{minipage}
-
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
-
-%\begin{itemize}
-%	\item measure for separation abilities of LTV (time-variant) systems concerning massless tracer particles
-%	\item Lagrangian view in vector fields: placing two close-by particles into and moving with the flow
-%\end{itemize}
-
-\frame{
-\frametitle{{Finite-Time Lyapunov exponents}}
-
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Definition}}
-Local: 
-$
-	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
-$\\
-Global: 
-$
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
-$\\
-{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
-\end{block}
-\end{small}
-\begin{itemize}
-	\item measures gradient of flow map $\nabla\mathbf{u(x)}$
-	\item FTLE field responds largest where path lines diverge
-\end{itemize}
-
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\centering
-\includegraphics[height=0.34\textwidth]{diverge.png}~a)
-\includegraphics[height=0.35\textwidth]{ftle.png}~b)
-\caption*{a) Vector field, b) FTLE field}
-
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
-
 
 %\frame{
 %\frametitle{{Symmetric Tensor Fields}}
@@ -886,15 +882,16 @@ $\\
 
 \section[Method]{Method}
 
+
 \frame{
 \frametitle{{Propagation Scheme - Template}}
 \begin{columns}
 \begin{column}{.6\textwidth}
 To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
 \begin{itemize}
-	\item using light propagation volumes (LPV) in a style of Dachsbacher et al. (cf. Fig.)\bigskip
-	\item exchanging itensities between neighboring cells: $\Phi_{t} = \int I(\omega)\mathop{d\omega}$\\
-	{\small w. $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
+	\item using light propagation volumes (LPV) similar to Dachsbacher et al. (cf. Fig.)\bigskip
+	\item exchanging itensities between neighboring cells: $\Phi_{t} = \int I(\omega)\mathop{d\omega}$, \hskip 10pt $\omega$: polar angle\\
+	{\small with $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
 \end{itemize}
 
 \end{column}
@@ -929,7 +926,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 	\varepsilon_\beta &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771\\
 	\Phi_{t} &= \varepsilon_k\int I(\omega)\mathop{d\omega}
 \end{align*}
-{\small w. $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
+{\small with $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
 \end{block}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -989,9 +986,9 @@ So far, we are able to propagate intensities as circular waves in a 2D Cartesian
 To interpret eigensystems of tensors as conductivity property for light transport, we will need transfer functions (transmission profiles) for the propagation scheme:
 \begin{block}{\centering \textbf{Ellipse Equation}}
 \begin{align*}
-	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\lambda_1\lambda_2}{\sqrt{\lambda_1^2\sin^2(\omega-\varphi)+\lambda_2^2\cos^2(\omega-\varphi)}}
+	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\sigma_1\sigma_2}{\sqrt{\sigma_1^2\sin^2(\omega-\varphi)+\sigma_2^2\cos^2(\omega-\varphi)}}
 \end{align*}
-{\small w. $\varphi=\mathop{atan2}(\lambda_{1,y},\lambda_{1,x})$ and $\lambda$: singular value, $a$: x-radius ellipse, $b$: y-radius ellipse}
+{\small with $\varphi=\mathop{atan2}(\sigma_{1,y},\sigma_{1,x})$ and $\sigma$: singular value, $a$: x-radius ellipse, $b$: y-radius ellipse}
 \end{block}
 $\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions by the mapping of eigenvalues to half-axes radii and the shift angle of the major singular vector $\varphi$
 
@@ -1004,7 +1001,7 @@ $\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions b
 \begin{block}{\centering \textbf{Redefinition}}
 \begin{align*}
 	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\\
-n_f &= \frac{\mean{T}\cdot\mean{I}}{\widebar{T\cdot I}}\hskip 15pt \mathit{w.} \ \mean{f}=\frac{1}{2\pi}\int_0^{2\pi}f(\omega)\mathop{d\omega}
+n_f &= \frac{\mean{T}\cdot\mean{I}}{\widebar{T\cdot I}}\hskip 15pt \mathit{with} \ \mean{f}=\frac{1}{2\pi}\int_0^{2\pi}f(\omega)\mathop{d\omega}
 \end{align*}
 \end{block}
 \begin{itemize}
@@ -1064,7 +1061,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 	\begin{align*}
 	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon,
 	\end{align*}
-	\item i.e., we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, whereas the flow map takes in a stable state
+	\item i.e., we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, while the flow map takes in a stable state
 \end{itemize}
 \end{block}
 } % END OF FRAME
@@ -1860,7 +1857,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 \begin{itemize}
 	\item numerics: limit number representation to a particular range
 	\bigskip
-	\item preposition for relatively high tensor mags.: $\lambda_1\approx\lambda_2\approx1.0$ (because ellipse area equals $A=\lambda_1\cdot\lambda_2\cdot\pi$)\\
+	\item preposition for relatively high tensor mags.: $\sigma_1\approx\sigma_2\approx1.0$ (because ellipse area equals $A=\sigma_1\cdot\sigma_2\cdot\pi$)\\
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}

@@ -1,9 +1,6 @@
 \select@language {ngerman}
 \beamer@sectionintoc {1}{Introduction}{3}{0}{1}
-\beamer@subsectionintoc {1}{1}{Introduction}{4}{0}{1}
-\beamer@subsectionintoc {1}{2}{Motivation}{14}{0}{1}
-\beamer@subsectionintoc {1}{3}{Related Work}{15}{0}{1}
-\beamer@sectionintoc {2}{Fundamentals}{18}{0}{2}
-\beamer@sectionintoc {3}{Method}{23}{0}{3}
-\beamer@sectionintoc {4}{Results and Evaluation}{44}{0}{4}
-\beamer@sectionintoc {5}{Conclusion and Future Work}{57}{0}{5}
+\beamer@sectionintoc {2}{Fundamentals}{8}{0}{2}
+\beamer@sectionintoc {3}{Method}{24}{0}{3}
+\beamer@sectionintoc {4}{Results and Evaluation}{45}{0}{4}
+\beamer@sectionintoc {5}{Conclusion and Future Work}{58}{0}{5}
