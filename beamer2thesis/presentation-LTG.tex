@@ -1,10 +1,10 @@
-\documentclass[aspectratio=169,UKenglish]{beamer}
+\documentclass[aspectratio=169,urlcolor=black]{beamer}
 \usetheme[language=ngerman,
 titlepagelogo=logopolito,
 bullet=circle,
 pageofpages=of,
-titleline=true,
-color=blue
+color=blue,
+titleline=true
 ]{TorinoTh}
 
 %\usepackage[ngerman]{babel}
@@ -16,8 +16,9 @@ color=blue
 \usepackage{makecell}
 \usepackage{upgreek}
 \usepackage{movie15}
-\usepackage{isodate}
-
+%\usepackage{xcolor}
+%\usepackage{isodate}
+\hypersetup{colorlinks,linkcolor=black,urlcolor=black}
 \addto{\captionsngerman}{%
   \renewcommand*{\contentsname}{Contents}
   \renewcommand*{\listfigurename}{Figures}
@@ -28,15 +29,13 @@ color=blue
 \newcommand*\mean[1]{\bar{#1}}
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \newcommand\widebar[1]{\mathop{\overline{#1}}}
-\newcommand{\source}[1]{\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{Source: \color{black}{#1}}}}}
-\renewcommand\thempfootnote{\arabic{mpfootnote}}
+\usepackage{caption}
+\captionsetup{font=scriptsize}
+
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{fancybox}
-\usepackage{caption}
-\captionsetup{font=footnotesize}
-
-\hypersetup{colorlinks,linkcolor=black,urlcolor=black}
+\usepackage[singlespacing]{setspace}
 
 \usepackage{beamerthemesplit}
 \usetheme[compress]{Heidelberg}
@@ -60,6 +59,17 @@ Visual Computing Group (VCG)\\
 Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 }
 
+
+%----------------------------------------
+%\color{unirot}{sebibek@gmail.com}
+%\newsubfloat{figure}
+\newcommand{\source}[1]{\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{Source: \color{black}{#1}}}}}
+\setlength{\belowcaptionskip}{-10pt}
+\setlength{\intextsep}{-20pt}
+%\usepackage[style=verbose,backend=biber]{biblatex}
+%\addbibresource{references.bib}
+%\usepackage[multiple]{footmisc}
+%\usepackage[bottom]{footmisc}
 %---------------------------------------%
 %---------- RECURRING OUTLINE ----------%
 % have this if you'd like a recurring outline
@@ -70,9 +80,8 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \tableofcontents[currentsection,hideallsubsections]  % show TOC and highlight current section
 \end{frame}
 }
-%----------------------------------------
 
-
+\renewcommand\thempfootnote{\arabic{mpfootnote}}
 \begin{document}
 
 \frame[plain]{\titlepage}
@@ -276,7 +285,7 @@ $
 \end{enumerate}
 \begin{itemize}
 	\item SVs represent the axes of characteristic ellipsoid \footnote{Gerrits et al. ''Glyphs for General Second-Order 2D and 3D Tensors", IEEE\\ Transactions on Visualization and Computer Graphics, 2017.}
-	\item singular values ($s_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{M. Kieburg, “What is the Relation between Eigenvalues \& Singular
+	\item singular values ($s_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{Kieburg, “What is the Relation between Eigenvalues \& Singular
 Values?, 2016} are lengths of axes
 \end{itemize}
 \end{small}
@@ -297,7 +306,49 @@ Values?, 2016} are lengths of axes
 \end{columns}
 } % END OF FRAME
 
+\frame{
+\frametitle{{Glyphs - Tensor Fields}}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{itemize}
+	\item eigensystems/SVS are computed for cells in a grid
+	\bigskip
+	\item glyphs are shapes representing eigensystems, i.e.:
+	\begin{columns}\hskip 20pt
+	\begin{column}{.3\textwidth}
+	
+	\begin{itemize}
+		\item eigenvectors
+		\item eigenvalues
+	\end{itemize}
+	\end{column}
 
+	\begin{column}{.6\textwidth}
+	\begin{itemize}
+		\item singular vectors (SVS)
+		\item singular values (SVS)
+	\end{itemize}
+	\end{column}
+	\end{columns}
+	\item different types of glyphs proposed:
+	\begin{itemize}
+		\item box
+		\item ellipsoid (which we use here)
+		\item superquadric
+	\end{itemize}
+\end{itemize}
+\end{small}
+\end{column}
+\begin{column}{.4\textwidth}
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.8\textwidth]{random-global.png}
+\caption{$2D$ glyphs for Random field}
+\end{figure}
+\end{column}
+\end{columns}
+} % END OF FRAME
 
 \frame{
 \frametitle{{Tensor Fields - Tensor Field Lines}}
@@ -310,12 +361,45 @@ follow major/minor eigenvectors along pathlines
 \end{block}
 \end{small}
 \bigskip
+\begin{small}
+\begin{itemize}
+	\item ambiguity for nearly isotropic cases:\\ small changes in components effect large changes in tensor field line orientation (see Fig.)\bigskip
+	\item therefore susceptive to noise in data
+\end{itemize}
+\end{small}
+
+\end{column}
+\begin{column}{.4\textwidth}
+\centering
+\begin{figure}[t]
+\centering
+\includegraphics[height=0.8\textwidth]{nearly_isotropic.pdf}
+\caption*{Ambiguity}
+\end{figure}
+
+\end{column}
+\end{columns}
+} % END OF FRAME
+
+\frame{
+\frametitle{{Tensor Fields - Tensor Field Lines}}
+
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Procedure}}
+follow major/minor eigenvectors along pathlines
+\end{block}
+\end{small}
+\bigskip
+\begin{small}
 \begin{itemize}
 	\item ambiguity for nearly isotropic cases:\\ small changes in magnitude effect large changes in tensor field line orientation
 	\item therefore susceptive to noise in data
 	\item trajectories can cross each other\\
 	$\Rightarrow$ effects erroneous trajectories, hard to interpret
 \end{itemize}
+\end{small}
 
 \end{column}
 \begin{column}{.4\textwidth}
@@ -341,14 +425,13 @@ follow major/minor eigenvectors along pathlines
 \end{block}
 \end{small}
 \bigskip
-\begin{itemize}
-	\item possible approach: tensor field topology: e.g. separatrices, degenerate points:
+
+	$\Rightarrow$ possible approach: tensor field topology: e.g. separatrices, degenerate points:
 	\begin{itemize}
 		\item purple: structurally unstable point
 		\item red: wedge
 		\item green: trisector
 	\end{itemize}
-\end{itemize}
 
 \end{column}
 \begin{column}{.4\textwidth}
@@ -439,8 +522,8 @@ follow major/minor eigenvectors along pathlines
 \end{figure}
 Applications:
 \begin{itemize}
-	\item vector fields: describe spatial gradient called Jacobian-matrix,
-	\item fluid and solid continuum mechanics: stress tensor (e.g. Cauchy stress tensor)
+	\item vector fields: spatial gradient called Jacobian-matrix,
+	\item fluid and solid continuum mechanics: stress tensor (e.g., Cauchy stress tensor)
 	\item DT-MRI: diffusion tensor - magnetic resonance imaging
 \end{itemize}
 } % END OF FRAME
@@ -673,7 +756,7 @@ Global:
 $
 	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
 $\\
-{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
+{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
 \begin{itemize}
@@ -720,12 +803,12 @@ Global:
 $
 	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
 $\\
-{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{max}(A^TA)}$ is the spectral norm of matrix $A$}
+{\scriptsize whereas $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
 \begin{itemize}
 	\item measures gradient of flow map $\nabla\mathbf{u(x)}$
-	\item FTLE field responds most where path lines diverge
+	\item FTLE field responds largest where path lines diverge
 \end{itemize}
 
 \end{column}

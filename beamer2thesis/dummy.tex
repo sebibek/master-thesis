@@ -64,87 +64,39 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \newcommand{\source}[1]{\hspace{-3pt} {\tiny \raisebox{-0.75in}{\rotatebox[origin=t]{90}{Source: \color{black}{#1}}}}}
 \setlength{\belowcaptionskip}{-10pt}
 \setlength{\intextsep}{-20pt}
-%\usepackage[style=verbose,backend=biber]{biblatex}
-%\addbibresource{references.bib}
-%\usepackage[multiple]{footmisc}
-%\usepackage[bottom]{footmisc}
+
 \renewcommand\thempfootnote{\arabic{mpfootnote}}
 \begin{document}
 
 %\frame[plain]{\titlepage}
 
 \frame{
-\frametitle{{Eigenanalysis - Tensor Fields}}
-\begin{columns}
-\begin{column}{.6\textwidth}
-Direction, invariant under transformation $A$, sought:
-\begin{block}{\centering \textbf{Eigenvalue Problem}}
-\begin{align*}
-	A \cdot \boldsymbol{\epsilon} = \lambda \boldsymbol{\epsilon}
-\end{align*}
-with: $A$: square matrix, $\lambda$: eigenvalue $\mathbf{\epsilon}$: eigenvector
-\end{block}
-\begin{itemize}
-	\item eigensystems:\\ full set of eigenvalues and -vectors
-	\item we propose to use singular value systems (SVS) in analogy to Eigensystems\\
-	{\tiny Proof: "Glyphs for General Second-Order 2D and 3D Tensors", Gerrits et al., 2017}
-\end{itemize}
-\end{column}
-\begin{column}{.4\textwidth}
-\begin{figure}[t]
-\begin{minipage}{0.85\textwidth}
-\includegraphics[width=\textwidth]{HAT_edit2.png}
-\caption*{Eigensystem: characteristic ellipsoid}
-\end{minipage}
-\begin{minipage}{0.1\textwidth}
-\source{\url{https://slideplayer.com/slide/5291764}}
-\end{minipage}
-
-\end{figure}
-
-\end{column}
-\end{columns}
-} % END OF FRAME
-
-\frame{
-\frametitle{{Computation of Eigensystem - Tensor Fields}}
+\frametitle{{Tensor Fields - Tensor Field Lines}}
 
 \begin{columns}
 \begin{column}{.6\textwidth}
 \begin{small}
-\begin{block}{\centering \textbf{Matrix Decompositions}}
-1) Eigenvalue Decomposition: \hskip 46pt
-$
-	A = {R}{S}{R}^*
-$\\
-2) Singular Value Decomposition (SVD): 
-$
-	{A} = {U} {\Sigma} {V}^*
-$
+\begin{block}{\centering \textbf{Procedure}}
+follow major/minor eigenvectors along pathlines
 \end{block}
 \end{small}
+\bigskip
 \begin{small}
-\begin{enumerate}
-	\item eigenvalues \hskip 14pt and eigenvectors
-	\item singular values and singular vectors (SVs)
-\end{enumerate}
 \begin{itemize}
-	\item SVs represent the axes of characteristic ellipsoid \footnote{Gerrits et al. ''Glyphs for General Second-Order 2D and 3D Tensors", IEEE Transactions on Visualization and Computer Graphics, 2017.}
-	\item singular values ($s_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{M. Kieburg, “What is the Relation between Eigenvalues \& Singular
-Values?, 2016} are lengths of axes
+	\item ambiguity for nearly isotropic cases:\\ small changes in components effect large changes in tensor field line orientation (see Fig.)
+	\item therefore susceptive to noise in data
+	\item trajectories can cross each other\\
+	$\Rightarrow$ effects erroneous trajectories, hard to interpret
 \end{itemize}
 \end{small}
 
 \end{column}
 \begin{column}{.4\textwidth}
+\centering
 \begin{figure}[t]
-\begin{minipage}{0.9\textwidth}
-\includegraphics[width=\textwidth]{SVD.png}
-\caption*{Singular value system}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\source{\url{https://w.wiki/6WN}}
-\end{minipage}
+\centering
+\includegraphics[height=0.8\textwidth]{nearly_isotropic.pdf}
+\caption*{Ambiguity}
 \end{figure}
 
 \end{column}
