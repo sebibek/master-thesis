@@ -426,6 +426,7 @@ b)\includegraphics[height=0.35\textwidth]{ftle.png}
 \end{column}
 \end{columns}
 } % END OF FRAME
+
 \frame{
 \frametitle{{Tensor Fields - Eigenanalysis}}
 \begin{columns}
@@ -624,7 +625,7 @@ follow major/minor eigenvectors along pathlines
 \end{small}
 \bigskip
 
-	$\Rightarrow$ possible approach: tensor field topology: e.g. separatrices, degenerate points:
+	$\Rightarrow$ possible approach: tensor field topology, i.e. separatrices, degenerate points:
 	\begin{itemize}
 		\item purple: structurally unstable point
 		\item red: wedge
@@ -922,7 +923,8 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \begin{small}
 \begin{block}{\centering \textbf{Steps}}
 \begin{enumerate}
-	\item Evaluate and accumulate the polar intensity profiles\bigskip
+	\item Evaluate and accumulate the polar intensity profiles\\
+	$\Phi_{t} = \int I(\omega)\mathop{d\omega}$, \hskip 10pt $\omega$: polar angle\\\bigskip
 	\item Injection: scaling and placing of a Cosine Lobe
 \end{enumerate}
 \end{block}
@@ -1010,10 +1012,10 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \begin{enumerate}
 	\item Accumulation: evaluate and accumulate the polar intensity profiles\bigskip
 	\item Apply the linear combination (partition) weights\bigskip
-	\item Injection: Scaling and Placing of a Cosine Lobe
+	\item Injection: scaling and placing of a Cosine Lobe
 \end{enumerate}
 \end{block}\bigskip
-So far, we are able to propagate intensities as circular waves in a 2D Cartesian grid defined through polar functions given on cell centers.
+So far, we are able to propagate intensities as circular wave in a 2D Cartesian grid defined through polar functions given on cell centers.
 } % END OF FRAME
 
 \frame{
@@ -1030,7 +1032,7 @@ $\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions b
 } % END OF FRAME
 
 \frame{
-\frametitle{{Transmission Profiles}}
+\frametitle{{Propagation Scheme - Transmission Profiles}}
 \begin{columns}
 \begin{column}{.6\textwidth}
 \begin{block}{\centering \textbf{Redefinition}}
@@ -1088,32 +1090,56 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 
 
 \frame{
-\frametitle{{Propagation Scheme}}
-\begin{block}{\centering \textbf{Criterion}}
+\frametitle{{Propagation Scheme - Stop Criterion}}
+
 \begin{itemize}
-	\item the procedure is repeated recursively for each individual cell and is performed with switching source and target buffer
-	\item a stop sequence is initiated when following criterion is reached:
+	\item propagation steps are repeated recursively for each cell
+	\item switching source and target grid
+	\item we gather the total radiant flux in the field and compare it to the last iteration:
+	\begin{block}{\centering \textbf{Stop Criterion}}
 	\begin{align*}
 	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon,
 	\end{align*}
-	\item i.e., we gather the total energy in the field and compare it to the last iteration until a state of equilibrium is reached, while the flow map takes in a stable state
+	\end{block}
+%	\item a state of equilibrium is reached, where the flow map takes in a stable state
+%	\item i.e., a stop sequence is initiated when above criterion is met 
+	$\Rightarrow$ a state of equilibrium is reached, where the flow map takes in a stable state\\
+	$\Rightarrow$ i.e., a stop sequence is initiated when above criterion is met 
+	
 \end{itemize}
-\end{block}
+
 } % END OF FRAME
 
+%\item propagation is performed with switching source and target grid?
+
+
 \frame{
-\frametitle{{Propagation Scheme - Physical Model}}
-\begin{block}{\centering \textbf{Crystal Fiber Structures}}
+\frametitle{{Propagation Scheme - Physical Models}}
 \begin{itemize}
-	\item crystal lattices reveal gradients dependent on direction, which leads to anisotropic light transport inside the medium (birefringence: e.g. quartz, ruby)
-	\item the propability for redistribution of a photon in a particular direction is given by the phase function model yielded from Rayleigh scattering:
+	\item phase function model from Rayleigh scattering:
+\begin{block}{\centering \textbf{Phase Functions\footnote[frame]{\url{http://www.met.reading.ac.uk/~jp902366/rad/phase_function_report.pdf}\bigskip}}}
 	\begin{align*}
  	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
  	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
 	\end{align*}
+\end{block}
 	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
 \end{itemize}
-\end{block}
+
+} % END OF FRAME
+
+\frame{
+\frametitle{{Propagation Scheme - Physical Models}}
+\begin{itemize}
+	\item crystal lattices reveal refractive indices dependent on direction, which lead to anisotropic light transport inside the medium (birefringence: e.g. quartz, ruby):
+\begin{block}{\centering \textbf{Indicatrix\footnote[frame]{\url{http://edafologia.ugr.es/optmine/intro/indicatw.htm}} - Refractive Ellipsoid}}
+	\begin{align*}
+	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega)+b^{2}\cos^{2}(\omega)}} =\frac{n_1n_2}{\sqrt{n_1^2\sin^2(\omega)+n_2^2\cos^2(\omega)}}
+\end{align*}
+\end{block}\bigskip
+	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
+\end{itemize}
+
 } % END OF FRAME
 
 \frame{
@@ -1283,9 +1309,9 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{align*}
 \end{block}
 \begin{itemize}
-	\item previous examples prove that the conductivity property (transmission) of the tensor field effects a separation of intensities for diverging pathlines
-	\item buffer $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ contains propagated light distributions for each discrete location and direction in the field, on which we will eventually apply a gradient
-	\item FTLE field is yielded from accumulating the overall energy in the difference scalar field for varying location and direction 
+	\item previous examples prove that the conductivity property (transmission) of the tensor field can effect a separation of the flux for diverging pathlines
+	\item buffer $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ contains propagated light distributions for each discrete location and direction in the field
+	\item FTLE field is yielded from accumulating the total radiant flux in the difference scalar field for varying location and direction 
 \end{itemize}
 } % END OF FRAME
 
@@ -1308,12 +1334,13 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{align*}
 \end{block}
 \begin{itemize}
-	\item a finite set of cells is interpreted as a 1D vector $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$ here, contained as an element of the set of final buffers $\mathcal{B}$
+	\item a finite set of cells is interpreted as a 1D vector $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$ here
 	\item the resulting volume grid is raised by one dimension $d=2+1=3$ for taking direction as additional argument
 	
 \end{itemize}
 } % END OF FRAME
 
+%\item a finite set of cells is interpreted as a 1D vector $\mathcal{C}_{final}=\mathbf{b}\in\mathcal{B}$ here, contained as an element of the set of final buffers $\mathcal{B}$
 %\item runtime behavior: $T(n)=\mathcal{O}(\mathop{width}\mathop{width}\mathop{steps}\mathop{width}\mathop{width}\mathop{steps}\mathop{width}) = \mathcal{O}(\mathop{width^5}\mathop{steps^2})$
 
 
@@ -1342,7 +1369,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Isotropic field}}
+\frametitle{{Light Transport Gradient (LTG) - Isotropic field}}
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
@@ -1535,7 +1562,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 
 
 \frame{
-\frametitle{{Evaluation - Inverse Law}}
+\frametitle{{Evaluation - Propagation Scheme}}
 \begin{columns}
 \begin{column}{.6\textwidth}
 \begin{small}
@@ -1565,7 +1592,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 } % END OF FRAME
 
 \frame{
-\frametitle{{Evaluation - Total Anisotropy}}
+\frametitle{{Evaluation - Propagation Scheme}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1593,7 +1620,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Evaluation - Light Transport Gradient}}
+\frametitle{{Evaluation - Light Transport Gradient - Gyre Field}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}[t]{0.3\textwidth}
@@ -1625,7 +1652,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Evaluation - Light Transport Gradient}}
+\frametitle{{Evaluation - Light Transport Gradient - Gyre Field}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1688,7 +1715,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Brain dataset}}
+\frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1720,7 +1747,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Brain dataset}}
+\frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1752,7 +1779,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Brain dataset}}
+\frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
 \begin{figure}[!t]
 	\centering
 \begin{minipage}[t]{0.21\textwidth}
@@ -1789,7 +1816,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 %Volume non-directionally dependent
 
 \frame{
-\frametitle{{Light Transport Gradient - Heart dataset}}
+\frametitle{{Evaluation - Light Transport Gradient - Heart dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1821,7 +1848,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Heart dataset}}
+\frametitle{{Evaluation - Light Transport Gradient - Heart dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1854,7 +1881,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 
 
 \frame{
-\frametitle{{Light Transport Gradient - Heart dataset}}
+\frametitle{{Evaluation - Light Transport Gradient - Heart dataset}}
 \begin{figure}[!t]
 \centering
   \begin{minipage}{0.3\textwidth}
@@ -1886,7 +1913,7 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Random Test Field}}
+\frametitle{{Evaluation - Random Test Field}}
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{small}
@@ -1945,17 +1972,19 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 \frametitle{Summary and Conclusion}
 
 \begin{itemize}
-\item light propagation scheme: to propagate circular waves in a 2D Cartesian grid
+\item light propagation scheme: propagates circular waves in a 2D Cartesian grid
 \bigskip
-\item LTG: FTLE-based approach taking the propagation scheme as a basis to generate the flow map, which is analyzed for its gradient $\Rightarrow$ 3D FTLE field: $\mathop{FTLE}(x,y,\omega)$
+\item LTG: FTLE-based approach taking the propagation scheme as a basis
 \bigskip
 \item Hlawatsch's FTLE field is contained as 2D manifold in our FTLE volume
 \bigskip
-\item evaluation of the approach proves the functionality and yields informative and promising results, which pose the benefit of further investigation
+\item evaluation of the approach proves functionality and yields promising results
 \end{itemize}
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
 } % END OF FRAME
 
+%\item evaluation of the approach proves functionality and yields informative and promising results, which pose the benefit of further investigation
+%\item LTG: FTLE-based approach taking the propagation scheme as a basis to generate the flow map, which is analyzed for its gradient $\Rightarrow$ 3D FTLE field: $\mathop{FTLE}(x,y,\omega)$
 % dependent on the direction as argument
 %----------------------------------------
 
@@ -1973,12 +2002,13 @@ $\Rightarrow$ Light intensity is propagated in circular orbits, which reveals a 
 \item future work:
 	\begin{itemize}
 		\item incorporate segmentation algorithms to segment FG-BG data for local normalization
-		\item application to uncertain (error-prone) vector fields (e.g. phase-contrast-MRI): apply LTG approach to uncertain vector fields interpreting PDFs as transmission profiles
+		\item application to uncertain (error-prone) vector fields (e.g. phase-contrast-MRI)
 		\item applicability tests for engineering and medical data
 		\item optimized GPU-parallelized version for convenient runtimes
 	\end{itemize}
 \end{itemize}
 
+%\item application to uncertain (error-prone) vector fields (e.g. phase-contrast-MRI): apply LTG approach to uncertain vector fields interpreting PDFs as transmission profiles
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
 } % END OF FRAME
 
