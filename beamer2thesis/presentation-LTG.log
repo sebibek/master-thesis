@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  1 AUG 2019 12:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  5 AUG 2019 17:54
 entering extended mode
 **./presentation-LTG.tex
 (presentation-LTG.tex
@@ -1836,34 +1836,34 @@ n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1301 }
-         % END OF FRAME <ftle_left.png, id=3208, 398.99063pt x 398.99063pt>
+         % END OF FRAME <ftle_left.png, id=3208, 542.025pt x 544.28343pt>
 File: ftle_left.png Graphic file (type png)
 
 <use ftle_left.png>
 Package pdftex.def Info: ftle_left.png used on input line 1301.
-(pdftex.def)             Requested size: 63.36493pt x 63.36888pt.
+(pdftex.def)             Requested size: 63.10486pt x 63.36888pt.
 pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1301 }
-         % END OF FRAME <ftle_right.png, id=3209, 399.74344pt x 401.24907pt>
+         % END OF FRAME <ftle_right.png, id=3209, 542.77782pt x 544.28343pt>
 File: ftle_right.png Graphic file (type png)
 
 <use ftle_right.png>
 Package pdftex.def Info: ftle_right.png used on input line 1301.
-(pdftex.def)             Requested size: 63.1307pt x 63.36888pt.
+(pdftex.def)             Requested size: 63.1925pt x 63.36888pt.
 pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1301 }
-         % END OF FRAME <ftle_diff.png, id=3210, 398.23781pt x 398.23781pt>
+         % END OF FRAME <ftle_diff.png, id=3210, 544.28343pt x 544.28343pt>
 File: ftle_diff.png Graphic file (type png)
 
 <use ftle_diff.png>
 Package pdftex.def Info: ftle_diff.png used on input line 1301.
-(pdftex.def)             Requested size: 63.3669pt x 63.36888pt.
+(pdftex.def)             Requested size: 63.3678pt x 63.36888pt.
 pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
@@ -1885,36 +1885,36 @@ n already used, duplicate ignored
                    \relax 
 l.1301 }
          % END OF FRAME
-<ftle_leftangle.png, id=3211, 426.84468pt x 423.08063pt>
+<ftle_leftangle.png, id=3211, 520.94624pt x 522.45187pt>
 File: ftle_leftangle.png Graphic file (type png)
 
 <use ftle_leftangle.png>
 Package pdftex.def Info: ftle_leftangle.png used on input line 1301.
-(pdftex.def)             Requested size: 63.93275pt x 63.36888pt.
+(pdftex.def)             Requested size: 63.17856pt x 63.36888pt.
 pdfTeX warning (ext4): destination with the same identifier (name{a\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1301 }
          % END OF FRAME
-<ftle_rightangle.png, id=3212, 427.5975pt x 425.33907pt>
+<ftle_rightangle.png, id=3212, 520.19344pt x 520.19344pt>
 File: ftle_rightangle.png Graphic file (type png)
 
 <use ftle_rightangle.png>
 Package pdftex.def Info: ftle_rightangle.png used on input line 1301.
-(pdftex.def)             Requested size: 63.6997pt x 63.36888pt.
+(pdftex.def)             Requested size: 63.36507pt x 63.36888pt.
 pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.1301 }
          % END OF FRAME
-<ftle_anglediff.png, id=3213, 428.35031pt x 424.58624pt>
+<ftle_anglediff.png, id=3213, 544.28343pt x 545.78906pt>
 File: ftle_anglediff.png Graphic file (type png)
 
 <use ftle_anglediff.png>
 Package pdftex.def Info: ftle_anglediff.png used on input line 1301.
-(pdftex.def)             Requested size: 63.9295pt x 63.36888pt.
+(pdftex.def)             Requested size: 63.19339pt x 63.36888pt.
 pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
 n already used, duplicate ignored
 <to be read again> 
@@ -2524,7 +2524,7 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  22022 strings out of 493328
  408452 string characters out of 3139127
- 586047 words of memory out of 3000000
+ 586046 words of memory out of 3000000
  24761 multiletter control sequences out of 15000+200000
  27578 words of font info for 91 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -2555,7 +2555,7 @@ nts/type1/public/amsfonts/cm/cmtt8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
 etic/uhvb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><
 C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files/
 MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on presentation-LTG.pdf (64 pages, 15709098 bytes).
+Output written on presentation-LTG.pdf (64 pages, 15755408 bytes).
 PDF statistics:
  5393 PDF objects out of 6186 (max. 8388607)
  158 named destinations out of 1000 (max. 500000)

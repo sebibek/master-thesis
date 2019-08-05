@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  1 AUG 2019 12:07
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  5 AUG 2019 19:27
 entering extended mode
 **./dummy.tex
 (dummy.tex
@@ -1131,33 +1131,108 @@ File: ucsencs.def 2011/01/21 Fixes to fontencodings LGR, T3
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
  (dummy.nav)
-LaTeX Font Info:    Try loading font information for U+msa on input line 88.
+("C:\Program Files\MiKTeX 2.9\tex\latex\ucs\uni-0.def"
+File: uni-0.def 2013/05/13 UCS: Unicode data U+0000..U+00FF
+)
+Overfull \vbox (14.0pt too high) has occurred while \output is active []
+
+ [1
+
+{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
+
+pdfTeX warning: pdflatex (file ./skizze/addins/grids_one_base_edit.pdf): PDF in
+clusion: found PDF version <1.7>, but at most version <1.5> allowed
+<skizze/addins/grids_one_base_edit.pdf, id=21, 765.66655pt x 597.50829pt>
+File: skizze/addins/grids_one_base_edit.pdf Graphic file (type pdf)
+
+<use skizze/addins/grids_one_base_edit.pdf>
+Package pdftex.def Info: skizze/addins/grids_one_base_edit.pdf used on input li
+ne 84.
+(pdftex.def)             Requested size: 213.15843pt x 166.34622pt.
+LaTeX Font Info:    Try loading font information for U+msa on input line 84.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 88.
+LaTeX Font Info:    Try loading font information for U+msb on input line 84.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Try loading font information for OT1+mathkerncmss on input 
-line 88.
+line 84.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\sansmathaccent\ot1mathkerncmss.fd"
 File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/ma
 thkerncmss.
 )
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <6> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 88.
+Overfull \vbox (0.50893pt too high) detected at line 84
+ []
 
-Overfull \vbox (14.0pt too high) has occurred while \output is active []
+[2
 
- [1
+ <./skizze/addins/grids_one_base_edit.pdf, page is rotated 90 degrees>]
 
-{C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2
+pdfTeX warning: pdflatex (file ./skizze/addins/grids_one_edit.pdf): PDF inclusi
+on: found PDF version <1.7>, but at most version <1.5> allowed
+<skizze/addins/grids_one_edit.pdf, id=80, 845.0471pt x 597.51233pt>
+File: skizze/addins/grids_one_edit.pdf Graphic file (type pdf)
 
-]
+<use skizze/addins/grids_one_edit.pdf>
+Package pdftex.def Info: skizze/addins/grids_one_edit.pdf used on input line 97
+.
+(pdftex.def)             Requested size: 235.25766pt x 166.34622pt.
+
+Overfull \vbox (0.50893pt too high) detected at line 97
+ []
+
+[3
+
+ <./skizze/addins/grids_one_edit.pdf, page is rotated 270 degrees>]
+
+pdfTeX warning: pdflatex (file ./skizze/addins/grid_two_base.pdf): PDF inclusio
+n: found PDF version <1.7>, but at most version <1.5> allowed
+<skizze/addins/grid_two_base.pdf, id=116, 800.99654pt x 597.51227pt>
+File: skizze/addins/grid_two_base.pdf Graphic file (type pdf)
+
+<use skizze/addins/grid_two_base.pdf>
+Package pdftex.def Info: skizze/addins/grid_two_base.pdf used on input line 111
+.
+(pdftex.def)             Requested size: 225.64638pt x 168.32677pt.
+
+Overfull \hbox (27.6163pt too wide) in paragraph at lines 111--111
+ [][] 
+ []
+
+
+Overfull \vbox (2.48947pt too high) detected at line 111
+ []
+
+[4
+
+ <./skizze/addins/grid_two_base.pdf, page is rotated 270 degrees>]
+
+pdfTeX warning: pdflatex (file ./skizze/addins/grids_two_edit.pdf): PDF inclusi
+on: found PDF version <1.7>, but at most version <1.5> allowed
+<skizze/addins/grids_two_edit.pdf, id=136, 791.9136pt x 597.51233pt>
+File: skizze/addins/grids_two_edit.pdf Graphic file (type pdf)
+
+<use skizze/addins/grids_two_edit.pdf>
+Package pdftex.def Info: skizze/addins/grids_two_edit.pdf used on input line 12
+3.
+(pdftex.def)             Requested size: 223.08766pt x 168.32677pt.
+
+Overfull \hbox (25.05759pt too wide) in paragraph at lines 123--123
+ [][] 
+ []
+
+
+Overfull \vbox (2.48947pt too high) detected at line 123
+ []
+
+[5
+
+ <./skizze/addins/grids_two_edit.pdf, page is rotated 270 degrees>]
 \tf@nav=\write7
 \openout7 = `dummy.nav'.
 
@@ -1174,35 +1249,29 @@ Package movie15 Warning: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 (movie15)                @@ superseded by `media9'.           @@
 (movie15)                @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 121.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 121.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 142.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 142.
 (dummy.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 121.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 121.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 142.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 142.
 Package rerunfilecheck Info: File `dummy.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 20252 strings out of 493328
- 381614 string characters out of 3139127
- 517879 words of memory out of 3000000
- 23266 multiletter control sequences out of 15000+200000
- 16423 words of font info for 59 fonts, out of 3000000 for 9000
+ 20725 strings out of 493328
+ 386070 string characters out of 3139127
+ 513879 words of memory out of 3000000
+ 23732 multiletter control sequences out of 15000+200000
+ 12928 words of font info for 47 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 56i,15n,55p,801b,879s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Pr
-ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Fi
-les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTe
-X 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Files/MiKTeX 2.9/fo
-nts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
-amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
-ts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
-mssi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pf
-b><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on dummy.pdf (2 pages, 108508 bytes).
+ 56i,15n,55p,801b,738s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTe
+X 2.9/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
+Output written on dummy.pdf (5 pages, 1779823 bytes).
 PDF statistics:
- 78 PDF objects out of 1000 (max. 8388607)
- 5 named destinations out of 1000 (max. 500000)
- 55 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 199 PDF objects out of 1000 (max. 8388607)
+ 11 named destinations out of 1000 (max. 500000)
+ 63 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -69,35 +69,56 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \renewcommand\thempfootnote{\arabic{mpfootnote}}
 \begin{document}
 
-%\frame[plain]{\titlepage}
-
-
+\frame[plain]{\titlepage}
 \frame{
-\frametitle{{Propagation Scheme - Physical Models}}
-\begin{itemize}
-	\item phase function model from Rayleigh scattering:
-\begin{block}{\centering \textbf{Phase Functions\footnote[frame]{\url{http://www.met.reading.ac.uk/~jp902366/rad/phase_function_report.pdf}\bigskip}}}
-	\begin{align*}
- 	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
- 	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
-	\end{align*}
-\end{block}
-	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
-\end{itemize}
+\frametitle{{Light Transport Gradient - Scheme}}
+\begin{figure}[t]
+\centering
+  \begin{minipage}{0.6\textwidth}
+  \centering
+	\includegraphics[height=0.7\textwidth]{skizze/addins/grids_one_base_edit.pdf}
+	\caption*{Light Transport Gradient - Domain of Light Distributions}
+	\end{minipage}
+\end{figure}
 
 } % END OF FRAME
 
 \frame{
-\frametitle{{Propagation Scheme - Physical Models}}
-\begin{itemize}
-	\item crystal lattices reveal refractive indices dependent on direction, which lead to anisotropic light transport inside the medium (birefringence: e.g. quartz, ruby):
-\begin{block}{\centering \textbf{Indicatrix\footnote[frame]{\url{http://edafologia.ugr.es/optmine/intro/indicatw.htm}} - Refractive Ellipsoid}}
-	\begin{align*}
-	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega)+b^{2}\cos^{2}(\omega)}} =\frac{n_1n_2}{\sqrt{n_1^2\sin^2(\omega)+n_2^2\cos^2(\omega)}}
-\end{align*}
-\end{block}\bigskip
-	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
-\end{itemize}
+\frametitle{{Light Transport Gradient - Scheme}}
+\begin{figure}[t]
+\centering
+  \begin{minipage}{0.6\textwidth}
+  \centering
+	\includegraphics[height=0.7\textwidth]{skizze/addins/grids_one_edit.pdf}
+	\caption*{Light Transport Gradient - Domain of Light Distributions}
+	\end{minipage}
+\end{figure}
+
+} % END OF FRAME
+
+
+\frame{
+\frametitle{{Light Transport Gradient - Scheme}}
+\begin{figure}[t]
+\centering
+  \begin{minipage}{0.5\textwidth}
+  \centering
+	\includegraphics[height=0.85\textwidth]{skizze/addins/grid_two_base.pdf}
+	\caption*{Light Transport Gradient - Neighborhood}
+	\end{minipage}
+\end{figure}	
+
+} % END OF FRAME
+\frame{
+\frametitle{{Light Transport Gradient - Scheme}}
+\begin{figure}[t]
+\centering
+  \begin{minipage}{0.5\textwidth}
+  \centering
+	\includegraphics[height=0.85\textwidth]{skizze/addins/grids_two_edit.pdf}
+	\caption*{Light Transport Gradient - Neighborhood}
+	\end{minipage}
+\end{figure}
 
 } % END OF FRAME
 
