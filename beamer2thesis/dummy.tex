@@ -70,57 +70,108 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{document}
 
 \frame[plain]{\titlepage}
+
 \frame{
-\frametitle{{Light Transport Gradient - Scheme}}
+\frametitle{{Fundamentals - Finite-Time Lyapunov exponents}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{small}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$\\
+Global: 
+$
+	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+$\\
+{\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
+\end{block}
+\end{small}
+\begin{itemize}
+	\item measures gradient of flow map $\nabla\mathbf{u(x)}$
+	\item FTLE field responds largest where path lines diverge
+\end{itemize}
+
+\end{column}
+\begin{column}{.5\textwidth}
 \begin{figure}[t]
 \centering
-  \begin{minipage}{0.6\textwidth}
-  \centering
-	\includegraphics[height=0.7\textwidth]{skizze/addins/grids_one_base_edit.pdf}
-	\caption*{Light Transport Gradient - Domain of Light Distributions}
-	\end{minipage}
+\caption*{Double Gyre Field}\bigskip
+\begin{minipage}{\textwidth}
+{\scriptsize a)}
+\centering
+\includegraphics[height=0.25\textwidth]{diverge.png}
+\end{minipage}
+\begin{minipage}{\textwidth}
+{\scriptsize b)}
+\centering
+\includegraphics[height=0.25\textwidth]{ftle.png}
+\caption*{a) Vector field, b) FTLE field}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\centering
+\source{http://tiny.cc/2zbjaz}
+\end{minipage}
 \end{figure}
 
-} % END OF FRAME
-
-\frame{
-\frametitle{{Light Transport Gradient - Scheme}}
-\begin{figure}[t]
-\centering
-  \begin{minipage}{0.6\textwidth}
-  \centering
-	\includegraphics[height=0.7\textwidth]{skizze/addins/grids_one_edit.pdf}
-	\caption*{Light Transport Gradient - Domain of Light Distributions}
-	\end{minipage}
-\end{figure}
-
+\end{column}
+\end{columns}
 } % END OF FRAME
 
 
-\frame{
-\frametitle{{Light Transport Gradient - Scheme}}
-\begin{figure}[t]
-\centering
-  \begin{minipage}{0.5\textwidth}
-  \centering
-	\includegraphics[height=0.85\textwidth]{skizze/addins/grid_two_base.pdf}
-	\caption*{Light Transport Gradient - Neighborhood}
-	\end{minipage}
-\end{figure}	
-
-} % END OF FRAME
-\frame{
-\frametitle{{Light Transport Gradient - Scheme}}
-\begin{figure}[t]
-\centering
-  \begin{minipage}{0.5\textwidth}
-  \centering
-	\includegraphics[height=0.85\textwidth]{skizze/addins/grids_two_edit.pdf}
-	\caption*{Light Transport Gradient - Neighborhood}
-	\end{minipage}
-\end{figure}
-
-} % END OF FRAME
+%\frame{
+%\frametitle{{Light Transport Gradient - Scheme}}
+%\begin{figure}[t]
+%\centering
+%  \begin{minipage}{0.6\textwidth}
+%  \centering
+%	\includegraphics[height=0.7\textwidth]{skizze/addins/grids_one_base_edit.pdf}
+%	\caption*{Light Transport Gradient - Domain of Light Distributions}
+%	\end{minipage}
+%\end{figure}
+%
+%} % END OF FRAME
+%
+%\frame{
+%\frametitle{{Light Transport Gradient - Scheme}}
+%\begin{figure}[t]
+%\centering
+%  \begin{minipage}{0.6\textwidth}
+%  \centering
+%	\includegraphics[height=0.7\textwidth]{skizze/addins/grids_one_edit.pdf}
+%	\caption*{Light Transport Gradient - Domain of Light Distributions}
+%	\end{minipage}
+%\end{figure}
+%
+%} % END OF FRAME
+%
+%
+%\frame{
+%\frametitle{{Light Transport Gradient - Scheme}}
+%\begin{figure}[t]
+%\centering
+%  \begin{minipage}{0.5\textwidth}
+%  \centering
+%	\includegraphics[height=0.85\textwidth]{skizze/addins/grid_two_base.pdf}
+%	\caption*{Light Transport Gradient - Neighborhood}
+%	\end{minipage}
+%\end{figure}	
+%
+%} % END OF FRAME
+%\frame{
+%\frametitle{{Light Transport Gradient - Scheme}}
+%\begin{figure}[t]
+%\centering
+%  \begin{minipage}{0.5\textwidth}
+%  \centering
+%	\includegraphics[height=0.85\textwidth]{skizze/addins/grids_two_edit.pdf}
+%	\caption*{Light Transport Gradient - Neighborhood}
+%	\end{minipage}
+%\end{figure}
+%
+%} % END OF FRAME
 
 
 %glyphs are used to represent the eigensystem, i.e., the anisotropy characteristics and/or tensor magnitude
