@@ -142,16 +142,20 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{minipage}{.49\textwidth}
 \centering
 \includegraphics[width=\textwidth]{vector_field.pdf}
-\caption*{a) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
+\begin{scriptsize}
+a) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
 x\\y
-\end{pmatrix}$}
+\end{pmatrix}$
+\end{scriptsize}
 \end{minipage}
 \begin{minipage}{.49\textwidth}
 \centering
 \includegraphics[width=\textwidth]{vector_field2.pdf}
-\caption*{b) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
--y\\x
-\end{pmatrix}$}
+\begin{scriptsize}
+a) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
+x\\y
+\end{pmatrix}$
+\end{scriptsize}
 \end{minipage}
 
 \end{figure}
@@ -181,16 +185,20 @@ x\\y
 \begin{minipage}{.49\textwidth}
 \centering
 \includegraphics[width=\textwidth]{vector_field2_streamline.pdf}
-\caption*{a) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
+\begin{scriptsize}
+a) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
 x\\y
-\end{pmatrix}$}
+\end{pmatrix}$
+\end{scriptsize}
 \end{minipage}
 \begin{minipage}{.49\textwidth}
 \centering
 \includegraphics[width=\textwidth]{vector_field_streamline.pdf}
-\caption*{b) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
+\begin{scriptsize}
+b) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
 -y\\x
-\end{pmatrix}$}
+\end{pmatrix}$
+\end{scriptsize}
 \end{minipage}
 \end{figure}
 \end{column}
@@ -208,10 +216,11 @@ x\\y
 	\begin{itemize}
 		\item a) glyphs
 		\item b) tensor field lines (TFLs)\\ $\Rightarrow$ streamlines for eigenvector fields
+		\item c) scalar measures:\\ anisotropy index, tensor magnitude
 	\end{itemize}
 	\bigskip
+	\item examples: stress tensor
 	
-	\item scalar measures: anisotropy index, tensor magnitude
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -220,11 +229,11 @@ x\\y
 \caption*{\textit{Random tensor field}}\bigskip
 \begin{minipage}{0.49\textwidth}
 \centering
-\includegraphics[height=\textwidth]{random-global.png} \caption*{a) Glyphs}
+\includegraphics[height=\textwidth]{random-global.png} {\scriptsize a) Glyphs}
 \end{minipage}
 \begin{minipage}{0.49\textwidth}
 \centering
-\includegraphics[height=\textwidth]{random-global-TFL.png} \caption*{b) Tensor field lines}
+\includegraphics[height=\textwidth]{random-global-TFL.png} {\scriptsize b) Tensor field lines}
 \end{minipage}
 \end{figure}
 
@@ -234,27 +243,27 @@ x\\y
 } % END OF FRAME
 
 \section[Fundamentals]{Fundamentals}
-\frame{
-\frametitle{{Fundamentals - Tensor Fields}}
-
-\begin{block}{\centering \textbf{Tensor Fields}}
-\begin{itemize}
-	\item order-$o$ generalization of a matrix with indices of run length $n$ for $n\times n$ matrices
-	\item number arrays following covariant or contravariant transformation rules
-	\item represenation needed for a whole directional distribution for each point in space
-\end{itemize}
-\end{block}
-\begin{table}[b]
-\centering
-\caption*{Tensor Shapes}\bigskip
- \begin{tabular}{c|c|c|c|c|c|c}
-\textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
-\hline 
-\textbf{shape} & scalar & vector & matrix & ``3D matrix'' & ... & order-$o$ matrix\\ 
-\end{tabular}
-\label{tensor}
- \end{table} 
-} % END OF FRAME
+%\frame{
+%\frametitle{{Fundamentals - Tensor Fields}}
+%
+%\begin{block}{\centering \textbf{Tensor Fields}}
+%\begin{itemize}
+%	\item order-$o$ generalization of a matrix with indices of run length $n$ for $n\times n$ matrices
+%	\item number arrays following covariant or contravariant transformation rules
+%	\item representation needed for a whole directional distribution for each point in space
+%\end{itemize}
+%\end{block}
+%\begin{table}[b]
+%\centering
+%\caption*{Tensor Shapes}\bigskip
+% \begin{tabular}{c|c|c|c|c|c|c}
+%\textbf{order} & 0 & 1 & 2 & 3 & ... & o \\ 
+%\hline 
+%\textbf{shape} & scalar & vector & matrix & ``3D matrix'' & ... & order-$o$ matrix\\ 
+%\end{tabular}
+%\label{tensor}
+% \end{table} 
+%} % END OF FRAME
 
 \frame{
 \frametitle{{Fundamentals - Tensor Fields}}
@@ -345,7 +354,7 @@ x\\y
 %} % END OF FRAME
 
 \frame{
-\frametitle{{Fundamentals - Finite-Time Lyapunov exponents}}
+\frametitle{{Fundamentals - Finite-Time Lyapunov Exponents (FTLE)}}
 
 \begin{columns}
 \begin{column}{.5\textwidth}
@@ -353,11 +362,11 @@ x\\y
 \begin{block}{\centering \textbf{Definition}}
 Local: 
 $
-	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+	\mathop{FTLE} = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
 $ (cf. Fig. b))\\
 Global: 
 $
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
 $\\
 {\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
@@ -371,7 +380,6 @@ $\\
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
 \centering
-\caption*{Double Gyre Field}\bigskip
 \begin{minipage}{0.85\textwidth}
 \centering
 \includegraphics[height=0.6\textwidth]{diverge_rot.png} {\scriptsize a)}
@@ -394,7 +402,7 @@ $\\
 %\end{itemize}
 
 \frame{
-\frametitle{{Fundamentals - Finite-Time Lyapunov exponents}}
+\frametitle{{Fundamentals - Finite-Time Lyapunov Exponents (FTLE)}}
 
 \begin{columns}
 \begin{column}{.5\textwidth}
@@ -402,11 +410,11 @@ $\\
 \begin{block}{\centering \textbf{Definition}}
 Local: 
 $
-	\sigma = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+	\mathop{FTLE} = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
 $\\
 Global: 
 $
-	\sigma(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
 $\\
 {\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
@@ -420,7 +428,7 @@ $\\
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
 \centering
-\caption*{Double Gyre Field}\bigskip
+\caption*{Double Gyre field}\bigskip
 \begin{minipage}{0.9\textwidth}
 \centering
 {\scriptsize a)}\includegraphics[height=0.34\textwidth]{diverge.png}
@@ -449,7 +457,7 @@ Direction, invariant under transformation $A$, sought:
 with: $A$: square matrix, $\lambda$: eigenvalue $\mathbf{\epsilon}$: eigenvector
 \end{block}
 \begin{itemize}
-	\item eigensystems:\\ full set of eigenvalues and -vectors
+	\item eigensystems:\\ full set of eigenvalues and eigenvectors
 	\item we propose to use singular value systems (SVS) in analogy to Eigensystems\\
 	{\tiny Proof: "Glyphs for General Second-Order 2D and 3D Tensors", Gerrits et al., 2017}
 \end{itemize}
@@ -496,7 +504,7 @@ $
 \end{enumerate}
 \begin{itemize}
 	\item SVs represent the axes of characteristic ellipsoid \footnote{Gerrits et al. ''Glyphs for General Second-Order 2D and 3D Tensors", IEEE\\ Transactions on Visualization and Computer Graphics, 2017.}
-	\item singular values ($s_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{Kieburg “What is the Relation between Eigenvalues \& Singular
+	\item singular values ($\sigma_i=\sqrt{\lvert\lambda_i\rvert}$)\footnote{Kieburg “What is the Relation between Eigenvalues \& Singular
 Values?, 2016} are lengths of axes
 \end{itemize}
 \end{small}
@@ -574,10 +582,8 @@ follow major/minor eigenvectors along pathlines
 \bigskip
 \begin{small}
 \begin{itemize}
-	\item ambiguity for nearly isotropic cases:\\ small changes in magnitude effect large changes in tensor field line orientation
-	\item therefore susceptive to noise in data
 	\item trajectories can cross each other\\
-	$\Rightarrow$ effects erroneous trajectories, hard to interpret
+	$\Rightarrow$ hard to interpret
 \end{itemize}
 \end{small}
 
@@ -601,7 +607,7 @@ follow major/minor eigenvectors along pathlines
 \begin{column}{.6\textwidth}
 \begin{small}
 \begin{block}{\centering \textbf{Procedure}}
-follow major/minor eigenvectors along pathlines
+follow major/minor eigenvectors along streamlines
 \end{block}
 \end{small}
 \bigskip
@@ -609,6 +615,7 @@ follow major/minor eigenvectors along pathlines
 \begin{itemize}
 	\item ambiguity for nearly isotropic cases:\\ small changes in components effect large changes in tensor field line orientation (see Fig.)\bigskip
 	\item therefore susceptive to noise in data
+	$\Rightarrow$ effects erroneous trajectories, hard to interpret
 \end{itemize}
 \end{small}
 
@@ -626,7 +633,7 @@ follow major/minor eigenvectors along pathlines
 } % END OF FRAME
 
 \frame{
-\frametitle{{Tensor Fields - Tensor Field Lines}}
+\frametitle{{Tensor Fields - Tensor Field Topology}}
 
 \begin{columns}
 \begin{column}{.6\textwidth}
@@ -718,14 +725,14 @@ follow major/minor eigenvectors along pathlines
 \caption*{\textit{Random field}}\bigskip
   \begin{minipage}{0.3\textwidth}
       \centering
-    \includegraphics[height=0.7\textwidth]{random-global.png}\\
-	{\scriptsize a)~Field}
+    \includegraphics[height=0.7\textwidth]{random-global-TFL.png}\\
+	{\scriptsize a)~TFLs}
     \label{a)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
       \centering
-    \includegraphics[height=0.7\textwidth]{random_global.png}\\
-	 {\scriptsize b)~Tensor magnitude}
+    \includegraphics[height=0.7\textwidth]{random-global.png}\\
+	 {\scriptsize b)~Field}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
@@ -738,7 +745,7 @@ follow major/minor eigenvectors along pathlines
 \end{figure}
 Applications:
 \begin{itemize}
-	\item vector fields: spatial gradient called Jacobian-matrix,
+	\item vector fields: spatial gradient called Jacobian matrix,
 	\item fluid and solid continuum mechanics: stress tensor (e.g., Cauchy stress tensor)
 	\item DT-MRI: diffusion tensor - magnetic resonance imaging
 \end{itemize}
@@ -765,7 +772,7 @@ Primary Requirements:
 \frametitle{{Related Work - Global Illumination Methods}}
 
 \begin{itemize}
-	\item discrete ordinates method: ''Radiative transfer", by S. Chandrasekhar, 1950
+	\item discrete ordinates method: S. Chandrasekhar, ''Radiative transfer", 1950
 		\bigskip
 	\item lattice-Boltzmann method:  Geist et al., ''Lattice-Boltzmann lighting”, 2004
 	\begin{figure}[t]
@@ -985,7 +992,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
     \includegraphics[width=\textwidth]
     {geogebra-export_large-edit.pdf}
   }
-  \caption*{Propagation Scheme}
+  \caption*{Propagation scheme}
   \label{scheme}
 \end{figure}
 
@@ -1069,7 +1076,7 @@ n_f &= \frac{\mean{T}\cdot\mean{I}}{\widebar{T\cdot I}}\hskip 15pt \mathit{with}
     \includegraphics[width=0.48\textwidth]
     {weighting.pdf}
   }
-  \caption*{Transmission Weighting}
+  \caption*{Transmission weighting}
   \label{scheme}
 \end{figure}
 
@@ -2138,22 +2145,22 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \vspace*{2cm}
 }
 
-\frame{
-\frametitle{Sources and further reading}
-\begin{block}{\centering \textbf{Literature}}
-\small
-\begin{enumerate}
-\item 
-\end{enumerate}
-\end{block}
-\begin{block}{\centering \textbf{Images}}
-\small
-\begin{enumerate}
-\item 
-
-\end{enumerate}
-\end{block}
-}
+%\frame{
+%\frametitle{Sources and further reading}
+%\begin{block}{\centering \textbf{Literature}}
+%\small
+%\begin{enumerate}
+%\item 
+%\end{enumerate}
+%\end{block}
+%\begin{block}{\centering \textbf{Images}}
+%\small
+%\begin{enumerate}
+%\item 
+%
+%\end{enumerate}
+%\end{block}
+%}
 
 %\frame{
 %\frametitle{Sources and further reading}
