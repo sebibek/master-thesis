@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     90333,       2136]
-NotebookOptionsPosition[     88686,       2081]
-NotebookOutlinePosition[     89057,       2097]
-CellTagsIndexPosition[     89014,       2094]
+NotebookDataLength[     90246,       2131]
+NotebookOptionsPosition[     88652,       2078]
+NotebookOutlinePosition[     89023,       2094]
+CellTagsIndexPosition[     88980,       2091]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1751,8 +1751,6 @@ Cell[BoxData[
    RowBox[{"Sin", "[", "\[Theta]", "]"}], "2"]}]], "Input",
  CellChangeTimes->{{3.755676242004002*^9, 3.755676262629182*^9}}],
 
-Cell[CellGroupData[{
-
 Cell[BoxData[
  RowBox[{"Clip", "[", 
   RowBox[{
@@ -1770,8 +1768,7 @@ Cell[BoxData[
     RowBox[{"0", ",", "1"}], "}"}]}], "]"}]], "Output",
  CellChangeTimes->{
   3.755676339330569*^9, 3.755676371110387*^9, {3.755677371802623*^9, 
-   3.7556773961140137`*^9}}]
-}, Open  ]],
+   3.7556773961140137`*^9}}],
 
 Cell[CellGroupData[{
 
@@ -2109,7 +2106,7 @@ Cell[10943, 308, 3692, 102, 85, "Output"],
 Cell[14638, 412, 1678, 55, 43, "Output"],
 Cell[16319, 469, 1381, 34, 48, "Output"]
 }, Open  ]],
-Cell[17715, 506, 1251, 24, 130, InheritFromParent],
+Cell[17715, 506, 1251, 24, 130, "Input"],
 Cell[CellGroupData[{
 Cell[18991, 534, 961, 25, 90, "Input"],
 Cell[19955, 561, 3811, 103, 85, "Output"],
@@ -2130,13 +2127,11 @@ Cell[37155, 1054, 668, 21, 28, "Output"],
 Cell[37826, 1077, 29174, 510, 402, "Output"]
 }, Open  ]],
 Cell[67015, 1590, 4907, 161, 148, "Input"],
+Cell[71925, 1753, 311, 7, 29, "Input"],
+Cell[72239, 1762, 287, 8, 28, "Output"],
 Cell[CellGroupData[{
-Cell[71947, 1755, 311, 7, 29, InheritFromParent],
-Cell[72261, 1764, 287, 8, 28, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[72585, 1777, 265, 7, 29, "Input"],
-Cell[72853, 1786, 15817, 292, 356, "Output"]
+Cell[72551, 1774, 265, 7, 29, "Input"],
+Cell[72819, 1783, 15817, 292, 323, "Output"]
 }, Open  ]]
 }
 ]

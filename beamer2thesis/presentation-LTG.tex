@@ -638,17 +638,18 @@ follow major/minor eigenvectors along streamlines
 \begin{columns}
 \begin{column}{.6\textwidth}
 \begin{small}
-\begin{block}{\centering \textbf{Procedure}}
-follow major/minor eigenvectors along pathlines
+\begin{block}{\centering \textbf{Degeneracy}}
+\centering
+$\lambda_1=\lambda_2$
 \end{block}
 \end{small}
 \bigskip
 
-	$\Rightarrow$ possible approach: tensor field topology, i.e. separatrices, degenerate points:
+	$\Rightarrow$ possible approach: tensor field topology, i.e., separatrices, degenerate points:
 	\begin{itemize}
 		\item purple: structurally unstable point
 		\item red: wedge
-		\item green: trisector
+		\item green: trisector (joining separatrices)
 	\end{itemize}
 
 \end{column}
@@ -759,7 +760,7 @@ Applications:
 \frametitle{{Main Idea}}
 
 The main idea is to use methods from global illumination to visualize tensor fields. Therefore, we interpret SVS of tensors as conductivity property...\\ \bigskip
-Primary Requirements:
+Primary Requirements:\bigskip
 \begin{itemize}
 	\item light propagation scheme to model light transport in a 2D grid\bigskip
 	\item transfer functions to model anisotropic light transport in a 2D grid
@@ -807,13 +808,13 @@ Primary Requirements:
 
 \begin{small}
 \begin{itemize}
-	\item glyphs\footnote[frame]{McLoughlin et al. ''Over two decades of integration-based, geometric flow visualization", 2010} represent anisotropy with shape and orientation
+	\item glyphs\footnote[frame]{McLoughlin et al. ''Over two decades of integration-based, geometric flow visualization", 2010}: represent anisotropy with shape and orientation
 	\item tensor field lines\footnote[frame]{Vilanova et al. ''Dti visualization with streamsurfaces beaand evenly-spaced volume seeding", 2004} (TFLs): follow tensor field along major eigenvector
 	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
-based propagation through diffusion tensor fields", 1999} introduce artificial inertia on TFLs to increase stability
-	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003} use Line Integral Convolution from Vector Field Visualization on TFLs
+based propagation through diffusion tensor fields", 1999}: introduce artificial inertia to TFLs to increase stability
+	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003}: use Line Integral Convolution from vector field visualization on TFLs
 	\item FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
-characteristic curves in symmetric second order tensor fields", 2011} exploit the gradient of the flow map of TFLs to generate an FTLE field
+characteristic curves in symmetric second order tensor fields", 2011}: exploit the gradient of the flow map of TFLs to generate an FTLE field
 	\item scalar measures: fractional anisotropy\footnote[frame]{P. Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
 diffusion measures for MRI from tensor basis analysis", 2002}
 \end{itemize}
@@ -980,7 +981,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \begin{align*}
 	\varepsilon_\alpha &= \frac{\frac{\beta}{\alpha+2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.362291\\
 	\varepsilon_\beta &= \frac{\frac{\beta}{2\beta}}{\frac{\beta}{\alpha+2\beta} + \frac{\beta}{2\beta}} \approx 0.63771\\
-	\Phi_{t} &= \varepsilon_k\int_a^b I(\omega)\mathop{d\omega}
+	\Phi_{t} &= \varepsilon_l\int_a^b I(\omega)\mathop{d\omega}
 \end{align*}
 {\small with $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
 \end{block}
@@ -1031,7 +1032,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \begin{enumerate}
 	\item Accumulation: evaluate and accumulate the polar intensity profiles\bigskip
 	\item Apply the linear combination (partition) weights\bigskip
-	\item Injection: scaling and placing of a Cosine Lobe
+	\item Injection: scaling and placing of a cosine lobe
 \end{enumerate}
 \end{block}\bigskip
 So far, we are able to propagate intensities as circular wave in a 2D Cartesian grid defined through polar functions given on cell centers.
@@ -1046,7 +1047,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \end{align*}
 {\small with $\varphi=\mathop{atan2}(\sigma_{1,y},\sigma_{1,x})$ and $\sigma$: singular value, $a$: x-radius ellipse, $b$: y-radius ellipse}
 \end{block}
-$\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions by the mapping of eigenvalues to half-axes radii and the shift angle of the major singular vector $\varphi$
+$\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions by the mapping of singular values to half-axes radii and the shift angle of the major singular vector $\varphi$
 
 } % END OF FRAME
 
@@ -1120,8 +1121,6 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon,
 	\end{align*}
 	\end{block}
-%	\item a state of equilibrium is reached, where the flow map takes in a stable state
-%	\item i.e., a stop sequence is initiated when above criterion is met 
 	$\Rightarrow$ a state of equilibrium is reached, where the flow map takes in a stable state\\
 	$\Rightarrow$ i.e., a stop sequence is initiated when above criterion is met 
 	
@@ -1131,24 +1130,23 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 
 %\item propagation is performed with switching source and target grid?
 
+%\frame{
+%\frametitle{{Propagation Scheme - Physical Models}}
+%\begin{itemize}
+%	\item phase function model from Rayleigh scattering:
+%\begin{block}{\centering \textbf{Phase Functions\footnote[frame]{\url{http://www.met.reading.ac.uk/~jp902366/rad/phase_function_report.pdf}\bigskip}}}
+%	\begin{align*}
+% 	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
+% 	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
+%	\end{align*}
+%\end{block}
+%	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
+%\end{itemize}
+%
+%} % END OF FRAME
 
 \frame{
-\frametitle{{Propagation Scheme - Physical Models}}
-\begin{itemize}
-	\item phase function model from Rayleigh scattering:
-\begin{block}{\centering \textbf{Phase Functions\footnote[frame]{\url{http://www.met.reading.ac.uk/~jp902366/rad/phase_function_report.pdf}\bigskip}}}
-	\begin{align*}
- 	P(\omega) &= \frac{T(\omega)}{\int_{k\pi}^{(k+1)\pi}T(\omega)\mathop{d\omega}}\\
- 	\mathit{with} \int_0^{\pi} P(\omega) &= 1.
-	\end{align*}
-\end{block}
-	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
-\end{itemize}
-
-} % END OF FRAME
-
-\frame{
-\frametitle{{Propagation Scheme - Physical Models}}
+\frametitle{{Propagation Scheme - Physical Model}}
 \begin{itemize}
 	\item crystal lattices reveal refractive indices dependent on direction, which lead to anisotropic light transport inside the medium (birefringence: e.g. quartz, ruby):
 \begin{block}{\centering \textbf{Indicatrix\footnote[frame]{\url{http://edafologia.ugr.es/optmine/intro/indicatw.htm}} - Refractive Ellipsoid}}
@@ -1316,9 +1314,9 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{align*}
 \end{block}
 \begin{itemize}
-	\item previous examples prove that the conductivity property (transmission) of the tensor field can effect a separation of the flux for diverging pathlines
+	\item previous examples prove that the conductivity property (transmission) of the tensor field can effect a separation of the flux for diverging TFLs
 	\item buffer $\mathcal{B} = \{\mathcal{C}_1, \mathcal{C}_2, ..., \mathcal{C}_j\}$ contains propagated light distributions for each discrete location and direction in the field
-	\item FTLE field is yielded from accumulating the total radiant flux in the difference scalar field for varying location and direction 
+	\item $\mathcal{B}$ can be interpreted as flow map, with flow defined through final light distributions
 \end{itemize}
 } % END OF FRAME
 
@@ -1366,7 +1364,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \centering
   \begin{minipage}{0.6\textwidth}
   \centering
-	\includegraphics[height=0.65\textwidth]{skizze/addins/grids_two_edit.pdf}
+	\includegraphics[height=0.65\textwidth]{skizze/addins/grids_two_edit2.pdf}
 	\caption*{Light Transport Gradient - Neighborhood}
 	\end{minipage}
 \end{figure}
@@ -1408,9 +1406,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item Isotropic test field reveals offset response for the approach
 	\bigskip
-	\item natural shift against the inital light source (slice) direction (left)
-	\bigskip
-	\item maximum distance to the edges lies on the circumference of a circle
+	\item natural shift against the inital light source direction (left)
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -1420,7 +1416,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \includegraphics[height=\textwidth]{isotropic2.png} \caption*{a)~Glyphs}
 \end{minipage}
 \begin{minipage}{.49\textwidth}
-\includegraphics[height=\textwidth]{iso_ftle.png} \caption*{b)~LTG}
+\includegraphics[height=\textwidth]{iso_ftle.png} \caption*{b)~LTG($0^\circ$)}
 \end{minipage}
 
 \end{figure}
@@ -1437,9 +1433,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item Isotropic test field reveals offset response for the approach
 	\bigskip
-	\item natural shift against the inital light source (slice) direction (left)
-	\bigskip
-	\item maximum distance to the edges lies on the circumference of a circle
+	\item natural shift against the inital light source direction (left)
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -1451,7 +1445,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{minipage}
 \begin{minipage}{.49\textwidth}
 \centering
-\includegraphics[height=\textwidth]{iso_isovolume.png} \caption*{b)~LTG}
+\includegraphics[height=\textwidth]{iso_isovolume.png} \caption*{b)~LTG($0^\circ$)}
 \end{minipage}
 
 \end{figure}
@@ -2130,9 +2124,6 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 %========================================
 
 % hilights mit \alert oder \hilite
-
-
-
 
 %----------------------------------------
 
