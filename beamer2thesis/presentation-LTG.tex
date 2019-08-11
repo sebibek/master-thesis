@@ -419,10 +419,13 @@ $\\
 {\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
+\begin{small}
 \begin{itemize}
 	\item measures gradient of flow map $\nabla\mathbf{u(x)}$
 	\item FTLE field responds largest where path lines diverge
+	\item ridges represents Lagrangian coherent structures: e.g. vortices, moraines
 \end{itemize}
+\end{small}
 
 \end{column}
 \begin{column}{.5\textwidth}
@@ -582,6 +585,7 @@ follow major/minor eigenvectors along pathlines
 \bigskip
 \begin{small}
 \begin{itemize}
+	\item streamlines for eigenvector fields\bigskip
 	\item trajectories can cross each other\\
 	$\Rightarrow$ hard to interpret
 \end{itemize}
@@ -614,7 +618,7 @@ follow major/minor eigenvectors along streamlines
 \begin{small}
 \begin{itemize}
 	\item ambiguity for nearly isotropic cases:\\ small changes in components effect large changes in tensor field line orientation (see Fig.)\bigskip
-	\item therefore susceptive to noise in data
+	\item therefore susceptive to noise in data\\
 	$\Rightarrow$ effects erroneous trajectories, hard to interpret
 \end{itemize}
 \end{small}
@@ -632,43 +636,43 @@ follow major/minor eigenvectors along streamlines
 \end{columns}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Tensor Fields - Tensor Field Topology}}
-
-\begin{columns}
-\begin{column}{.6\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Degeneracy}}
-\centering
-$\lambda_1=\lambda_2$
-\end{block}
-\end{small}
-\bigskip
-
-	$\Rightarrow$ possible approach: tensor field topology, i.e., separatrices, degenerate points:
-	\begin{itemize}
-		\item purple: structurally unstable point
-		\item red: wedge
-		\item green: trisector (joining separatrices)
-	\end{itemize}
-
-\end{column}
-\begin{column}{.4\textwidth}
-\centering
-\begin{figure}[t]
-\centering
-\begin{minipage}{0.85\textwidth}
-\centering
-\includegraphics[height=0.9\textwidth]{hyperstreamlines.png}
-\caption*{Degenerate points}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\source{\url{http://tiny.cc/qefjaz}}
-\end{minipage}
-\end{figure}
-\end{column}
-\end{columns}
-} % END OF FRAME
+%\frame{
+%\frametitle{{Tensor Fields - Tensor Field Topology}}
+%
+%\begin{columns}
+%\begin{column}{.6\textwidth}
+%\begin{small}
+%\begin{block}{\centering \textbf{Degeneracy}}
+%\centering
+%$\lambda_1=\lambda_2$
+%\end{block}
+%\end{small}
+%\bigskip
+%
+%	$\Rightarrow$ possible approach: tensor field topology, i.e., separatrices, degenerate points:
+%	\begin{itemize}
+%		\item purple: structurally unstable point
+%		\item red: wedge
+%		\item green: trisector (joining separatrices)
+%	\end{itemize}
+%
+%\end{column}
+%\begin{column}{.4\textwidth}
+%\centering
+%\begin{figure}[t]
+%\centering
+%\begin{minipage}{0.85\textwidth}
+%\centering
+%\includegraphics[height=0.9\textwidth]{hyperstreamlines.png}
+%\caption*{Degenerate points}
+%\end{minipage}
+%\begin{minipage}{0.05\textwidth}
+%\source{\url{http://tiny.cc/qefjaz}}
+%\end{minipage}
+%\end{figure}
+%\end{column}
+%\end{columns}
+%} % END OF FRAME
 
 %\frame{
 %\frametitle{{Introduction - Tensor Field Lines}}
@@ -810,13 +814,15 @@ Primary Requirements:\bigskip
 \begin{itemize}
 	\item glyphs\footnote[frame]{McLoughlin et al. ''Over two decades of integration-based, geometric flow visualization", 2010}: represent anisotropy with shape and orientation
 	\item tensor field lines\footnote[frame]{Vilanova et al. ''Dti visualization with streamsurfaces beaand evenly-spaced volume seeding", 2004} (TFLs): follow tensor field along major eigenvector
+	\item tensor field topology\footnote[frame]{Delmarcelle and Hesselink, “Visualizing second order tensor fields with hyperstreamlines”}: e.g. separatrices, degenerate points
 	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
 based propagation through diffusion tensor fields", 1999}: introduce artificial inertia to TFLs to increase stability
 	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003}: use Line Integral Convolution from vector field visualization on TFLs
 	\item FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
 characteristic curves in symmetric second order tensor fields", 2011}: exploit the gradient of the flow map of TFLs to generate an FTLE field
-	\item scalar measures: fractional anisotropy\footnote[frame]{P. Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
+	\item scalar measures: fractional anisotropy\footnote[frame]{Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
 diffusion measures for MRI from tensor basis analysis", 2002}
+
 \end{itemize}
 \end{small}
 
@@ -831,7 +837,7 @@ diffusion measures for MRI from tensor basis analysis", 2002}
 	\item pseudo eigenvectors\footnote[frame]{Laramee et al. ''2d asymmetric tensor field topology", 2012}: extension for dual eigenvectors to a full set or graph
 	\bigskip
 	\item scalar measures: tensor magnitude\footnote[frame]{Lin et al. ''Asymmetric tensor field visualization for surfaces", 2011}, tensor mode\footnote[frame]{Palacios et al. ''Feature surfaces in symmetric tensor fields based on eigenvalue
-manifold", 2015}, isotropy index\footnote[frame]{see footnote 11}
+manifold", 2015}, isotropy index\footnote[frame]{see footnote 12}
 \end{itemize}
 
 } % END OF FRAME
@@ -945,7 +951,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \begin{enumerate}
 	\item Evaluate and accumulate the polar intensity profiles\\
 	$\Phi_{t} = \int I(\omega)\mathop{d\omega}$\bigskip
-	\item Injection: scaling and placing of a Cosine Lobe
+	\item Injection: scaling and placing of a cosine lobe
 \end{enumerate}
 \end{block}
 
@@ -1057,7 +1063,7 @@ $\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions b
 \begin{column}{.6\textwidth}
 \begin{block}{\centering \textbf{Redefinition}}
 \begin{align*}
-	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\\
+	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\hskip 15pt \mathit{with} \mean{T}\overset{!}{=}\\
 n_f &= \frac{\mean{T}\cdot\mean{I}}{\widebar{T\cdot I}}\hskip 15pt \mathit{with} \ \mean{f}=\frac{1}{2\pi}\int_0^{2\pi}f(\omega)\mathop{d\omega}
 \end{align*}
 \end{block}
@@ -1145,19 +1151,19 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 %
 %} % END OF FRAME
 
-\frame{
-\frametitle{{Propagation Scheme - Physical Model}}
-\begin{itemize}
-	\item crystal lattices reveal refractive indices dependent on direction, which lead to anisotropic light transport inside the medium (birefringence: e.g. quartz, ruby):
-\begin{block}{\centering \textbf{Indicatrix\footnote[frame]{\url{http://edafologia.ugr.es/optmine/intro/indicatw.htm}} - Refractive Ellipsoid}}
-	\begin{align*}
-	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega)+b^{2}\cos^{2}(\omega)}} =\frac{n_1n_2}{\sqrt{n_1^2\sin^2(\omega)+n_2^2\cos^2(\omega)}}
-\end{align*}
-\end{block}\bigskip
-	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
-\end{itemize}
-
-} % END OF FRAME
+%\frame{
+%\frametitle{{Propagation Scheme - Physical Model}}
+%\begin{itemize}
+%	\item crystal lattices reveal refractive indices dependent on direction, which lead to anisotropic light transport inside the medium (birefringence: e.g. quartz, ruby):
+%\begin{block}{\centering \textbf{Indicatrix\footnote[frame]{\url{http://edafologia.ugr.es/optmine/intro/indicatw.htm}} - Refractive Ellipsoid}}
+%	\begin{align*}
+%	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega)+b^{2}\cos^{2}(\omega)}} =\frac{n_1n_2}{\sqrt{n_1^2\sin^2(\omega)+n_2^2\cos^2(\omega)}}
+%\end{align*}
+%\end{block}\bigskip
+%	\item each tensor is then a unique footprint: $t_{i,j}\mapsto T(\omega)$
+%\end{itemize}
+%
+%} % END OF FRAME
 
 \frame{
 \frametitle{{Propagation Scheme - Light Distributions}}
@@ -1445,7 +1451,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \end{minipage}
 \begin{minipage}{.49\textwidth}
 \centering
-\includegraphics[height=\textwidth]{iso_isovolume.png} \caption*{b)~LTG($0^\circ$)}
+\includegraphics[height=\textwidth]{iso_isovolume.png} \caption*{b)~LTG volume}
 \end{minipage}
 
 \end{figure}
@@ -1455,80 +1461,80 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 
 } % END OF FRAME
 
-\frame{
-\frametitle{{Light Transport Gradient - Drain field}}
-\begin{figure}[!t]
-\centering
-\caption*{\textit{Drain test field}}\bigskip
-  \begin{minipage}{0.3\textwidth}
-	\centering
-    \includegraphics[width=0.8\textwidth]{drain(alt)-TFL.png}
-    \label{a)}
-	{\scriptsize a)~TFLs and glyphs}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-  \centering
-    \includegraphics[width=0.8\textwidth]{ftle_drain_alt.png}
-    \label{b)}
-	{\scriptsize b)~LTG($90^\circ$) for a)}
-  \end{minipage}
-  \begin{minipage}{0.3\textwidth}
-  \centering
-    \includegraphics[width=0.8\textwidth]{drain_alt_gradient.png}
-    \label{b)}
-	{\scriptsize c)~Gradient for b)}
-  \end{minipage}
-\label{ftle_base}
-\end{figure}
-\begin{itemize}
-	\item strong ridge in the center of the field indicated by the approach
-	\item segmentation could be done by edge detection via gradient filter
-\end{itemize}
-} % END OF FRAME
+%\frame{
+%\frametitle{{Light Transport Gradient - Drain field}}
+%\begin{figure}[!t]
+%\centering
+%\caption*{\textit{Drain test field}}\bigskip
+%  \begin{minipage}{0.3\textwidth}
+%	\centering
+%    \includegraphics[width=0.8\textwidth]{drain(alt)-TFL.png}
+%    \label{a)}
+%	{\scriptsize a)~TFLs and glyphs}
+%  \end{minipage}
+%  \begin{minipage}{0.3\textwidth}
+%  \centering
+%    \includegraphics[width=0.8\textwidth]{ftle_drain_alt.png}
+%    \label{b)}
+%	{\scriptsize b)~LTG($90^\circ$) for a)}
+%  \end{minipage}
+%  \begin{minipage}{0.3\textwidth}
+%  \centering
+%    \includegraphics[width=0.8\textwidth]{drain_alt_gradient.png}
+%    \label{b)}
+%	{\scriptsize c)~Gradient for b)}
+%  \end{minipage}
+%\label{ftle_base}
+%\end{figure}
+%\begin{itemize}
+%	\item strong ridge in the center of the field indicated by the approach
+%	\item segmentation could be done by edge detection via gradient filter
+%\end{itemize}
+%} % END OF FRAME
 
-\frame{
-\frametitle{{Light Transport Gradient - Drain field}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{itemize}
-	\item Drain test field reveals strong ridge in $-y$ direction
-	\bigskip
-	\item ridge remains more stable on the top edges w.r.t. initial direction
-\end{itemize}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[!t]
-\centering
-  \caption*{\textit{LTG volumes: Drain test field}}\bigskip
-  \begin{minipage}{0.4\textwidth}
-  \centering
-  \includegraphics[width=0.9\textwidth]{drain_top.PNG}\vskip 10pt
-    \includegraphics[width=0.9\textwidth]{drain_alt-profile.PNG}\vskip 9pt
-	{\scriptsize a)~cross-section}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}{0.4\textwidth}
-  \centering
-    \includegraphics[width=0.9\textwidth]{drain_alt_isovolume.PNG}
-	{\scriptsize b)~IsoVolume}
-    \label{b)}
-  \end{minipage}
-\label{drain_contour}
-\end{figure}
-
-\end{column}
-\end{columns}
-
-} % END OF FRAME
+%\frame{
+%\frametitle{{Light Transport Gradient - Drain field}}
+%\begin{columns}
+%\begin{column}{.5\textwidth}
+%\begin{itemize}
+%	\item Drain test field reveals strong ridge in $-y$ direction
+%	\bigskip
+%	\item ridge remains more stable on the top edges w.r.t. initial direction
+%\end{itemize}
+%\end{column}
+%\begin{column}{.5\textwidth}
+%\begin{figure}[!t]
+%\centering
+%  \caption*{\textit{LTG volumes: Drain test field}}\bigskip
+%  \begin{minipage}{0.4\textwidth}
+%  \centering
+%  \includegraphics[width=0.9\textwidth]{drain_top.PNG}\vskip 10pt
+%    \includegraphics[width=0.9\textwidth]{drain_alt-profile.PNG}\vskip 9pt
+%	{\scriptsize a)~cross-section}
+%    \label{a)}
+%  \end{minipage}
+%  \begin{minipage}{0.4\textwidth}
+%  \centering
+%    \includegraphics[width=0.9\textwidth]{drain_alt_isovolume.PNG}
+%	{\scriptsize b)~IsoVolume}
+%    \label{b)}
+%  \end{minipage}
+%\label{drain_contour}
+%\end{figure}
+%
+%\end{column}
+%\end{columns}
+%
+%} % END OF FRAME
 
 \frame{
 \frametitle{{Light Transport Gradient - Inverse field}}
 \begin{columns}
 \begin{column}{.5\textwidth}
 \begin{itemize}
-	\item Inverse test field reveals strong ridges for diverging pathlines
+	\item Inverse test field reveals strong ridges for diverging TFLs
 	\bigskip
-	\item top ridge missing for converging pathlines
+	\item top ridge missing for converging TFLs
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -1640,7 +1646,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{itemize}
 	\item inverse (square) law is evaluated for propagation
 	\bigskip
-	\item magnitude is related to magnitude $r_1$ at distance 1 
+	\item magnitude is related to $i(r_1)$ at distance 1 
 	\bigskip
 	\item samples are fitted to $I(r)=\frac{a}{r}+c$
 \end{itemize}
@@ -1697,7 +1703,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \caption*{\textit{Gyre test field}}\bigskip
   \begin{minipage}[t]{0.3\textwidth}
     \centering
-  \includegraphics[height=0.7\textwidth]{gyre.png}
+  \includegraphics[height=0.7\textwidth]{img/gyre.png}
 	{\scriptsize a)~Glyphs}
     \label{a)}
   \end{minipage}
@@ -1761,7 +1767,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \begin{itemize}
 	\item real data examples reveal two important features, which need to be respected: 
 	\begin{enumerate}
-		\item  Segmentation in FG-BG regions
+		\item  Segmentation in FG (foreground)-BG (background) regions (separated by threshold $\theta$)
 		\item Random noise modulated on top
 	\end{enumerate}
 	\item we propose the following threshold ($\theta$) corrections to prevent noisy FTLE results: 
@@ -1774,7 +1780,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
  	   		0.0^\circ,              & \text{otherwise}.
 		\end{cases}
 			\end{align*}
-		\item LTG Local normalization: (only for transmission - extending trajectories):
+		\item LTG: (only for transmission - extending trajectories):
 		\begin{align*}
 		r_i(\omega) = 
 		\begin{cases}
@@ -1826,13 +1832,13 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \caption*{\textit{Brain test field (denoised)}}\bigskip
   \begin{minipage}[t]{0.3\textwidth}
    \centering
-  \includegraphics[height=0.7\textwidth]{brainDwnsmpl_denoise.png}
+  \includegraphics[height=0.7\textwidth]{img/brain_denoised.png}
 	{\scriptsize a)~Glyphs}
     \label{a)}
   \end{minipage}
   \begin{minipage}[t]{0.3\textwidth}
    \centering
-    \includegraphics[height=0.7\textwidth]{brain-TFL.PNG}\\
+    \includegraphics[height=0.7\textwidth]{img/brain-TFL.PNG}\\
 	{\scriptsize b)~TFLs}
     \label{b)}
   \end{minipage}
@@ -1857,7 +1863,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \caption*{\textit{Brain test field (denoised)}}\bigskip
 \begin{minipage}{0.21\textwidth}
   \centering
-    \includegraphics[height=\textwidth]{brain_ftle.PNG}\\{\scriptsize a)~Tensor magnitude}
+    \includegraphics[height=\textwidth]{img/brain_denoised.PNG}\\{\scriptsize a)~Glyphs}
     \label{b)}
   \end{minipage}\hskip 15pt
   \begin{minipage}{0.21\textwidth}
@@ -1881,7 +1887,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \end{figure}
 \bigskip
 \begin{itemize}
-	\item no anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing high tensor magnitudes
+	\item no anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing tensor magnitudes above threshold $\theta$
 \end{itemize}
 } % END OF FRAME
 
@@ -1939,7 +1945,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \begin{minipage}{0.3\textwidth}
   \centering
     \includegraphics[height=0.7\textwidth]{heart_slice20_rescale.PNG}\\
-	{\scriptsize c)~LTG}
+	{\scriptsize c)~LTG($225^\circ$)}
     \label{b)}
   \end{minipage}
 \label{heart-ftle}
@@ -1947,7 +1953,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \begin{small}
 \begin{itemize}
 	\item light ridges enhanced by rescaling for the down-left direction (red lines in c))
-	\item regions exhibit most drastic changes in anisotropy and/or divergence for TFLs
+	\item regions exhibit most rapid changes in direction and/or divergence of TFLs
 	\item edge artifacts: edges effect high gradients in the flow map
 \end{itemize}
 \end{small}
@@ -1980,7 +1986,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \end{figure}
 \bigskip
 \begin{itemize}
-	\item volumes reveal blob-shaped features constituting
+	\item volumes reveal blob-shaped features constituting 3D ridges
 	\item these features in turn form 3D ridges representing LCS
 \end{itemize}
 } % END OF FRAME
@@ -1995,7 +2001,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 	\bigskip
 	\item characteristic ellipsoid area: $A=\sigma_1\cdot\sigma_2\cdot\pi$
 	$\Rightarrow$ preposition for high tensor magnitudes: $\sigma_1\approx\sigma_2\approx1.0$ (implicit spherical isotropy)\bigskip
-	\item local normalization is verified to emphasize regions with increased anisotropy
+	\item LTG is verified to emphasize regions with increased anisotropy
 \end{itemize}
 \end{small}
 \end{column}
@@ -2076,7 +2082,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 	\begin{itemize}
 		\item incorporate segmentation algorithms to segment FG-BG data for local normalization
 		\item application to uncertain (error-prone) vector fields (e.g. phase-contrast-MRI)
-		\item applicability tests for engineering and medical data
+		\item applicability studies for engineering and medical data
 		\item optimized GPU-parallelized version for convenient runtimes
 	\end{itemize}
 \end{itemize}

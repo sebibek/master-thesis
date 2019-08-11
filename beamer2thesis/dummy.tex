@@ -72,32 +72,23 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \frame[plain]{\titlepage}
 
 \frame{
-\frametitle{{Light Transport Gradient (LTG) - Isotropic field}}
-\begin{columns}
-\begin{column}{.5\textwidth}
+\frametitle{{Related Work - Symmetric Tensor Field Visualization}}
+
 \begin{small}
 \begin{itemize}
-	\item Isotropic test field reveals offset response for the approach
-	\bigskip
-	\item natural shift against the inital light source (slice) direction (left)\\
-%	$\Rightarrow$ initial light source configurations located close and pointing towards borders, are biased for low LTG (FTLE) responses
+	\item glyphs\footnote[frame]{McLoughlin et al. ''Over two decades of integration-based, geometric flow visualization", 2010}: represent anisotropy with shape and orientation
+	\item tensor field lines\footnote[frame]{Vilanova et al. ''Dti visualization with streamsurfaces beaand evenly-spaced volume seeding", 2004} (TFLs): follow tensor field along major eigenvector
+	\item tensor field topology\footnote[frame]{Delmarcelle and Hesselink, “Visualizing second order tensor fields with hyperstreamlines”}: e.g. separatrices, degenerate points
+	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
+based propagation through diffusion tensor fields", 1999}: introduce artificial inertia to TFLs to increase stability
+	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003}: use Line Integral Convolution from vector field visualization on TFLs
+	\item FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
+characteristic curves in symmetric second order tensor fields", 2011}: exploit the gradient of the flow map of TFLs to generate an FTLE field
+	\item scalar measures: fractional anisotropy\footnote[frame]{Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
+diffusion measures for MRI from tensor basis analysis", 2002}
+
 \end{itemize}
 \end{small}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\caption*{\textit{Isotropic test field}}\bigskip
-\begin{minipage}{.49\textwidth}
-\includegraphics[height=\textwidth]{isotropic2.png} \caption*{a)~Glyphs}
-\end{minipage}
-\begin{minipage}{.49\textwidth}
-\includegraphics[height=\textwidth]{iso_ftle.png} \caption*{b)~LTG($0^\circ$)}
-\end{minipage}
-
-\end{figure}
-
-\end{column}
-\end{columns}
 
 } % END OF FRAME
 
