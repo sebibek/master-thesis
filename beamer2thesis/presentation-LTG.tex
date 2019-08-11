@@ -138,7 +138,7 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \begin{column}{.5\textwidth}
 \centering
 \begin{figure}
-\caption*{\textit{Vector fields}}\bigskip
+\caption*{Vector fields}\bigskip
 \begin{minipage}{.49\textwidth}
 \centering
 \includegraphics[width=\textwidth]{vector_field.pdf}
@@ -181,7 +181,7 @@ x\\y
 \centering
 
 \begin{figure}
-\caption*{\textit{Streamlines for vector fields}}\bigskip
+\caption*{{Streamlines for vector fields}}\bigskip
 \begin{minipage}{.49\textwidth}
 \centering
 \includegraphics[width=\textwidth]{vector_field2_streamline.pdf}
@@ -368,7 +368,7 @@ Global:
 $
 	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
 $\\
-{\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
+{\tiny where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
 \begin{itemize}
@@ -416,7 +416,7 @@ Global:
 $
 	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
 $\\
-{\scriptsize where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
+{\tiny where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
 \begin{small}
@@ -431,12 +431,12 @@ $\\
 \begin{column}{.5\textwidth}
 \begin{figure}[t]
 \centering
-\caption*{Double Gyre field}\bigskip
+\caption*{\textit{Double Gyre field}}\bigskip
 \begin{minipage}{0.9\textwidth}
 \centering
 {\scriptsize a)}\includegraphics[height=0.34\textwidth]{diverge.png}
 {\scriptsize b)}\includegraphics[height=0.35\textwidth]{ftle.png}
-\caption*{a) Vector field, b) FTLE field}
+\scriptsize{a) Vector field, b) FTLE field}
 \end{minipage}
 \begin{minipage}{0.05\textwidth}
 \centering
@@ -516,8 +516,10 @@ Values?, 2016} are lengths of axes
 \begin{column}{.4\textwidth}
 \begin{figure}[t]
 \begin{minipage}{0.85\textwidth}
-\includegraphics[width=\textwidth]{SVD.png}
+\centering
 \caption*{Singular value system}
+\includegraphics[width=\textwidth]{SVD.png}
+\caption*{characteristic ellipsoid}
 \end{minipage}
 \begin{minipage}{0.1\textwidth}
 \source{\url{https://w.wiki/6WN}}
@@ -1063,7 +1065,7 @@ $\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions b
 \begin{column}{.6\textwidth}
 \begin{block}{\centering \textbf{Redefinition}}
 \begin{align*}
-	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\hskip 15pt \mathit{with} \mean{T}\overset{!}{=}\\
+	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\hskip 15pt \mathit{with} \ \mean{T}\overset{!}{=}1.0\\
 n_f &= \frac{\mean{T}\cdot\mean{I}}{\widebar{T\cdot I}}\hskip 15pt \mathit{with} \ \mean{f}=\frac{1}{2\pi}\int_0^{2\pi}f(\omega)\mathop{d\omega}
 \end{align*}
 \end{block}
@@ -1378,7 +1380,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 } % END OF FRAME
 
 \frame{
-\frametitle{{Light Transport Gradient - Definition}}
+\frametitle{{Light Transport Gradient (LTG) - Definition}}
 \begin{block}{\centering \textbf{Gradient Approximation: Central Differences}}
 \begin{align*}
 	\nabla \mathbf{b}_{x,y,\omega} =
@@ -1419,10 +1421,10 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{figure}[t]
 \caption*{\textit{Isotropic test field}}\bigskip
 \begin{minipage}{.49\textwidth}
-\includegraphics[height=\textwidth]{isotropic2.png} \caption*{a)~Glyphs}
+\includegraphics[height=\textwidth]{isotropic2.png} \scriptsize{a)~Glyphs}
 \end{minipage}
 \begin{minipage}{.49\textwidth}
-\includegraphics[height=\textwidth]{iso_ftle.png} \caption*{b)~LTG($0^\circ$)}
+\includegraphics[height=\textwidth]{iso_ftle.png} \scriptsize{b)~LTG($0^\circ$)}
 \end{minipage}
 
 \end{figure}
@@ -1447,11 +1449,11 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \caption*{\textit{Isotropic test field}}\bigskip
 \begin{minipage}{.49\textwidth}
 \centering
-\includegraphics[height=\textwidth]{iso_volume.png} \caption*{a)~Glyphs}
+\includegraphics[height=\textwidth]{iso_volume.png} \scriptsize{a)~Glyphs}
 \end{minipage}
 \begin{minipage}{.49\textwidth}
 \centering
-\includegraphics[height=\textwidth]{iso_isovolume.png} \caption*{b)~LTG volume}
+\includegraphics[height=\textwidth]{iso_isovolume.png} \scriptsize{b)~LTG volume}
 \end{minipage}
 
 \end{figure}
@@ -1762,68 +1764,68 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \end{small}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Evaluation - Light Transport Gradient}}
-\begin{itemize}
-	\item real data examples reveal two important features, which need to be respected: 
-	\begin{enumerate}
-		\item  Segmentation in FG (foreground)-BG (background) regions (separated by threshold $\theta$)
-		\item Random noise modulated on top
-	\end{enumerate}
-	\item we propose the following threshold ($\theta$) corrections to prevent noisy FTLE results: 
-	\begin{itemize}
-		\item for Hlawatsch's approach:
-			\begin{align*}
-		\varphi_i = 
-		\begin{cases}
-	    	\varphi_i,& \text{if } \mean{r}_i > \theta,\\
- 	   		0.0^\circ,              & \text{otherwise}.
-		\end{cases}
-			\end{align*}
-		\item LTG: (only for transmission - extending trajectories):
-		\begin{align*}
-		r_i(\omega) = 
-		\begin{cases}
-	    	\frac{1}{\mean{r}_i}r_i(\omega),& \text{if } \mean{r}_i > \theta,\\
- 	   		1.0,              & \text{otherwise}.
-		\end{cases}
-		\end{align*}
-	\end{itemize}
+%\frame{
+%\frametitle{{Evaluation - Light Transport Gradient}}
+%\begin{itemize}
+%	\item real data examples reveal two important features, which need to be respected: 
+%	\begin{enumerate}
+%		\item  Segmentation in FG (foreground)-BG (background) regions (separated by threshold $\theta$)
+%		\item Random noise modulated on top
+%	\end{enumerate}
+%	\item we propose the following threshold ($\theta$) corrections to prevent noisy FTLE results: 
+%	\begin{itemize}
+%		\item for Hlawatsch's approach:
+%			\begin{align*}
+%		\varphi_i = 
+%		\begin{cases}
+%	    	\varphi_i,& \text{if } \mean{r}_i > \theta,\\
+% 	   		0.0^\circ,              & \text{otherwise}.
+%		\end{cases}
+%			\end{align*}
+%		\item LTG: (only for transmission - extending trajectories):
+%		\begin{align*}
+%		r_i(\omega) = 
+%		\begin{cases}
+%	    	\frac{1}{\mean{r}_i}r_i(\omega),& \text{if } \mean{r}_i > \theta,\\
+% 	   		1.0,              & \text{otherwise}.
+%		\end{cases}
+%		\end{align*}
+%	\end{itemize}
+%
+%\end{itemize}
+%} % END OF FRAME
 
-\end{itemize}
-} % END OF FRAME
-
-\frame{
-\frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
-\begin{figure}[!t]
-\centering
-\caption*{\textit{Brain test field}}\bigskip
-  \begin{minipage}[t]{0.3\textwidth}
-   \centering
-  \includegraphics[height=0.7\textwidth]{brainDwnsmpl.png}
-	{\scriptsize a)~Glyphs}
-    \label{a)}
-  \end{minipage}
-  \begin{minipage}[t]{0.3\textwidth}
-   \centering
-    \includegraphics[height=0.7\textwidth]{brainDwnsmpl-TFL.PNG}\\
-	{\scriptsize b)~TFLs}
-    \label{b)}
-  \end{minipage}
-  \begin{minipage}[t]{0.3\textwidth}
-   \centering
-    \includegraphics[height=0.7\textwidth]{brain_ftle_org.PNG}
-	{\scriptsize c)~FTLE: Hlawatsch's approach}
-    \label{b)}
-  \end{minipage}
-\label{brain_ftle_comp}
-\end{figure}
-
-\begin{itemize}
-	\item noise present in the Brain dataset $\Rightarrow$ TFLs reveal chaotic trajectories
-	\item FTLE response throughout the image (because of ambiguity in isotropic regions)
-\end{itemize}
-} % END OF FRAME
+%\frame{
+%\frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
+%\begin{figure}[!t]
+%\centering
+%\caption*{\textit{Brain test field}}\bigskip
+%  \begin{minipage}[t]{0.3\textwidth}
+%   \centering
+%  \includegraphics[height=0.7\textwidth]{brainDwnsmpl.png}
+%	{\scriptsize a)~Glyphs}
+%    \label{a)}
+%  \end{minipage}
+%  \begin{minipage}[t]{0.3\textwidth}
+%   \centering
+%    \includegraphics[height=0.7\textwidth]{brainDwnsmpl-TFL.PNG}\\
+%	{\scriptsize b)~TFLs}
+%    \label{b)}
+%  \end{minipage}
+%  \begin{minipage}[t]{0.3\textwidth}
+%   \centering
+%    \includegraphics[height=0.7\textwidth]{brain_ftle_org.PNG}
+%	{\scriptsize c)~FTLE: Hlawatsch's approach}
+%    \label{b)}
+%  \end{minipage}
+%\label{brain_ftle_comp}
+%\end{figure}
+%
+%\begin{itemize}
+%	\item noise present in the Brain dataset $\Rightarrow$ TFLs reveal chaotic trajectories
+%	\item FTLE response throughout the image (because of ambiguity in isotropic regions)
+%\end{itemize}
+%} % END OF FRAME
 
 \frame{
 \frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
@@ -1832,7 +1834,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \caption*{\textit{Brain test field (denoised)}}\bigskip
   \begin{minipage}[t]{0.3\textwidth}
    \centering
-  \includegraphics[height=0.7\textwidth]{img/brain_denoised.png}
+  \includegraphics[height=0.7\textwidth]{brainDwnsmpl.png}
 	{\scriptsize a)~Glyphs}
     \label{a)}
   \end{minipage}
@@ -1851,10 +1853,11 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \label{brain_ftle_comp}
 \end{figure}
 \begin{itemize}
-	\item denoising: tensor magnitudes below threshold are padded with zeros
-	\item correlating trajectories in BG regions: FTLE response only in FG regions
+	\item trajectories deflected in foreground (FG) and correlate in BG regions\\
+	$\Rightarrow$ FTLE response only in FG regions
 \end{itemize}
 } % END OF FRAME
+
 
 \frame{
 \frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
@@ -1863,31 +1866,31 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \caption*{\textit{Brain test field (denoised)}}\bigskip
 \begin{minipage}{0.21\textwidth}
   \centering
-    \includegraphics[height=\textwidth]{img/brain_denoised.PNG}\\{\scriptsize a)~Glyphs}
+    \includegraphics[height=\textwidth]{brainDwnsmpl.PNG}\\{\scriptsize a)~Glyphs}
     \label{b)}
   \end{minipage}\hskip 15pt
   \begin{minipage}{0.21\textwidth}
   \centering
-  \includegraphics[height=\textwidth]{brain_surf.PNG} {\scriptsize b) LTG($0^\circ$) }
+  \includegraphics[height=\textwidth]{brain_ftle_surf_noisereduction.PNG} {\scriptsize b) FTLE: Hlawatsch}
      \label{a)}
   \end{minipage}\hskip 15pt
   \begin{minipage}{0.21\textwidth}
     \centering
-    \includegraphics[height=\textwidth]{brain_volume2.PNG} \\
-     {\scriptsize c) LTG volume}
+    \includegraphics[height=\textwidth]{brain_surf.PNG} \\
+     {\scriptsize c) LTG($0^\circ$)}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.21\textwidth}
     \centering
-    \includegraphics[height=\textwidth]{brain_cross-section.PNG} \\
-    {\scriptsize d) Cross-section}
+    \includegraphics[height=\textwidth]{brain_volume2.PNG} \\
+    {\scriptsize d) LTG volume}
     \label{b)}
   \end{minipage}
 \label{brain-volumes}
 \end{figure}
 \bigskip
 \begin{itemize}
-	\item no anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing tensor magnitudes above threshold $\theta$
+	\item no anisotropy present in the Brain dataset \\$\Rightarrow$ FTLE response only in regions revealing increased tensor magnitudes
 \end{itemize}
 } % END OF FRAME
 
@@ -1991,40 +1994,40 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \end{itemize}
 } % END OF FRAME
 
-\frame{
-\frametitle{{Evaluation - Random Test Field}}
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{small}
-\begin{itemize}
-	\item numerics: limit number representation to a particular range
-	\bigskip
-	\item characteristic ellipsoid area: $A=\sigma_1\cdot\sigma_2\cdot\pi$
-	$\Rightarrow$ preposition for high tensor magnitudes: $\sigma_1\approx\sigma_2\approx1.0$ (implicit spherical isotropy)\bigskip
-	\item LTG is verified to emphasize regions with increased anisotropy
-\end{itemize}
-\end{small}
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[!t]
-\centering
-    \includegraphics[width=0.33\textwidth]{random-global.png} {\scriptsize a)}
-    \includegraphics[width=0.33\textwidth]{random-local.png} {\scriptsize b)}
-    \includegraphics[width=0.33\textwidth]{random_global.png} {\scriptsize c)}
-    \includegraphics[width=0.33\textwidth]{random_local_slice0.png}	{\scriptsize d)}
-    \caption*{\textit{Random test field} a) Glyphs, b) Local normalization, c) Tensor magnitude d) LTG}
-\label{bow_contour}
-\end{figure}
+%\frame{
+%\frametitle{{Evaluation - Random Test Field}}
+%\begin{columns}
+%\begin{column}{.5\textwidth}
+%\begin{small}
+%\begin{itemize}
+%	\item numerics: limit number representation to a particular range
+%	\bigskip
+%	\item characteristic ellipsoid area: $A=\sigma_1\cdot\sigma_2\cdot\pi$
+%	$\Rightarrow$ preposition for high tensor magnitudes: $\sigma_1\approx\sigma_2\approx1.0$ (implicit spherical isotropy)\bigskip
+%	\item LTG is verified to emphasize regions with increased anisotropy
+%\end{itemize}
+%\end{small}
+%\end{column}
+%\begin{column}{.5\textwidth}
 %\begin{figure}[!t]
 %\centering
-%    
-%    
+%    \includegraphics[width=0.33\textwidth]{random-global.png} {\scriptsize a)}
+%    \includegraphics[width=0.33\textwidth]{random-local.png} {\scriptsize b)}
+%    \includegraphics[width=0.33\textwidth]{random_global.png} {\scriptsize c)}
+%    \includegraphics[width=0.33\textwidth]{random_local_slice0.png}	{\scriptsize d)}
+%    \caption*{\textit{Random test field} a) Glyphs, b) Local normalization, c) Tensor magnitude d) LTG}
 %\label{bow_contour}
 %\end{figure}
-\end{column}
-\end{columns}
-
-} % END OF FRAME
+%%\begin{figure}[!t]
+%%\centering
+%%    
+%%    
+%%\label{bow_contour}
+%%\end{figure}
+%\end{column}
+%\end{columns}
+%
+%} % END OF FRAME
 
 
 %$\Rightarrow$ chances are about $50\%$ for relatively low tensor magnitudes (ellipsoid areas)

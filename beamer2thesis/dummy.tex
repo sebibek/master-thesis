@@ -72,26 +72,47 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \frame[plain]{\titlepage}
 
 \frame{
-\frametitle{{Related Work - Symmetric Tensor Field Visualization}}
+\frametitle{{Fundamentals - Finite-Time Lyapunov Exponents (FTLE)}}
 
+\begin{columns}
+\begin{column}{.5\textwidth}
 \begin{small}
-\begin{itemize}
-	\item glyphs\footnote[frame]{McLoughlin et al. ''Over two decades of integration-based, geometric flow visualization", 2010}: represent anisotropy with shape and orientation
-	\item tensor field lines\footnote[frame]{Vilanova et al. ''Dti visualization with streamsurfaces beaand evenly-spaced volume seeding", 2004} (TFLs): follow tensor field along major eigenvector
-	\item tensor field topology\footnote[frame]{Delmarcelle and Hesselink, “Visualizing second order tensor fields with hyperstreamlines”}: e.g. separatrices, degenerate points
-	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
-based propagation through diffusion tensor fields", 1999}: introduce artificial inertia to TFLs to increase stability
-	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003}: use Line Integral Convolution from vector field visualization on TFLs
-	\item FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
-characteristic curves in symmetric second order tensor fields", 2011}: exploit the gradient of the flow map of TFLs to generate an FTLE field
-	\item scalar measures: fractional anisotropy\footnote[frame]{Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
-diffusion measures for MRI from tensor basis analysis", 2002}
-
-\end{itemize}
+\begin{block}{\centering \textbf{Definition}}
+Local: 
+$
+	\mathop{FTLE} = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
+$ (cf. Fig. b))\\
+Global: 
+$
+	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+$\\
+{\tiny where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
+\end{block}
 \end{small}
+\begin{itemize}
+	\item measure for separation abilities of time-variant systems
+	\item Lagrangian view in vector fields: placing particle, moving with flow
+\end{itemize}
 
+\end{column}
+\begin{column}{.5\textwidth}
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.85\textwidth}
+\centering
+\includegraphics[height=0.6\textwidth]{diverge_rot.png} {\scriptsize a)}
+\includegraphics[height=0.6\textwidth]{ftle_sep.pdf} {\scriptsize b)}
+\caption*{a) Vector field, b) Diverging pathlines}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+\source{b) Skript Prof. Sadlo, SciVis SS2017}
+\end{minipage}
+
+\end{figure}
+
+\end{column}
+\end{columns}
 } % END OF FRAME
-
 
 
 %\frame{
