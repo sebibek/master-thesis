@@ -219,7 +219,7 @@ b) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
 		\item c) scalar measures:\\ anisotropy index, tensor magnitude
 	\end{itemize}
 	\bigskip
-	\item examples: stress tensor
+	\item example: stress tensor
 	
 \end{itemize}
 \end{column}
@@ -435,7 +435,7 @@ $\\
 \begin{minipage}{0.9\textwidth}
 \centering
 {\scriptsize a)}\includegraphics[height=0.34\textwidth]{diverge.png}
-{\scriptsize b)}\includegraphics[height=0.35\textwidth]{ftle.png}
+{\scriptsize b)}\includegraphics[height=0.35\textwidth]{ftle.png}\\
 \scriptsize{a) Vector field, b) FTLE field}
 \end{minipage}
 \begin{minipage}{0.05\textwidth}
@@ -517,8 +517,8 @@ Values?, 2016} are lengths of axes
 \begin{figure}[t]
 \begin{minipage}{0.85\textwidth}
 \centering
-\caption*{Singular value system}
-\includegraphics[width=\textwidth]{SVD.png}
+\caption*{Singular value system (SVS)}
+\includegraphics[width=\textwidth]{SVD.png}\bigskip
 \caption*{characteristic ellipsoid}
 \end{minipage}
 \begin{minipage}{0.1\textwidth}
@@ -739,7 +739,7 @@ follow major/minor eigenvectors along streamlines
   \begin{minipage}{0.3\textwidth}
       \centering
     \includegraphics[height=0.7\textwidth]{random-global.png}\\
-	 {\scriptsize b)~Field}
+	 {\scriptsize b)~Glyphs}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
@@ -752,7 +752,7 @@ follow major/minor eigenvectors along streamlines
 \end{figure}
 Applications:
 \begin{itemize}
-	\item vector fields: spatial gradient called Jacobian matrix,
+	\item vector fields: spatial gradient called Jacobian matrix
 	\item fluid and solid continuum mechanics: stress tensor (e.g., Cauchy stress tensor)
 	\item DT-MRI: diffusion tensor - magnetic resonance imaging
 \end{itemize}
@@ -810,39 +810,39 @@ Primary Requirements:\bigskip
 %\end{column}
 
 \frame{
-\frametitle{{Related Work - Symmetric Tensor Field Visualization}}
+\frametitle{{Related Work - Tensor Field Visualization}}
 
 \begin{small}
 \begin{itemize}
 	\item glyphs\footnote[frame]{McLoughlin et al. ''Over two decades of integration-based, geometric flow visualization", 2010}: represent anisotropy with shape and orientation
 	\item tensor field lines\footnote[frame]{Vilanova et al. ''Dti visualization with streamsurfaces beaand evenly-spaced volume seeding", 2004} (TFLs): follow tensor field along major eigenvector
 	\item tensor field topology\footnote[frame]{Delmarcelle and Hesselink, “Visualizing second order tensor fields with hyperstreamlines”}: e.g. separatrices, degenerate points
-	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
-based propagation through diffusion tensor fields", 1999}: introduce artificial inertia to TFLs to increase stability
+%	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
+%based propagation through diffusion tensor fields", 1999}: introduce artificial inertia to TFLs to increase stability
 	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003}: use Line Integral Convolution from vector field visualization on TFLs
 	\item FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
 characteristic curves in symmetric second order tensor fields", 2011}: exploit the gradient of the flow map of TFLs to generate an FTLE field
 	\item scalar measures: fractional anisotropy\footnote[frame]{Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
-diffusion measures for MRI from tensor basis analysis", 2002}
+diffusion measures for MRI from tensor basis analysis", 2002}, tensor magnitude\footnote[frame]{Lin et al. ''Asymmetric tensor field visualization for surfaces", 2011}
 
 \end{itemize}
 \end{small}
 
 } % END OF FRAME
 
-\frame{
-\frametitle{{Related Work - Asymmetric Tensor Field Visualization}}
-
-\begin{itemize}
-	\item dual eigenvectors\footnote[frame]{Zheng and Pang ''2d asymmetric tensor analysis", 2005}: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
-	\bigskip
-	\item pseudo eigenvectors\footnote[frame]{Laramee et al. ''2d asymmetric tensor field topology", 2012}: extension for dual eigenvectors to a full set or graph
-	\bigskip
-	\item scalar measures: tensor magnitude\footnote[frame]{Lin et al. ''Asymmetric tensor field visualization for surfaces", 2011}, tensor mode\footnote[frame]{Palacios et al. ''Feature surfaces in symmetric tensor fields based on eigenvalue
-manifold", 2015}, isotropy index\footnote[frame]{see footnote 12}
-\end{itemize}
-
-} % END OF FRAME
+%\frame{
+%\frametitle{{Related Work - Asymmetric Tensor Field Visualization}}
+%
+%\begin{itemize}
+%	\item dual eigenvectors\footnote[frame]{Zheng and Pang ''2d asymmetric tensor analysis", 2005}: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
+%	\bigskip
+%	\item pseudo eigenvectors\footnote[frame]{Laramee et al. ''2d asymmetric tensor field topology", 2012}: extension for dual eigenvectors to a full set or graph
+%	\bigskip
+%	\item scalar measures: tensor magnitude\footnote[frame]{Lin et al. ''Asymmetric tensor field visualization for surfaces", 2011}, tensor mode\footnote[frame]{Palacios et al. ''Feature surfaces in symmetric tensor fields based on eigenvalue
+%manifold", 2015}, isotropy index\footnote[frame]{see footnote 12}
+%\end{itemize}
+%
+%} % END OF FRAME
 
 %----------------------------------------
 
@@ -919,7 +919,7 @@ manifold", 2015}, isotropy index\footnote[frame]{see footnote 12}
 To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
 \begin{itemize}
 	\item using light propagation volumes (LPV) similar to Dachsbacher et al. (cf. Fig.)\bigskip
-	\item exchanging itensities between neighboring cells: $\Phi_{t} = \int I(\omega)\mathop{d\omega}$, \hskip 10pt $\omega$: polar angle\\
+	\item exchanging itensities between neighboring cells: $\Phi_{t} = \int_a^b I(\omega)\mathop{d\omega}$, \hskip 10pt $\omega$: polar angle\\
 	{\small with $\Phi_{t}$: radiant flux, $I(\omega)$: radiant intensity}
 \end{itemize}
 
@@ -951,8 +951,8 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \begin{small}
 \begin{block}{\centering \textbf{Steps}}
 \begin{enumerate}
-	\item Evaluate and accumulate the polar intensity profiles\\
-	$\Phi_{t} = \int I(\omega)\mathop{d\omega}$\bigskip
+	\item Evaluate and accumulate the polar intensity functions:
+	$\Phi_{t} = \int_a^b I(\omega)\mathop{d\omega}$\bigskip
 	\item Injection: scaling and placing of a cosine lobe
 \end{enumerate}
 \end{block}
@@ -1019,7 +1019,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
     \includegraphics[width=0.75\textwidth]
     {steps_gallery_format_arrow_alt.png}
   }
-  \caption*{Impulse response: Placing of cosine lobes}
+  \caption*{Impulse response: placing of cosine lobes}
   \label{scheme}
 \end{figure}
 \begin{align*}
@@ -1038,7 +1038,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \begin{block}{\centering \textbf{Steps}}
 
 \begin{enumerate}
-	\item Accumulation: evaluate and accumulate the polar intensity profiles\bigskip
+	\item Accumulation: evaluate and accumulate the polar intensity functions\bigskip
 	\item Apply the linear combination (partition) weights\bigskip
 	\item Injection: scaling and placing of a cosine lobe
 \end{enumerate}
@@ -1048,7 +1048,7 @@ So far, we are able to propagate intensities as circular wave in a 2D Cartesian 
 
 \frame{
 \frametitle{{Transmission Profiles}}
-To interpret eigensystems of tensors as conductivity property for light transport, we will need transfer functions (transmission profiles) for the propagation scheme:
+{\small To interpret singular value systems of tensors as conductivity property for light transport, we will need transfer functions (transmission profiles) for the propagation scheme:}
 \begin{block}{\centering \textbf{Ellipse Equation}}
 \begin{align*}
 	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\sigma_1\sigma_2}{\sqrt{\sigma_1^2\sin^2(\omega-\varphi)+\sigma_2^2\cos^2(\omega-\varphi)}}
@@ -1059,13 +1059,14 @@ $\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions b
 
 } % END OF FRAME
 
+
 \frame{
 \frametitle{{Propagation Scheme - Transmission Profiles}}
 \begin{columns}
 \begin{column}{.6\textwidth}
 \begin{block}{\centering \textbf{Redefinition}}
 \begin{align*}
-	\Phi_{t} &= n_f\varepsilon_k\int T(\omega)I(\omega)\mathop{d\omega}\hskip 15pt \mathit{with} \ \mean{T}\overset{!}{=}1.0\\
+	\Phi_{t} &= n_f\varepsilon_l\int_a^b T(\omega)I(\omega)\mathop{d\omega}\hskip 15pt \mathit{with} \ \mean{T}\overset{!}{=}1.0\\
 n_f &= \frac{\mean{T}\cdot\mean{I}}{\widebar{T\cdot I}}\hskip 15pt \mathit{with} \ \mean{f}=\frac{1}{2\pi}\int_0^{2\pi}f(\omega)\mathop{d\omega}
 \end{align*}
 \end{block}
@@ -1203,7 +1204,7 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
     \includegraphics[width=0.75\textwidth]{spiral_full.png}
     \label{b)}
   \end{minipage}
-\caption*{Final light propagation distributions in: a) polar, b) scalar field rep}
+\caption*{Final light propagation distributions in: a) polar, b) scalar field representation}
 \label{rings-tests}
 \end{figure}
 
@@ -1421,9 +1422,11 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \begin{figure}[t]
 \caption*{\textit{Isotropic test field}}\bigskip
 \begin{minipage}{.49\textwidth}
+\centering
 \includegraphics[height=\textwidth]{isotropic2.png} \scriptsize{a)~Glyphs}
 \end{minipage}
 \begin{minipage}{.49\textwidth}
+\centering
 \includegraphics[height=\textwidth]{iso_ftle.png} \scriptsize{b)~LTG($0^\circ$)}
 \end{minipage}
 
@@ -1831,7 +1834,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \frametitle{{Evaluation - Light Transport Gradient - Brain dataset}}
 \begin{figure}[!t]
 \centering
-\caption*{\textit{Brain test field (denoised)}}\bigskip
+\caption*{\textit{Brain test field}}\bigskip
   \begin{minipage}[t]{0.3\textwidth}
    \centering
   \includegraphics[height=0.7\textwidth]{brainDwnsmpl.png}
@@ -2060,7 +2063,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \bigskip
 \item Hlawatsch's FTLE field is contained as 2D manifold in our FTLE volume
 \bigskip
-\item evaluation of the approach proves functionality and yields promising results
+\item evaluation of the methods proves functionality and yield promising results
 \end{itemize}
 %\footnotetext{Goodfellow, Ian, et al. "Generative adversarial nets."}
 } % END OF FRAME
@@ -2083,7 +2086,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 	\bigskip
 \item future work:
 	\begin{itemize}
-		\item incorporate segmentation algorithms to segment FG-BG data for local normalization
+		%\item incorporate segmentation algorithms to segment FG-BG data for local normalization
 		\item application to uncertain (error-prone) vector fields (e.g. phase-contrast-MRI)
 		\item applicability studies for engineering and medical data
 		\item optimized GPU-parallelized version for convenient runtimes

@@ -72,46 +72,31 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \frame[plain]{\titlepage}
 
 \frame{
-\frametitle{{Fundamentals - Finite-Time Lyapunov Exponents (FTLE)}}
-
-\begin{columns}
-\begin{column}{.5\textwidth}
-\begin{small}
-\begin{block}{\centering \textbf{Definition}}
-Local: 
-$
-	\mathop{FTLE} = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
-$ (cf. Fig. b))\\
-Global: 
-$
-	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
-$\\
-{\tiny where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
+\frametitle{{Transmission Profiles}}
+{\small To interpret singular value systems of tensors as conductivity property for light transport, we will need transfer functions (transmission profiles) for the propagation scheme:}
+\begin{block}{\centering \textbf{Ellipse Equation}}
+\begin{align*}
+	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\sigma_1\sigma_2}{\sqrt{\sigma_1^2\sin^2(\omega-\varphi)+\sigma_2^2\cos^2(\omega-\varphi)}}
+\end{align*}
+{\small with $\varphi=\mathop{atan2}(\sigma_{1,y},\sigma_{1,x})$ and $\sigma$: singular value, $a$: x-radius ellipse, $b$: y-radius ellipse}
 \end{block}
-\end{small}
+$\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions by the mapping of singular values to half-axes radii and the shift angle of the major singular vector $\varphi$
+
+} % END OF FRAME
+
+
+\frame{
+\frametitle{{Related Work - Asymmetric Tensor Field Visualization}}
+
 \begin{itemize}
-	\item measure for separation abilities of time-variant systems
-	\item Lagrangian view in vector fields: placing particle, moving with flow
+	\item dual eigenvectors\footnote[frame]{Zheng and Pang ''2d asymmetric tensor analysis", 2005}: use complex conjugate eigenvectors as co-visualization for the complex domain along with ordinary eigenvectors to represent the real domain
+	\bigskip
+	\item pseudo eigenvectors\footnote[frame]{Laramee et al. ''2d asymmetric tensor field topology", 2012}: extension for dual eigenvectors to a full set or graph
+	\bigskip
+	\item scalar measures: tensor magnitude\footnote[frame]{Lin et al. ''Asymmetric tensor field visualization for surfaces", 2011}, tensor mode\footnote[frame]{Palacios et al. ''Feature surfaces in symmetric tensor fields based on eigenvalue
+manifold", 2015}, isotropy index\footnote[frame]{see footnote 12}
 \end{itemize}
 
-\end{column}
-\begin{column}{.5\textwidth}
-\begin{figure}[t]
-\centering
-\begin{minipage}{0.85\textwidth}
-\centering
-\includegraphics[height=0.6\textwidth]{diverge_rot.png} {\scriptsize a)}
-\includegraphics[height=0.6\textwidth]{ftle_sep.pdf} {\scriptsize b)}
-\caption*{a) Vector field, b) Diverging pathlines}
-\end{minipage}
-\begin{minipage}{0.1\textwidth}
-\source{b) Skript Prof. Sadlo, SciVis SS2017}
-\end{minipage}
-
-\end{figure}
-
-\end{column}
-\end{columns}
 } % END OF FRAME
 
 
