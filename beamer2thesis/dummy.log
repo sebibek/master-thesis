@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  12 AUG 2019 19:38
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  13 AUG 2019 12:18
 entering extended mode
 **./dummy.tex
 (dummy.tex
@@ -950,7 +950,11 @@ cture.sty)
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `\new@ifnextchar' on input line 53.
 
-(dummy.aux)
+(dummy.aux
+
+LaTeX Warning: Label `b)' multiply defined.
+
+)
 \openout1 = `dummy.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 70.
@@ -1139,25 +1143,49 @@ Overfull \vbox (14.0pt too high) has occurred while \output is active []
  [1
 
 {C:/Users/sebi/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-LaTeX Font Info:    Try loading font information for U+msa on input line 85.
+<img/gyre.png, id=21, 526.96875pt x 526.96875pt>
+File: img/gyre.png Graphic file (type png)
+ <use img/gyre.png>
+Package pdftex.def Info: img/gyre.png used on input line 104.
+(pdftex.def)             Requested size: 83.16687pt x 83.1731pt.
+
+<gyre_ftle.PNG, id=22, 574.39594pt x 572.89032pt>
+File: gyre_ftle.PNG Graphic file (type png)
+ <use gyre_ftle.PNG>
+Package pdftex.def Info: gyre_ftle.PNG used on input line 104.
+(pdftex.def)             Requested size: 83.38606pt x 83.1731pt.
+LaTeX Font Info:    Try loading font information for U+msa on input line 104.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 85.
+LaTeX Font Info:    Try loading font information for U+msb on input line 104.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Try loading font information for OT1+mathkerncmss on input 
-line 85.
+line 104.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\sansmathaccent\ot1mathkerncmss.fd"
 File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/ma
 thkerncmss.
 )
+<gyre_ftle_org.PNG, id=23, 532.23843pt x 530.73282pt>
+File: gyre_ftle_org.PNG Graphic file (type png)
+ <use gyre_ftle_org.PNG>
+Package pdftex.def Info: gyre_ftle_org.PNG used on input line 104.
+(pdftex.def)             Requested size: 83.40569pt x 83.1731pt.
+
 [2
 
+pdfTeX warning (ext4): destination with the same identifier (name{b\)}) has bee
+n already used, duplicate ignored
+
+\@EveryShipout@Output ...@Org@Shipout \box \@cclv 
+                                                  
+l.104 }
+        % END OF FRAME <./img/gyre.png> <./gyre_ftle.PNG> <./gyre_ftle_org.PNG>
 ] [3
 
 ]
@@ -1177,35 +1205,35 @@ Package movie15 Warning: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 (movie15)                @@ superseded by `media9'.           @@
 (movie15)                @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 172.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 172.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 191.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 191.
 (dummy.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 172.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 172.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 191.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 191.
 Package rerunfilecheck Info: File `dummy.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
  ) 
 Here is how much of TeX's memory you used:
- 20816 strings out of 493328
- 388238 string characters out of 3139127
- 516879 words of memory out of 3000000
- 23828 multiletter control sequences out of 15000+200000
- 17866 words of font info for 65 fonts, out of 3000000 for 9000
+ 20811 strings out of 493328
+ 387747 string characters out of 3139127
+ 517066 words of memory out of 3000000
+ 23813 multiletter control sequences out of 15000+200000
+ 15208 words of font info for 55 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,15n,55p,801b,738s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Pr
-ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Fi
-les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTe
-X 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Program Files/MiKTeX 2.9/fo
-nts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
-amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
-ts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
-mssi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pf
-b>
-Output written on dummy.pdf (3 pages, 108076 bytes).
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss12.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program Files/MiKTe
+X 2.9/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/
+fonts/type1/public/amsfonts/cm/cmssi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/cm/cmsy6.pfb>
+Output written on dummy.pdf (3 pages, 596472 bytes).
 PDF statistics:
- 77 PDF objects out of 1000 (max. 8388607)
- 7 named destinations out of 1000 (max. 500000)
- 55 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 68 PDF objects out of 1000 (max. 8388607)
+ 10 named destinations out of 1000 (max. 500000)
+ 64 words of extra memory for PDF output out of 10000 (max. 10000000)
 

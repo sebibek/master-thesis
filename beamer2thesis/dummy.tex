@@ -72,16 +72,35 @@ Supervisors: Prof. Filip Sadlo, Dr. Susanne Krömker\\
 \frame[plain]{\titlepage}
 
 \frame{
-\frametitle{{Transmission Profiles}}
-{\small To interpret singular value systems of tensors as conductivity property for light transport, we will need transfer functions (transmission profiles) for the propagation scheme:}
-\begin{block}{\centering \textbf{Ellipse Equation}}
-\begin{align*}
-	T(\omega) = \frac{ab}{\sqrt{a^{2}\sin^{2}(\omega-\varphi)+b^{2}\cos^{2}(\omega-\varphi)}} =\frac{\sigma_1\sigma_2}{\sqrt{\sigma_1^2\sin^2(\omega-\varphi)+\sigma_2^2\cos^2(\omega-\varphi)}}
-\end{align*}
-{\small with $\varphi=\mathop{atan2}(\sigma_{1,y},\sigma_{1,x})$ and $\sigma$: singular value, $a$: x-radius ellipse, $b$: y-radius ellipse}
-\end{block}
-$\Rightarrow$ transmission profiles $r(\omega)$ are defined as polar functions by the mapping of singular values to half-axes radii and the shift angle of the major singular vector $\varphi$
-
+\frametitle{{Evaluation - Light Transport Gradient - Gyre Field}}
+\begin{figure}[!t]
+\centering
+\caption*{\textit{Gyre test field}}\bigskip
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+  \includegraphics[height=0.7\textwidth]{img/gyre.png}
+	{\scriptsize a)~Glyphs}
+    \label{a)}
+  \end{minipage}
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+    \includegraphics[height=0.7\textwidth]{gyre_ftle.PNG}
+	{\scriptsize b)~LTG($0^\circ$)}
+    \label{b)}
+  \end{minipage}
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+    \includegraphics[height=0.7\textwidth]{gyre_ftle_org.PNG}
+	{\scriptsize c)~}{\tiny T-FTLE: Hlawatsch's approach}
+    \label{b)}
+  \end{minipage}
+\label{gyre-ftle}
+\end{figure}
+\bigskip
+\begin{itemize}
+	\item LTG is detecting ridges for diverging light distributions
+	\item decreased response in gyre centers for circular overlap in difference image
+\end{itemize}
 } % END OF FRAME
 
 

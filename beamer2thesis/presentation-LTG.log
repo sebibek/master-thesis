@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  12 AUG 2019 19:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6300 64-bit) (preloaded format=pdflatex 2017.5.10)  13 AUG 2019 12:38
 entering extended mode
 **./presentation-LTG.tex
 (presentation-LTG.tex
@@ -1346,14 +1346,14 @@ Package pdftex.def Info: vector_field2.pdf used on input line 166.
 
 pdfTeX warning: pdflatex (file ./vector_field2.pdf): PDF inclusion: multiple pd
 fs with page group included in a single page
->] <vector_field2_streamline.pdf, id=467, 361.35pt x 352.31625pt>
+>] <vector_field2_streamline.pdf, id=468, 361.35pt x 352.31625pt>
 File: vector_field2_streamline.pdf Graphic file (type pdf)
 
 <use vector_field2_streamline.pdf>
 Package pdftex.def Info: vector_field2_streamline.pdf used on input line 206.
 (pdftex.def)             Requested size: 97.03581pt x 94.61057pt.
 
-<vector_field_streamline.pdf, id=468, 361.35pt x 352.31625pt>
+<vector_field_streamline.pdf, id=469, 361.35pt x 352.31625pt>
 File: vector_field_streamline.pdf Graphic file (type pdf)
 
 <use vector_field_streamline.pdf>
@@ -2364,7 +2364,7 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  21927 strings out of 493328
  406580 string characters out of 3139127
- 577193 words of memory out of 3000000
+ 577209 words of memory out of 3000000
  24690 multiletter control sequences out of 15000+200000
  30159 words of font info for 100 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -2398,7 +2398,7 @@ onts/cm/cmtt8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/cm-super/sfso
 rogram Files/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKT
 eX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
 1/urw/times/utmri8a.pfb>
-Output written on presentation-LTG.pdf (57 pages, 14940783 bytes).
+Output written on presentation-LTG.pdf (57 pages, 14940866 bytes).
 PDF statistics:
  4660 PDF objects out of 5155 (max. 8388607)
  138 named destinations out of 1000 (max. 500000)

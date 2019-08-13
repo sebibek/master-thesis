@@ -152,8 +152,8 @@ x\\y
 \centering
 \includegraphics[width=\textwidth]{vector_field2.pdf}
 \begin{scriptsize}
-a) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
-x\\y
+b) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
+-y\\x
 \end{pmatrix}$
 \end{scriptsize}
 \end{minipage}
@@ -215,7 +215,7 @@ b) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
 	\item tensor fields can be visualized by:
 	\begin{itemize}
 		\item a) glyphs
-		\item b) tensor field lines (TFLs)\\ $\Rightarrow$ streamlines for eigenvector fields
+		\item b) tensor field lines (TFLs)\\ $\Rightarrow$ streamlines of eigenvector fields
 		\item c) scalar measures:\\ anisotropy index, tensor magnitude
 	\end{itemize}
 	\bigskip
@@ -288,7 +288,7 @@ b) $\mathop{\mathbf{u(x)}}=\begin{pmatrix}
 \bigskip
 \begin{itemize}
 	\item classical physical example of a tensor
-	\item consistent of $3$ stress vectors arranged in row-major order
+	\item consisting of $3$ stress vectors arranged in row-major order
 \end{itemize}
 \end{column}
 \begin{column}{.5\textwidth}
@@ -364,15 +364,15 @@ Local:
 $
 	\mathop{FTLE} = \frac{1}{\lvert T\rvert}\ln \frac{\Delta}{\delta}
 $ (cf. Fig. b))\\
-Global: 
+Field: 
 $
-	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\Phi(x)}\|_2
 $\\
 {\tiny where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
 \begin{itemize}
-	\item measure for separation abilities of time-variant systems
+	\item measure for separation property of time-variant systems
 	\item Lagrangian view in vector fields: placing particle, moving with flow
 \end{itemize}
 
@@ -414,16 +414,16 @@ $
 $\\
 Global: 
 $
-	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{u(x)}\|_2
+	\mathop{FTLE}(\mathbf{x})=\frac{1}{\lvert T\rvert}\ln \|\nabla\mathbf{\Phi(x)}\|_2
 $\\
 {\tiny where $\| A\| _2 = \sqrt{\lambda_{\max}(A^TA)}$ is the spectral norm of matrix $A$}
 \end{block}
 \end{small}
 \begin{small}
 \begin{itemize}
-	\item measures gradient of flow map $\nabla\mathbf{u(x)}$
-	\item FTLE field responds largest where path lines diverge
-	\item ridges represents Lagrangian coherent structures: e.g. vortices, moraines
+	\item measures gradient of flow map $\nabla\mathbf{\Phi(x)}$
+	\item FTLE field largest where path lines diverge
+	\item ridges in FTLE field represent Lagrangian coherent structures: separating structures
 \end{itemize}
 \end{small}
 
@@ -536,7 +536,7 @@ Values?, 2016} are lengths of axes
 \begin{column}{.6\textwidth}
 \begin{small}
 \begin{itemize}
-	\item eigensystems/SVS are computed for cells in a grid
+	\item eigensystems/SVS are computed at samples of grid
 	\bigskip
 	\item glyphs are shapes representing eigensystems, i.e.:
 	\begin{columns}\hskip 20pt
@@ -559,7 +559,7 @@ Values?, 2016} are lengths of axes
 	\begin{itemize}
 		\item box
 		\item ellipsoid (which we use here)
-		\item superquadric
+		\item superquadrics
 	\end{itemize}
 \end{itemize}
 \end{small}
@@ -581,7 +581,7 @@ Values?, 2016} are lengths of axes
 \begin{column}{.6\textwidth}
 \begin{small}
 \begin{block}{\centering \textbf{Procedure}}
-follow major/minor eigenvectors along pathlines
+follow major/minor eigenvectors along streamlines
 \end{block}
 \end{small}
 \bigskip
@@ -820,7 +820,7 @@ Primary Requirements:\bigskip
 %	\item tensorlines\footnote[frame]{Weinstein et al. ''Tensorlines: Advection-diffusion
 %based propagation through diffusion tensor fields", 1999}: introduce artificial inertia to TFLs to increase stability
 	\item HyperLIC\footnote[frame]{Zheng and Pang ''HyperLIC", 2003}: use Line Integral Convolution from vector field visualization on TFLs
-	\item FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
+	\item TFL-FTLE\footnote[frame]{Hlawatsch et al. ''Coherent structures of
 characteristic curves in symmetric second order tensor fields", 2011}: exploit the gradient of the flow map of TFLs to generate an FTLE field
 	\item scalar measures: fractional anisotropy\footnote[frame]{Basser ''Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", 1996}, anisotropy coefficients\footnote[frame]{Westin et al. ''Geometrical
 diffusion measures for MRI from tensor basis analysis", 2002}, tensor magnitude\footnote[frame]{Lin et al. ''Asymmetric tensor field visualization for surfaces", 2011}
@@ -916,7 +916,7 @@ diffusion measures for MRI from tensor basis analysis", 2002}, tensor magnitude\
 \frametitle{{Propagation Scheme - Template}}
 \begin{columns}
 \begin{column}{.6\textwidth}
-To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
+To interpret singular value systems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
 \begin{itemize}
 	\item using light propagation volumes (LPV) similar to Dachsbacher et al. (cf. Fig.)\bigskip
 	\item exchanging itensities between neighboring cells: $\Phi_{t} = \int_a^b I(\omega)\mathop{d\omega}$, \hskip 10pt $\omega$: polar angle\\
@@ -947,7 +947,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
 \frametitle{{Propagation Scheme - Template}}
 \begin{columns}
 \begin{column}{.6\textwidth}
-To interpret eigensystems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
+To interpret singular value systems of tensors as conductivity property for light transport, we will need a propagation scheme:\bigskip
 \begin{small}
 \begin{block}{\centering \textbf{Steps}}
 \begin{enumerate}
@@ -1019,7 +1019,7 @@ To interpret eigensystems of tensors as conductivity property for light transpor
     \includegraphics[width=0.75\textwidth]
     {steps_gallery_format_arrow_alt.png}
   }
-  \caption*{Impulse response: placing of cosine lobes}
+  \caption*{Impulse response: placement of cosine lobes}
   \label{scheme}
 \end{figure}
 \begin{align*}
@@ -1122,15 +1122,15 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \frametitle{{Propagation Scheme - Stop Criterion}}
 
 \begin{itemize}
-	\item propagation steps are repeated recursively for each cell
-	\item switching source and target grid
+	\item propagation steps are repeated recursively for each cell\\
+	$\Rightarrow$ switching source and target grid
 	\item we gather the total radiant flux in the field and compare it to the last iteration:
 	\begin{block}{\centering \textbf{Stop Criterion}}
 	\begin{align*}
 	\Delta \Phi_{total} &= \sum_{c_i\in\mathcal{C}}\lvert\Delta I_i(\omega)\rvert = \sum_{c_i\in\mathcal{C}} \int_0^{2\pi} \lvert(I'_i(\omega)-I_i(\omega))\rvert \mathop{d\omega}  \overset{!}{<} \epsilon,
 	\end{align*}
 	\end{block}
-	$\Rightarrow$ a state of equilibrium is reached, where the flow map takes in a stable state\\
+	$\Rightarrow$ a state of equilibrium is reached, where the flow map $\mathcal{C}$ takes in a stable state\\
 	$\Rightarrow$ i.e., a stop sequence is initiated when above criterion is met 
 	
 \end{itemize}
@@ -1591,8 +1591,8 @@ Until now, we are able to modulate the propagated intensities with the anisotrop
 \label{inverse_volume}
 \end{figure}\bigskip
 \begin{itemize}
-	\item Inverse test field reveals strong ridges for diverging pathlines
-	\item top ridge missing for converging pathlines
+	\item Inverse test field reveals strong ridges for diverging light distributions
+	\item top ridge missing for converging transmission profiles
 \end{itemize}
 } % END OF FRAME
 
@@ -1721,14 +1721,14 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \begin{minipage}[t]{0.3\textwidth}
     \centering
     \includegraphics[height=0.7\textwidth]{gyre_ftle_org.PNG}
-	{\scriptsize c)~FTLE: Hlawatsch's approach}
+	{\scriptsize c)~TFL-FTLE}
     \label{b)}
   \end{minipage}
 \label{gyre-ftle}
 \end{figure}
 \bigskip
 \begin{itemize}
-	\item LTG is detecting ridges for diverging pathlines
+	\item LTG is detecting ridges for diverging light distributions
 	\item decreased response in gyre centers for circular overlap in difference image
 \end{itemize}
 } % END OF FRAME
@@ -1761,7 +1761,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \bigskip
 \begin{small}
 \begin{itemize}
-	\item LTG is detecting ridges for diverging pathlines
+	\item LTG is detecting ridges for diverging light distributions
 	\item response is decreased in gyre centers for measuring separation through (circular) overlap
 \end{itemize}
 \end{small}
@@ -1850,7 +1850,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \begin{minipage}[t]{0.3\textwidth}
    \centering
     \includegraphics[height=0.7\textwidth]{brain_ftle_surf_noisereduction.PNG}
-	{\scriptsize c)~FTLE: Hlawatsch's approach}
+	{\scriptsize c)~TFL-FTLE}
     \label{b)}
   \end{minipage}
 \label{brain_ftle_comp}
@@ -1874,7 +1874,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \end{minipage}\hskip 15pt
   \begin{minipage}{0.21\textwidth}
   \centering
-  \includegraphics[height=\textwidth]{brain_ftle_surf_noisereduction.PNG} {\scriptsize b) FTLE: Hlawatsch}
+  \includegraphics[height=\textwidth]{brain_ftle_surf_noisereduction.PNG} {\scriptsize b) T-FTLE}
      \label{a)}
   \end{minipage}\hskip 15pt
   \begin{minipage}{0.21\textwidth}
@@ -1919,7 +1919,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \begin{minipage}[t]{0.3\textwidth}
    \centering
     \includegraphics[width=0.7\textwidth]{heart_ftle_org.PNG}
-	{\scriptsize c)~FTLE: Hlawatsch's approach}
+	{\scriptsize c)~TFL-FTLE}
     \label{b)}
   \end{minipage}
 \label{heart-ftle-comp}
@@ -1927,7 +1927,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \bigskip
 \begin{itemize}
 	\item less noise present in the Heart dataset $\Rightarrow$ TFLs reveal correlated trajectories
-	\item FTLE response on structure obtained in the style of Hlawatsch et al.
+	\item FTLE response on structure obtained similar to Hlawatsch et al.
 \end{itemize}
 } % END OF FRAME
 
@@ -1945,7 +1945,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
   \begin{minipage}{0.3\textwidth}
   \centering
     \includegraphics[height=0.7\textwidth]{heart_ftle_org.PNG}
-	{\scriptsize b)~FTLE: Hlawatsch's approach}
+	{\scriptsize b)~TFL-FTLE}
     \label{b)}
   \end{minipage}
   \begin{minipage}{0.3\textwidth}
@@ -1959,7 +1959,7 @@ $\Rightarrow$ light intensity is propagated in circular orbits, which reveals a 
 \begin{small}
 \begin{itemize}
 	\item light ridges enhanced by rescaling for the down-left direction (red lines in c))
-	\item regions exhibit most rapid changes in direction and/or divergence of TFLs
+	\item red regions exhibit most rapid changes in direction and/or divergence of TFLs
 	\item edge artifacts: edges effect high gradients in the flow map
 \end{itemize}
 \end{small}
